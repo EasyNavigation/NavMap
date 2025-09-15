@@ -5,7 +5,9 @@
   <description>Conversions between navmap_core and ROS messages</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
   <license>GPLv3</license>
+
   <buildtool_depend>ament_cmake</buildtool_depend>
+
   <depend>rclcpp</depend>
   <depend>navmap_core</depend>
   <depend>navmap_ros_interfaces</depend>
@@ -13,6 +15,7 @@
   <depend>sensor_msgs</depend>
   <depend>pcl_conversions</depend>
   <depend>pcl_ros</depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

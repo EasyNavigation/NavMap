@@ -42,14 +42,14 @@ using navmap_ros_interfaces::msg::NavMapSurface;
 
 static inline uint8_t occ_to_u8(int8_t v)
 {
-  if (v < 0) return 255u;
-  if (v >= 100) return 254u;
+  if (v < 0) {return 255u;}
+  if (v >= 100) {return 254u;}
   return static_cast<uint8_t>(std::lround((v / 100.0) * 254.0));
 }
 
 static inline int8_t u8_to_occ(uint8_t u)
 {
-  if (u == 255u) return -1;
+  if (u == 255u) {return -1;}
   // round back to 0..100
   return static_cast<int8_t>(std::lround((u / 254.0) * 100.0));
 }
@@ -63,10 +63,9 @@ static inline navmap::NavCelId tri_index_for_cell(uint32_t i, uint32_t j, uint32
 
 // ----------------- NavMap <-> ROS message -----------------
 
-NavMap to_msg(const navmap::NavMap & nm, const std::string & frame_id)
+NavMap to_msg(const navmap::NavMap & nm)
 {
   NavMap out;
-  out.header.frame_id = frame_id;
 
   // positions
   out.positions_x.assign(nm.positions.x.begin(), nm.positions.x.end());
@@ -106,7 +105,7 @@ NavMap to_msg(const navmap::NavMap & nm, const std::string & frame_id)
   // layers (per-NavCel)
   for (const auto & lname : nm.layers.list()) {
     auto base = nm.layers.get(lname);
-    if (!base) continue;
+    if (!base) {continue;}
 
     NavMapLayer lmsg;
     lmsg.name = lname;
@@ -114,17 +113,17 @@ NavMap to_msg(const navmap::NavMap & nm, const std::string & frame_id)
 
     switch (base->type()) {
       case navmap::LayerType::U8: {
-        auto v = std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(base);
-        lmsg.data_u8 = v->data();
-      } break;
+          auto v = std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(base);
+          lmsg.data_u8 = v->data();
+        } break;
       case navmap::LayerType::F32: {
-        auto v = std::dynamic_pointer_cast<navmap::LayerView<float>>(base);
-        lmsg.data_f32 = v->data();
-      } break;
+          auto v = std::dynamic_pointer_cast<navmap::LayerView<float>>(base);
+          lmsg.data_f32 = v->data();
+        } break;
       case navmap::LayerType::F64: {
-        auto v = std::dynamic_pointer_cast<navmap::LayerView<double>>(base);
-        lmsg.data_f64 = v->data();
-      } break;
+          auto v = std::dynamic_pointer_cast<navmap::LayerView<double>>(base);
+          lmsg.data_f64 = v->data();
+        } break;
     }
     out.layers.push_back(std::move(lmsg));
   }
@@ -172,17 +171,17 @@ navmap::NavMap from_msg(const NavMap & msg)
   for (const auto & l : msg.layers) {
     switch (l.type) {
       case 0: {
-        auto v = nm.layers.add_or_get<uint8_t>(l.name, ntris, navmap::LayerType::U8);
-        v->data() = l.data_u8;
-      } break;
+          auto v = nm.layers.add_or_get<uint8_t>(l.name, ntris, navmap::LayerType::U8);
+          v->data() = l.data_u8;
+        } break;
       case 1: {
-        auto v = nm.layers.add_or_get<float>(l.name, ntris, navmap::LayerType::F32);
-        v->data() = l.data_f32;
-      } break;
+          auto v = nm.layers.add_or_get<float>(l.name, ntris, navmap::LayerType::F32);
+          v->data() = l.data_f32;
+        } break;
       case 2: {
-        auto v = nm.layers.add_or_get<double>(l.name, ntris, navmap::LayerType::F64);
-        v->data() = l.data_f64;
-      } break;
+          auto v = nm.layers.add_or_get<double>(l.name, ntris, navmap::LayerType::F64);
+          v->data() = l.data_f64;
+        } break;
     }
   }
 
@@ -214,8 +213,8 @@ navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid)
     }
   }
   auto v_id = [W](uint32_t i, uint32_t j) -> navmap::PointId {
-    return static_cast<navmap::PointId>(j * (W + 1) + i);
-  };
+      return static_cast<navmap::PointId>(j * (W + 1) + i);
+    };
 
   // 2) Triangles: 2 per cell, diagonal pattern = 0
   nm.navcels.resize(static_cast<size_t>(2ull * W * H));
@@ -253,7 +252,7 @@ navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid)
   // 5) Per-NavCel layer "occupancy" (U8), two tris per cell with same value
   auto occ = nm.layers.add_or_get<uint8_t>("occupancy", nm.navcels.size(), navmap::LayerType::U8);
   tidx = 0;
-  auto cell_id = [W](uint32_t i, uint32_t j) { return j * W + i; };
+  auto cell_id = [W](uint32_t i, uint32_t j) {return j * W + i;};
   for (uint32_t j = 0; j < H; ++j) {
     for (uint32_t i = 0; i < W; ++i) {
       const int8_t src = grid.data[cell_id(i, j)];
@@ -312,7 +311,7 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
 
         g.data.assign(static_cast<size_t>(W * H), 0);
         size_t tidx = 0;
-        auto idx_cell = [W](uint32_t i, uint32_t j) { return j * W + i; };
+        auto idx_cell = [W](uint32_t i, uint32_t j) {return j * W + i;};
         for (uint32_t j = 0; j < H; ++j) {
           for (uint32_t i = 0; i < W; ++i) {
             // Both triangle values should be equal; use the first.
@@ -335,7 +334,7 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
   }
   std::sort(xs.begin(), xs.end()); xs.erase(std::unique(xs.begin(), xs.end()), xs.end());
   std::sort(ys.begin(), ys.end()); ys.erase(std::unique(ys.begin(), ys.end()), ys.end());
-  const float res = static_cast<float>(0.5 * ((xs[1]-xs[0]) + (ys[1]-ys[0])));
+  const float res = static_cast<float>(0.5 * ((xs[1] - xs[0]) + (ys[1] - ys[0])));
 
   const uint32_t W = static_cast<uint32_t>(xs.size() - 1);
   const uint32_t H = static_cast<uint32_t>(ys.size() - 1);
@@ -349,7 +348,7 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
   g.info.origin.orientation.w = 1.0;
 
   g.data.assign(static_cast<size_t>(W * H), -1);
-  auto idx_cell = [W](uint32_t i, uint32_t j) { return j * W + i; };
+  auto idx_cell = [W](uint32_t i, uint32_t j) {return j * W + i;};
 
   for (uint32_t j = 0; j < H; ++j) {
     for (uint32_t i = 0; i < W; ++i) {
@@ -363,7 +362,8 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
 
       // Use closest_triangle (const) instead of locate_navcel (non-const)
       if (nm.closest_triangle({cx, cy, static_cast<float>(g.info.origin.position.z)},
-                              sidx, cid, closest, sq)) {
+                              sidx, cid, closest, sq))
+      {
         const uint8_t u8 = (*occ)[cid];
         g.data[idx_cell(i, j)] = u8_to_occ(u8);
       } else {

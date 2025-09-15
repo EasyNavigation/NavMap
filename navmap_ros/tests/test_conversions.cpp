@@ -40,17 +40,27 @@ static nav_msgs::msg::OccupancyGrid make_grid_4m_0p1()
   g.info.origin.orientation.w = 1.0;
   g.data.assign(W * H, 0);
 
-  auto id = [&](int i, int j) { return j * W + i; };
+  auto id = [&](int i, int j) {return j * W + i;};
 
   // Borders 100
-  for (int i = 0; i < W; ++i) { g.data[id(i, 0)] = 100; g.data[id(i, H-1)] = 100; }
-  for (int j = 0; j < H; ++j) { g.data[id(0, j)] = 100; g.data[id(W-1, j)] = 100; }
+  for (int i = 0; i < W; ++i) {
+    g.data[id(i, 0)] = 100; g.data[id(i, H - 1)] = 100;
+  }
+  for (int j = 0; j < H; ++j) {
+    g.data[id(0, j)] = 100; g.data[id(W - 1, j)] = 100;
+  }
 
   // Central 6x6 block 100 (cells [17..22]x[17..22])
-  for (int j = 17; j <= 22; ++j) for (int i = 17; i <= 22; ++i) g.data[id(i, j)] = 100;
+  for (int j = 17; j <= 22; ++j) {
+    for (int i = 17; i <= 22; ++i) {
+      g.data[id(i, j)] = 100;
+    }
+  }
 
   // Cross 50
-  for (int k = 10; k < 30; ++k) { g.data[id(20, k)] = 50; g.data[id(k, 20)] = 50; }
+  for (int k = 10; k < 30; ++k) {
+    g.data[id(20, k)] = 50; g.data[id(k, 20)] = 50;
+  }
 
   // Unknowns
   g.data[id(5, 5)] = -1;
@@ -60,8 +70,8 @@ static nav_msgs::msg::OccupancyGrid make_grid_4m_0p1()
 
 static uint8_t occ_to_u8(int8_t v)
 {
-  if (v < 0) return 255u;
-  if (v >= 100) return 254u;
+  if (v < 0) {return 255u;}
+  if (v >= 100) {return 254u;}
   return static_cast<uint8_t>(std::lround((v / 100.0) * 254.0));
 }
 
@@ -124,8 +134,8 @@ TEST(TestConversions, TriangleIndicesFollowPattern0)
 
   // Pick a cell and verify its triangles reference the expected 4 vertices.
   auto v_id = [W](uint32_t i, uint32_t j) -> navmap::PointId {
-    return static_cast<navmap::PointId>(j * (W + 1) + i);
-  };
+      return static_cast<navmap::PointId>(j * (W + 1) + i);
+    };
 
   const uint32_t ci = 10, cj = 11;
   const navmap::NavCelId t0 = tri_index_for_cell(ci, cj, W);

@@ -19,6 +19,7 @@ find_package(PCL REQUIRED COMPONENTS common io)
 
 add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}/conversions.cpp
+  src/${PROJECT_NAME}/navmap_io.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
