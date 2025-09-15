@@ -245,6 +245,9 @@ void NavMap::rebuild_geometry_accels()
     build_surface_bvh(s);
     build_surface_grid(s, 64.0f);
   }
+
+  // NOTE: Layers are per-NavCel; if navcels size changed, caller may
+  // choose to call layers.resize_all(navcels.size()) externally.
 }
 
 // -----------------------------------------------------------------------------
@@ -336,6 +339,49 @@ bool NavMap::raycast(
     hit_pt = best_p;
   }
   return any;
+}
+
+void NavMap::raycast_many(
+  const std::vector<Ray> & rays,
+  std::vector<RayHit> & out,
+  bool first_hit_only) const
+{
+  out.clear();
+  out.resize(rays.size());
+
+  for (size_t i = 0; i < rays.size(); ++i) {
+    const auto & ray = rays[i];
+    bool any = false;
+    float best_t = std::numeric_limits<float>::infinity();
+    Eigen::Vector3f best_p(0, 0, 0);
+    NavCelId best_cid = 0;
+    size_t best_surf = 0;
+
+    for (size_t s = 0; s < surfaces.size(); ++s) {
+      NavCelId cid;
+      float t;
+      Eigen::Vector3f p;
+      if (surface_raycast(surfaces[s], ray.o, ray.d, cid, t, p)) {
+        if (first_hit_only) {
+          out[i] = {true, s, cid, t, p};
+          any = true;
+          break;
+        } else {
+          if (t < best_t) {
+            best_t = t;
+            best_p = p;
+            best_cid = cid;
+            best_surf = s;
+            any = true;
+          }
+        }
+      }
+    }
+
+    if (!first_hit_only && any) {
+      out[i] = {true, best_surf, best_cid, best_t, best_p};
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -537,7 +583,7 @@ bool NavMap::locate_navcel(
     }
   }
 
-  // 3) Vertical raycast fallback (downward or upward). (downward or upward).
+  // 3) Vertical raycast fallback (downward or upward).
   Vec3 dir = opts.use_downward_ray ? Vec3(0.0f, 0.0f, -1.0f) : Vec3(0.0f, 0.0f, 1.0f);
   float best_dz = std::numeric_limits<float>::infinity();
   bool any = false;

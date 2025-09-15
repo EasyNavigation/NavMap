@@ -17,22 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @file NavMap.hpp
- * @brief Core data structures and API for NavMap: triangle-based navigable
- *        surfaces, attribute layers, and fast spatial queries.
- *
- * This header declares:
- *  - Compact SoA vertex storage (Positions, optional Colors).
- *  - Dynamic per-vertex layers with type-safe views (LayerRegistry/LayerView).
- *  - Triangle cells (NavCel) with adjacency, normals and areas.
- *  - Per-surface acceleration structures (BVH + XY uniform grid).
- *  - High-level queries: raycast, locate by position, closest triangle.
- */
 
 #ifndef NAVMAP_CORE__NAVMAP_HPP
 #define NAVMAP_CORE__NAVMAP_HPP
-
 
 #include <vector>
 #include <memory>
@@ -50,43 +37,35 @@
 namespace navmap
 {
 
-/**
- * @brief Index type for vertices in the global position/color arrays.
- */
-using PointId = uint32_t;
-/**
- * @brief Index type for triangle cells (NavCel).
- */
-using NavCelId = uint32_t;
+using PointId = uint32_t;   ///< Index into position arrays (per-vertex).
+using NavCelId = uint32_t;  ///< Index of a triangle (NavCel) in the mesh.
 
 // -----------------------------------------------------------------------------
 // Core data arrays
 // -----------------------------------------------------------------------------
 
 /**
- * @brief Structure-of-Arrays (SoA) storage for vertex positions.
+ * @brief Structure-of-arrays for storing 3D vertex positions.
  *
- * Splitting x/y/z into separate arrays improves cache locality and enables
- * tight packing for large maps. Use @ref at() to load a 3D vector by id.
+ * Positions are stored in separate x/y/z arrays for cache-friendly access
+ * and easy interop. Use @ref at() to read a vertex as Eigen::Vector3f.
+ *
+ * @invariant size() == x.size() == y.size() == z.size()
  */
 struct Positions
 {
-  /// X coordinates per vertex id.
-  std::vector<float> x;
-  /// Y coordinates per vertex id.
-  std::vector<float> y;
-  /// Z coordinates per vertex id.
-  std::vector<float> z;
+  std::vector<float> x;  ///< X coordinates
+  std::vector<float> y;  ///< Y coordinates
+  std::vector<float> z;  ///< Z coordinates
 
-  /**
-   * @brief Number of stored vertices.
-   */
+  /// @return number of vertices.
   inline size_t size() const {return x.size();}
 
   /**
-   * @brief Fetch the 3D position of a vertex.
-   * @param id Vertex id to read.
-   * @return Position as Eigen::Vector3f.
+   * @brief Returns vertex @p id as a 3D vector.
+   * @param id Vertex index.
+   * @return Eigen::Vector3f with (x,y,z).
+   * @warning No bounds checking is performed.
    */
   inline Eigen::Vector3f at(PointId id) const
   {
@@ -95,125 +74,124 @@ struct Positions
 };
 
 /**
- * @brief Optional per-vertex RGBA color buffer (8-bit channels).
+ * @brief Optional per-vertex colors (RGBA, 8-bit per channel).
  *
- * If present, the color of a NavCel can be defined as the average of its
- * three vertex colors.
+ * When present, the length of each channel must match the number of vertices.
  */
 struct Colors
 {
-  std::vector<uint8_t> r;  ///< Red channel per vertex id.
-  std::vector<uint8_t> g;  ///< Green channel per vertex id.
-  std::vector<uint8_t> b;  ///< Blue channel per vertex id.
-  std::vector<uint8_t> a;  ///< Alpha channel per vertex id.
+  std::vector<uint8_t> r;  ///< Red
+  std::vector<uint8_t> g;  ///< Green
+  std::vector<uint8_t> b;  ///< Blue
+  std::vector<uint8_t> a;  ///< Alpha
 };
 
 // -----------------------------------------------------------------------------
-// Layers (dynamic per-vertex attributes)
+// Layers (dynamic per-NavCel attributes)
 // -----------------------------------------------------------------------------
 
 /**
- * @brief Supported primitive types for dynamic layers.
+ * @brief Runtime type tag for a layer's scalar storage.
  */
 enum class LayerType : uint8_t { U8 = 0, F32 = 1, F64 = 2 };
 
 /**
- * @brief Type-erased base view over a per-vertex dynamic layer.
+ * @brief Non-templated base for runtime layer handling.
  *
- * Concrete views are templated as @ref LayerView<T>.
+ * A layer stores one scalar value **per NavCel (triangle)**.
  */
 struct LayerViewBase
 {
   virtual ~LayerViewBase() = default;
 
-  /// @brief Element type identifier of the layer.
+  /// @return type tag of the underlying storage.
   virtual LayerType type() const = 0;
-  /// @brief Layer symbolic name.
+
+  /// @return layer name (unique within the registry).
   virtual const std::string & name() const = 0;
-  /// @brief Number of elements (should match Positions::size()).
-  virtual size_t size() const = 0;
+
+  /// @return number of items (= number of NavCels).
+  virtual size_t size() const = 0;  // number of items (== number of NavCels)
 };
 
 /**
- * @brief Typed view over a dynamic per-vertex attribute layer.
+ * @brief Typed layer view storing one @p T value per NavCel.
  *
- * Provides [] access by @ref PointId and exposes the underlying std::vector.
- *
- * @tparam T Element type (must match @ref LayerType).
+ * @tparam T Scalar type (uint8_t, float, double).
+ * @note Elements are indexed by @ref NavCelId.
  */
 template<typename T>
 struct LayerView : LayerViewBase
 {
-  std::string name_;       ///< Layer name (unique key in the registry).
-  std::vector<T> data_;    ///< Contiguous storage (one value per vertex).
-  LayerType type_;         ///< Declared type of this layer.
+  std::string name_;     ///< Layer name.
+  std::vector<T> data_;  ///< Values, one per NavCel.
+  LayerType type_;       ///< Runtime type tag.
 
   /**
-   * @brief Construct a typed layer with given size and name.
-   * @param name Unique layer name.
-   * @param npoints Number of vertices (capacity of the layer).
-   * @param t Declared layer type (should be consistent with T).
+   * @brief Construct a typed view.
+   * @param name Layer name.
+   * @param nitems Number of NavCels.
+   * @param t Runtime type tag (must match T).
    */
-  LayerView(std::string name, size_t npoints, LayerType t)
-  : name_(std::move(name)), data_(npoints), type_(t) {}
+  LayerView(std::string name, size_t nitems, LayerType t)
+  : name_(std::move(name)), data_(nitems), type_(t) {}
 
-  /// @copydoc LayerViewBase::type()
   LayerType type() const override {return type_;}
-  /// @copydoc LayerViewBase::name()
   const std::string & name() const override {return name_;}
-  /// @copydoc LayerViewBase::size()
   size_t size() const override {return data_.size();}
 
-  /// @brief Mutable element access by vertex id.
-  T & operator[](PointId pid) {return data_[pid];}
-  /// @brief Const element access by vertex id.
-  const T & operator[](PointId pid) const {return data_[pid];}
-  /// @brief Mutable reference to underlying storage.
+  /// @name Element access (indexed by NavCelId).
+  ///@{
+  T & operator[](NavCelId cid) {return data_[cid];}
+  const T & operator[](NavCelId cid) const {return data_[cid];}
+  ///@}
+
+  /// @return mutable reference to internal storage.
   std::vector<T> & data() {return data_;}
-  /// @brief Const reference to underlying storage.
+  /// @return const reference to internal storage.
   const std::vector<T> & data() const {return data_;}
 };
 
 /**
- * @brief Registry of named dynamic layers, with type-erased storage.
+ * @brief Registry of named layers (per-NavCel).
  *
- * The registry owns shared pointers to layer views. Clients can create
- * or retrieve typed views via @ref add_or_get<T>() and list available
- * layers by name via @ref list().
+ * Provides creation-or-lookup semantics with @ref add_or_get().
+ * All layers in the registry are expected to have a size equal
+ * to the number of NavCels in the owning @ref NavMap.
  */
 class LayerRegistry {
 public:
   /**
-   * @brief Get (or create) a typed layer view.
+   * @brief Add a new typed layer or return an existing one with the same name.
    *
-   * If a layer with @p name already exists, returns it (cast to T).
-   * Otherwise, creates a new layer with @p npoints elements.
+   * If a layer with @p name already exists, it is returned (no resize).
+   * Otherwise a new layer is created with @p nitems elements.
    *
-   * @tparam T Element type to access (must match @p type).
-   * @param name Unique layer name.
-   * @param npoints Number of vertices (layer length).
-   * @param type Element type identifier (kept for introspection).
-   * @return Shared pointer to a typed @ref LayerView<T>.
+   * @tparam T Storage type (e.g., uint8_t, float, double).
+   * @param name Layer name (unique key).
+   * @param nitems Number of NavCels to allocate.
+   * @param type Runtime type tag corresponding to T.
+   * @return Shared pointer to the typed view.
    */
   template<typename T>
   std::shared_ptr<LayerView<T>> add_or_get(
     const std::string & name,
-    size_t npoints,
+    size_t nitems,
     LayerType type)
   {
     auto it = layers_.find(name);
     if (it != layers_.end()) {
       return std::dynamic_pointer_cast<LayerView<T>>(it->second);
     }
-    auto view = std::make_shared<LayerView<T>>(name, npoints, type);
+    auto view = std::make_shared<LayerView<T>>(name, nitems, type);
     layers_[name] = view;
     return view;
   }
 
   /**
-   * @brief Get a type-erased layer view by name.
+   * @brief Get an existing layer by name (untyped view).
    * @param name Layer name.
-   * @return Shared pointer to base view or nullptr if not found.
+   * @return Pointer to base view, or nullptr if not found.
    */
   std::shared_ptr<LayerViewBase> get(const std::string & name) const
   {
@@ -222,8 +200,8 @@ public:
   }
 
   /**
-   * @brief List all registered layer names.
-   * @return Vector of layer names.
+   * @brief List layer names currently in the registry.
+   * @return Vector of names.
    */
   std::vector<std::string> list() const
   {
@@ -235,8 +213,38 @@ public:
     return out;
   }
 
+  /**
+   * @brief Resize all known typed layers to @p nitems.
+   *
+   * Useful after changing the number of NavCels.
+   * Unknown types are ignored.
+   *
+   * @param nitems New number of items (NavCels).
+   */
+  void resize_all(size_t nitems)
+  {
+    for (auto & kv : layers_) {
+      // Only resize if underlying vector exists; keep type/name
+      // Dynamic cast for known concrete type buckets
+      // U8
+      if (auto v = std::dynamic_pointer_cast<LayerView<uint8_t>>(kv.second)) {
+        v->data_.resize(nitems);
+        continue;
+      }
+      // F32
+      if (auto v = std::dynamic_pointer_cast<LayerView<float>>(kv.second)) {
+        v->data_.resize(nitems);
+        continue;
+      }
+      // F64
+      if (auto v = std::dynamic_pointer_cast<LayerView<double>>(kv.second)) {
+        v->data_.resize(nitems);
+        continue;
+      }
+    }
+  }
+
 private:
-  /// @brief Storage of layers by name (type-erased views).
   std::unordered_map<std::string, std::shared_ptr<LayerViewBase>> layers_;
 };
 
@@ -245,72 +253,67 @@ private:
 // -----------------------------------------------------------------------------
 
 /**
- * @brief Triangle cell (NavCel) defined by 3 vertex ids.
+ * @brief Navigation cell (triangle) with geometry and adjacency.
  *
- * Stores topology (neighbor ids per edge), geometric caches (unit normal
- * and area), and a bitmask for dirty layer aggregation.
+ * Stores three vertex indices, precomputed geometric data (normal, area),
+ * and the indices of up to three neighboring NavCels across each edge.
+ *
+ * @note Layer values are no longer stored per-vertex, but per-NavCel and
+ *       live in the @ref LayerRegistry of the enclosing @ref NavMap.
  */
 struct NavCel
 {
-  /// Indices of the three vertices (counter-clockwise convention).
-  PointId v[3]{0, 0, 0};
-  /// Unit-length triangle normal in world coordinates.
-  Eigen::Vector3f normal{0.0f, 0.0f, 1.0f};
-  /// Triangle area (computed from positions).
-  float area{0.0f};
-  /**
-   * @brief Neighbor triangle ids across each edge.
-   *
-   * neighbor[i] is the triangle across edge (v[i], v[(i+1)%3]).
-   * A value of max<uint32_t>() means border (no neighbor).
-   */
-  NavCelId neighbor[3]{
+  PointId v[3]{0, 0, 0};          ///< Indices into @ref Positions
+  Eigen::Vector3f normal{0.0f, 0.0f, 1.0f};    ///< Unit normal
+  float area{0.0f};               ///< Triangle area
+  NavCelId neighbor[3]{           ///< Neighbor cids across edges 0,1,2
     std::numeric_limits<uint32_t>::max(),
     std::numeric_limits<uint32_t>::max(),
     std::numeric_limits<uint32_t>::max()
   };
-  /// Bitmask: per-layer dirty flags (user-managed).
-  uint32_t layer_dirty_mask{0};
+  uint32_t layer_dirty_mask{0};   ///< Reserved for future per-layer flags
 };
 
 /**
- * @brief Node of a binary BVH over triangle primitives (per surface).
+ * @brief Node in a per-surface bounding volume hierarchy (BVH).
+ *
+ * Leaves reference a compact range into the surface's primitive list.
  */
 struct BVHNode
 {
-  AABB box;     ///< Node bounding box.
-  int left{-1}; ///< Left child index (or -1).
-  int right{-1};///< Right child index (or -1).
-  int start{0}; ///< Leaf: start index in @ref Surface::prim_indices.
-  int count{0}; ///< Leaf: number of primitives in this node.
-  /// @brief Whether this node is a leaf (count > 0).
+  AABB box;     ///< Bounding box of this node
+  int left{-1};     ///< Left child index (or -1)
+  int right{-1};    ///< Right child index (or -1)
+  int start{0};     ///< Start index in primitive array (leaf)
+  int count{0};     ///< Number of primitives in leaf (0 for inner nodes)
   bool is_leaf() const {return count > 0;}
 };
 
 /**
- * @brief Lightweight 2D uniform grid for seeding locate() without a hint.
+ * @brief Lightweight 2D uniform grid for accelerating point location.
  *
- * Buckets triangle ids by XY cells to quickly find candidates near a query
- * position. Used as a fast pre-filter prior to precise checks.
+ * Used as a seed structure for @ref locate_navcel() when no hint is provided.
+ * Buckets store NavCel indices whose XY AABB overlaps the cell.
  */
 struct UniformGrid2D
 {
-  Eigen::Vector2f origin{0.0f, 0.0f};     ///< World-space origin of cell (0,0).
-  Eigen::Vector2f cell_size{0.25f, 0.25f};///< Cell size in meters (dx, dy).
-  int nx{0};                               ///< Number of cells along X.
-  int ny{0};                               ///< Number of cells along Y.
-  std::vector<std::vector<int>> buckets;   ///< Per-cell lists of triangle ids.
+  Eigen::Vector2f origin{0.0f, 0.0f};     ///< Grid origin (XY)
+  Eigen::Vector2f cell_size{0.25f, 0.25f};   ///< Size of each cell
+  int nx{0};    ///< Number of cells in X
+  int ny{0};    ///< Number of cells in Y
+  std::vector<std::vector<int>> buckets;  ///< Cell -> list of candidate cids
 
-  /**
-   * @brief Whether the grid is built and usable.
-   */
+  /// @return true if the grid is initialized and non-empty.
   inline bool valid() const
   {
     return nx > 0 && ny > 0 && !buckets.empty();
   }
 
   /**
-   * @brief Convert (ix, iy) to linear index or -1 if out of range.
+   * @brief Convert cell coordinates to linear index.
+   * @param ix Cell x.
+   * @param iy Cell y.
+   * @return Linear index or -1 if out of bounds.
    */
   inline int index(int ix, int iy) const
   {
@@ -321,9 +324,9 @@ struct UniformGrid2D
   }
 
   /**
-   * @brief Compute the grid cell coordinates that contain point @p p (XY).
-   * @param p XY position (Z ignored).
-   * @return Integer cell coordinates (ix, iy).
+   * @brief Return the cell containing point @p p (XY-plane).
+   * @param p XY point.
+   * @return Integer cell coordinates (may be outside [0,nx/ny)).
    */
   inline Eigen::Vector2i cell_of(const Eigen::Vector2f & p) const
   {
@@ -334,20 +337,48 @@ struct UniformGrid2D
 };
 
 /**
- * @brief A navigable surface (e.g., a floor) with its own acceleration data.
+ * @brief A connected set of NavCels in a common reference frame.
  *
- * A surface contains a subset of triangle ids, an AABB over those triangles,
- * a BVH for ray and nearest queries, and a 2D XY grid for quick seeding.
- * The @ref frame_id can be used to relate the surface to a TF frame.
+ * Each @ref Surface owns a subset of NavCels, plus its own BVH and
+ * uniform seed grid. The @ref frame_id is for external consumers (ROS).
  */
 struct Surface
 {
-  std::string frame_id;            ///< Optional frame id (for ROS integration).
-  std::vector<NavCelId> navcels;   ///< Triangle ids that belong to this surface.
-  AABB aabb;                       ///< Bounding box of all triangles in surface.
-  std::vector<int> prim_indices;   ///< Primitive ids (NavCel ids) in BVH order.
-  std::vector<BVHNode> bvh;        ///< Compact binary BVH nodes.
-  UniformGrid2D grid;              ///< XY uniform grid buckets.
+  std::string frame_id;           ///< Frame id of this surface
+  std::vector<NavCelId> navcels;  ///< NavCels belonging to this surface
+  AABB aabb;                      ///< Bounds of the surface geometry
+  std::vector<int> prim_indices;  ///< Compact list of cids used by BVH leaves
+  std::vector<BVHNode> bvh;       ///< BVH nodes
+  UniformGrid2D grid;             ///< Seed grid for locate()
+};
+
+// -----------------------------------------------------------------------------
+// Rays
+// -----------------------------------------------------------------------------
+
+/**
+ * @brief Simple ray (origin + direction).
+ *
+ * @note Direction should be normalized for consistent @ref t scaling.
+ */
+struct Ray
+{
+  Eigen::Vector3f o;  ///< Origin of the ray
+  Eigen::Vector3f d;  ///< Direction of the ray (should be normalized)
+};
+
+/**
+ * @brief Result of a raycast against the NavMap.
+ *
+ * All fields are valid only when @ref hit is true.
+ */
+struct RayHit
+{
+  bool hit{false};         ///< True if the ray hit any triangle
+  size_t surface{0};       ///< Index of surface hit
+  NavCelId cid{0};         ///< Id of the NavCel hit
+  float t{0.0f};           ///< Distance along the ray
+  Eigen::Vector3f p;       ///< World coordinates of intersection
 };
 
 // -----------------------------------------------------------------------------
@@ -355,49 +386,53 @@ struct Surface
 // -----------------------------------------------------------------------------
 
 /**
- * @brief Main map container with geometry, layers and query API.
+ * @brief Main container for navigable surfaces, geometry, and layers.
  *
- * The NavMap owns the global vertex buffers, per-triangle data and
- * a set of surfaces (each with its own accelerations). Typical usage:
- *  1) Fill positions, colors (optional), navcels and surfaces.
- *  2) Call @ref rebuild_geometry_accels().
- *  3) Perform queries: @ref locate_navcel(), @ref raycast(), @ref closest_triangle().
+ * A @ref NavMap aggregates vertex positions, a list of @ref NavCel triangles,
+ * one or more @ref Surface partitions, and a @ref LayerRegistry with arbitrary
+ * per-NavCel scalar attributes (e.g., occupancy, traversability).
+ *
+ * Typical workflow:
+ *  - Fill @ref positions, @ref navcels, and @ref surfaces.
+ *  - Call @ref rebuild_geometry_accels() to compute normals, areas, BVHs, grids.
+ *  - Create layers via @ref layers.add_or_get() sized to navcels.size().
+ *  - Query with @ref locate_navcel(), @ref raycast(), or @ref closest_triangle().
  */
 class NavMap {
 public:
-  Positions positions;              ///< Global vertex positions (SoA).
-  std::optional<Colors> colors;     ///< Optional RGBA colors per vertex.
-  std::vector<NavCel> navcels;      ///< All triangle cells.
-  std::vector<Surface> surfaces;    ///< Set of surfaces (e.g., floors).
-  LayerRegistry layers;             ///< Dynamic per-vertex attribute layers.
+  Positions positions;                 ///< Vertex positions (SoA)
+  std::optional<Colors> colors;        ///< Optional per-vertex colors
+  std::vector<NavCel> navcels;         ///< All triangles (global indexing)
+  std::vector<Surface> surfaces;       ///< Surfaces (partitions of navcels)
+  LayerRegistry layers;                ///< Per-NavCel layers
 
   /**
-   * @brief Recompute per-triangle normals/areas, adjacency and per-surface
-   *        accelerations (BVH + uniform grid).
+   * @brief Recompute derived geometry and acceleration structures.
    *
-   * Must be called after changing geometry (positions, navcels or surfaces).
+   * Computes triangle normals and areas, builds adjacency, and builds
+   * per-surface BVH and uniform seed grid. Layers are not resized.
+   * Call @ref LayerRegistry::resize_all() separately if needed.
    */
   void rebuild_geometry_accels();
 
   /**
-   * @brief Build triangle adjacency across shared edges.
+   * @brief Build topological adjacency between neighboring NavCels.
    *
-   * Usually invoked by @ref rebuild_geometry_accels(). Safe to call directly
-   * if you update topology manually.
+   * Two triangles are neighbors if they share an undirected edge.
+   * Called by @ref rebuild_geometry_accels().
    */
   void build_adjacency();
 
   /**
-   * @brief Notify that a vertex attribute changed (hook for future updates).
-   * @param pid Vertex id that changed.
-   * @note Currently a no-op; kept for API stability.
+   * @brief Mark a vertex as updated (reserved for future cache invalidation).
+   * @param pid Vertex id.
    */
   void mark_vertex_updated(PointId /*pid*/) {}
 
   /**
-   * @brief Return the three neighbor triangle ids of a NavCel.
-   * @param cid Triangle id.
-   * @return Array [n0, n1, n2] (max<uint32_t>() if border).
+   * @brief Return the three neighbor NavCel ids of triangle @p cid.
+   * @param cid NavCel id.
+   * @return Array with neighbor ids or max uint32_t if boundary.
    */
   std::array<NavCelId, 3> get_neighbors(NavCelId cid) const
   {
@@ -407,14 +442,13 @@ public:
   }
 
   /**
-   * @brief Raycast against all surfaces.
-   *
+   * @brief Raycast against all surfaces to find the closest hit.
    * @param o Ray origin (world).
-   * @param d Ray direction (world).
-   * @param hit_cid Output: id of the hit triangle.
-   * @param t Output: parametric distance along the ray.
-   * @param hit_pt Output: world hit position.
-   * @return True if the ray hits any triangle.
+   * @param d Ray direction (normalized).
+   * @param[out] hit_cid NavCel id hit (valid if return is true).
+   * @param[out] t Distance along ray (valid if return is true).
+   * @param[out] hit_pt World-space intersection point.
+   * @return true if any triangle was hit.
    */
   bool raycast(
     const Eigen::Vector3f & o,
@@ -424,43 +458,53 @@ public:
     Eigen::Vector3f & hit_pt) const;
 
   /**
-   * @brief Compute the mean of a per-vertex layer over a triangle's vertices.
-   *
-   * @tparam T Layer element type.
-   * @param cid Triangle id.
-   * @param layer Typed layer view with at least 3 entries for the triangle's vertices.
-   * @return Arithmetic mean of the three vertex values.
+   * @brief Batched raycast.
+   * @param rays Input rays.
+   * @param[out] out Output hits (parallel to @p rays).
+   * @param first_hit_only If true, stop at the first surface that hits.
+   */
+  void raycast_many(
+    const std::vector<Ray> & rays,
+    std::vector<RayHit> & out,
+    bool first_hit_only = true) const;
+
+  // --- Per-NavCel layer value access ---
+
+  /**
+   * @brief Read the value of a per-NavCel layer at triangle @p cid.
+   * @tparam T Layer storage type.
+   * @param cid NavCel id.
+   * @param layer Typed layer view.
+   * @return The value for triangle @p cid.
    */
   template<typename T>
-  T navcel_mean(NavCelId cid, const LayerView<T> & layer) const
+  T navcel_value(NavCelId cid, const LayerView<T> & layer) const
   {
-    const auto & c = navcels[cid];
-    return (layer[c.v[0]] + layer[c.v[1]] + layer[c.v[2]]) / static_cast<T>(3);
+    return layer[cid];
   }
 
   /**
-   * @brief Options for locating a triangle under/near a world position.
+   * @brief Options for locate_navcel().
    *
-   * - hint_cid: Optional starting triangle for a local walk.
-   * - hint_surface: Optional surface index hint.
-   * - planar_eps: Tolerance for barycentric inside-test after planar projection.
-   * - height_eps: (Optional) height preference band around the query.
-   * - use_downward_ray: If true, try downward ray first, then upward.
+   * - @ref hint_cid : starting triangle for walking (if provided).
+   * - @ref hint_surface : optional surface restriction.
+   * - @ref planar_eps : in-triangle barycentric tolerance.
+   * - @ref height_eps : vertical tolerance when gating by AABB.
+   * - @ref use_downward_ray : if grid fails, raycast down; else up.
    */
   struct LocateOpts
   {
-    std::optional<NavCelId> hint_cid;
-    std::optional<size_t> hint_surface;
-    float planar_eps = 1e-4f;
-    float height_eps = 0.50f;
-    bool use_downward_ray = true;
+    std::optional<NavCelId> hint_cid;    ///< Optional triangle hint
+    std::optional<size_t> hint_surface;  ///< Optional surface hint
+    float planar_eps = 1e-4f;            ///< Barycentric tolerance in plane
+    float height_eps = 0.50f;            ///< Z tolerance for AABB gating
+    bool use_downward_ray = true;        ///< Downward ray on fallback
   };
 
   /**
-   * @brief Locate a NavCel under/near a world position (convenience overload).
+   * @brief Locate the triangle under / near a world point (convenience).
    *
-   * Uses default @ref LocateOpts. On success, also returns barycentric
-   * coordinates and the hit/projection point if @p hit_pt is non-null.
+   * Uses default @ref LocateOpts. See the full overload for details.
    */
   bool locate_navcel(
     const Eigen::Vector3f & p_world,
@@ -470,19 +514,20 @@ public:
     Eigen::Vector3f * hit_pt);
 
   /**
-   * @brief Locate a NavCel under/near a world position with custom options.
+   * @brief Locate the triangle under / near a world point.
    *
-   * The algorithm may try (in order): walk from hint, grid-based seed over
-   * XY cells, and/or vertical raycasts (down/up) to disambiguate stacked
-   * surfaces (e.g., multi-floor buildings).
+   * Strategy:
+   *  1) If @ref LocateOpts::hint_cid is provided, try walking neighbors.
+   *  2) Else, try a per-surface 2D seed grid near (x,y) with planar test.
+   *  3) If still not found, vertical raycast (downward or upward).
    *
    * @param p_world Query point in world coordinates.
-   * @param surface_idx Output surface index that owns the found triangle.
-   * @param cid Output triangle id.
-   * @param bary Output barycentric coordinates (u, v, w).
-   * @param hit_pt Optional output: contact/projection point on the triangle.
-   * @param opts Algorithm options (see @ref LocateOpts).
-   * @return True if a suitable triangle is found.
+   * @param[out] surface_idx Surface index owning the located triangle.
+   * @param[out] cid Located NavCel id.
+   * @param[out] bary Barycentric coords of projected point on triangle.
+   * @param[out] hit_pt Optional: the projected point on the surface.
+   * @param opts Tuning options (see @ref LocateOpts).
+   * @return true if a triangle has been located.
    */
   bool locate_navcel(
     const Eigen::Vector3f & p_world,
@@ -493,18 +538,18 @@ public:
     const LocateOpts & opts);
 
   /**
-   * @brief Find the triangle closest to a world position.
+   * @brief Find the closest triangle to a point.
    *
-   * Optionally restricts the search to a single surface. Returns the closest
-   * point on that triangle and the squared distance.
+   * Traverses per-surface BVHs with distance lower-bounds; returns the
+   * closest triangle, the closest point on it, and the squared distance.
    *
-   * @param p_world Query position.
-   * @param surface_idx Output surface index.
-   * @param cid Output triangle id.
-   * @param closest_point Output closest point on the triangle.
-   * @param sqdist Output squared distance to the triangle.
-   * @param restrict_surface If >= 0, restrict search to this surface index.
-   * @return True if any triangle is found.
+   * @param p_world Query point in world coordinates.
+   * @param[out] surface_idx Surface index of the closest triangle.
+   * @param[out] cid NavCel id of the closest triangle.
+   * @param[out] closest_point Closest point on that triangle.
+   * @param[out] sqdist Squared distance to @p p_world.
+   * @param restrict_surface If >= 0, restrict search to this surface.
+   * @return true if any triangle was considered.
    */
   bool closest_triangle(
     const Eigen::Vector3f & p_world,
@@ -517,29 +562,15 @@ public:
 private:
   // Builders and traversal helpers.
 
-  /**
-   * @brief Build the BVH for a surface (nodes + primitive order).
-   * @param s Surface to update.
-   */
+  /// @brief Build a per-surface BVH for fast ray queries.
   void build_surface_bvh(Surface & s);
 
-  /**
-   * @brief Build a coarse XY uniform grid for fast seeding.
-   * @param s Surface to update.
-   * @param target_cells_per_side Desired grid resolution (approximate).
-   */
+  /// @brief Build a per-surface 2D uniform grid for seeding locate().
   void build_surface_grid(Surface & s, float target_cells_per_side = 64.0f);
 
   /**
-   * @brief BVH-accelerated raycast against a single surface.
-   *
-   * @param s Surface to test.
-   * @param o Ray origin.
-   * @param d Ray direction.
-   * @param hit_cid Output triangle id on hit.
-   * @param t_out Output ray parameter.
-   * @param hit_pt Output world hit position.
-   * @return True if the ray hits any triangle of the surface.
+   * @brief Raycast against a single surface BVH.
+   * @return true if any triangle was hit.
    */
   bool surface_raycast(
     const Surface & s,
@@ -550,16 +581,8 @@ private:
     Eigen::Vector3f & hit_pt) const;
 
   /**
-   * @brief Walk across adjacent triangles starting from a hint, projecting
-   *        @p p to each triangle plane and testing barycentric inclusion.
-   *
-   * @param start_cid Starting triangle id.
-   * @param p Query position.
-   * @param cid_out Output triangle id where point lies (if found).
-   * @param bary Output barycentric coordinates.
-   * @param hit_pt Optional output: projected point on the triangle.
-   * @param planar_eps Barycentric tolerance.
-   * @return True if a containing triangle is found by walking.
+   * @brief Walk across neighbors starting from @p start_cid.
+   * @return true if @p p projects barycentrically inside some triangle.
    */
   bool locate_by_walking(
     NavCelId start_cid,
@@ -570,15 +593,8 @@ private:
     float planar_eps);
 
   /**
-   * @brief Seed locate by querying the XY uniform grid and testing candidates.
-   *
-   * @param s Surface to query.
-   * @param p Query position.
-   * @param cid_out Output triangle id.
-   * @param bary_out Output barycentric coordinates.
-   * @param hit_pt Optional output: projected point on the triangle.
-   * @param planar_eps Barycentric tolerance.
-   * @return True if a containing triangle is found in nearby buckets.
+   * @brief Attempt a grid-seeded barycentric test around (x,y).
+   * @return true if a containing triangle is found.
    */
   bool locate_via_grid(
     const Surface & s,
@@ -589,14 +605,8 @@ private:
     float planar_eps) const;
 
   /**
-   * @brief Search the closest triangle in a surface using BVH pruning.
-   *
-   * @param s Surface to search.
-   * @param p Query point.
-   * @param cid Output triangle id.
-   * @param q Output closest point on the triangle.
-   * @param best_sq Input/Output: current best squared distance (updated if improved).
-   * @return True if any candidate improved @p best_sq.
+   * @brief BVH traversal to find the closest triangle in one surface.
+   * @return true if any candidate improved the best squared distance.
    */
   bool surface_closest_triangle(
     const Surface & s,
@@ -618,6 +628,5 @@ inline bool NavMap::locate_navcel(
 }
 
 }  // namespace navmap
-
 
 #endif  // NAVMAP_CORE__NAVMAP_HPP

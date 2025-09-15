@@ -23,6 +23,7 @@
 #include <limits>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 #include "navmap_core/NavMap.hpp"
 
@@ -40,21 +41,6 @@ inline void set_navcel(
   nm.navcels[cid].v[0] = a;
   nm.navcels[cid].v[1] = b;
   nm.navcels[cid].v[2] = c;
-}
-
-// Helper: barycentric interpolation for a scalar layer on a located point.
-template<typename T>
-float interp_layer_bary(
-  const NavMap & nm,
-  const LayerView<T> & layer,
-  NavCelId cid,
-  const Eigen::Vector3f & bary)
-{
-  const auto & cel = nm.navcels[cid];
-  const float v0 = static_cast<float>(layer[cel.v[0]]);
-  const float v1 = static_cast<float>(layer[cel.v[1]]);
-  const float v2 = static_cast<float>(layer[cel.v[2]]);
-  return bary.x() * v0 + bary.y() * v1 + bary.z() * v2;
 }
 
 // Helper: make a flat square as two triangles on z=0.
@@ -77,29 +63,36 @@ inline void make_flat_square(NavMap & nm)
 
 TEST(NavMap_TypesAndLayers, LayerRegistryAddGetList) {
   NavMap nm;
-  nm.positions.x.resize(5);
-  nm.positions.y.resize(5);
-  nm.positions.z.resize(5);
 
-  auto occ = nm.layers.add_or_get<uint8_t>("occupancy", 5, LayerType::U8);
+  // Build a trivial mesh with 3 triangles to test sizes
+  nm.positions.x = {0, 1, 0, 1, 2, 1};
+  nm.positions.y = {0, 0, 1, 0, 0, 1};
+  nm.positions.z = {0, 0, 0, 0, 0, 0};
+  nm.navcels.resize(3);
+  set_navcel(nm, 0, 0, 1, 2);
+  set_navcel(nm, 1, 3, 4, 5);
+  set_navcel(nm, 2, 0, 2, 3);
+  nm.surfaces.resize(1);
+  nm.surfaces[0].navcels = {0, 1, 2};
+  nm.rebuild_geometry_accels();
+
+  auto occ = nm.layers.add_or_get<uint8_t>("occupancy", nm.navcels.size(), LayerType::U8);
   ASSERT_TRUE(occ);
   EXPECT_EQ(occ->name(), "occupancy");
-  EXPECT_EQ(occ->size(), 5u);
+  EXPECT_EQ(occ->size(), nm.navcels.size());
 
-  auto trav = nm.layers.add_or_get<float>("traversability", 5, LayerType::F32);
+  auto trav = nm.layers.add_or_get<float>("traversability", nm.navcels.size(), LayerType::F32);
   ASSERT_TRUE(trav);
   EXPECT_EQ(trav->name(), "traversability");
-  EXPECT_EQ(trav->size(), 5u);
+  EXPECT_EQ(trav->size(), nm.navcels.size());
 
-  auto again = std::dynamic_pointer_cast<LayerView<uint8_t>>(
-      nm.layers.get("occupancy"));
+  auto again = std::dynamic_pointer_cast<LayerView<uint8_t>>(nm.layers.get("occupancy"));
   ASSERT_TRUE(again);
   EXPECT_EQ(again.get(), occ.get());
 
   const auto names = nm.layers.list();
   EXPECT_NE(std::find(names.begin(), names.end(), "occupancy"), names.end());
-  EXPECT_NE(std::find(names.begin(), names.end(), "traversability"),
-            names.end());
+  EXPECT_NE(std::find(names.begin(), names.end(), "traversability"), names.end());
 }
 
 TEST(NavMap_TypesAndLayers, ColorsOptionalPresent) {
@@ -121,9 +114,9 @@ TEST(NavMap_TypesAndLayers, ColorsOptionalPresent) {
   EXPECT_EQ(nm.colors->a.size(), 3u);
 }
 
-// ----------------------------- Adjacency & mean ------------------------------
+// ----------------------------- Adjacency & tri-values ------------------------
 
-TEST(NavMap_AdjacencyAndMean, BuildAdjacencyAndNavCelMean) {
+TEST(NavMap_AdjacencyAndMean, BuildAdjacencyAndTriangleValue) {
   NavMap nm;
   make_flat_square(nm);
 
@@ -135,29 +128,23 @@ TEST(NavMap_AdjacencyAndMean, BuildAdjacencyAndNavCelMean) {
   EXPECT_TRUE(link01);
   EXPECT_TRUE(link10);
 
-  // Add an occupancy layer (uint8_t). Use small values to avoid overflow.
-  auto occ = nm.layers.add_or_get<uint8_t>("occupancy", 4, LayerType::U8);
+  // Occupancy layer PER-TRIANGLE (uint8_t).
+  auto occ = nm.layers.add_or_get<uint8_t>("occupancy", nm.navcels.size(), LayerType::U8);
   (*occ)[0] = 30;
-  (*occ)[1] = 60;
-  (*occ)[2] = 90;
-  (*occ)[3] = 120;
+  (*occ)[1] = 200;
 
-  // navcel_mean<uint8_t> returns uint8_t. With the chosen values it is safe.
-  const uint8_t mean0 = nm.navcel_mean<uint8_t>(0, *occ);
-  const uint8_t mean1 = nm.navcel_mean<uint8_t>(1, *occ);
-  EXPECT_EQ(mean0, static_cast<uint8_t>((30 + 60 + 90) / 3));
-  EXPECT_EQ(mean1, static_cast<uint8_t>((90 + 60 + 120) / 3));
+  // navcel_value now equals per-triangle value (compat alias).
+  const uint8_t val0 = nm.navcel_value<uint8_t>(0, *occ);
+  const uint8_t val1 = nm.navcel_value<uint8_t>(1, *occ);
+  EXPECT_EQ(val0, 30);
+  EXPECT_EQ(val1, 200);
 
-  // Also test a float layer mean for precision.
-  auto trav = nm.layers.add_or_get<float>("traversability", 4, LayerType::F32);
-  (*trav)[0] = 0.1f;
-  (*trav)[1] = 0.3f;
-  (*trav)[2] = 0.7f;
-  (*trav)[3] = 1.0f;
-  const float fmean0 = nm.navcel_mean<float>(0, *trav);
-  const float fmean1 = nm.navcel_mean<float>(1, *trav);
-  EXPECT_NEAR(fmean0, (0.1f + 0.3f + 0.7f) / 3.0f, kEps);
-  EXPECT_NEAR(fmean1, (0.7f + 0.3f + 1.0f) / 3.0f, kEps);
+  // Float layer per-triangle.
+  auto trav = nm.layers.add_or_get<float>("traversability", nm.navcels.size(), LayerType::F32);
+  (*trav)[0] = 0.25f;
+  (*trav)[1] = 0.75f;
+  EXPECT_NEAR(nm.navcel_value<float>(0, *trav), 0.25f, kEps);
+  EXPECT_NEAR(nm.navcel_value<float>(1, *trav), 0.75f, kEps);
 }
 
 // ------------------------------- Raycast (flat) ------------------------------
@@ -241,13 +228,10 @@ TEST(NavMap_Locate, FlatFloorWalkingWithHint) {
 TEST(NavMap_MultiFloor, TwoStackedFloorsLocateToClosest) {
   NavMap nm;
 
-  // Floor 0 at z=0 (same 2-triangle square).
-  nm.positions.x = {0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f};
-  nm.positions.y = {0.0f, 0.0f, 1.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f};
-  nm.positions.z = {0.0f, 0.0f, 0.0f, 0.0f,
-    3.0f, 3.0f, 3.0f, 3.0f};                  // Floor 1 at z=3
+  // Floor 0 at z=0 (same 2-triangle square). Floor 1 at z=3.
+  nm.positions.x = {0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f};
+  nm.positions.y = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f};
+  nm.positions.z = {0.0f, 0.0f, 0.0f, 0.0f, 3.0f, 3.0f, 3.0f, 3.0f};
 
   nm.navcels.resize(4);
   // Floor 0
@@ -281,7 +265,7 @@ TEST(NavMap_MultiFloor, TwoStackedFloorsLocateToClosest) {
 
 // ---------------------------- Non-flat (terrain) ----------------------------
 
-TEST(NavMap_Terrain, SlopedSurfaceLocateAndInterpolation) {
+TEST(NavMap_Terrain, SlopedSurfaceLocateAndTriangleValue) {
   NavMap nm;
 
   // Make a 2x1 rectangle split into two triangles forming a slope on z.
@@ -312,59 +296,36 @@ TEST(NavMap_Terrain, SlopedSurfaceLocateAndInterpolation) {
   EXPECT_GT(hit.z(), 0.15f);
   EXPECT_LT(hit.z(), 0.65f);
 
-  // Add traversability and check barycentric interpolation at the hit.
-  auto trav = nm.layers.add_or_get<float>("traversability", 4, LayerType::F32);
-  (*trav)[0] = 0.0f;
-  (*trav)[1] = 0.5f;
-  (*trav)[2] = 0.8f;
-  (*trav)[3] = 1.0f;
+  // Traversability per-triangle (constant over the triangle).
+  auto trav = nm.layers.add_or_get<float>("traversability", nm.navcels.size(), LayerType::F32);
+  (*trav)[0] = 0.2f;
+  (*trav)[1] = 0.9f;
 
-  const float trav_pt = interp_layer_bary<float>(nm, *trav, cid, bary);
-  EXPECT_GE(trav_pt, 0.0f);
-  EXPECT_LE(trav_pt, 1.0f);
+  const float trav_at_hit = nm.navcel_value<float>(cid, *trav);
+  EXPECT_GE(trav_at_hit, 0.0f);
+  EXPECT_LE(trav_at_hit, 1.0f);
 }
 
-// ----------------------------- Layers: occupancy -----------------------------
+// ------------------------------- Layers: occupancy -----------------------------
 
-TEST(NavMap_Layers, OccupancySingleAndMultiLayer) {
+TEST(NavMap_Layers, OccupancyPerTriangleAndLookup) {
   NavMap nm;
   make_flat_square(nm);
 
-  // Occupancy (Nav2 style): 0 free, 254 occupied, 255 unknown.
-  auto occ = nm.layers.add_or_get<uint8_t>("occupancy", 4, LayerType::U8);
+  // Occupancy (Nav2 style): 0 free, 254 occupied, 255 unknown. Per-triangle.
+  auto occ = nm.layers.add_or_get<uint8_t>("occupancy", nm.navcels.size(), LayerType::U8);
   (*occ)[0] = 0;      // free
-  (*occ)[1] = 100;    // mid
-  (*occ)[2] = 254;    // lethal
-  (*occ)[3] = 255;    // unknown
+  (*occ)[1] = 254;    // lethal
 
-  // Means in uint8 (safe sums here are <256 for triangle 0).
-  const uint8_t occ_mean0 = nm.navcel_mean<uint8_t>(0, *occ);
-  EXPECT_EQ(occ_mean0, static_cast<uint8_t>((0 + 100 + 254) / 3));
-
-  // Multi-layer: add color and traversability.
-  nm.colors.emplace();
-  nm.colors->r = {10, 20, 30, 40};
-  nm.colors->g = {50, 60, 70, 80};
-  nm.colors->b = {90, 100, 110, 120};
-  nm.colors->a = {255, 255, 255, 255};
-
-  auto trav = nm.layers.add_or_get<float>("traversability", 4, LayerType::F32);
-  (*trav)[0] = 0.3f;
-  (*trav)[1] = 0.6f;
-  (*trav)[2] = 0.9f;
-  (*trav)[3] = 0.2f;
-
-  // Locate a point and interpolate traversability there.
-  Eigen::Vector3f p(0.75f, 0.25f, 0.4f);
+  // Locate a point in the second triangle area (roughly).
+  Eigen::Vector3f p(0.75f, 0.75f, 0.4f);
   size_t sidx = 0u;
   NavCelId cid = 0u;
   Eigen::Vector3f bary(0.0f, 0.0f, 0.0f);
   Eigen::Vector3f hit;
   ASSERT_TRUE(nm.locate_navcel(p, sidx, cid, bary, &hit));
-
-  const float trav_at_hit = interp_layer_bary<float>(nm, *trav, cid, bary);
-  EXPECT_GE(trav_at_hit, 0.0f);
-  EXPECT_LE(trav_at_hit, 1.0f);
+  ASSERT_TRUE(cid == 0 || cid == 1);
+  EXPECT_EQ(nm.navcel_value<uint8_t>(cid, *occ), (cid == 0 ? 0 : 254));
 }
 
 // ------------------------------- Edge conditions -----------------------------
