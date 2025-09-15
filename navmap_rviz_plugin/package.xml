@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
+  <name>navmap_rviz_plugin</name>
+  <version>0.1.0</version>
+  <description>RViz2 display plugin for NavMap surfaces and layers.</description>
+  <maintainer email="maintainer@example.com">NavMap Team</maintainer>
+  <license>GPL-3.0-or-later</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>pluginlib</depend>
+  <depend>rviz_common</depend>
+
+  <depend>rviz_rendering</depend>
+  <depend>rviz_default_plugins</depend>
+  <depend>navmap_ros_interfaces</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>visualization_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <rviz plugin="${prefix}/resource/navmap_rviz_plugin_description.xml"/>
+  </export>
+</package>

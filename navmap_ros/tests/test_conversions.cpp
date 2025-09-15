@@ -118,7 +118,7 @@ TEST(TestConversions, RoundTrip_ExactEquality_4m_0p1)
 
 TEST(TestConversions, TriangleIndicesFollowPattern0)
 {
-  const int W = 40, H = 40;
+  const int W = 40;
   auto g = make_grid_4m_0p1();
   auto nm = from_occupancy_grid(g);
 

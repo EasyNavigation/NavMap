@@ -1,0 +1,8 @@
+<library path="navmap_rviz_plugin">
+  <class
+      name="navmap_rviz_plugin/NavMapDisplay"
+      type="navmap_rviz_plugin::NavMapDisplay"
+      base_class_type="rviz_common::Display">
+    <description>Visualize NavMap triangles and layers, with optional normals and alpha.</description>
+  </class>
+</library>

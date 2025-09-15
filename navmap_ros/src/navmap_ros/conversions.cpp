@@ -30,7 +30,6 @@
 #include <navmap_core/Geometry.hpp>
 #include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
 #include <navmap_ros_interfaces/msg/nav_map_surface.hpp>
-#include <navmap_ros_interfaces/msg/nav_map_surface_grid_meta.hpp>
 
 namespace navmap_ros
 {
@@ -38,7 +37,6 @@ namespace navmap_ros
 using navmap_ros_interfaces::msg::NavMap;
 using navmap_ros_interfaces::msg::NavMapLayer;
 using navmap_ros_interfaces::msg::NavMapSurface;
-using navmap_ros_interfaces::msg::NavMapSurfaceGridMeta;
 
 // ----------------- Helpers (encoding) -----------------
 
@@ -102,8 +100,6 @@ NavMap to_msg(const navmap::NavMap & nm, const std::string & frame_id)
     NavMapSurface smsg;
     smsg.frame_id = s.frame_id;
     smsg.navcels.assign(s.navcels.begin(), s.navcels.end());
-    // grid_meta is not derivable generically; keep false unless you set it externally.
-    smsg.has_grid_meta = false;
     out.surfaces.push_back(std::move(smsg));
   }
 
@@ -170,7 +166,6 @@ navmap::NavMap from_msg(const NavMap & msg)
     nm.surfaces[i].frame_id = msg.surfaces[i].frame_id;
     nm.surfaces[i].navcels.assign(msg.surfaces[i].navcels.begin(),
                                   msg.surfaces[i].navcels.end());
-    // grid_meta is application-specific; if you need it, fill after from_msg()
   }
 
   // layers
