@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['a_0',['a',['../structnavmap_1_1Colors.html#a7a24a5ebfe8988f8c514b8028ac756ec',1,'navmap::Colors']]],
+  ['a_203d_20position_1',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
+  ['a_20given_20navcel_2',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md16',1,'']]],
+  ['a_20layer_20at_20a_20world_20position_3',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]],
+  ['a_20layer_20value_20for_20a_20given_20navcel_4',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md16',1,'']]],
+  ['a_20minimal_20navmap_20single_20square_20floor_20with_20two_20triangles_5',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
+  ['a_20per_20navcel_20layer_20cost_20or_20occupancy_6',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
+  ['a_20world_20position_7',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]],
+  ['aabb_8',['AABB',['../structnavmap_1_1AABB.html',1,'navmap']]],
+  ['aabb_9',['aabb',['../structnavmap_1_1Surface.html#a95046b5339e3da4ec2390999706ff853',1,'navmap::Surface::aabb'],['../structSurface.html#a95046b5339e3da4ec2390999706ff853',1,'Surface::aabb']]],
+  ['acknowledgements_10',['🙏 Acknowledgements',['../index.html#autotoc_md37',1,'']]],
+  ['add_20a_20per_20navcel_20layer_20cost_20or_20occupancy_11',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
+  ['add_5flayer_12',['add_layer',['../classnavmap_1_1NavMap.html#a9f4c5219dcef644fcc82247a9b017e5b',1,'navmap::NavMap::add_layer()'],['../classNavMap.html#a9f4c5219dcef644fcc82247a9b017e5b',1,'NavMap::add_layer()']]],
+  ['add_5fnavcel_13',['add_navcel',['../classnavmap_1_1NavMap.html#a37d374510d01709d4979d2cfdd2412b8',1,'navmap::NavMap::add_navcel()'],['../classNavMap.html#a37d374510d01709d4979d2cfdd2412b8',1,'NavMap::add_navcel()']]],
+  ['add_5fnavcel_5fto_5fsurface_14',['add_navcel_to_surface',['../classnavmap_1_1NavMap.html#a1a410766f27bceef33d37cf8de38e08c',1,'navmap::NavMap::add_navcel_to_surface()'],['../classNavMap.html#a1a410766f27bceef33d37cf8de38e08c',1,'NavMap::add_navcel_to_surface()']]],
+  ['add_5for_5fget_15',['add_or_get',['../classnavmap_1_1LayerRegistry.html#a9062d2a18081c8d870ea2c90531027ad',1,'navmap::LayerRegistry']]],
+  ['add_5fsurface_16',['add_surface',['../classnavmap_1_1NavMap.html#a707120e20ba59dd5903aa018cf6c1105',1,'navmap::NavMap::add_surface(const Surface &amp;s)'],['../classnavmap_1_1NavMap.html#a306b9c0e63d82da417a2c685188ce64a',1,'navmap::NavMap::add_surface(Surface &amp;&amp;s)'],['../classNavMap.html#a707120e20ba59dd5903aa018cf6c1105',1,'NavMap::add_surface(const Surface &amp;s)'],['../classNavMap.html#a306b9c0e63d82da417a2c685188ce64a',1,'NavMap::add_surface(Surface &amp;&amp;s)']]],
+  ['add_5fvertex_17',['add_vertex',['../classnavmap_1_1NavMap.html#a8ca0caf7aeab120684eb998fe14dd067',1,'navmap::NavMap::add_vertex()'],['../classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067',1,'NavMap::add_vertex()']]],
+  ['and_20load_20from_20disk_18',['8. Save and load from disk',['../index.html#autotoc_md26',1,'']]],
+  ['api_19',['API',['../index.html#autotoc_md10',1,'🚀 Usage (C++ API)'],['../index.html#autotoc_md28',1,'9. Classic low-level API']]],
+  ['area_20',['area',['../structnavmap_1_1NavCel.html#a97ab43f6fd28920a42d987c8fec4afec',1,'navmap::NavCel']]],
+  ['at_21',['at',['../structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a',1,'navmap::Positions']]],
+  ['at_20a_20world_20position_22',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]]
+];

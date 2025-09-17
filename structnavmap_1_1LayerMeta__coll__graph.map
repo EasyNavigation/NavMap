@@ -1,0 +1,7 @@
+<map id="LayerMeta" name="LayerMeta">
+<area shape="rect" id="Node000001" title="Metadata associated to a layer (optional)." alt="" coords="39,109,121,135"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,59,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="30,46,31,66,36,84,46,96,58,106,55,110,42,100,32,86,26,66,25,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="107,5,152,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,46,102,86,89,110,85,108,98,84,116,44"/>
+</map>

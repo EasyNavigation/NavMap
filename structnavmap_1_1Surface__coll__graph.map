@@ -1,0 +1,15 @@
+<map id="Surface" name="Surface">
+<area shape="rect" id="Node000001" title="A connected set of NavCels in a common reference frame." alt="" coords="236,198,302,223"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,109,59,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,140,139,171,237,199,235,204,137,176,67,145"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="83,109,216,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,142,218,171,252,195,249,199,214,176,175,146"/>
+<area shape="rect" id="Node000004" href="$structnavmap_1_1AABB.html" title="Axis&#45;aligned bounding box." alt="" coords="241,109,298,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="272,150,272,197,267,197,267,150"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="234,5,304,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="272,47,272,109,267,109,267,47"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="323,109,416,135"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="346,147,285,199,281,195,342,143"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="440,109,630,135"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="494,144,407,176,304,204,302,199,406,171,492,139"/>
+</map>

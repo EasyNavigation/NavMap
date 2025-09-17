@@ -1,0 +1,21 @@
+<map id="navmap_core/tests/test_geometry.cpp" name="navmap_core/tests/test_geometry.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="82,5,240,46"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,94,99,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,49,83,87,80,82,133,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="72,168,157,193"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="158,47,125,154,120,152,153,45"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="180,168,233,193"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="170,46,201,152,196,154,165,47"/>
+<area shape="rect" id="Node000005" href="$Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="224,94,408,120"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="201,44,280,84,278,89,199,49"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="283,123,164,165,162,159,281,118"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="299,122,239,161,236,157,296,118"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="429,168,542,193"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="346,118,443,159,441,164,344,123"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="566,168,623,193"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="368,118,552,164,550,169,366,123"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="258,168,332,193"/>
+<area shape="poly" id="edge9_Node000005_Node000008" title=" " alt="" coords="315,121,305,153,300,152,310,119"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="355,168,405,193"/>
+<area shape="poly" id="edge10_Node000005_Node000009" title=" " alt="" coords="329,118,361,154,357,158,325,122"/>
+</map>

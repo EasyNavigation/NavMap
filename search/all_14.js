@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['name_0',['name',['../structnavmap_1_1LayerViewBase.html#a5c976984805ab775a1876f4484f7f75e',1,'navmap::LayerViewBase::name()'],['../structnavmap_1_1LayerView.html#a8a0d2b7dfdad1504296ddb6685bd4b30',1,'navmap::LayerView::name()'],['../structLayerView.html#a8a0d2b7dfdad1504296ddb6685bd4b30',1,'LayerView::name()']]],
+  ['name_5f_1',['name_',['../structnavmap_1_1LayerView.html#a4d739cc5d335052eb9f5b2ca559b81d1',1,'navmap::LayerView::name_'],['../structLayerView.html#a4d739cc5d335052eb9f5b2ca559b81d1',1,'LayerView::name_']]],
+  ['navcel_2',['NavCel',['../index.html#autotoc_md16',1,'3. Read a layer value for a given NavCel'],['../structnavmap_1_1NavCel.html',1,'NavCel']]],
+  ['navcel_20corresponding_20to_20a_203d_20position_3',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
+  ['navcel_20layer_20cost_20or_20occupancy_4',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
+  ['navcel_5fcentroid_5',['navcel_centroid',['../classnavmap_1_1NavMap.html#a23220b7bea1310d9853ca902b3576633',1,'navmap::NavMap::navcel_centroid()'],['../classNavMap.html#a23220b7bea1310d9853ca902b3576633',1,'NavMap::navcel_centroid()']]],
+  ['navcel_5fneighbors_6',['navcel_neighbors',['../classnavmap_1_1NavMap.html#a80833da2ad4b2cc73a5c2842fcff58a0',1,'navmap::NavMap::navcel_neighbors()'],['../classNavMap.html#a80833da2ad4b2cc73a5c2842fcff58a0',1,'NavMap::navcel_neighbors()']]],
+  ['navcel_5fvalue_7',['navcel_value',['../classnavmap_1_1NavMap.html#ab001fd3c574363e6650de13813784c3d',1,'navmap::NavMap::navcel_value()'],['../classNavMap.html#ab001fd3c574363e6650de13813784c3d',1,'NavMap::navcel_value()']]],
+  ['navcelid_8',['NavCelId',['../namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0',1,'navmap::NavCelId'],['../test__navmap__easy_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0',1,'NavCelId:&#160;NavMap.hpp']]],
+  ['navcels_9',['navcels',['../structnavmap_1_1Surface.html#aacd73e1f2a78738787dec5c6d67ef2e0',1,'navmap::Surface::navcels'],['../classnavmap_1_1NavMap.html#a335aa8bcae202f21e43194758a024a9c',1,'navmap::NavMap::navcels'],['../classNavMap.html#a335aa8bcae202f21e43194758a024a9c',1,'NavMap::navcels'],['../structSurface.html#aacd73e1f2a78738787dec5c6d67ef2e0',1,'Surface::navcels']]],
+  ['navmap_10',['NavMap',['../classNavMap.html',1,'NavMap'],['../classnavmap_1_1NavMap.html',1,'NavMap'],['../index.html',1,'NavMap']]],
+  ['navmap_11',['navmap',['../namespacenavmap.html',1,'']]],
+  ['navmap_20single_20square_20floor_20with_20two_20triangles_12',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
+  ['navmap_2ecpp_13',['NavMap.cpp',['../NavMap_8cpp.html',1,'']]],
+  ['navmap_2ehpp_14',['NavMap.hpp',['../NavMap_8hpp.html',1,'']]],
+  ['navmap_5fio_2ecpp_15',['navmap_io.cpp',['../navmap__io_8cpp.html',1,'']]],
+  ['navmap_5fio_2ehpp_16',['navmap_io.hpp',['../navmap__io_8hpp.html',1,'']]],
+  ['navmap_5fros_17',['navmap_ros',['../namespacenavmap__ros.html',1,'']]],
+  ['navmap_5fros_3a_3aio_18',['io',['../namespacenavmap__ros_1_1io.html',1,'navmap_ros']]],
+  ['navmap_5frviz_5fplugin_19',['navmap_rviz_plugin',['../namespacenavmap__rviz__plugin.html',1,'']]],
+  ['navmapdisplay_20',['NavMapDisplay',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html',1,'NavMapDisplay'],['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8d0048cf38eb3250489c97fd4359cd23',1,'navmap_rviz_plugin::NavMapDisplay::NavMapDisplay()']]],
+  ['navmapdisplay_2ecpp_21',['NavMapDisplay.cpp',['../NavMapDisplay_8cpp.html',1,'']]],
+  ['navmapdisplay_2ehpp_22',['NavMapDisplay.hpp',['../NavMapDisplay_8hpp.html',1,'']]],
+  ['neighbor_23',['neighbor',['../structnavmap_1_1NavCel.html#a4631b9564878d7e5efeefa94ee034fb9',1,'navmap::NavCel']]],
+  ['normal_24',['normal',['../structnavmap_1_1NavCel.html#a2dc7f6395235de36ab3a66d476e3444f',1,'navmap::NavCel']]]
+];

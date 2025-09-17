@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['r_0',['r',['../structnavmap_1_1Colors.html#a4ce64fddb5ca7dee7f92556ffddcb7c8',1,'navmap::Colors']]],
+  ['ray_1',['Ray',['../structnavmap_1_1Ray.html',1,'navmap']]],
+  ['ray_5ftriangle_5fintersect_2',['ray_triangle_intersect',['../namespacenavmap.html#a62d9baa8d9422826604fe3f1a86d9398',1,'navmap']]],
+  ['raycast_3',['raycast',['../classnavmap_1_1NavMap.html#ae06d6240e61c1e07bb574d3ea40376e1',1,'navmap::NavMap::raycast()'],['../classNavMap.html#ae06d6240e61c1e07bb574d3ea40376e1',1,'NavMap::raycast()']]],
+  ['raycast_5fmany_4',['raycast_many',['../classnavmap_1_1NavMap.html#a1a19ac67ff1cef1298b7f824d26ef786',1,'navmap::NavMap::raycast_many()'],['../classNavMap.html#a1a19ac67ff1cef1298b7f824d26ef786',1,'NavMap::raycast_many()']]],
+  ['raycasting_5',['6. Raycasting',['../index.html#autotoc_md22',1,'']]],
+  ['rayhit_6',['RayHit',['../structnavmap_1_1RayHit.html',1,'navmap']]],
+  ['read_20a_20layer_20value_20for_20a_20given_20navcel_7',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md16',1,'']]],
+  ['readme_2emd_8',['README.md',['../README_8md.html',1,'']]],
+  ['rebuild_5fgeometry_5faccels_9',['rebuild_geometry_accels',['../classnavmap_1_1NavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'navmap::NavMap::rebuild_geometry_accels()'],['../classNavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'NavMap::rebuild_geometry_accels()']]],
+  ['remove_5fsurface_10',['remove_surface',['../classnavmap_1_1NavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'navmap::NavMap::remove_surface()'],['../classNavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'NavMap::remove_surface()']]],
+  ['repository_20structure_11',['📂 Repository structure',['../index.html#autotoc_md4',1,'']]],
+  ['reset_12',['reset',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#aebfcdbbd0fe4efbff10b180be50ca6bc',1,'navmap_rviz_plugin::NavMapDisplay']]],
+  ['resize_5fall_13',['resize_all',['../classnavmap_1_1LayerRegistry.html#a039a25cf408f86a30b5932ef29ac6234',1,'navmap::LayerRegistry']]],
+  ['right_14',['right',['../structnavmap_1_1BVHNode.html#a2f54f8b71f0d765e2b7dbd9a8b9774ff',1,'navmap::BVHNode']]],
+  ['ros_202_20colcon_20build_15',['ROS 2 colcon build',['../index.html#autotoc_md7',1,'']]],
+  ['ros_20messages_16',['7. Serialize to / from ROS messages',['../index.html#autotoc_md24',1,'']]]
+];

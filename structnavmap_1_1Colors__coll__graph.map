@@ -1,0 +1,5 @@
+<map id="Colors" name="Colors">
+<area shape="rect" id="Node000001" title="Optional per&#45;vertex colors (RGBA, 8&#45;bit per channel)." alt="" coords="35,139,94,165"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,124,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,47,67,138,62,138,62,47"/>
+</map>
