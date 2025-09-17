@@ -290,53 +290,6 @@ struct BVHNode
 };
 
 /**
- * @brief Lightweight 2D uniform grid for accelerating point location.
- *
- * Used as a seed structure for @ref locate_navcel() when no hint is provided.
- * Buckets store NavCel indices whose XY AABB overlaps the cell.
- */
-struct UniformGrid2D
-{
-  Eigen::Vector2f origin{0.0f, 0.0f};     ///< Grid origin (XY)
-  Eigen::Vector2f cell_size{0.25f, 0.25f};   ///< Size of each cell
-  int nx{0};    ///< Number of cells in X
-  int ny{0};    ///< Number of cells in Y
-  std::vector<std::vector<int>> buckets;  ///< Cell -> list of candidate cids
-
-  /// @return true if the grid is initialized and non-empty.
-  inline bool valid() const
-  {
-    return nx > 0 && ny > 0 && !buckets.empty();
-  }
-
-  /**
-   * @brief Convert cell coordinates to linear index.
-   * @param ix Cell x.
-   * @param iy Cell y.
-   * @return Linear index or -1 if out of bounds.
-   */
-  inline int index(int ix, int iy) const
-  {
-    if (ix < 0 || iy < 0 || ix >= nx || iy >= ny) {
-      return -1;
-    }
-    return iy * nx + ix;
-  }
-
-  /**
-   * @brief Return the cell containing point @p p (XY-plane).
-   * @param p XY point.
-   * @return Integer cell coordinates (may be outside [0,nx/ny)).
-   */
-  inline Eigen::Vector2i cell_of(const Eigen::Vector2f & p) const
-  {
-    int ix = static_cast<int>(std::floor((p.x() - origin.x()) / cell_size.x()));
-    int iy = static_cast<int>(std::floor((p.y() - origin.y()) / cell_size.y()));
-    return {ix, iy};
-  }
-};
-
-/**
  * @brief A connected set of NavCels in a common reference frame.
  *
  * Each @ref Surface owns a subset of NavCels, plus its own BVH and
@@ -349,7 +302,6 @@ struct Surface
   AABB aabb;                      ///< Bounds of the surface geometry
   std::vector<int> prim_indices;  ///< Compact list of cids used by BVH leaves
   std::vector<BVHNode> bvh;       ///< BVH nodes
-  UniformGrid2D grid;             ///< Seed grid for locate()
 };
 
 // -----------------------------------------------------------------------------
@@ -565,9 +517,6 @@ private:
   /// @brief Build a per-surface BVH for fast ray queries.
   void build_surface_bvh(Surface & s);
 
-  /// @brief Build a per-surface 2D uniform grid for seeding locate().
-  void build_surface_grid(Surface & s, float target_cells_per_side = 64.0f);
-
   /**
    * @brief Raycast against a single surface BVH.
    * @return true if any triangle was hit.
@@ -591,18 +540,6 @@ private:
     Eigen::Vector3f & bary,
     Eigen::Vector3f * hit_pt,
     float planar_eps);
-
-  /**
-   * @brief Attempt a grid-seeded barycentric test around (x,y).
-   * @return true if a containing triangle is found.
-   */
-  bool locate_via_grid(
-    const Surface & s,
-    const Eigen::Vector3f & p,
-    NavCelId & cid_out,
-    Eigen::Vector3f & bary_out,
-    Eigen::Vector3f * hit_pt,
-    float planar_eps) const;
 
   /**
    * @brief BVH traversal to find the closest triangle in one surface.

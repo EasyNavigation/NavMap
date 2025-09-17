@@ -374,4 +374,75 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
   return g;
 }
 
+bool build_navmap_from_mesh(
+  const pcl::PointCloud<pcl::PointXYZ> & cloud,
+  const std::vector<Eigen::Vector3i> & triangles,
+  const std::string & frame_id,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  navmap::NavMap * out_core_opt)
+{
+  out_msg = navmap_ros_interfaces::msg::NavMap();
+  out_msg.header.frame_id = frame_id;
+
+  // 1) Vertices
+  out_msg.positions_x.reserve(cloud.size());
+  out_msg.positions_y.reserve(cloud.size());
+  out_msg.positions_z.reserve(cloud.size());
+  for (const auto & p : cloud) {
+    out_msg.positions_x.push_back(p.x);
+    out_msg.positions_y.push_back(p.y);
+    out_msg.positions_z.push_back(p.z);
+  }
+
+  // 2) Triangles (validate indices)
+  const std::size_t N = cloud.size();
+  out_msg.navcels_v0.reserve(triangles.size());
+  out_msg.navcels_v1.reserve(triangles.size());
+  out_msg.navcels_v2.reserve(triangles.size());
+
+  for (const auto & t : triangles) {
+    const int i0 = t[0], i1 = t[1], i2 = t[2];
+    if (i0 < 0 || i1 < 0 || i2 < 0 ||
+      static_cast<std::size_t>(i0) >= N ||
+      static_cast<std::size_t>(i1) >= N ||
+      static_cast<std::size_t>(i2) >= N)
+    {
+      return false; // invalid index
+    }
+    out_msg.navcels_v0.push_back(static_cast<uint32_t>(i0));
+    out_msg.navcels_v1.push_back(static_cast<uint32_t>(i1));
+    out_msg.navcels_v2.push_back(static_cast<uint32_t>(i2));
+  }
+
+  // 3) Per-navcel "elevation" layer (float32): mean Z of triangle vertices
+  {
+    std::vector<float> elev;
+    elev.reserve(triangles.size());
+    for (const auto & t : triangles) {
+      const int i0 = t[0], i1 = t[1], i2 = t[2];
+      const float z0 = cloud[i0].z;
+      const float z1 = cloud[i1].z;
+      const float z2 = cloud[i2].z;
+      const float mean_z = (z0 + z1 + z2) / 3.0f;
+      elev.push_back(mean_z);
+    }
+
+    navmap_ros_interfaces::msg::NavMapLayer layer;
+    layer.name = "elevation";
+    layer.type = 1;                 // 0=u8, 1=f32, 2=f64
+    layer.data_f32 = std::move(elev);
+    out_msg.layers.push_back(std::move(layer));
+  }
+
+  // (Opcional) Colores de vértice -> out_msg.has_vertex_rgba = true; ... (r,g,b,a)
+  // (Opcional) Superficies -> puedes agrupar navcels por surface más adelante
+
+  // 4) Convertir a core si se pide
+  if (out_core_opt) {
+    *out_core_opt = navmap_ros::from_msg(out_msg);
+  }
+  return true;
+}
+
+
 } // namespace navmap_ros

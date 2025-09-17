@@ -22,7 +22,8 @@
 #include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
 #include <navmap_ros_interfaces/msg/nav_map_surface.hpp>
 
-namespace navmap_rviz_plugin {
+namespace navmap_rviz_plugin
+{
 
 class NavMapDisplay : public rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>
 {
@@ -45,20 +46,20 @@ private:
   void onPropertyChanged();
 
   // Properties
-  rviz_common::properties::EnumProperty* layer_property_;
-  rviz_common::properties::BoolProperty* draw_normals_property_;
-  rviz_common::properties::FloatProperty* normal_scale_property_;
-  rviz_common::properties::FloatProperty* alpha_property_;
-  rviz_common::properties::StringProperty* info_property_;
+  rviz_common::properties::EnumProperty * layer_property_;
+  rviz_common::properties::BoolProperty * draw_normals_property_;
+  rviz_common::properties::FloatProperty * normal_scale_property_;
+  rviz_common::properties::FloatProperty * alpha_property_;
+  rviz_common::properties::StringProperty * info_property_;
 
   // Scene
-  Ogre::ManualObject* triangles_obj_;
-  Ogre::ManualObject* normals_obj_;
-  Ogre::SceneNode*    root_node_;
+  Ogre::ManualObject * triangles_obj_;
+  Ogre::ManualObject * normals_obj_;
+  Ogre::SceneNode *    root_node_;
 
   // Data
   navmap_ros_interfaces::msg::NavMap::ConstSharedPtr last_msg_;
-  std::unordered_map<std::string, const navmap_ros_interfaces::msg::NavMapLayer*> layers_by_name_;
+  std::unordered_map<std::string, const navmap_ros_interfaces::msg::NavMapLayer *> layers_by_name_;
 };
 
 } // namespace navmap_rviz_plugin

@@ -169,60 +169,6 @@ void NavMap::build_surface_bvh(Surface & s)
 }
 
 // -----------------------------------------------------------------------------
-// Uniform grid build
-// -----------------------------------------------------------------------------
-
-void NavMap::build_surface_grid(Surface & s, float target_cells_per_side)
-{
-  if (s.navcels.empty()) {
-    s.grid = UniformGrid2D{};
-    return;
-  }
-
-  const float kMinCell = 1e-3f;
-  Eigen::Vector2f min_xy(s.aabb.min.x(), s.aabb.min.y());
-  Eigen::Vector2f max_xy(s.aabb.max.x(), s.aabb.max.y());
-  Eigen::Vector2f extent = max_xy - min_xy;
-  if (extent.x() < kMinCell) {extent.x() = kMinCell;}
-  if (extent.y() < kMinCell) {extent.y() = kMinCell;}
-
-  int nx = static_cast<int>(std::max(1.0f, std::round(target_cells_per_side)));
-  int ny = static_cast<int>(std::max(1.0f, std::round(target_cells_per_side)));
-  Eigen::Vector2f cell(extent.x() / nx, extent.y() / ny);
-
-  s.grid.origin = min_xy;
-  s.grid.cell_size = cell;
-  s.grid.nx = nx;
-  s.grid.ny = ny;
-  s.grid.buckets.clear();
-  s.grid.buckets.resize(nx * ny);
-
-  for (int cid : s.navcels) {
-    const auto & c = navcels[cid];
-    Vec3 a = positions.at(c.v[0]);
-    Vec3 b = positions.at(c.v[1]);
-    Vec3 d = positions.at(c.v[2]);
-
-    float xmin = std::min({a.x(), b.x(), d.x()});
-    float xmax = std::max({a.x(), b.x(), d.x()});
-    float ymin = std::min({a.y(), b.y(), d.y()});
-    float ymax = std::max({a.y(), b.y(), d.y()});
-
-    Eigen::Vector2i cmin = s.grid.cell_of(Eigen::Vector2f(xmin, ymin));
-    Eigen::Vector2i cmax = s.grid.cell_of(Eigen::Vector2f(xmax, ymax));
-
-    for (int iy = cmin.y(); iy <= cmax.y(); ++iy) {
-      for (int ix = cmin.x(); ix <= cmax.x(); ++ix) {
-        int idx = s.grid.index(ix, iy);
-        if (idx >= 0) {
-          s.grid.buckets[idx].push_back(cid);
-        }
-      }
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
 // Rebuild accelerations and geometry caches
 // -----------------------------------------------------------------------------
 
@@ -243,7 +189,6 @@ void NavMap::rebuild_geometry_accels()
   // Per-surface BVH and seed grid.
   for (auto & s : surfaces) {
     build_surface_bvh(s);
-    build_surface_grid(s, 64.0f);
   }
 
   // NOTE: Layers are per-NavCel; if navcels size changed, caller may
@@ -464,52 +409,6 @@ bool NavMap::locate_by_walking(
   return false;
 }
 
-bool NavMap::locate_via_grid(
-  const Surface & s,
-  const Vec3 & p,
-  NavCelId & cid_out,
-  Vec3 & bary_out,
-  Vec3 * hit_pt,
-  float planar_eps) const
-{
-  if (!s.grid.valid()) {
-    return false;
-  }
-
-  Eigen::Vector2f xy(p.x(), p.y());
-  Eigen::Vector2i cell = s.grid.cell_of(xy);
-  const int R = 1;  // search 3x3 neighborhood for robustness
-
-  for (int dy = -R; dy <= R; ++dy) {
-    for (int dx = -R; dx <= R; ++dx) {
-      int idx = s.grid.index(cell.x() + dx, cell.y() + dy);
-      if (idx < 0) {
-        continue;
-      }
-      const auto & bucket = s.grid.buckets[idx];
-      for (int cid : bucket) {
-        const auto & c = navcels[cid];
-        Vec3 a = positions.at(c.v[0]);
-        Vec3 b = positions.at(c.v[1]);
-        Vec3 d = positions.at(c.v[2]);
-        Vec3 n = c.normal;
-        float dist = n.dot(p - a);
-        Vec3 q = p - dist * n;
-        Vec3 bary;
-        if (point_in_triangle_bary(q, a, b, d, bary, planar_eps)) {
-          cid_out = cid;
-          bary_out = bary;
-          if (hit_pt) {
-            *hit_pt = q;
-          }
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
 // -----------------------------------------------------------------------------
 // Locate API
 // -----------------------------------------------------------------------------
@@ -541,45 +440,6 @@ bool NavMap::locate_navcel(
         }
       }
       // Fall through if surface not found.
-    }
-  }
-
-  // 2) Fast grid-based seed on candidate surfaces (XY-only gating) with |dz| tie-break.
-  {
-    bool any_grid = false;
-    float best_dz_grid = std::numeric_limits<float>::infinity();
-    size_t best_s = 0;
-    NavCelId best_cid = 0;
-    Vec3 best_bary(0.0f, 0.0f, 0.0f);
-    Vec3 best_q(0.0f, 0.0f, 0.0f);
-
-    for (size_t s = 0; s < surfaces.size(); ++s) {
-      const auto & surf = surfaces[s];
-      if (!surf.aabb.contains_xy_only(p_world)) {
-        continue;
-      }
-      NavCelId cid_grid = 0;
-      Vec3 bary_grid(0.0f, 0.0f, 0.0f);
-      Vec3 q_tmp(0.0f, 0.0f, 0.0f);
-      if (locate_via_grid(surf, p_world, cid_grid, bary_grid, &q_tmp, opts.planar_eps)) {
-        float dz = std::fabs(q_tmp.z() - p_world.z());
-        if (dz < best_dz_grid) {
-          best_dz_grid = dz;
-          best_s = s;
-          best_cid = cid_grid;
-          best_bary = bary_grid;
-          best_q = q_tmp;
-          any_grid = true;
-        }
-      }
-    }
-
-    if (any_grid) {
-      surface_idx = best_s;
-      cid = best_cid;
-      bary = best_bary;
-      if (hit_pt) {*hit_pt = best_q;}
-      return true;
     }
   }
 

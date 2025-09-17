@@ -43,7 +43,11 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <Eigen/Core>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
+#include <navmap_ros_interfaces/msg/nav_map.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <navmap_core/NavMap.hpp>
 #include <navmap_ros_interfaces/msg/nav_map.hpp>
@@ -130,6 +134,14 @@ navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid);
  *       implementation-defined.
  */
 nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm);
+
+
+bool build_navmap_from_mesh(
+  const pcl::PointCloud<pcl::PointXYZ> & cloud,
+  const std::vector<Eigen::Vector3i> & triangles,
+  const std::string & frame_id,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  navmap::NavMap * out_core_opt = nullptr);
 
 }  // namespace navmap_ros
 
