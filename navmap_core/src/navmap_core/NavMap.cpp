@@ -21,6 +21,8 @@
 #include "navmap_core/NavMap.hpp"
 #include <algorithm>
 #include <functional>
+#include <cmath>
+#include <limits>
 
 namespace navmap
 {
@@ -366,7 +368,7 @@ bool NavMap::locate_by_walking(
   NavCelId & cid_out,
   Vec3 & bary,
   Vec3 * hit_pt,
-  float planar_eps)
+  float planar_eps) const
 {
   const int kMaxSteps = 64;
   NavCelId cid = start_cid;
@@ -413,13 +415,13 @@ bool NavMap::locate_by_walking(
 // Locate API
 // -----------------------------------------------------------------------------
 
-bool NavMap::locate_navcel(
+bool NavMap::locate_navcel_core(
   const Vec3 & p_world,
   size_t & surface_idx,
   NavCelId & cid,
   Vec3 & bary,
   Vec3 * hit_pt,
-  const LocateOpts & opts)
+  const LocateOpts & opts) const
 {
   // 1) Try walking if there is a valid hint.
   if (opts.hint_cid.has_value()) {
@@ -608,5 +610,258 @@ bool NavMap::closest_triangle(
   sqdist = best_sq;
   return true;
 }
+
+std::size_t NavMap::create_surface(std::string frame_id)
+{
+  surfaces.push_back(Surface{});
+  surfaces.back().frame_id = std::move(frame_id);
+  return surfaces.size() - 1;
+}
+
+Surface NavMap::create_surface_obj(const std::string & frame_id) const
+{
+  Surface s;
+  s.frame_id = frame_id;
+  return s;
+}
+
+std::size_t NavMap::add_surface(const Surface & s)
+{
+  surfaces.push_back(s);
+  return surfaces.size() - 1;
+}
+
+std::size_t NavMap::add_surface(Surface && s)
+{
+  surfaces.push_back(std::move(s));
+  return surfaces.size() - 1;
+}
+
+bool NavMap::remove_surface(std::size_t surface_index)
+{
+  if (surface_index >= surfaces.size()) {return false;}
+  surfaces.erase(surfaces.begin() + surface_index);
+  return true;
+}
+
+uint32_t NavMap::add_vertex(const Eigen::Vector3f & p)
+{
+  positions.x.push_back(p.x());
+  positions.y.push_back(p.y());
+  positions.z.push_back(p.z());
+  return static_cast<uint32_t>(positions.x.size() - 1);
+}
+
+NavCelId NavMap::add_navcel(uint32_t v0, uint32_t v1, uint32_t v2)
+{
+  NavCel t; t.v[0] = v0; t.v[1] = v1; t.v[2] = v2;
+  navcels.push_back(t);
+  return static_cast<NavCelId>(navcels.size() - 1);
+}
+
+void NavMap::add_navcel_to_surface(std::size_t surface_index, NavCelId cid)
+{
+  if (surface_index >= surfaces.size()) {return;}
+  surfaces[surface_index].navcels.push_back(cid);
+}
+
+// ---- Geometry helpers ----
+Eigen::Vector3f NavMap::navcel_centroid(NavCelId cid) const
+{
+  const auto & t = navcels[cid];
+  Eigen::Vector3f a(positions.x.at(t.v[0]), positions.y.at(t.v[0]), positions.z.at(t.v[0]));
+  Eigen::Vector3f b(positions.x.at(t.v[1]), positions.y.at(t.v[1]), positions.z.at(t.v[1]));
+  Eigen::Vector3f c(positions.x.at(t.v[2]), positions.y.at(t.v[2]), positions.z.at(t.v[2]));
+  return (a + b + c) / 3.f;
+}
+
+std::vector<NavCelId> NavMap::navcel_neighbors(NavCelId cid) const
+{
+  std::vector<NavCelId> out; out.reserve(3);
+  const auto & t = navcels[cid];
+  for (int e = 0; e < 3; ++e) {
+    auto n = t.neighbor[e];
+    if (n != std::numeric_limits<uint32_t>::max()) {out.push_back(n);}
+  }
+  return out;
+}
+
+bool NavMap::locate_navcel(
+  const Eigen::Vector3f & p_world,
+  std::size_t & surface_idx,
+  NavCelId & cid,
+  Eigen::Vector3f & bary,
+  Eigen::Vector3f * hit_pt,
+  const LocateOpts & opts) const
+{
+  if (locate_navcel_core(p_world, surface_idx, cid, bary, hit_pt, opts)) {
+    return true;
+  }
+
+  const float R = 1e6f; // altura grande para garantizar intersección si existe
+  const Eigen::Vector3f up_origin = {p_world.x(), p_world.y(), p_world.z() + R};
+  const Eigen::Vector3f down_origin = {p_world.x(), p_world.y(), p_world.z() - R};
+  const Eigen::Vector3f up_dir = {0.0f, 0.0f, -1.0f};
+  const Eigen::Vector3f down_dir = {0.0f, 0.0f, 1.0f};
+
+  struct Candidate
+  {
+    bool ok{false};
+    std::size_t surf{};
+    NavCelId cid{};
+    Eigen::Vector3f hit{};
+    Eigen::Vector3f bary{};
+    float dz{std::numeric_limits<float>::infinity()};
+  };
+
+  auto make_candidate = [&](const Eigen::Vector3f & o,
+    const Eigen::Vector3f & d) -> Candidate {
+      Candidate c;
+      NavCelId hit_cid{};
+      float t{};
+      Eigen::Vector3f hit{};
+
+      if (raycast(o, d, hit_cid, t, hit)) {
+        c.ok = true;
+        c.cid = hit_cid;
+        c.hit = hit;
+        c.dz = std::fabs(hit.z() - p_world.z());
+
+        for (std::size_t si = 0; si < surfaces.size(); ++si) {
+          const auto & s = surfaces[si];
+          if (std::find(s.navcels.begin(), s.navcels.end(), hit_cid) != s.navcels.end()) {
+            c.surf = si;
+            break;
+          }
+        }
+
+        const auto & tri = navcels[c.cid];
+        const Eigen::Vector3f A = positions.at(tri.v[0]);
+        const Eigen::Vector3f B = positions.at(tri.v[1]);
+        const Eigen::Vector3f C = positions.at(tri.v[2]);
+
+        const Eigen::Vector3f v0 = B - A;
+        const Eigen::Vector3f v1 = C - A;
+        const Eigen::Vector3f v2 = hit - A;
+        const float d00 = v0.dot(v0);
+        const float d01 = v0.dot(v1);
+        const float d11 = v1.dot(v1);
+        const float d20 = v2.dot(v0);
+        const float d21 = v2.dot(v1);
+        const float denom = d00 * d11 - d01 * d01;
+        if (std::fabs(denom) > 1e-20f) {
+          const float v = (d11 * d20 - d01 * d21) / denom;
+          const float w = (d00 * d21 - d01 * d20) / denom;
+          const float u = 1.0f - v - w;
+          c.bary = Eigen::Vector3f(u, v, w);
+        } else {
+          c.bary = Eigen::Vector3f(1, 0, 0);
+        }
+      }
+      return c;
+    };
+
+  Candidate cand_up = make_candidate(up_origin, up_dir);
+  Candidate cand_down = make_candidate(down_origin, down_dir);
+
+  if (cand_up.ok && cand_up.dz > opts.height_eps) {cand_up.ok = false;}
+  if (cand_down.ok && cand_down.dz > opts.height_eps) {cand_down.ok = false;}
+
+  const Candidate * best = nullptr;
+  if (cand_up.ok && cand_down.ok) {
+    best = (cand_up.dz <= cand_down.dz) ? &cand_up : &cand_down;
+  } else if (cand_up.ok) {
+    best = &cand_up;
+  } else if (cand_down.ok) {
+    best = &cand_down;
+  }
+
+  if (!best) {
+    return false;
+  }
+
+  surface_idx = best->surf;
+  cid = best->cid;
+  bary = best->bary;
+  if (hit_pt) {*hit_pt = best->hit;}
+  return true;
+}
+
+// ---- Layers ----
+bool NavMap::has_layer(const std::string & name) const
+{
+  return static_cast<bool>(layers.get(name));
+}
+
+std::size_t NavMap::layer_size(const std::string & name) const
+{
+  if (auto v = layers.get(name)) {return v->size();}
+  return 0;
+}
+
+std::string NavMap::layer_type_name(const std::string & name) const
+{
+  if (auto v = layers.get(name)) {
+    switch (v->type()) {
+      case LayerType::U8:  return "uint8";
+      case LayerType::F32: return "float";
+      case LayerType::F64: return "double";
+      default: break;
+    }
+  }
+  return "unknown";
+}
+
+double NavMap::layer_get_as_double(const std::string & name, NavCelId cid) const
+{
+  if (auto base = layers.get(name)) {
+    // Try concrete views in order of most common usage
+    if (auto u8 = std::dynamic_pointer_cast<LayerView<uint8_t>>(base)) {
+      if (cid < u8->data().size()) {return static_cast<double>(u8->data()[cid]);}
+    }
+    if (auto f32 = std::dynamic_pointer_cast<LayerView<float>>(base)) {
+      if (cid < f32->data().size()) {return static_cast<double>(f32->data()[cid]);}
+    }
+    if (auto f64 = std::dynamic_pointer_cast<LayerView<double>>(base)) {
+      if (cid < f64->data().size()) {return f64->data()[cid];}
+    }
+  }
+  return std::numeric_limits<double>::quiet_NaN();
+}
+
+std::optional<LayerMeta> NavMap::get_layer_meta(const std::string & name) const
+{
+  auto it = layer_meta.find(name);
+  if (it == layer_meta.end()) {return std::nullopt;}
+  return it->second;
+}
+
+std::vector<std::string> NavMap::list_layers() const
+{
+  return layers.list();
+}
+
+double NavMap::sample_layer_at(
+  const std::string & name,
+  const Eigen::Vector3f & p_world,
+  double def) const
+{
+  // Si no existe la capa, devuelve directamente el valor por defecto
+  if (!has_layer(name)) {
+    return def;
+  }
+
+  std::size_t s; NavCelId c; Eigen::Vector3f bary; Eigen::Vector3f hit;
+  if (!locate_navcel(p_world, s, c, bary, &hit)) {
+    return def;
+  }
+
+  double v = layer_get_as_double(name, c);
+  if (std::isnan(v)) {
+    return def;
+  }
+  return v;
+}
+
 
 }  // namespace navmap
