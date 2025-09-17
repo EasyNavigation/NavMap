@@ -88,6 +88,7 @@ $(function(){ initResizable(false); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
+<p><a href="https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml/badge.svg" alt="Doxygen Deployment" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml/badge.svg" alt="rolling" style="pointer-events: none;" class="inline"/></a></p>
 <p><img src="https://github.com/user-attachments/assets/70316194-98fe-4c29-8f9f-653c9c1b06bb" alt="Captura desde 2025-09-17 10-35-51" width="5148" height="1469" class="inline"/> <img src="https://github.com/user-attachments/assets/ed593be0-80a8-4b74-b72e-182bb7de3f28" alt="Captura desde 2025-09-17 10-31-43" width="2242" height="1183" class="inline"/></p>
 <p><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> is an open-source C++ and ROS 2 library for representing <b>navigable surfaces</b> for mobile robot navigation and localization. <br  />
  Unlike classic grid-based maps, <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> stores the environment as <b>triangular meshes</b> (NavCels), enabling efficient queries and multi-surface environments (e.g., multi-floor buildings).</p>
@@ -160,6 +161,7 @@ Dependencies</h2>
 <hr  />
 <h1><a class="anchor" id="autotoc_md10"></a>
 🚀 Usage (C++ API)</h1>
+<p><a href="https://easynavigation.github.io/NavMap/">C++ API</a></p>
 <p>This section shows <b>small, self-contained snippets</b> that demonstrate how to create a <code><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></code>, add geometry, attach layers, query values, and locate the triangle (NavCel) corresponding to a 3D position. </p><blockquote class="doxtable">
 <p><b>Note</b>: After modifying geometry (vertices, triangles, or surfaces), always call <code>rebuild_geometry_accels()</code> before performing queries such as <code>locate_navcel()</code> or <code>raycast()</code>. </p>
 </blockquote>
