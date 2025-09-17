@@ -443,52 +443,52 @@ bool NavMap::locate_navcel(
     }
   }
 
-  // 3) Vertical raycast fallback (downward or upward).
-  Vec3 dir = opts.use_downward_ray ? Vec3(0.0f, 0.0f, -1.0f) : Vec3(0.0f, 0.0f, 1.0f);
-  float best_dz = std::numeric_limits<float>::infinity();
-  bool any = false;
-  Vec3 best_hit(0.0f, 0.0f, 0.0f);
+  // 3) Vertical raycast fallback (choose by |dz| using BOTH directions)
+  {
+    // Shoot both rays: downward and upward
+    std::vector<Ray> rays;
+    rays.push_back({p_world, Vec3(0.0f, 0.0f, -1.0f)});
+    rays.push_back({p_world, Vec3(0.0f, 0.0f, 1.0f)});
 
-  for (size_t s = 0; s < surfaces.size(); ++s) {
-    const auto & surf = surfaces[s];
-    if (!surf.aabb.contains_xy_only(p_world)) {
-      continue;
-    }
-    NavCelId cid_s;
-    float t;
-    Vec3 hit;
-    if (surface_raycast(surf, p_world, dir, cid_s, t, hit)) {
-      float dz = std::fabs(hit.z() - p_world.z());
+    std::vector<RayHit> hits;
+    raycast_many(rays, hits, /*first_hit_only=*/true);
+
+    bool any = false;
+    float best_dz = std::numeric_limits<float>::infinity();
+    size_t best_surf = 0;
+    NavCelId best_cid = 0;
+    Vec3 best_hit(0.0f, 0.0f, 0.0f);
+    Vec3 best_bary(0.0f, 0.0f, 0.0f);
+
+    for (const auto & h : hits) {
+      if (!h.hit) {continue;}
+      const float dz = std::fabs(h.p.z() - p_world.z());
+      // Compute barycentrics on the hit triangle to return consistent outputs
+      const auto & tri = navcels[h.cid];
+      const Vec3 a = positions.at(tri.v[0]);
+      const Vec3 b = positions.at(tri.v[1]);
+      const Vec3 c = positions.at(tri.v[2]);
+      Vec3 bary_tmp;
+      if (!point_in_triangle_bary(h.p, a, b, c, bary_tmp, opts.planar_eps)) {
+        continue; // numerical guard
+      }
       if (dz < best_dz) {
-        const auto & c = navcels[cid_s];
-        Vec3 a = positions.at(c.v[0]);
-        Vec3 b = positions.at(c.v[1]);
-        Vec3 d = positions.at(c.v[2]);
-        Vec3 bary_tmp;
-        if (point_in_triangle_bary(hit, a, b, d, bary_tmp, opts.planar_eps)) {
-          best_dz = dz;
-          best_hit = hit;
-          cid = cid_s;
-          bary = bary_tmp;
-          surface_idx = s;
-          any = true;
-        }
+        best_dz = dz;
+        best_surf = h.surface;
+        best_cid = h.cid;
+        best_hit = h.p;
+        best_bary = bary_tmp;
+        any = true;
       }
     }
-  }
 
-  if (any) {
-    if (hit_pt) {
-      *hit_pt = best_hit;
+    if (any) {
+      surface_idx = best_surf;
+      cid = best_cid;
+      bary = best_bary;
+      if (hit_pt) {*hit_pt = best_hit;}
+      return true;
     }
-    return true;
-  }
-
-  // 4) Optional upward retry if downward failed.
-  if (opts.use_downward_ray) {
-    LocateOpts opt2 = opts;
-    opt2.use_downward_ray = false;
-    return locate_navcel(p_world, surface_idx, cid, bary, hit_pt, opt2);
   }
 
   return false;

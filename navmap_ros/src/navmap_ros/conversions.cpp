@@ -434,15 +434,14 @@ bool build_navmap_from_mesh(
     out_msg.layers.push_back(std::move(layer));
   }
 
-  // (Opcional) Colores de vértice -> out_msg.has_vertex_rgba = true; ... (r,g,b,a)
-  // (Opcional) Superficies -> puedes agrupar navcels por surface más adelante
+  // (Optional) Vertex colors -> out_msg.has_vertex_rgba = true; ... (r,g,b,a)
+  // (Optional) Surfaces -> you can group navcels by surface later
 
-  // 4) Convertir a core si se pide
+  // 4) Convert a kernel if requested
   if (out_core_opt) {
     *out_core_opt = navmap_ros::from_msg(out_msg);
   }
   return true;
 }
-
 
 } // namespace navmap_ros

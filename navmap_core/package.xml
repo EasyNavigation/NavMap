@@ -3,7 +3,7 @@
 <package format="3">
   <name>navmap_core</name>
   <version>0.0.1</version>
-  <description>Core C++ library for NavMap (NavCel mesh, layers, BVH, locate, raycast).</description>
+  <description>Core C++ library for NavMap.</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
   <license>GPL-3.0-or-later</license>
 

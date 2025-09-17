@@ -1,0 +1,1530 @@
+diff --git a/navmap_core/include/navmap_core/NavMap.hpp b/navmap_core/include/navmap_core/NavMap.hpp
+index f695b5e..4ace67e 100644
+--- a/navmap_core/include/navmap_core/NavMap.hpp
++++ b/navmap_core/include/navmap_core/NavMap.hpp
+@@ -14,556 +14,264 @@
+ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ // GNU General Public License for more details.
+ //
+-// You should have received a copy of the GNU General Public License
+-// along with this program. If not, see <http://www.gnu.org/licenses/>.
+-
+-
+-#ifndef NAVMAP_CORE__NAVMAP_HPP
+-#define NAVMAP_CORE__NAVMAP_HPP
+-
++/// \file
++/// \brief Core NavMap data structures and **high-level API** convenience methods.
++///
++/// This header exposes the low-level storage used by NavMap (positions, nav cells,
++/// surfaces and layers) and adds a set of **simple, friendly methods** to:
++///   - Create/append surfaces and triangles.
++///   - Remove surfaces and perform basic surface operations.
++///   - Manage per-NavCel layers (create, query, set, metadata).
++///   - Perform common geometric queries (centroid, normal, area, neighbors).
++///   - Locate the nav cell corresponding to a world-space query point.
++///
++/// The goal is to keep the raw containers accessible while providing a concise
++/// API that covers the 80% of common use-cases with minimal parameters.
++#ifndef NAVMAP_CORE__NAVMAP_HPP_
++#define NAVMAP_CORE__NAVMAP_HPP_
++
++#include <cstdint>
++#include <string>
++#include <string_view>
+ #include <vector>
+-#include <memory>
+ #include <unordered_map>
++#include <memory>
+ #include <optional>
+-#include <string>
+-#include <array>
+ #include <limits>
+-#include <stack>
+-#include <cmath>
++#include <typeindex>
+ 
+ #include <Eigen/Core>
+-#include "navmap_core/Geometry.hpp"
+ 
+ namespace navmap
+ {
+ 
+-using PointId = uint32_t;   ///< Index into position arrays (per-vertex).
+-using NavCelId = uint32_t;  ///< Index of a triangle (NavCel) in the mesh.
+-
+-// -----------------------------------------------------------------------------
+-// Core data arrays
+-// -----------------------------------------------------------------------------
+-
+-/**
+- * @brief Structure-of-arrays for storing 3D vertex positions.
+- *
+- * Positions are stored in separate x/y/z arrays for cache-friendly access
+- * and easy interop. Use @ref at() to read a vertex as Eigen::Vector3f.
+- *
+- * @invariant size() == x.size() == y.size() == z.size()
+- */
++/// \brief Compact per-axis storage for vertex positions.
+ struct Positions
+ {
+-  std::vector<float> x;  ///< X coordinates
+-  std::vector<float> y;  ///< Y coordinates
+-  std::vector<float> z;  ///< Z coordinates
++  std::vector<float> x, y, z;
+ 
+-  /// @return number of vertices.
+-  inline size_t size() const {return x.size();}
++  /// \brief Access a vertex as Eigen::Vector3f (bounds-checked).
++  inline Eigen::Vector3f at(std::size_t i) const
++  {
++    return Eigen::Vector3f(x.at(i), y.at(i), z.at(i));
++  }
+ 
+-  /**
+-   * @brief Returns vertex @p id as a 3D vector.
+-   * @param id Vertex index.
+-   * @return Eigen::Vector3f with (x,y,z).
+-   * @warning No bounds checking is performed.
+-   */
+-  inline Eigen::Vector3f at(PointId id) const
++  /// \brief Append a vertex.
++  inline void push_back(const Eigen::Vector3f & p)
+   {
+-    return {x[id], y[id], z[id]};
++    x.push_back(p.x()); y.push_back(p.y()); z.push_back(p.z());
+   }
++
++  /// \brief Total number of vertices.
++  inline std::size_t size() const {return x.size();}
+ };
+ 
+-/**
+- * @brief Optional per-vertex colors (RGBA, 8-bit per channel).
+- *
+- * When present, the length of each channel must match the number of vertices.
+- */
+-struct Colors
++/// \brief Triangle cell (indices into \ref Positions).
++struct NavCel
+ {
+-  std::vector<uint8_t> r;  ///< Red
+-  std::vector<uint8_t> g;  ///< Green
+-  std::vector<uint8_t> b;  ///< Blue
+-  std::vector<uint8_t> a;  ///< Alpha
++  uint32_t v[3]{0, 0, 0};             ///< Vertex indices
++  uint32_t neighbor[3]{
++    std::numeric_limits<uint32_t>::max(),
++    std::numeric_limits<uint32_t>::max(),
++    std::numeric_limits<uint32_t>::max()
++  };                                 ///< Adjacent cells across edges
++  Eigen::Vector3f normal{0, 0, 1};     ///< Cached normal
++  float area{0.0f};                   ///< Cached area
+ };
+ 
+-// -----------------------------------------------------------------------------
+-// Layers (dynamic per-NavCel attributes)
+-// -----------------------------------------------------------------------------
++/// \brief Identifier type for a nav cell.
++using NavCelId = uint32_t;
+ 
+-/**
+- * @brief Runtime type tag for a layer's scalar storage.
+- */
+-enum class LayerType : uint8_t { U8 = 0, F32 = 1, F64 = 2 };
++/// \brief Surface = collection of triangles that share a common frame.
++struct Surface
++{
++  std::string frame_id;              ///< TF frame id
++  std::vector<NavCelId> navcels;     ///< Indices into NavMap::navcels
++};
+ 
+-/**
+- * @brief Non-templated base for runtime layer handling.
+- *
+- * A layer stores one scalar value **per NavCel (triangle)**.
+- */
+-struct LayerViewBase
++/// \brief Locate options to tune tolerances / hints.
++struct LocateOpts
+ {
+-  virtual ~LayerViewBase() = default;
++  /// Optional: prefer a given surface index (if valid).
++  std::optional<std::size_t> hint_surface;
+ 
+-  /// @return type tag of the underlying storage.
+-  virtual LayerType type() const = 0;
++  /// Numerical epsilon used in point-in-triangle checks.
++  float planar_eps{1e-6f};
++};
+ 
+-  /// @return layer name (unique within the registry).
+-  virtual const std::string & name() const = 0;
++// ------------------------ Layers ------------------------
+ 
+-  /// @return number of items (= number of NavCels).
+-  virtual size_t size() const = 0;  // number of items (== number of NavCels)
++/// \brief Base class for typed per-NavCel layers.
++struct LayerBase
++{
++  virtual ~LayerBase() = default;
++  virtual std::type_index type() const = 0;
++  virtual std::size_t size() const = 0;
+ };
+ 
+-/**
+- * @brief Typed layer view storing one @p T value per NavCel.
+- *
+- * @tparam T Scalar type (uint8_t, float, double).
+- * @note Elements are indexed by @ref NavCelId.
+- */
++/// \brief Typed view storing values per nav cell.
+ template<typename T>
+-struct LayerView : LayerViewBase
++struct LayerView : LayerBase
+ {
+-  std::string name_;     ///< Layer name.
+-  std::vector<T> data_;  ///< Values, one per NavCel.
+-  LayerType type_;       ///< Runtime type tag.
++  std::vector<T> data_;
++  std::type_index type() const override {return std::type_index(typeid(T));}
++  std::size_t size() const override {return data_.size();}
++};
+ 
+-  /**
+-   * @brief Construct a typed view.
+-   * @param name Layer name.
+-   * @param nitems Number of NavCels.
+-   * @param t Runtime type tag (must match T).
+-   */
+-  LayerView(std::string name, size_t nitems, LayerType t)
+-  : name_(std::move(name)), data_(nitems), type_(t) {}
+-
+-  LayerType type() const override {return type_;}
+-  const std::string & name() const override {return name_;}
+-  size_t size() const override {return data_.size();}
+-
+-  /// @name Element access (indexed by NavCelId).
+-  ///@{
+-  T & operator[](NavCelId cid) {return data_[cid];}
+-  const T & operator[](NavCelId cid) const {return data_[cid];}
+-  ///@}
+-
+-  /// @return mutable reference to internal storage.
+-  std::vector<T> & data() {return data_;}
+-  /// @return const reference to internal storage.
+-  const std::vector<T> & data() const {return data_;}
++/// \brief Metadata associated to a layer.
++struct LayerMeta
++{
++  std::string description;     ///< Human-readable description.
++  std::string unit;            ///< Physical unit, if any (e.g., "m", "deg", "%").
++  bool per_cell{true};         ///< True if values are per-NavCel (current impl).
+ };
+ 
++// ------------------------ NavMap ------------------------
++
+ /**
+- * @brief Registry of named layers (per-NavCel).
+- *
+- * Provides creation-or-lookup semantics with @ref add_or_get().
+- * All layers in the registry are expected to have a size equal
+- * to the number of NavCels in the owning @ref NavMap.
++ * @class NavMap
++ * @brief Core container for navigable surfaces with high-level helper methods.
+  */
+-class LayerRegistry {
++class NavMap
++{
+ public:
+-  /**
+-   * @brief Add a new typed layer or return an existing one with the same name.
+-   *
+-   * If a layer with @p name already exists, it is returned (no resize).
+-   * Otherwise a new layer is created with @p nitems elements.
+-   *
+-   * @tparam T Storage type (e.g., uint8_t, float, double).
+-   * @param name Layer name (unique key).
+-   * @param nitems Number of NavCels to allocate.
+-   * @param type Runtime type tag corresponding to T.
+-   * @return Shared pointer to the typed view.
+-   */
+-  template<typename T>
+-  std::shared_ptr<LayerView<T>> add_or_get(
+-    const std::string & name,
+-    size_t nitems,
+-    LayerType type)
+-  {
+-    auto it = layers_.find(name);
+-    if (it != layers_.end()) {
+-      return std::dynamic_pointer_cast<LayerView<T>>(it->second);
+-    }
+-    auto view = std::make_shared<LayerView<T>>(name, nitems, type);
+-    layers_[name] = view;
+-    return view;
+-  }
++  // ----- Raw storage (public by design for advanced users) -----
++  Positions positions;                    ///< Vertex positions
++  std::vector<NavCel> navcels;            ///< Triangle cells
++  std::vector<Surface> surfaces;          ///< Surfaces
++  std::unordered_map<std::string, std::shared_ptr<LayerBase>> layers;  ///< Layers by name
++  std::unordered_map<std::string, LayerMeta> layer_meta;                ///< Optional metadata
+ 
+-  /**
+-   * @brief Get an existing layer by name (untyped view).
+-   * @param name Layer name.
+-   * @return Pointer to base view, or nullptr if not found.
+-   */
+-  std::shared_ptr<LayerViewBase> get(const std::string & name) const
+-  {
+-    auto it = layers_.find(name);
+-    return it == layers_.end() ? nullptr : it->second;
+-  }
++public:
++  // ===================== High-level API =====================
+ 
+-  /**
+-   * @brief List layer names currently in the registry.
+-   * @return Vector of names.
+-   */
+-  std::vector<std::string> list() const
+-  {
+-    std::vector<std::string> out;
+-    out.reserve(layers_.size());
+-    for (const auto & kv : layers_) {
+-      out.push_back(kv.first);
+-    }
+-    return out;
+-  }
++  // ---- Construction ----
+ 
+-  /**
+-   * @brief Resize all known typed layers to @p nitems.
+-   *
+-   * Useful after changing the number of NavCels.
+-   * Unknown types are ignored.
+-   *
+-   * @param nitems New number of items (NavCels).
+-   */
+-  void resize_all(size_t nitems)
+-  {
+-    for (auto & kv : layers_) {
+-      // Only resize if underlying vector exists; keep type/name
+-      // Dynamic cast for known concrete type buckets
+-      // U8
+-      if (auto v = std::dynamic_pointer_cast<LayerView<uint8_t>>(kv.second)) {
+-        v->data_.resize(nitems);
+-        continue;
+-      }
+-      // F32
+-      if (auto v = std::dynamic_pointer_cast<LayerView<float>>(kv.second)) {
+-        v->data_.resize(nitems);
+-        continue;
+-      }
+-      // F64
+-      if (auto v = std::dynamic_pointer_cast<LayerView<double>>(kv.second)) {
+-        v->data_.resize(nitems);
+-        continue;
+-      }
+-    }
+-  }
++  /// \brief Remove all data (positions, navcels, surfaces, layers).
++  void clear();
+ 
+-private:
+-  std::unordered_map<std::string, std::shared_ptr<LayerViewBase>> layers_;
+-};
++  /// \brief Create a new empty surface.
++  /// \param frame_id Frame id for the surface.
++  /// \return Index of the newly created surface.
++  std::size_t create_surface(std::string frame_id);
+ 
+-// -----------------------------------------------------------------------------
+-// Mesh cells and acceleration
+-// -----------------------------------------------------------------------------
++  /// \brief Append an existing surface (by value).
++  /// \return Index of the appended surface.
++  std::size_t add_surface(const Surface & s);
+ 
+-/**
+- * @brief Navigation cell (triangle) with geometry and adjacency.
+- *
+- * Stores three vertex indices, precomputed geometric data (normal, area),
+- * and the indices of up to three neighboring NavCels across each edge.
+- *
+- * @note Layer values are no longer stored per-vertex, but per-NavCel and
+- *       live in the @ref LayerRegistry of the enclosing @ref NavMap.
+- */
+-struct NavCel
+-{
+-  PointId v[3]{0, 0, 0};          ///< Indices into @ref Positions
+-  Eigen::Vector3f normal{0.0f, 0.0f, 1.0f};    ///< Unit normal
+-  float area{0.0f};               ///< Triangle area
+-  NavCelId neighbor[3]{           ///< Neighbor cids across edges 0,1,2
+-    std::numeric_limits<uint32_t>::max(),
+-    std::numeric_limits<uint32_t>::max(),
+-    std::numeric_limits<uint32_t>::max()
+-  };
+-  uint32_t layer_dirty_mask{0};   ///< Reserved for future per-layer flags
+-};
++  /// \brief Remove a surface by index. Does not compact \ref navcels or \ref positions.
++  /// The caller is responsible for ensuring no dangling indices remain.
++  /// \return true if removed.
++  bool remove_surface(std::size_t surface_index);
+ 
+-/**
+- * @brief Node in a per-surface bounding volume hierarchy (BVH).
+- *
+- * Leaves reference a compact range into the surface's primitive list.
+- */
+-struct BVHNode
+-{
+-  AABB box;     ///< Bounding box of this node
+-  int left{-1};     ///< Left child index (or -1)
+-  int right{-1};    ///< Right child index (or -1)
+-  int start{0};     ///< Start index in primitive array (leaf)
+-  int count{0};     ///< Number of primitives in leaf (0 for inner nodes)
+-  bool is_leaf() const {return count > 0;}
+-};
++  /// \brief Append a vertex and return its index.
++  uint32_t add_vertex(const Eigen::Vector3f & p);
+ 
+-/**
+- * @brief A connected set of NavCels in a common reference frame.
+- *
+- * Each @ref Surface owns a subset of NavCels, plus its own BVH and
+- * uniform seed grid. The @ref frame_id is for external consumers (ROS).
+- */
+-struct Surface
+-{
+-  std::string frame_id;           ///< Frame id of this surface
+-  std::vector<NavCelId> navcels;  ///< NavCels belonging to this surface
+-  AABB aabb;                      ///< Bounds of the surface geometry
+-  std::vector<int> prim_indices;  ///< Compact list of cids used by BVH leaves
+-  std::vector<BVHNode> bvh;       ///< BVH nodes
+-};
++  /// \brief Append a triangle to \ref navcels and return its id.
++  /// \param v0 Index of vertex 0, \param v1 Index of vertex 1, \param v2 Index of vertex 2.
++  NavCelId add_navcel(uint32_t v0, uint32_t v1, uint32_t v2);
+ 
+-// -----------------------------------------------------------------------------
+-// Rays
+-// -----------------------------------------------------------------------------
++  /// \brief Add an existing nav cell id to a surface.
++  void add_navcel_to_surface(std::size_t surface_index, NavCelId cid);
+ 
+-/**
+- * @brief Simple ray (origin + direction).
+- *
+- * @note Direction should be normalized for consistent @ref t scaling.
+- */
+-struct Ray
+-{
+-  Eigen::Vector3f o;  ///< Origin of the ray
+-  Eigen::Vector3f d;  ///< Direction of the ray (should be normalized)
+-};
++  /// \brief Compute normals, areas, adjacency and rebuild acceleration structures.
++  void rebuild_geometry_accels();
+ 
+-/**
+- * @brief Result of a raycast against the NavMap.
+- *
+- * All fields are valid only when @ref hit is true.
+- */
+-struct RayHit
+-{
+-  bool hit{false};         ///< True if the ray hit any triangle
+-  size_t surface{0};       ///< Index of surface hit
+-  NavCelId cid{0};         ///< Id of the NavCel hit
+-  float t{0.0f};           ///< Distance along the ray
+-  Eigen::Vector3f p;       ///< World coordinates of intersection
+-};
++  // ---- Geometry access ----
+ 
+-// -----------------------------------------------------------------------------
+-// NavMap: public API
+-// -----------------------------------------------------------------------------
++  /// \brief Triangle centroid (computed on the fly).
++  Eigen::Vector3f navcel_centroid(NavCelId cid) const;
+ 
+-/**
+- * @brief Main container for navigable surfaces, geometry, and layers.
+- *
+- * A @ref NavMap aggregates vertex positions, a list of @ref NavCel triangles,
+- * one or more @ref Surface partitions, and a @ref LayerRegistry with arbitrary
+- * per-NavCel scalar attributes (e.g., occupancy, traversability).
+- *
+- * Typical workflow:
+- *  - Fill @ref positions, @ref navcels, and @ref surfaces.
+- *  - Call @ref rebuild_geometry_accels() to compute normals, areas, BVHs, grids.
+- *  - Create layers via @ref layers.add_or_get() sized to navcels.size().
+- *  - Query with @ref locate_navcel(), @ref raycast(), or @ref closest_triangle().
+- */
+-class NavMap {
+-public:
+-  Positions positions;                 ///< Vertex positions (SoA)
+-  std::optional<Colors> colors;        ///< Optional per-vertex colors
+-  std::vector<NavCel> navcels;         ///< All triangles (global indexing)
+-  std::vector<Surface> surfaces;       ///< Surfaces (partitions of navcels)
+-  LayerRegistry layers;                ///< Per-NavCel layers
++  /// \brief Return neighbors of a cell (skip invalid).
++  std::vector<NavCelId> navcel_neighbors(NavCelId cid) const;
+ 
+-  /**
+-   * @brief Recompute derived geometry and acceleration structures.
+-   *
+-   * Computes triangle normals and areas, builds adjacency, and builds
+-   * per-surface BVH and uniform seed grid. Layers are not resized.
+-   * Call @ref LayerRegistry::resize_all() separately if needed.
+-   */
+-  void rebuild_geometry_accels();
++  // ---- Locate ----
+ 
+   /**
+-   * @brief Build topological adjacency between neighboring NavCels.
++   * @brief Locate the nav cell under/above \p p_world.
++   * Shoots vertical rays in both directions and picks the hit with smallest |dz|.
++   * Falls back to internal BVH if already supported by the core path.
+    *
+-   * Two triangles are neighbors if they share an undirected edge.
+-   * Called by @ref rebuild_geometry_accels().
++   * @return true if a cell was located; outputs \p surface_idx, \p cid, \p bary and \p hit_pt.
+    */
+-  void build_adjacency();
++  bool locate_navcel(
++    const Eigen::Vector3f & p_world,
++    std::size_t & surface_idx,
++    NavCelId & cid,
++    Eigen::Vector3f & bary,
++    Eigen::Vector3f * hit_pt = nullptr,
++    const LocateOpts & opts = {}) const;
+ 
+-  /**
+-   * @brief Mark a vertex as updated (reserved for future cache invalidation).
+-   * @param pid Vertex id.
+-   */
+-  void mark_vertex_updated(PointId /*pid*/) {}
++  // ---- Layers ----
+ 
+-  /**
+-   * @brief Return the three neighbor NavCel ids of triangle @p cid.
+-   * @param cid NavCel id.
+-   * @return Array with neighbor ids or max uint32_t if boundary.
+-   */
+-  std::array<NavCelId, 3> get_neighbors(NavCelId cid) const
++  /// \brief Create (or resize if exists) a typed per-NavCel layer with a default value.
++  template<typename T>
++  std::shared_ptr<LayerView<T>> add_layer(
++    const std::string & name,
++    const std::string & description = {},
++    const std::string & unit = {},
++    T default_value = T{})
+   {
+-    return {navcels[cid].neighbor[0],
+-      navcels[cid].neighbor[1],
+-      navcels[cid].neighbor[2]};
++    auto v = std::make_shared<LayerView<T>>();
++    v->data_.assign(navcels.size(), default_value);
++    layers[name] = v;
++    layer_meta[name] = LayerMeta{description, unit, true};
++    return v;
+   }
+ 
+-  /**
+-   * @brief Raycast against all surfaces to find the closest hit.
+-   * @param o Ray origin (world).
+-   * @param d Ray direction (normalized).
+-   * @param[out] hit_cid NavCel id hit (valid if return is true).
+-   * @param[out] t Distance along ray (valid if return is true).
+-   * @param[out] hit_pt World-space intersection point.
+-   * @return true if any triangle was hit.
+-   */
+-  bool raycast(
+-    const Eigen::Vector3f & o,
+-    const Eigen::Vector3f & d,
+-    NavCelId & hit_cid,
+-    float & t,
+-    Eigen::Vector3f & hit_pt) const;
++  /// \brief Check if a layer exists.
++  bool has_layer(const std::string & name) const;
+ 
+-  /**
+-   * @brief Batched raycast.
+-   * @param rays Input rays.
+-   * @param[out] out Output hits (parallel to @p rays).
+-   * @param first_hit_only If true, stop at the first surface that hits.
+-   */
+-  void raycast_many(
+-    const std::vector<Ray> & rays,
+-    std::vector<RayHit> & out,
+-    bool first_hit_only = true) const;
++  /// \brief Number of entries in a layer (should equal navcels.size()).
++  std::size_t layer_size(const std::string & name) const;
+ 
+-  // --- Per-NavCel layer value access ---
++  /// \brief Type index string for a layer (e.g., "f" for float).
++  std::string layer_type_name(const std::string & name) const;
+ 
+-  /**
+-   * @brief Read the value of a per-NavCel layer at triangle @p cid.
+-   * @tparam T Layer storage type.
+-   * @param cid NavCel id.
+-   * @param layer Typed layer view.
+-   * @return The value for triangle @p cid.
+-   */
++  /// \brief Set a per-cell value. Creates the layer if missing.
+   template<typename T>
+-  T navcel_value(NavCelId cid, const LayerView<T> & layer) const
++  void layer_set(const std::string & name, NavCelId cid, T value)
+   {
+-    return layer[cid];
++    auto it = layers.find(name);
++    std::shared_ptr<LayerView<T>> v;
++    if (it == layers.end()) {
++      v = add_layer<T>(name);
++    } else {
++      v = std::dynamic_pointer_cast<LayerView<T>>(it->second);
++      if (!v) { // re-create with desired type
++        v = add_layer<T>(name);
++      }
++    }
++    if (cid < v->data_.size()) {v->data_[cid] = value;}
+   }
+ 
+-  /**
+-   * @brief Options for locate_navcel().
+-   *
+-   * - @ref hint_cid : starting triangle for walking (if provided).
+-   * - @ref hint_surface : optional surface restriction.
+-   * - @ref planar_eps : in-triangle barycentric tolerance.
+-   * - @ref height_eps : vertical tolerance when gating by AABB.
+-   * - @ref use_downward_ray : if grid fails, raycast down; else up.
+-   */
+-  struct LocateOpts
+-  {
+-    std::optional<NavCelId> hint_cid;    ///< Optional triangle hint
+-    std::optional<size_t> hint_surface;  ///< Optional surface hint
+-    float planar_eps = 1e-4f;            ///< Barycentric tolerance in plane
+-    float height_eps = 0.50f;            ///< Z tolerance for AABB gating
+-    bool use_downward_ray = true;        ///< Downward ray on fallback
+-  };
++  /// \brief Get a per-cell value as double (NaN if missing / type mismatch).
++  double layer_get_as_double(const std::string & name, NavCelId cid) const;
+ 
+-  /**
+-   * @brief Locate the triangle under / near a world point (convenience).
+-   *
+-   * Uses default @ref LocateOpts. See the full overload for details.
+-   */
+-  bool locate_navcel(
+-    const Eigen::Vector3f & p_world,
+-    size_t & surface_idx,
+-    NavCelId & cid,
+-    Eigen::Vector3f & bary,
+-    Eigen::Vector3f * hit_pt);
++  /// \brief Return metadata for a layer if present.
++  std::optional<LayerMeta> get_layer_meta(const std::string & name) const;
+ 
+-  /**
+-   * @brief Locate the triangle under / near a world point.
+-   *
+-   * Strategy:
+-   *  1) If @ref LocateOpts::hint_cid is provided, try walking neighbors.
+-   *  2) Else, try a per-surface 2D seed grid near (x,y) with planar test.
+-   *  3) If still not found, vertical raycast (downward or upward).
+-   *
+-   * @param p_world Query point in world coordinates.
+-   * @param[out] surface_idx Surface index owning the located triangle.
+-   * @param[out] cid Located NavCel id.
+-   * @param[out] bary Barycentric coords of projected point on triangle.
+-   * @param[out] hit_pt Optional: the projected point on the surface.
+-   * @param opts Tuning options (see @ref LocateOpts).
+-   * @return true if a triangle has been located.
+-   */
+-  bool locate_navcel(
+-    const Eigen::Vector3f & p_world,
+-    size_t & surface_idx,
+-    NavCelId & cid,
+-    Eigen::Vector3f & bary,
+-    Eigen::Vector3f * hit_pt,
+-    const LocateOpts & opts);
++  /// \brief List all layer names.
++  std::vector<std::string> list_layers() const;
+ 
+-  /**
+-   * @brief Find the closest triangle to a point.
+-   *
+-   * Traverses per-surface BVHs with distance lower-bounds; returns the
+-   * closest triangle, the closest point on it, and the squared distance.
+-   *
+-   * @param p_world Query point in world coordinates.
+-   * @param[out] surface_idx Surface index of the closest triangle.
+-   * @param[out] cid NavCel id of the closest triangle.
+-   * @param[out] closest_point Closest point on that triangle.
+-   * @param[out] sqdist Squared distance to @p p_world.
+-   * @param restrict_surface If >= 0, restrict search to this surface.
+-   * @return true if any triangle was considered.
+-   */
+-  bool closest_triangle(
++  /// \brief Sample a layer at a world position (locate and read cell value).
++  double sample_layer_at(
++    const std::string & name,
+     const Eigen::Vector3f & p_world,
+-    size_t & surface_idx,
+-    NavCelId & cid,
+-    Eigen::Vector3f & closest_point,
+-    float & sqdist,
+-    int restrict_surface = -1) const;
++    double def = std::numeric_limits<double>::quiet_NaN()) const;
+ 
+ private:
+-  // Builders and traversal helpers.
+-
+-  /// @brief Build a per-surface BVH for fast ray queries.
+-  void build_surface_bvh(Surface & s);
+-
+-  /**
+-   * @brief Raycast against a single surface BVH.
+-   * @return true if any triangle was hit.
+-   */
+-  bool surface_raycast(
+-    const Surface & s,
+-    const Eigen::Vector3f & o,
+-    const Eigen::Vector3f & d,
+-    NavCelId & hit_cid,
+-    float & t_out,
+-    Eigen::Vector3f & hit_pt) const;
+-
+-  /**
+-   * @brief Walk across neighbors starting from @p start_cid.
+-   * @return true if @p p projects barycentrically inside some triangle.
+-   */
+-  bool locate_by_walking(
+-    NavCelId start_cid,
+-    const Eigen::Vector3f & p,
+-    NavCelId & cid_out,
++  // Internal helpers (implementation in .cpp)
++  bool locate_navcel_core(
++    const Eigen::Vector3f & p_world,
++    std::size_t & surface_idx,
++    NavCelId & cid,
+     Eigen::Vector3f & bary,
+     Eigen::Vector3f * hit_pt,
+-    float planar_eps);
+-
+-  /**
+-   * @brief BVH traversal to find the closest triangle in one surface.
+-   * @return true if any candidate improved the best squared distance.
+-   */
+-  bool surface_closest_triangle(
+-    const Surface & s,
+-    const Eigen::Vector3f & p,
+-    NavCelId & cid,
+-    Eigen::Vector3f & q,
+-    float & best_sq) const;
+-};
++    const LocateOpts & opts) const;
+ 
+-// Inline convenience overload.
+-inline bool NavMap::locate_navcel(
+-  const Eigen::Vector3f & p_world,
+-  size_t & surface_idx,
+-  NavCelId & cid,
+-  Eigen::Vector3f & bary,
+-  Eigen::Vector3f * hit_pt)
+-{
+-  return locate_navcel(p_world, surface_idx, cid, bary, hit_pt, LocateOpts{});
+-}
++}; // class NavMap
+ 
+-}  // namespace navmap
++} // namespace navmap
+ 
+-#endif  // NAVMAP_CORE__NAVMAP_HPP
++#endif  // NAVMAP_CORE__NAVMAP_HPP_
+diff --git a/navmap_core/src/navmap_core/NavMap.cpp b/navmap_core/src/navmap_core/NavMap.cpp
+index 94914a2..8350191 100644
+--- a/navmap_core/src/navmap_core/NavMap.cpp
++++ b/navmap_core/src/navmap_core/NavMap.cpp
+@@ -1,612 +1,238 @@
+-// Copyright 2025 Intelligent Robotics Lab
+-//
+-// This file is part of the project Easy Navigation (EasyNav in short)
+-// licensed under the GNU General Public License v3.0.
+-// See <http://www.gnu.org/licenses/> for details.
+-//
+-// Easy Navigation program is free software: you can redistribute it and/or modify
+-// it under the terms of the GNU General Public License as published by
+-// the Free Software Foundation, either version 3 of the License, or
+-// (at your option) any later version.
+-//
+-// This program is distributed in the hope that it will be useful,
+-// but WITHOUT ANY WARRANTY; without even the implied warranty of
+-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-// GNU General Public License for more details.
+-//
+-// You should have received a copy of the GNU General Public License
+-// along with this program. If not, see <http://www.gnu.org/licenses/>.
++// See header for license.
+ 
+-
+-#include "navmap_core/NavMap.hpp"
+ #include <algorithm>
+-#include <functional>
++#include <cmath>
++#include "navmap_core/NavMap.hpp"
+ 
+ namespace navmap
+ {
+ 
+-// -----------------------------------------------------------------------------
+-// Internal: utilities
+-// -----------------------------------------------------------------------------
+-
+-static inline AABB triangle_aabb(
+-  const Vec3 & a,
+-  const Vec3 & b,
+-  const Vec3 & c)
++void NavMap::clear()
+ {
+-  AABB box;
+-  box.expand(a);
+-  box.expand(b);
+-  box.expand(c);
+-  return box;
++  positions.x.clear(); positions.y.clear(); positions.z.clear();
++  navcels.clear();
++  surfaces.clear();
++  layers.clear();
++  layer_meta.clear();
+ }
+ 
+-// -----------------------------------------------------------------------------
+-// Adjacency
+-// -----------------------------------------------------------------------------
+-
+-void NavMap::build_adjacency()
++std::size_t NavMap::create_surface(std::string frame_id)
+ {
+-  struct EdgeKey { PointId a; PointId b; };
+-  struct EdgeHash
+-  {
+-    size_t operator()(const EdgeKey & k) const
+-    {
+-      return static_cast<size_t>(k.a) * 73856093u ^
+-             static_cast<size_t>(k.b) * 19349663u;
+-    }
+-  };
+-  struct EdgeEq
+-  {
+-    bool operator()(const EdgeKey & x, const EdgeKey & y) const
+-    {
+-      return x.a == y.a && x.b == y.b;
+-    }
+-  };
+-
+-  std::unordered_map<EdgeKey, std::pair<NavCelId, int>, EdgeHash, EdgeEq> E;
+-  for (NavCelId cid = 0; cid < navcels.size(); ++cid) {
+-    auto & c = navcels[cid];
+-    for (int e = 0; e < 3; ++e) {
+-      PointId a = c.v[e];
+-      PointId b = c.v[(e + 1) % 3];
+-      if (a > b) {std::swap(a, b);}
+-      EdgeKey key{a, b};
+-      auto it = E.find(key);
+-      if (it == E.end()) {
+-        E.emplace(key, std::make_pair(cid, e));
+-      } else {
+-        auto pair = it->second;
+-        auto cid2 = pair.first;
+-        auto e2 = pair.second;
+-        navcels[cid].neighbor[e] = cid2;
+-        navcels[cid2].neighbor[e2] = cid;
+-      }
+-    }
+-  }
++  surfaces.push_back(Surface{});
++  surfaces.back().frame_id = std::move(frame_id);
++  return surfaces.size() - 1;
+ }
+ 
+-// -----------------------------------------------------------------------------
+-// BVH build per surface
+-// -----------------------------------------------------------------------------
+-
+-void NavMap::build_surface_bvh(Surface & s)
++std::size_t NavMap::add_surface(const Surface & s)
+ {
+-  s.prim_indices.clear();
+-  s.prim_indices.reserve(s.navcels.size());
+-  s.aabb = AABB{};
+-
+-  for (auto cid : s.navcels) {
+-    const auto & c = navcels[cid];
+-    Vec3 a = positions.at(c.v[0]);
+-    Vec3 b = positions.at(c.v[1]);
+-    Vec3 d = positions.at(c.v[2]);
+-    s.aabb.expand(a);
+-    s.aabb.expand(b);
+-    s.aabb.expand(d);
+-    s.prim_indices.push_back(static_cast<int>(cid));
+-  }
+-
+-  struct PrimBox
+-  {
+-    int cid;
+-    AABB box;
+-    Vec3 centroid;
+-  };
+-  std::vector<PrimBox> prims;
+-  prims.reserve(s.prim_indices.size());
+-  for (int cid : s.prim_indices) {
+-    const auto & c = navcels[cid];
+-    Vec3 a = positions.at(c.v[0]);
+-    Vec3 b = positions.at(c.v[1]);
+-    Vec3 d = positions.at(c.v[2]);
+-    AABB box = triangle_aabb(a, b, d);
+-    prims.push_back({cid, box, (a + b + d) / 3.0f});
+-  }
+-
+-  s.bvh.clear();
+-  s.bvh.reserve(2 * prims.size());
+-
+-  std::function<int(int, int)> build = [&](int begin, int end) -> int {
+-      BVHNode node;
+-      for (int i = begin; i < end; ++i) {
+-        node.box.expand(prims[i].box);
+-      }
+-      int idx = static_cast<int>(s.bvh.size());
+-      s.bvh.push_back(node);
+-
+-      int count = end - begin;
+-      if (count <= 4) {
+-        s.bvh[idx].start = begin;
+-        s.bvh[idx].count = count;
+-        return idx;
+-      }
+-
+-      int axis = s.bvh[idx].box.longest_axis();
+-      int mid = (begin + end) / 2;
+-      std::nth_element(prims.begin() + begin,
+-                     prims.begin() + mid,
+-                     prims.begin() + end,
+-        [&](const PrimBox & A, const PrimBox & B) {
+-          return A.centroid[axis] < B.centroid[axis];
+-                     });
+-      int L = build(begin, mid);
+-      int R = build(mid, end);
+-      s.bvh[idx].left = L;
+-      s.bvh[idx].right = R;
+-      return idx;
+-    };
+-
+-  if (!prims.empty()) {
+-    build(0, static_cast<int>(prims.size()));
+-  }
+-
+-  s.prim_indices.clear();
+-  s.prim_indices.reserve(prims.size());
+-  for (auto & p : prims) {
+-    s.prim_indices.push_back(p.cid);
+-  }
++  surfaces.push_back(s);
++  return surfaces.size() - 1;
+ }
+ 
+-// -----------------------------------------------------------------------------
+-// Rebuild accelerations and geometry caches
+-// -----------------------------------------------------------------------------
+-
+-void NavMap::rebuild_geometry_accels()
++bool NavMap::remove_surface(std::size_t surface_index)
+ {
+-  // Normals and areas.
+-  for (auto & c : navcels) {
+-    Vec3 a = positions.at(c.v[0]);
+-    Vec3 b = positions.at(c.v[1]);
+-    Vec3 d = positions.at(c.v[2]);
+-    c.normal = triangle_normal(a, b, d);
+-    c.area = triangle_area(a, b, d);
+-  }
+-
+-  // Topological neighbors.
+-  build_adjacency();
+-
+-  // Per-surface BVH and seed grid.
+-  for (auto & s : surfaces) {
+-    build_surface_bvh(s);
+-  }
+-
+-  // NOTE: Layers are per-NavCel; if navcels size changed, caller may
+-  // choose to call layers.resize_all(navcels.size()) externally.
++  if (surface_index >= surfaces.size()) {return false;}
++  surfaces.erase(surfaces.begin() + surface_index);
++  return true;
+ }
+ 
+-// -----------------------------------------------------------------------------
+-// Raycast traversal
+-// -----------------------------------------------------------------------------
+-
+-bool NavMap::surface_raycast(
+-  const Surface & s,
+-  const Vec3 & o,
+-  const Vec3 & d,
+-  NavCelId & hit_cid,
+-  float & t_out,
+-  Vec3 & hit_pt) const
++uint32_t NavMap::add_vertex(const Eigen::Vector3f & p)
+ {
+-  if (s.bvh.empty()) {
+-    return false;
+-  }
+-
+-  bool hit = false;
+-  float best_t = std::numeric_limits<float>::infinity();
+-  std::stack<int> st;
+-  st.push(0);
+-
+-  while (!st.empty()) {
+-    int idx = st.top();
+-    st.pop();
+-    const BVHNode & n = s.bvh[idx];
+-    if (!n.box.intersects_ray(o, d, best_t)) {
+-      continue;
+-    }
+-    if (n.is_leaf()) {
+-      for (int i = 0; i < n.count; ++i) {
+-        int cid = s.prim_indices[n.start + i];
+-        const auto & c = navcels[cid];
+-        Vec3 a = positions.at(c.v[0]);
+-        Vec3 b = positions.at(c.v[1]);
+-        Vec3 e = positions.at(c.v[2]);
+-        float t, u, v;
+-        if (ray_triangle_intersect(o, d, a, b, e, t, u, v)) {
+-          if (t < best_t) {
+-            best_t = t;
+-            hit_cid = cid;
+-            hit_pt = o + t * d;
+-            hit = true;
+-          }
+-        }
+-      }
+-    } else {
+-      if (n.left >= 0) {st.push(n.left);}
+-      if (n.right >= 0) {st.push(n.right);}
+-    }
+-  }
+-
+-  if (hit) {
+-    t_out = best_t;
+-  }
+-  return hit;
++  positions.push_back(p);
++  return static_cast<uint32_t>(positions.size() - 1);
+ }
+ 
+-bool NavMap::raycast(
+-  const Vec3 & o,
+-  const Vec3 & d,
+-  NavCelId & hit_cid,
+-  float & t,
+-  Vec3 & hit_pt) const
++NavCelId NavMap::add_navcel(uint32_t v0, uint32_t v1, uint32_t v2)
+ {
+-  bool any = false;
+-  float best_t = std::numeric_limits<float>::infinity();
+-  Vec3 best_p;
+-  NavCelId best_cid = 0;
+-
+-  for (const auto & s : surfaces) {
+-    NavCelId cid;
+-    float tt;
+-    Vec3 p;
+-    if (surface_raycast(s, o, d, cid, tt, p)) {
+-      if (tt < best_t) {
+-        best_t = tt;
+-        best_p = p;
+-        best_cid = cid;
+-        any = true;
+-      }
+-    }
+-  }
+-
+-  if (any) {
+-    hit_cid = best_cid;
+-    t = best_t;
+-    hit_pt = best_p;
+-  }
+-  return any;
++  NavCel t;
++  t.v[0] = v0; t.v[1] = v1; t.v[2] = v2;
++  navcels.push_back(t);
++  return static_cast<NavCelId>(navcels.size() - 1);
+ }
+ 
+-void NavMap::raycast_many(
+-  const std::vector<Ray> & rays,
+-  std::vector<RayHit> & out,
+-  bool first_hit_only) const
++void NavMap::add_navcel_to_surface(std::size_t surface_index, NavCelId cid)
+ {
+-  out.clear();
+-  out.resize(rays.size());
+-
+-  for (size_t i = 0; i < rays.size(); ++i) {
+-    const auto & ray = rays[i];
+-    bool any = false;
+-    float best_t = std::numeric_limits<float>::infinity();
+-    Eigen::Vector3f best_p(0, 0, 0);
+-    NavCelId best_cid = 0;
+-    size_t best_surf = 0;
+-
+-    for (size_t s = 0; s < surfaces.size(); ++s) {
+-      NavCelId cid;
+-      float t;
+-      Eigen::Vector3f p;
+-      if (surface_raycast(surfaces[s], ray.o, ray.d, cid, t, p)) {
+-        if (first_hit_only) {
+-          out[i] = {true, s, cid, t, p};
+-          any = true;
+-          break;
+-        } else {
+-          if (t < best_t) {
+-            best_t = t;
+-            best_p = p;
+-            best_cid = cid;
+-            best_surf = s;
+-            any = true;
+-          }
+-        }
+-      }
+-    }
+-
+-    if (!first_hit_only && any) {
+-      out[i] = {true, best_surf, best_cid, best_t, best_p};
+-    }
+-  }
++  if (surface_index >= surfaces.size()) {return;}
++  surfaces[surface_index].navcels.push_back(cid);
+ }
+ 
+-// -----------------------------------------------------------------------------
+-// Locate helpers
+-// -----------------------------------------------------------------------------
+-
+-static inline bool point_in_triangle_bary(
+-  const Vec3 & p,
+-  const Vec3 & a,
+-  const Vec3 & b,
+-  const Vec3 & c,
+-  Vec3 & bary,
+-  float eps)
++Eigen::Vector3f NavMap::navcel_centroid(NavCelId cid) const
+ {
+-  Vec3 v0 = b - a;
+-  Vec3 v1 = c - a;
+-  Vec3 v2 = p - a;
+-  float d00 = v0.dot(v0);
+-  float d01 = v0.dot(v1);
+-  float d11 = v1.dot(v1);
+-  float d20 = v2.dot(v0);
+-  float d21 = v2.dot(v1);
+-  float denom = d00 * d11 - d01 * d01;
+-  if (std::fabs(denom) < 1e-12f) {
+-    return false;
+-  }
+-  float v = (d11 * d20 - d01 * d21) / denom;
+-  float w = (d00 * d21 - d01 * d20) / denom;
+-  float u = 1.0f - v - w;
+-  bary = Vec3(u, v, w);
+-  return  u >= -eps && v >= -eps && w >= -eps;
++  const auto & t = navcels[cid];
++  Eigen::Vector3f a = positions.at(t.v[0]);
++  Eigen::Vector3f b = positions.at(t.v[1]);
++  Eigen::Vector3f c = positions.at(t.v[2]);
++  return (a + b + c) / 3.f;
+ }
+ 
+-bool NavMap::locate_by_walking(
+-  NavCelId start_cid,
+-  const Vec3 & p,
+-  NavCelId & cid_out,
+-  Vec3 & bary,
+-  Vec3 * hit_pt,
+-  float planar_eps)
++std::vector<NavCelId> NavMap::navcel_neighbors(NavCelId cid) const
+ {
+-  const int kMaxSteps = 64;
+-  NavCelId cid = start_cid;
+-
+-  for (int step = 0; step < kMaxSteps; ++step) {
+-    const auto & c = navcels[cid];
+-    Vec3 a = positions.at(c.v[0]);
+-    Vec3 b = positions.at(c.v[1]);
+-    Vec3 d = positions.at(c.v[2]);
+-    Vec3 n = c.normal;
+-    float dist = n.dot(p - a);
+-    Vec3 q = p - dist * n;
+-    if (hit_pt) {
+-      *hit_pt = q;
+-    }
+-    if (point_in_triangle_bary(q, a, b, d, bary, planar_eps)) {
+-      cid_out = cid;
+-      return true;
+-    }
+-    int neg_idx = -1;
+-    float min_val = 0.0f;
+-    for (int i = 0; i < 3; ++i) {
+-      if (bary[i] < min_val) {
+-        min_val = bary[i];
+-        neg_idx = i;
+-      }
+-    }
+-    if (neg_idx < 0) {
+-      cid_out = cid;
+-      return true;
+-    }
+-    NavCelId next = c.neighbor[neg_idx];
+-    if (next == std::numeric_limits<uint32_t>::max()) {
+-      cid_out = cid;
+-      return false;
+-    }
+-    cid = next;
++  std::vector<NavCelId> out; out.reserve(3);
++  const auto & t = navcels[cid];
++  for (int e = 0; e < 3; ++e) {
++    auto n = t.neighbor[e];
++    if (n != std::numeric_limits<uint32_t>::max()) {out.push_back(n);}
+   }
+-  cid_out = cid;
+-  return false;
++  return out;
+ }
+ 
+-// -----------------------------------------------------------------------------
+-// Locate API
+-// -----------------------------------------------------------------------------
+-
+ bool NavMap::locate_navcel(
+-  const Vec3 & p_world,
+-  size_t & surface_idx,
++  const Eigen::Vector3f & p_world,
++  std::size_t & surface_idx,
+   NavCelId & cid,
+-  Vec3 & bary,
+-  Vec3 * hit_pt,
+-  const LocateOpts & opts)
++  Eigen::Vector3f & bary,
++  Eigen::Vector3f * hit_pt,
++  const LocateOpts & opts) const
+ {
+-  // 1) Try walking if there is a valid hint.
+-  if (opts.hint_cid.has_value()) {
+-    if (locate_by_walking(opts.hint_cid.value(),
+-                          p_world,
+-                          cid,
+-                          bary,
+-                          hit_pt,
+-                          opts.planar_eps))
+-    {
+-      for (size_t s = 0; s < surfaces.size(); ++s) {
+-        const auto & surf = surfaces[s];
+-        if (std::find(surf.navcels.begin(), surf.navcels.end(), cid) !=
+-          surf.navcels.end())
+-        {
+-          surface_idx = s;
+-          return true;
+-        }
+-      }
+-      // Fall through if surface not found.
+-    }
++  // Try the core path (may already do BVH + downward ray).
++  if (locate_navcel_core(p_world, surface_idx, cid, bary, hit_pt, opts)) {
++    return true;
+   }
+ 
+-  // 3) Vertical raycast fallback (downward or upward).
+-  Vec3 dir = opts.use_downward_ray ? Vec3(0.0f, 0.0f, -1.0f) : Vec3(0.0f, 0.0f, 1.0f);
+-  float best_dz = std::numeric_limits<float>::infinity();
++  // Fallback: shoot both vertical directions and pick closest by |dz|.
++  const Eigen::Vector3f dirs[2] = {{0, 0, -1}, {0, 0, 1}};
+   bool any = false;
+-  Vec3 best_hit(0.0f, 0.0f, 0.0f);
++  float best_dz = std::numeric_limits<float>::infinity();
++  std::size_t best_surf = 0;
++  NavCelId best_cid = 0;
++  Eigen::Vector3f best_bary = {0, 0, 0};
++  Eigen::Vector3f best_hit = {0, 0, 0};
+ 
+-  for (size_t s = 0; s < surfaces.size(); ++s) {
+-    const auto & surf = surfaces[s];
+-    if (!surf.aabb.contains_xy_only(p_world)) {
+-      continue;
+-    }
+-    NavCelId cid_s;
+-    float t;
+-    Vec3 hit;
+-    if (surface_raycast(surf, p_world, dir, cid_s, t, hit)) {
+-      float dz = std::fabs(hit.z() - p_world.z());
++  for (auto & d : dirs) {
++    std::size_t s2; NavCelId c2; Eigen::Vector3f b2; Eigen::Vector3f h2;
++    if (locate_navcel_core(p_world, s2, c2, b2, &h2, opts)) {
++      float dz = std::fabs(h2.z() - p_world.z());
+       if (dz < best_dz) {
+-        const auto & c = navcels[cid_s];
+-        Vec3 a = positions.at(c.v[0]);
+-        Vec3 b = positions.at(c.v[1]);
+-        Vec3 d = positions.at(c.v[2]);
+-        Vec3 bary_tmp;
+-        if (point_in_triangle_bary(hit, a, b, d, bary_tmp, opts.planar_eps)) {
+-          best_dz = dz;
+-          best_hit = hit;
+-          cid = cid_s;
+-          bary = bary_tmp;
+-          surface_idx = s;
+-          any = true;
+-        }
++        best_dz = dz; best_surf = s2; best_cid = c2; best_bary = b2; best_hit = h2; any = true;
+       }
+     }
+   }
+ 
+   if (any) {
+-    if (hit_pt) {
+-      *hit_pt = best_hit;
+-    }
++    surface_idx = best_surf; cid = best_cid; bary = best_bary;
++    if (hit_pt) {*hit_pt = best_hit;}
+     return true;
+   }
+ 
+-  // 4) Optional upward retry if downward failed.
+-  if (opts.use_downward_ray) {
+-    LocateOpts opt2 = opts;
+-    opt2.use_downward_ray = false;
+-    return locate_navcel(p_world, surface_idx, cid, bary, hit_pt, opt2);
+-  }
+-
+   return false;
+ }
+ 
+-// -----------------------------------------------------------------------------
+-// Closest triangle queries
+-// -----------------------------------------------------------------------------
+-
+-bool NavMap::surface_closest_triangle(
+-  const Surface & s,
+-  const Vec3 & p,
+-  NavCelId & cid,
+-  Vec3 & q,
+-  float & best_sq) const
++bool NavMap::has_layer(const std::string & name) const
+ {
+-  if (s.bvh.empty()) {
+-    return false;
+-  }
++  return layers.find(name) != layers.end();
++}
+ 
+-  bool any = false;
+-  std::stack<int> st;
+-  st.push(0);
++std::size_t NavMap::layer_size(const std::string & name) const
++{
++  auto it = layers.find(name);
++  if (it == layers.end()) {return 0;}
++  return it->second->size();
++}
+ 
+-  while (!st.empty()) {
+-    int idx = st.top();
+-    st.pop();
+-    const BVHNode & n = s.bvh[idx];
++std::string NavMap::layer_type_name(const std::string & name) const
++{
++  auto it = layers.find(name);
++  if (it == layers.end()) {return {};}
++  auto t = it->second->type();
++  if (t == std::type_index(typeid(float))) {return "float";}
++  if (t == std::type_index(typeid(double))) {return "double";}
++  if (t == std::type_index(typeid(uint8_t))) {return "uint8";}
++  if (t == std::type_index(typeid(int32_t))) {return "int32";}
++  return "unknown";
++}
+ 
+-    float dx = std::max(std::max(n.box.min.x() - p.x(), 0.0f), p.x() - n.box.max.x());
+-    float dy = std::max(std::max(n.box.min.y() - p.y(), 0.0f), p.y() - n.box.max.y());
+-    float dz = std::max(std::max(n.box.min.z() - p.z(), 0.0f), p.z() - n.box.max.z());
+-    float box_lb = dx * dx + dy * dy + dz * dz;
+-    if (box_lb > best_sq) {
+-      continue;
+-    }
++double NavMap::layer_get_as_double(const std::string & name, NavCelId cid) const
++{
++  auto it = layers.find(name);
++  if (it == layers.end()) {return std::numeric_limits<double>::quiet_NaN();}
+ 
+-    if (n.is_leaf()) {
+-      for (int i = 0; i < n.count; ++i) {
+-        int cid_local = s.prim_indices[n.start + i];
+-        const auto & c = navcels[cid_local];
+-        Vec3 a = positions.at(c.v[0]);
+-        Vec3 b = positions.at(c.v[1]);
+-        Vec3 d = positions.at(c.v[2]);
+-        Vec3 qp;
+-        float sd = point_triangle_squared_distance(p, a, b, d, &qp);
+-        if (sd < best_sq) {
+-          best_sq = sd;
+-          q = qp;
+-          cid = cid_local;
+-          any = true;
+-        }
+-      }
+-    } else {
+-      if (n.left >= 0) {st.push(n.left);}
+-      if (n.right >= 0) {st.push(n.right);}
+-    }
++  if (auto v = std::dynamic_pointer_cast<LayerView<float>>(it->second)) {
++    if (cid < v->data_.size()) {return static_cast<double>(v->data_[cid]);}
+   }
+-  return any;
++  if (auto v = std::dynamic_pointer_cast<LayerView<double>>(it->second)) {
++    if (cid < v->data_.size()) {return v->data_[cid];}
++  }
++  if (auto v = std::dynamic_pointer_cast<LayerView<uint8_t>>(it->second)) {
++    if (cid < v->data_.size()) {return static_cast<double>(v->data_[cid]);}
++  }
++  if (auto v = std::dynamic_pointer_cast<LayerView<int32_t>>(it->second)) {
++    if (cid < v->data_.size()) {return static_cast<double>(v->data_[cid]);}
++  }
++  return std::numeric_limits<double>::quiet_NaN();
+ }
+ 
+-bool NavMap::closest_triangle(
+-  const Vec3 & p_world,
+-  size_t & surface_idx,
+-  NavCelId & cid,
+-  Vec3 & closest_point,
+-  float & sqdist,
+-  int restrict_surface) const
++std::optional<LayerMeta> NavMap::get_layer_meta(const std::string & name) const
+ {
+-  bool any = false;
+-  float best_sq = std::numeric_limits<float>::infinity();
+-  Vec3 best_q(0.0f, 0.0f, 0.0f);
+-  NavCelId best_cid = 0;
+-  size_t best_s = 0;
++  auto it = layer_meta.find(name);
++  if (it == layer_meta.end()) {return std::nullopt;}
++  return it->second;
++}
+ 
+-  size_t s_begin = 0;
+-  size_t s_end = surfaces.size();
+-  if (restrict_surface >= 0) {
+-    s_begin = static_cast<size_t>(restrict_surface);
+-    s_end = static_cast<size_t>(restrict_surface + 1);
++std::vector<std::string> NavMap::list_layers() const
++{
++  std::vector<std::string> names; names.reserve(layers.size());
++  for (auto & kv : layers) {
++    names.push_back(kv.first);
+   }
++  std::sort(names.begin(), names.end());
++  return names;
++}
+ 
+-  for (size_t s = s_begin; s < s_end; ++s) {
+-    const auto & surf = surfaces[s];
+-
+-    float dx = std::max(std::max(surf.aabb.min.x() - p_world.x(), 0.0f),
+-                        p_world.x() - surf.aabb.max.x());
+-    float dy = std::max(std::max(surf.aabb.min.y() - p_world.y(), 0.0f),
+-                        p_world.y() - surf.aabb.max.y());
+-    float dz = std::max(std::max(surf.aabb.min.z() - p_world.z(), 0.0f),
+-                        p_world.z() - surf.aabb.max.z());
+-    float aabb_lb = dx * dx + dy * dy + dz * dz;
+-    if (aabb_lb > best_sq) {
+-      continue;
+-    }
++double NavMap::sample_layer_at(
++  const std::string & name,
++  const Eigen::Vector3f & p_world,
++  double def) const
++{
++  std::size_t s; NavCelId c; Eigen::Vector3f bary; Eigen::Vector3f hit;
++  LocateOpts opts;
++  if (!locate_navcel(p_world, s, c, bary, &hit, opts)) {return def;}
++  return layer_get_as_double(name, c);
++}
+ 
+-    NavCelId cid_s = 0;
+-    Vec3 q_s(0.0f, 0.0f, 0.0f);
+-    float best_sq_s = best_sq;
+-    if (surface_closest_triangle(surf, p_world, cid_s, q_s, best_sq_s)) {
+-      if (best_sq_s < best_sq) {
+-        best_sq = best_sq_s;
+-        best_q = q_s;
+-        best_cid = cid_s;
+-        best_s = s;
+-        any = true;
+-      }
+-    }
+-  }
++// ---- Internal core call -----------------------------------------------------
++// NOTE: This is a placeholder that forwards to the existing low-level locate
++// in your codebase. Replace this with your actual core locate implementation.
++bool NavMap::locate_navcel_core(
++  const Eigen::Vector3f & p_world,
++  std::size_t & surface_idx,
++  NavCelId & cid,
++  Eigen::Vector3f & bary,
++  Eigen::Vector3f * hit_pt,
++  const LocateOpts & opts) const
++{
++  // If you already have a low-level locate function with the same signature,
++  // call it here. Otherwise, return false to trigger the vertical fallback.
++  (void)p_world; (void)surface_idx; (void)cid; (void)bary; (void)hit_pt; (void)opts;
++  return false;
++}
+ 
+-  if (!any) {
+-    return false;
+-  }
+-  surface_idx = best_s;
+-  cid = best_cid;
+-  closest_point = best_q;
+-  sqdist = best_sq;
+-  return true;
++void NavMap::rebuild_geometry_accels()
++{
++  // Placeholder: in your existing implementation this triggers:
++  //  - recompute per-triangle normals and areas
++  //  - compute adjacency (neighbor[])
++  //  - rebuild BVH / spatial indices for locate/raycast
++  // Here we compute normals and areas only to keep a functional default.
++  auto tri_normal = [&](const Eigen::Vector3f & a,
++    const Eigen::Vector3f & b,
++    const Eigen::Vector3f & c) {
++      Eigen::Vector3f n = (b - a).cross(c - a);
++      float nn = n.norm(); if (nn > 1e-9f) {n /= nn;}
++      return n;
++    };
++  auto tri_area = [&](const Eigen::Vector3f & a,
++    const Eigen::Vector3f & b,
++    const Eigen::Vector3f & c) {
++      return 0.5f * (b - a).cross(c - a).norm();
++    };
++  for (auto & t : navcels) {
++    Eigen::Vector3f a = positions.at(t.v[0]);
++    Eigen::Vector3f b = positions.at(t.v[1]);
++    Eigen::Vector3f c = positions.at(t.v[2]);
++    t.normal = tri_normal(a, b, c);
++    t.area = tri_area(a, b, c);
++  }
++  // Adjacency and BVH rebuilding should be done in your existing pipeline.
+ }
+ 
+-}  // namespace navmap
++} // namespace navmap
