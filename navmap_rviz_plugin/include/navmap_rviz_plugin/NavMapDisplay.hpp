@@ -18,162 +18,271 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
-#define NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
+#ifndef NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
+#define NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
 
-/**
- * @file navmapdisplay.hpp
- * @brief RViz display plugin for visualizing NavMap messages.
- *
- * This display renders NavMap surfaces (triangular meshes) and optional layers
- * published as `navmap_ros_interfaces::msg::NavMap`. It supports switching
- * between layers, adjusting transparency, and visualizing per-triangle normals.
- */
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include <QObject>
+
+#include <rclcpp/qos.hpp>
+#include <rclcpp/subscription.hpp>
 
 #include <rviz_common/message_filter_display.hpp>
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/enum_property.hpp>
 #include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/qos_profile_property.hpp>
+#include <rviz_common/properties/ros_topic_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
-#include <rviz_common/display.hpp>
 #include <rviz_common/display_context.hpp>
-
-#include <rviz_rendering/objects/shape.hpp>
-#include <rviz_rendering/objects/movable_text.hpp>
-
-#include <Ogre.h>
-
-#include <memory>
-#include <vector>
-#include <string>
-#include <unordered_map>
 
 #include <navmap_ros_interfaces/msg/nav_map.hpp>
 #include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
-#include <navmap_ros_interfaces/msg/nav_map_surface.hpp>
+
+#if defined _WIN32 || defined __CYGWIN__
+  #ifdef __GNUC__
+    #define NAVMAP_RVIZ_PLUGIN_EXPORT __attribute__ ((dllexport))
+    #define NAVMAP_RVIZ_PLUGIN_IMPORT __attribute__ ((dllimport))
+  #else
+    #define NAVMAP_RVIZ_PLUGIN_EXPORT __declspec(dllexport)
+    #define NAVMAP_RVIZ_PLUGIN_IMPORT __declspec(dllimport)
+  #endif
+  #ifdef navmap_rviz_plugin_EXPORTS
+    #define NAVMAP_RVIZ_PLUGIN_PUBLIC NAVMAP_RVIZ_PLUGIN_EXPORT
+  #else
+    #define NAVMAP_RVIZ_PLUGIN_PUBLIC NAVMAP_RVIZ_PLUGIN_IMPORT
+  #endif
+  #define NAVMAP_RVIZ_PLUGIN_PUBLIC_TYPE NAVMAP_RVIZ_PLUGIN_PUBLIC
+  #define NAVMAP_RVIZ_PLUGIN_LOCAL
+#else
+  #define NAVMAP_RVIZ_PLUGIN_PUBLIC __attribute__ ((visibility ("default")))
+  #define NAVMAP_RVIZ_PLUGIN_PUBLIC_TYPE
+  #define NAVMAP_RVIZ_PLUGIN_LOCAL  __attribute__ ((visibility ("hidden")))
+#endif
+
+/// Forward declarations to avoid hard coupling with OGRE headers here.
+namespace Ogre
+{
+class SceneNode;
+class ManualObject;
+}  // namespace Ogre
 
 namespace navmap_rviz_plugin
 {
 
 /**
  * @class NavMapDisplay
- * @brief RViz plugin to display NavMap messages as triangle meshes.
+ * @brief RViz display for visualizing NavMap meshes and per-cell layers.
  *
- * This class inherits from `rviz_common::MessageFilterDisplay` to subscribe
- * to and process `navmap_ros_interfaces::msg::NavMap` messages. It renders
- * the geometry in the RViz scene using Ogre primitives, with optional coloring
- * by selected layers and visualization of per-triangle normals.
- *
- * @note Typical usage: add the plugin in RViz, choose the "NavMap" display,
- *       and select the desired layer to visualize.
+ * This display renders triangle meshes from a `navmap_ros_interfaces::msg::NavMap`
+ * and colorizes each triangle by a selected layer. It also supports incremental
+ * layer updates via a secondary subscription to `NavMapLayer`, plus optional
+ * per-triangle normal visualization.
  */
-class NavMapDisplay : public rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>
+class NAVMAP_RVIZ_PLUGIN_PUBLIC NavMapDisplay
+  : public rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>
 {
+  Q_OBJECT
+
+  using MFDClass = rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>;
+  using NavMapMsg = navmap_ros_interfaces::msg::NavMap;
+  using NavMapLayerMsg = navmap_ros_interfaces::msg::NavMapLayer;
+
 public:
-  /// @brief Construct an empty display.
+  /// @brief Construct display and declare user-facing properties.
   NavMapDisplay();
 
-  /// @brief Destructor. Frees Ogre objects and scene nodes.
+  /// @brief Clean up OGRE objects and internal resources.
   ~NavMapDisplay() override;
 
-protected:
+  // --- RViz lifecycle ---
+
   /**
-   * @brief Called once after the display is created.
+   * @brief Initialize the display after construction.
    *
-   * Initializes Ogre scene nodes, creates properties in the RViz panel,
-   * and sets up defaults for layer selection and rendering options.
+   * Initializes QoS properties and creates the root scene node if needed.
    */
   void onInitialize() override;
 
   /**
-   * @brief Reset the display to its initial state.
+   * @brief Reset display state to an empty/initial condition.
    *
-   * Clears all scene objects and resets internal data structures.
-   * Called when RViz resets the display.
+   * Clears last received message, layer indices and info. Keeps or rebuilds OGRE objects as needed.
    */
   void reset() override;
 
   /**
-   * @brief Process an incoming NavMap message.
+   * @brief Called when the display is enabled.
    *
-   * Stores the message, rebuilds geometry buffers, and updates the
-   * RViz scene with the new mesh and optional layer coloring.
-   *
-   * @param[in] msg Shared pointer to the received NavMap message.
+   * Subscribes to the layer update topic in addition to the main NavMap subscription.
    */
-  void processMessage(const navmap_ros_interfaces::msg::NavMap::ConstSharedPtr msg) override;
+  void onEnable() override;
+
+  /**
+   * @brief Called when the display is disabled.
+   *
+   * Unsubscribes from the layer update topic and lets the base class disable main input.
+   */
+  void onDisable() override;
+
+protected:
+  /**
+   * @brief Process an incoming full NavMap message.
+   *
+   * @param msg The received NavMap message.
+   *
+   * Updates internal state, repopulates the layer enum, rebuilds indices and triggers a redraw.
+   */
+  void processMessage(const NavMapMsg::ConstSharedPtr msg) override;
+
+private Q_SLOTS:
+  /**
+   * @brief React to a change in the layer update topic property.
+   *
+   * Re-subscribes to the `NavMapLayer` topic using the configured QoS profile.
+   */
+  void updateLayerUpdateTopic();
+
+  /**
+   * @brief React to a change in the selected colorizing layer.
+   *
+   * Rebuilds geometry colors and (optionally) normals for the selected layer.
+   */
+  void onLayerSelectionChanged();
+
+  /**
+   * @brief Toggle drawing of per-triangle normals.
+   */
+  void onDrawNormalsChanged();
+
+  /**
+   * @brief Update global alpha for triangle colors.
+   */
+  void onAlphaChanged();
+
+  /**
+   * @brief Update the visual scale for normal lines.
+   */
+  void onNormalScaleChanged();
 
 private:
-  // --------- Helpers ---------
+  // --- Layer update subscription (secondary input) ---
 
   /**
-   * @brief Remove all Ogre objects and clear the scene.
+   * @brief Subscribe to the configured `NavMapLayer` topic.
    *
-   * Used before rebuilding geometry or when resetting the display.
+   * Creates a subscription using the current QoS profile. Does nothing if disabled or topic is empty.
    */
-  void clearScene();
+  void subscribeToLayerTopic();
+
+  /// @brief Unsubscribe from the `NavMapLayer` topic.
+  void unsubscribeToLayerTopic();
 
   /**
-   * @brief Build Ogre ManualObjects to render triangles and normals.
+   * @brief Handler for incoming incremental layer messages.
    *
-   * Iterates over surfaces and layers in the last received NavMap,
-   * creating geometry buffers with the appropriate coloring scheme.
+   * @param msg The received layer data for all triangles (exactly one array non-empty).
+   *
+   * Validates size/type, updates or inserts the layer into the last NavMap, and triggers recoloring if needed.
    */
-  void rebuildGeometry();
+  void incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg);
+
+  // --- Utilities ---
+
+  /// @brief Rebuild fast lookups from layer name to layer pointer within @ref last_msg_.
+  void rebuildLayerIndex_();
+
+  /// @brief Get the currently selected layer name from the property (empty if none).
+  std::string currentSelectedLayer_() const;
+
+  /// @brief Repopulate the layer selection enum from @ref last_msg_ while preserving the previous selection if possible.
+  void repopulateLayerEnum_();
 
   /**
-   * @brief Update the choices available in the "Layer" property.
+   * @brief Insert or update a layer inside the mutable copy of the last NavMap.
    *
-   * Extracts available layers from the last received message and
-   * populates the property dropdown accordingly.
+   * @param layer The layer to insert or replace by name.
+   *
+   * Adds the option to the enum if it did not exist and rebuilds the layer index.
    */
-  void updateLayerChoices();
+  void applyOrCacheLayer_(const NavMapLayerMsg & layer);
+
+  // --- Rendering pipeline ---
 
   /**
-   * @brief Convert an 8-bit occupancy value to an Ogre color.
+   * @brief Build or update triangle geometry and per-triangle colors.
    *
-   * @param[in] v Raw layer value in the range [0,255].
-   * @return Corresponding `Ogre::ColourValue` (grayscale).
+   * Recreates the manual object for triangles using the current NavMap and color scheme:
+   * selected layer (U8: occupancy mapping; F32/F64: heat map) or vertex RGBA, with global alpha.
    */
-  Ogre::ColourValue colorFromU8(uint8_t v) const;
+  void updateGeometry_();
 
   /**
-   * @brief Convert a scalar value to a heatmap color.
+   * @brief Build or update the per-triangle normals manual object.
    *
-   * @param[in] value     Input scalar value.
-   * @param[in] max_value Maximum expected value for scaling.
-   * @return Color from blue (low) to red (high).
+   * Uses the centroid and face normal of each triangle and the configured normal scale.
    */
-  Ogre::ColourValue colorFromHeat(float value, float max_value) const;
+  void updateNormals_();
 
-  /**
-   * @brief Callback triggered when any property changes.
-   *
-   * Rebuilds geometry or updates the scene as needed.
-   */
-  void onPropertyChanged();
+private:
+  // ---- User-facing properties ----
 
-  // --------- Properties (user-configurable in RViz) ---------
+  /// @brief Selected layer to colorize triangles.
+  rviz_common::properties::EnumProperty * layer_property_{nullptr};
 
-  rviz_common::properties::EnumProperty * layer_property_;          ///< Selected layer to colorize.
-  rviz_common::properties::BoolProperty * draw_normals_property_;   ///< Toggle display of per-triangle normals.
-  rviz_common::properties::FloatProperty * normal_scale_property_;  ///< Length scale for drawn normals.
-  rviz_common::properties::FloatProperty * alpha_property_;         ///< Global transparency factor [0,1].
-  rviz_common::properties::StringProperty * info_property_;          ///< Read-only info field (e.g., statistics).
+  /// @brief Topic for incremental layer updates (`NavMapLayer`).
+  rviz_common::properties::RosTopicProperty * layer_topic_property_{nullptr};
 
-  // --------- Scene graph ---------
+  /// @brief QoS profile for the layer update subscription.
+  rviz_common::properties::QosProfileProperty * layer_profile_property_{nullptr};
 
-  Ogre::ManualObject * triangles_obj_;  ///< Ogre object storing the rendered triangles.
-  Ogre::ManualObject * normals_obj_;    ///< Ogre object storing line segments for normals.
-  Ogre::SceneNode * root_node_;         ///< Root scene node for all geometry in this display.
+  /// @brief Toggle drawing of per-triangle normals.
+  rviz_common::properties::BoolProperty * draw_normals_property_{nullptr};
 
-  // --------- Data ---------
+  /// @brief Scale for normal segments.
+  rviz_common::properties::FloatProperty * normal_scale_property_{nullptr};
 
-  navmap_ros_interfaces::msg::NavMap::ConstSharedPtr last_msg_;  ///< Last received NavMap message.
-  std::unordered_map<std::string, const navmap_ros_interfaces::msg::NavMapLayer *>
-  layers_by_name_;   ///< Mapping from layer name to layer pointer for quick lookup.
+  /// @brief Global transparency for triangle colors.
+  rviz_common::properties::FloatProperty * alpha_property_{nullptr};
+
+  /// @brief Read-only info about the current NavMap (counts, etc.).
+  rviz_common::properties::StringProperty * info_property_{nullptr};
+
+  // ---- Layer QoS and subscription ----
+
+  /// @brief QoS used for the layer update subscription.
+  rclcpp::QoS layer_profile_{rclcpp::QoS(5)};
+
+  /// @brief Subscription to incremental `NavMapLayer` messages.
+  rclcpp::Subscription<NavMapLayerMsg>::SharedPtr layer_subscription_;
+
+  /// @brief Timestamp when the layer subscription was created (diagnostics).
+  rclcpp::Time layer_subscription_start_time_;
+
+  // ---- Data state ----
+
+  /// @brief Mutable copy of the last full NavMap message to integrate layer updates.
+  NavMapMsg::SharedPtr last_msg_;
+
+  /// @brief Fast lookup from layer name to layer pointer within @ref last_msg_.
+  std::unordered_map<std::string, const NavMapLayerMsg *> layers_by_name_;
+
+  // ---- OGRE scene objects ----
+
+  /// @brief Root node used to attach display geometry.
+  Ogre::SceneNode * root_node_{nullptr};
+
+  /// @brief Manual object for triangle geometry and colors.
+  Ogre::ManualObject * triangles_obj_{nullptr};
+
+  /// @brief Manual object for per-triangle normal segments.
+  Ogre::ManualObject * normals_obj_{nullptr};
 };
 
-} // namespace navmap_rviz_plugin
+}  // namespace navmap_rviz_plugin
 
-#endif  // NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
+#endif  // NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
