@@ -1,5 +1,5 @@
 <map id="NavMapDisplay" name="NavMapDisplay">
-<area shape="rect" id="Node000001" title="RViz plugin to display NavMap messages as triangle meshes." alt="" coords="33,109,145,135"/>
+<area shape="rect" id="Node000001" title="RViz display for visualizing NavMap meshes and per&#45;cell layers." alt="" coords="33,109,145,135"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,5,173,61"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,76,92,108,86,108,86,76"/>
 </map>

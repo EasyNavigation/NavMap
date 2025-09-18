@@ -96,7 +96,7 @@ $(function(){ initResizable(false); });
 </div><!--header-->
 <div class="contents">
 
-<p>RViz plugin to display <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> messages as triangle meshes.  
+<p>RViz display for visualizing <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> meshes and per-cell layers.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="NavMapDisplay_8hpp_source.html">NavMapDisplay.hpp</a>&gt;</code></p>
@@ -105,7 +105,7 @@ Inheritance diagram for NavMapDisplay:</div>
 <div class="dyncontent">
 <div class="center"><img src="classnavmap__rviz__plugin_1_1NavMapDisplay__inherit__graph.png" border="0" usemap="#aNavMapDisplay_inherit__map" alt="Inheritance graph"/></div>
 <map name="aNavMapDisplay_inherit__map" id="aNavMapDisplay_inherit__map">
-<area shape="rect" title="RViz plugin to display NavMap messages as triangle meshes." alt="" coords="33,109,145,135"/>
+<area shape="rect" title="RViz display for visualizing NavMap meshes and per&#45;cell layers." alt="" coords="33,109,145,135"/>
 <area shape="rect" title=" " alt="" coords="5,5,173,61"/>
 <area shape="poly" title=" " alt="" coords="92,76,92,108,86,108,86,76"/>
 </map>
@@ -115,7 +115,7 @@ Collaboration diagram for NavMapDisplay:</div>
 <div class="dyncontent">
 <div class="center"><img src="classnavmap__rviz__plugin_1_1NavMapDisplay__coll__graph.png" border="0" usemap="#aNavMapDisplay_coll__map" alt="Collaboration graph"/></div>
 <map name="aNavMapDisplay_coll__map" id="aNavMapDisplay_coll__map">
-<area shape="rect" title="RViz plugin to display NavMap messages as triangle meshes." alt="" coords="33,109,145,135"/>
+<area shape="rect" title="RViz display for visualizing NavMap meshes and per&#45;cell layers." alt="" coords="33,109,145,135"/>
 <area shape="rect" title=" " alt="" coords="5,5,173,61"/>
 <area shape="poly" title=" " alt="" coords="92,76,92,108,86,108,86,76"/>
 </map>
@@ -124,28 +124,33 @@ Collaboration diagram for NavMapDisplay:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a8d0048cf38eb3250489c97fd4359cd23" id="r_a8d0048cf38eb3250489c97fd4359cd23"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8d0048cf38eb3250489c97fd4359cd23">NavMapDisplay</a> ()</td></tr>
-<tr class="memdesc:a8d0048cf38eb3250489c97fd4359cd23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an empty display.  <br /></td></tr>
+<tr class="memdesc:a8d0048cf38eb3250489c97fd4359cd23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct display and declare user-facing properties.  <br /></td></tr>
 <tr class="separator:a8d0048cf38eb3250489c97fd4359cd23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af041e206014834233cfef8eaa793530b" id="r_af041e206014834233cfef8eaa793530b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af041e206014834233cfef8eaa793530b">onDisable</a> () override</td></tr>
+<tr class="memdesc:af041e206014834233cfef8eaa793530b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the display is disabled.  <br /></td></tr>
+<tr class="separator:af041e206014834233cfef8eaa793530b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2992e4007d8d98088d435881998a51b6" id="r_a2992e4007d8d98088d435881998a51b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2992e4007d8d98088d435881998a51b6">onEnable</a> () override</td></tr>
+<tr class="memdesc:a2992e4007d8d98088d435881998a51b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the display is enabled.  <br /></td></tr>
+<tr class="separator:a2992e4007d8d98088d435881998a51b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e324fefb81c0b94f64b35a181428a9f" id="r_a1e324fefb81c0b94f64b35a181428a9f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1e324fefb81c0b94f64b35a181428a9f">onInitialize</a> () override</td></tr>
+<tr class="memdesc:a1e324fefb81c0b94f64b35a181428a9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the display after construction.  <br /></td></tr>
+<tr class="separator:a1e324fefb81c0b94f64b35a181428a9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebfcdbbd0fe4efbff10b180be50ca6bc" id="r_aebfcdbbd0fe4efbff10b180be50ca6bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aebfcdbbd0fe4efbff10b180be50ca6bc">reset</a> () override</td></tr>
+<tr class="memdesc:aebfcdbbd0fe4efbff10b180be50ca6bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset display state to an empty/initial condition.  <br /></td></tr>
+<tr class="separator:aebfcdbbd0fe4efbff10b180be50ca6bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bb7817b5393388b6445196c8cce3861" id="r_a5bb7817b5393388b6445196c8cce3861"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5bb7817b5393388b6445196c8cce3861">~NavMapDisplay</a> () override</td></tr>
-<tr class="memdesc:a5bb7817b5393388b6445196c8cce3861"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor. Frees Ogre objects and scene nodes.  <br /></td></tr>
+<tr class="memdesc:a5bb7817b5393388b6445196c8cce3861"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean up OGRE objects and internal resources.  <br /></td></tr>
 <tr class="separator:a5bb7817b5393388b6445196c8cce3861"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a1e324fefb81c0b94f64b35a181428a9f" id="r_a1e324fefb81c0b94f64b35a181428a9f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1e324fefb81c0b94f64b35a181428a9f">onInitialize</a> () override</td></tr>
-<tr class="memdesc:a1e324fefb81c0b94f64b35a181428a9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called once after the display is created.  <br /></td></tr>
-<tr class="separator:a1e324fefb81c0b94f64b35a181428a9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acca4e69df8b887f65b590fab989d13ac" id="r_acca4e69df8b887f65b590fab989d13ac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acca4e69df8b887f65b590fab989d13ac">processMessage</a> (const navmap_ros_interfaces::msg::NavMap::ConstSharedPtr msg) override</td></tr>
-<tr class="memdesc:acca4e69df8b887f65b590fab989d13ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process an incoming <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> message.  <br /></td></tr>
-<tr class="separator:acca4e69df8b887f65b590fab989d13ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aebfcdbbd0fe4efbff10b180be50ca6bc" id="r_aebfcdbbd0fe4efbff10b180be50ca6bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aebfcdbbd0fe4efbff10b180be50ca6bc">reset</a> () override</td></tr>
-<tr class="memdesc:aebfcdbbd0fe4efbff10b180be50ca6bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset the display to its initial state.  <br /></td></tr>
-<tr class="separator:aebfcdbbd0fe4efbff10b180be50ca6bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bc06d0f3a205ba74048a6e77df137ff" id="r_a8bc06d0f3a205ba74048a6e77df137ff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bc06d0f3a205ba74048a6e77df137ff">processMessage</a> (const NavMapMsg::ConstSharedPtr msg) override</td></tr>
+<tr class="memdesc:a8bc06d0f3a205ba74048a6e77df137ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process an incoming full <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> message.  <br /></td></tr>
+<tr class="separator:a8bc06d0f3a205ba74048a6e77df137ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>RViz plugin to display <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> messages as triangle meshes. </p>
-<p>This class inherits from <code>rviz_common::MessageFilterDisplay</code> to subscribe to and process <code>navmap_ros_interfaces::msg::NavMap</code> messages. It renders the geometry in the RViz scene using Ogre primitives, with optional coloring by selected layers and visualization of per-triangle normals.</p>
-<dl class="section note"><dt>Note</dt><dd>Typical usage: add the plugin in RViz, choose the "NavMap" display, and select the desired layer to visualize. </dd></dl>
+<div class="textblock"><p>RViz display for visualizing <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> meshes and per-cell layers. </p>
+<p>This display renders triangle meshes from a <code>navmap_ros_interfaces::msg::NavMap</code> and colorizes each triangle by a selected layer. It also supports incremental layer updates via a secondary subscription to <code>NavMapLayer</code>, plus optional per-triangle normal visualization. This display supports color schemes per layer type: U8 layers use the fixed Occupancy mapping, while float layers (F32/F64) can use either Heat or Rainbow. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a8d0048cf38eb3250489c97fd4359cd23" name="a8d0048cf38eb3250489c97fd4359cd23"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8d0048cf38eb3250489c97fd4359cd23">&#9670;&#160;</a></span>NavMapDisplay()</h2>
@@ -162,7 +167,7 @@ Protected Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Construct an empty display. </p>
+<p>Construct display and declare user-facing properties. </p>
 
 </div>
 </div>
@@ -189,11 +194,67 @@ Protected Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Destructor. Frees Ogre objects and scene nodes. </p>
+<p>Clean up OGRE objects and internal resources. </p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="af041e206014834233cfef8eaa793530b" name="af041e206014834233cfef8eaa793530b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af041e206014834233cfef8eaa793530b">&#9670;&#160;</a></span>onDisable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void onDisable </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when the display is disabled. </p>
+<p>Unsubscribes from the layer update topic and lets the base class disable main input. </p>
+
+</div>
+</div>
+<a id="a2992e4007d8d98088d435881998a51b6" name="a2992e4007d8d98088d435881998a51b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2992e4007d8d98088d435881998a51b6">&#9670;&#160;</a></span>onEnable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void onEnable </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when the display is enabled. </p>
+<p>Subscribes to the layer update topic in addition to the main <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> subscription. </p>
+
+</div>
+</div>
 <a id="a1e324fefb81c0b94f64b35a181428a9f" name="a1e324fefb81c0b94f64b35a181428a9f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1e324fefb81c0b94f64b35a181428a9f">&#9670;&#160;</a></span>onInitialize()</h2>
 
@@ -212,18 +273,18 @@ Protected Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel protected">protected</span></span>  </td>
+<span class="mlabels"><span class="mlabel override">override</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Called once after the display is created. </p>
-<p>Initializes Ogre scene nodes, creates properties in the RViz panel, and sets up defaults for layer selection and rendering options. </p>
+<p>Initialize the display after construction. </p>
+<p>Initializes QoS properties and creates the root scene node if needed. </p>
 
 </div>
 </div>
-<a id="acca4e69df8b887f65b590fab989d13ac" name="acca4e69df8b887f65b590fab989d13ac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acca4e69df8b887f65b590fab989d13ac">&#9670;&#160;</a></span>processMessage()</h2>
+<a id="a8bc06d0f3a205ba74048a6e77df137ff" name="a8bc06d0f3a205ba74048a6e77df137ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bc06d0f3a205ba74048a6e77df137ff">&#9670;&#160;</a></span>processMessage()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -234,7 +295,7 @@ Protected Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void processMessage </td>
           <td>(</td>
-          <td class="paramtype">const navmap_ros_interfaces::msg::NavMap::ConstSharedPtr</td>          <td class="paramname"><span class="paramname"><em>msg</em></span></td><td>)</td>
+          <td class="paramtype">const NavMapMsg::ConstSharedPtr</td>          <td class="paramname"><span class="paramname"><em>msg</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -245,14 +306,14 @@ Protected Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Process an incoming <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> message. </p>
-<p>Stores the message, rebuilds geometry buffers, and updates the RViz scene with the new mesh and optional layer coloring.</p>
+<p>Process an incoming full <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> message. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">msg</td><td>Shared pointer to the received <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> message. </td></tr>
+    <tr><td class="paramname">msg</td><td>The received <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> message.</td></tr>
   </table>
   </dd>
 </dl>
+<p>Updates internal state, repopulates the layer enum, rebuilds indices and triggers a redraw. </p>
 
 </div>
 </div>
@@ -274,13 +335,13 @@ Protected Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel protected">protected</span></span>  </td>
+<span class="mlabels"><span class="mlabel override">override</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reset the display to its initial state. </p>
-<p>Clears all scene objects and resets internal data structures. Called when RViz resets the display. </p>
+<p>Reset display state to an empty/initial condition. </p>
+<p>Clears last received message, layer indices and info. Keeps or rebuilds OGRE objects as needed. </p>
 
 </div>
 </div>

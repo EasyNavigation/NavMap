@@ -20,9 +20,12 @@ var searchData=
   ['navmap_5fros_17',['navmap_ros',['../namespacenavmap__ros.html',1,'']]],
   ['navmap_5fros_3a_3aio_18',['io',['../namespacenavmap__ros_1_1io.html',1,'navmap_ros']]],
   ['navmap_5frviz_5fplugin_19',['navmap_rviz_plugin',['../namespacenavmap__rviz__plugin.html',1,'']]],
-  ['navmapdisplay_20',['NavMapDisplay',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html',1,'NavMapDisplay'],['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8d0048cf38eb3250489c97fd4359cd23',1,'navmap_rviz_plugin::NavMapDisplay::NavMapDisplay()']]],
-  ['navmapdisplay_2ecpp_21',['NavMapDisplay.cpp',['../NavMapDisplay_8cpp.html',1,'']]],
-  ['navmapdisplay_2ehpp_22',['NavMapDisplay.hpp',['../NavMapDisplay_8hpp.html',1,'']]],
-  ['neighbor_23',['neighbor',['../structnavmap_1_1NavCel.html#a4631b9564878d7e5efeefa94ee034fb9',1,'navmap::NavCel']]],
-  ['normal_24',['normal',['../structnavmap_1_1NavCel.html#a2dc7f6395235de36ab3a66d476e3444f',1,'navmap::NavCel']]]
+  ['navmap_5frviz_5fplugin_5flocal_20',['NAVMAP_RVIZ_PLUGIN_LOCAL',['../NavMapDisplay_8hpp.html#ace710fee3cbc99d90f02edb94c9bb2f3',1,'NavMapDisplay.hpp']]],
+  ['navmap_5frviz_5fplugin_5fpublic_21',['NAVMAP_RVIZ_PLUGIN_PUBLIC',['../NavMapDisplay_8hpp.html#ae45390d12104e250ca4186560fa7b2e6',1,'NavMapDisplay.hpp']]],
+  ['navmap_5frviz_5fplugin_5fpublic_5ftype_22',['NAVMAP_RVIZ_PLUGIN_PUBLIC_TYPE',['../NavMapDisplay_8hpp.html#a08cdc8ad8faa704c1ec5282de76223a4',1,'NavMapDisplay.hpp']]],
+  ['navmapdisplay_23',['NavMapDisplay',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html',1,'NavMapDisplay'],['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8d0048cf38eb3250489c97fd4359cd23',1,'navmap_rviz_plugin::NavMapDisplay::NavMapDisplay()']]],
+  ['navmapdisplay_2ecpp_24',['NavMapDisplay.cpp',['../NavMapDisplay_8cpp.html',1,'']]],
+  ['navmapdisplay_2ehpp_25',['NavMapDisplay.hpp',['../NavMapDisplay_8hpp.html',1,'']]],
+  ['neighbor_26',['neighbor',['../structnavmap_1_1NavCel.html#a4631b9564878d7e5efeefa94ee034fb9',1,'navmap::NavCel']]],
+  ['normal_27',['normal',['../structnavmap_1_1NavCel.html#a2dc7f6395235de36ab3a66d476e3444f',1,'navmap::NavCel']]]
 ];
