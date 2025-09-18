@@ -40,12 +40,7 @@ This repository is organized into several ROS 2 packages:
   - Layer-based coloring.
 
 - **`navmap_tools/`**  
-  Tools and utilities for building and testing NavMaps (mesh import/export, conversions, etc.).
-
-> _Add an overview diagram here_
-```markdown
-![Overview](docs/images/overview.png)
-```
+  Tools and utilities for building and testing NavMaps (mesh import/export, conversions, etc.)
 
 ---
 
