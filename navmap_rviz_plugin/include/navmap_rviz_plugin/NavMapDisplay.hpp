@@ -82,6 +82,8 @@ namespace navmap_rviz_plugin
  * and colorizes each triangle by a selected layer. It also supports incremental
  * layer updates via a secondary subscription to `NavMapLayer`, plus optional
  * per-triangle normal visualization.
+ * This display supports color schemes per layer type: U8 layers use the fixed
+ * Occupancy mapping, while float layers (F32/F64) can use either Heat or Rainbow.
  */
 class NAVMAP_RVIZ_PLUGIN_PUBLIC NavMapDisplay
   : public rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>
@@ -169,6 +171,13 @@ private Q_SLOTS:
    */
   void onNormalScaleChanged();
 
+  /**
+   * @brief React to a change in the selected color scheme.
+   *
+   * Triggers a geometry recolor (and normals refresh if enabled).
+   */
+  void onColorSchemeChanged();
+
 private:
   // --- Layer update subscription (secondary input) ---
 
@@ -228,6 +237,15 @@ private:
    */
   void updateNormals_();
 
+  /**
+   * @brief Refresh available color-scheme options based on the current layer type.
+   *
+   * - U8 layers: Occupancy (fixed).
+   * - F32/F64 layers: Heat or Rainbow.
+   * Preserves the previous selection when still applicable.
+   */
+  void updateColorSchemeOptions_();
+
 private:
   // ---- User-facing properties ----
 
@@ -239,6 +257,9 @@ private:
 
   /// @brief QoS profile for the layer update subscription.
   rviz_common::properties::QosProfileProperty * layer_profile_property_{nullptr};
+
+  /// @brief Color mapping for the active layer (U8: Occupancy; F32/F64: Heat or Rainbow).
+  rviz_common::properties::EnumProperty * color_scheme_property_{nullptr};
 
   /// @brief Toggle drawing of per-triangle normals.
   rviz_common::properties::BoolProperty * draw_normals_property_{nullptr};

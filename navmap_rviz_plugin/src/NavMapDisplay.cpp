@@ -36,6 +36,39 @@
 namespace
 {
 
+// HSV → RGB (H in [0,360), S,V in [0,1])
+inline void hsv2rgb(float H, float S, float V, float &R, float &G, float &B)
+{
+  const float C = V * S;
+  const float X = C * (1.0f - std::fabs(std::fmod(H / 60.0f, 2.0f) - 1.0f));
+  const float m = V - C;
+
+  float r1 = 0.f, g1 = 0.f, b1 = 0.f;
+  if      (H < 60.f)   { r1 = C; g1 = X; b1 = 0.f; }
+  else if (H < 120.f)  { r1 = X; g1 = C; b1 = 0.f; }
+  else if (H < 180.f)  { r1 = 0.f; g1 = C; b1 = X; }
+  else if (H < 240.f)  { r1 = 0.f; g1 = X; b1 = C; }
+  else if (H < 300.f)  { r1 = X; g1 = 0.f; b1 = C; }
+  else                 { r1 = C; g1 = 0.f; b1 = X; }
+
+  R = r1 + m;
+  G = g1 + m;
+  B = b1 + m;
+}
+
+// Rainbow HSV (blue→...→red). If max≈0, fall back to green.
+inline Ogre::ColourValue colorFromRainbow(float value, float max_value, float alpha)
+{
+  if (max_value <= 1e-9f) {
+    return Ogre::ColourValue(0.0f, 1.0f, 0.0f, alpha);
+  }
+  float n = std::max(0.0f, std::min(1.0f, value / max_value));
+  const float H = (1.0f - n) * 240.0f;  // 240° (blue) → 0° (red)
+  float r, g, b;
+  hsv2rgb(H, 1.0f, 1.0f, r, g, b);
+  return Ogre::ColourValue(r, g, b, alpha);
+}
+
 // Occupancy-style U8 mapping with global alpha.
 // 0 -> light gray (free), 254 -> black (occupied), 255 -> dark green (unknown), 1..253 -> inverted gray.
 inline Ogre::ColourValue colorFromU8(uint8_t v, float alpha)
@@ -80,6 +113,11 @@ NavMapDisplay::NavMapDisplay()
 
   layer_profile_property_ = new rviz_common::properties::QosProfileProperty(
     layer_topic_property_, layer_profile_);
+
+  color_scheme_property_ = new rviz_common::properties::EnumProperty(
+    "Color Scheme", "Heat",
+    "Color mapping for the active layer. U8: Occupancy. Float: Heat or Rainbow.",
+    this, SLOT(onColorSchemeChanged()));
 
   draw_normals_property_ = new rviz_common::properties::BoolProperty(
     "Draw Normals", false, "Draw one normal per triangle.", this, SLOT(onDrawNormalsChanged()));
@@ -176,6 +214,7 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
 
   repopulateLayerEnum_();
   rebuildLayerIndex_();
+  updateColorSchemeOptions_();
 
   // Autocomplete a default layer topic from the base topic (optional)
   if (layer_topic_property_->isEmpty() && !topic_property_->isEmpty()) {
@@ -352,6 +391,7 @@ void NavMapDisplay::applyOrCacheLayer_(const NavMapLayerMsg & layer)
 // Property slots
 void NavMapDisplay::onLayerSelectionChanged()
 {
+  updateColorSchemeOptions_();
   updateGeometry_();
   if (draw_normals_property_->getBool()) {
     updateNormals_();
@@ -377,6 +417,15 @@ void NavMapDisplay::onNormalScaleChanged()
     updateNormals_();
     context_->queueRender();
   }
+}
+
+void NavMapDisplay::onColorSchemeChanged()
+{
+  updateGeometry_();
+  if (draw_normals_property_->getBool()) {
+    updateNormals_();
+  }
+  context_->queueRender();
 }
 
 // Rendering pipeline
@@ -457,6 +506,7 @@ void NavMapDisplay::updateGeometry_()
   triangles_obj_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
   const float alpha = alpha_property_->getFloat();
+  const bool use_rainbow = (color_scheme_property_->getStdString() == "Rainbow");
 
   if (vertex_color_mode) {
     const auto & R = last_msg_->colors_r;
@@ -494,7 +544,9 @@ void NavMapDisplay::updateGeometry_()
     } else if (selected_layer->type == navmap_ros_interfaces::msg::NavMapLayer::F32) {
       for (size_t t = 0; t < V0.size(); ++t) {
         const uint32_t i0 = V0[t], i1 = V1[t], i2 = V2[t];
-        const Ogre::ColourValue col = colorFromHeat(selected_layer->data_f32[t], max_val, alpha);
+        const Ogre::ColourValue col = use_rainbow
+          ? colorFromRainbow(selected_layer->data_f32[t], max_val, alpha)
+          : colorFromHeat(selected_layer->data_f32[t], max_val, alpha);
         triangles_obj_->position(X[i0], Y[i0], Z[i0]); triangles_obj_->colour(col);
         triangles_obj_->position(X[i1], Y[i1], Z[i1]); triangles_obj_->colour(col);
         triangles_obj_->position(X[i2], Y[i2], Z[i2]); triangles_obj_->colour(col);
@@ -503,7 +555,9 @@ void NavMapDisplay::updateGeometry_()
       for (size_t t = 0; t < V0.size(); ++t) {
         const uint32_t i0 = V0[t], i1 = V1[t], i2 = V2[t];
         const float v = static_cast<float>(selected_layer->data_f64[t]);
-        const Ogre::ColourValue col = colorFromHeat(v, max_val, alpha);
+        const Ogre::ColourValue col = use_rainbow
+          ? colorFromRainbow(v, max_val, alpha)
+          : colorFromHeat(v, max_val, alpha);
         triangles_obj_->position(X[i0], Y[i0], Z[i0]); triangles_obj_->colour(col);
         triangles_obj_->position(X[i1], Y[i1], Z[i1]); triangles_obj_->colour(col);
         triangles_obj_->position(X[i2], Y[i2], Z[i2]); triangles_obj_->colour(col);
@@ -565,6 +619,41 @@ void NavMapDisplay::updateNormals_()
   normals_obj_->end();
 }
 
+void NavMapDisplay::updateColorSchemeOptions_()
+{
+  // Preserve current selection if still valid
+  const QString prev = color_scheme_property_->getString();
+
+  color_scheme_property_->clearOptions();
+
+  // Decide by current selected layer type
+  const std::string sel = currentSelectedLayer_();
+  auto it = layers_by_name_.find(sel);
+
+  if (it != layers_by_name_.end()) {
+    const auto * L = it->second;
+    if (L->type == navmap_ros_interfaces::msg::NavMapLayer::U8) {
+      color_scheme_property_->addOption("Occupancy");
+      color_scheme_property_->setString("Occupancy");
+      color_scheme_property_->setDescription("U8 occupancy mapping (free=light, occ=black, unknown=dark green).");
+      return;
+    } else {
+      color_scheme_property_->addOption("Heat");
+      color_scheme_property_->addOption("Rainbow");
+      // Restore prev if valid; else default to Heat
+      if (prev == "Rainbow") color_scheme_property_->setString("Rainbow");
+      else color_scheme_property_->setString("Heat");
+      color_scheme_property_->setDescription("Float mapping: Heat (red/yellow) or Rainbow (HSV spectrum).");
+      return;
+    }
+  }
+
+  // No valid layer selected (fallback)
+  color_scheme_property_->addOption("Heat");
+  color_scheme_property_->addOption("Rainbow");
+  if (prev == "Rainbow") color_scheme_property_->setString("Rainbow");
+  else color_scheme_property_->setString("Heat");
+}
 
 }  // namespace navmap_rviz_plugin
 
