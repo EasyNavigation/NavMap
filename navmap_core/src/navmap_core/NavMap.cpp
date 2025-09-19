@@ -23,9 +23,205 @@
 #include <functional>
 #include <cmath>
 #include <limits>
+#include <cstdint>
+#include <unordered_set>
 
 namespace navmap
 {
+
+/** @cond INTERNAL */
+namespace navmap
+{namespace detail
+{
+inline std::uint64_t fnv1a64_bytes(
+  const void * data, std::size_t n,
+  std::uint64_t seed = 1469598103934665603ULL)
+{
+  const auto * p = static_cast<const std::uint8_t *>(data);
+  std::uint64_t h = seed;
+  for (std::size_t i = 0; i < n; ++i) {
+    h ^= p[i]; h *= 1099511628211ULL;
+  }
+  return h;
+}
+}}  // namespaces
+/** @endcond */
+
+template<typename T>
+std::uint64_t LayerView<T>::content_hash() const
+{
+  if (!hash_dirty_) {return hash_cache_;}
+  const std::size_t n = data_.size();
+  std::uint64_t h = navmap::detail::fnv1a64_bytes(&n, sizeof(n));
+  if (n) {
+    static_assert(std::is_trivially_copyable<T>::value,
+        "LayerView<T> requires trivially copyable T.");
+    h = navmap::detail::fnv1a64_bytes(data_.data(), n * sizeof(T), h);
+  }
+  hash_cache_ = h;
+  hash_dirty_ = false;
+  return hash_cache_;
+}
+
+namespace
+{
+// 64-bit FNV-1a hash
+inline std::uint64_t fnv1a64(
+  const void * data, std::size_t n,
+  std::uint64_t seed = 1469598103934665603ULL)
+{
+  const auto * p = static_cast<const std::uint8_t *>(data);
+  std::uint64_t h = seed;
+  for (std::size_t i = 0; i < n; ++i) {
+    h ^= p[i];
+    h *= 1099511628211ULL;
+  }
+  return h;
+}
+} // namespace
+
+void NavMap::ensure_geometry_fingerprint_() const
+{
+  if (!geometry_dirty_) {return;}
+
+  const std::size_t nx = positions.x.size();
+  const std::size_t ny = positions.y.size();
+  const std::size_t nz = positions.z.size();
+
+  std::uint64_t h = 1469598103934665603ULL;
+  h = fnv1a64(&nx, sizeof(nx), h); h = fnv1a64(positions.x.data(), nx * sizeof(float), h);
+  h = fnv1a64(&ny, sizeof(ny), h); h = fnv1a64(positions.y.data(), ny * sizeof(float), h);
+  h = fnv1a64(&nz, sizeof(nz), h); h = fnv1a64(positions.z.data(), nz * sizeof(float), h);
+
+  const std::size_t nt = navcels.size();
+  h = fnv1a64(&nt, sizeof(nt), h);
+  for (const auto & c : navcels) {
+    h = fnv1a64(c.v, sizeof(c.v), h);
+  }
+
+  geometry_fp_ = h;
+  geometry_dirty_ = false;
+}
+
+std::uint64_t NavMap::hash_geometry_bytes_(
+  const float *x, std::size_t nx,
+  const float *y, std::size_t ny,
+  const float *z, std::size_t nz,
+  const std::uint32_t *v0, std::size_t nv0,
+  const std::uint32_t *v1, std::size_t nv1,
+  const std::uint32_t *v2, std::size_t nv2)
+{
+  std::uint64_t h = 1469598103934665603ULL;
+  h = fnv1a64(&nx, sizeof(nx), h); h = fnv1a64(x, nx * sizeof(float), h);
+  h = fnv1a64(&ny, sizeof(ny), h); h = fnv1a64(y, ny * sizeof(float), h);
+  h = fnv1a64(&nz, sizeof(nz), h); h = fnv1a64(z, nz * sizeof(float), h);
+  h = fnv1a64(&nv0, sizeof(nv0), h); h = fnv1a64(v0, nv0 * sizeof(std::uint32_t), h);
+  h = fnv1a64(&nv1, sizeof(nv1), h); h = fnv1a64(v1, nv1 * sizeof(std::uint32_t), h);
+  h = fnv1a64(&nv2, sizeof(nv2), h); h = fnv1a64(v2, nv2 * sizeof(std::uint32_t), h);
+  return h;
+}
+
+bool NavMap::has_same_geometry(const NavMap & other) const
+{
+  if (positions.x.size() != other.positions.x.size() ||
+    positions.y.size() != other.positions.y.size() ||
+    positions.z.size() != other.positions.z.size() ||
+    navcels.size() != other.navcels.size())
+  {
+    return false;
+  }
+
+  ensure_geometry_fingerprint_();
+  other.ensure_geometry_fingerprint_();
+  return geometry_fp_ == other.geometry_fp_;
+}
+
+
+NavMap & NavMap::operator=(const NavMap & other)
+{
+  if (this == &other) {return *this;}
+
+  if (has_same_geometry(other)) {
+    // Remove destination-only layers to make maps identical.
+    {
+      auto src_names = other.layers.list();
+      std::unordered_set<std::string> wanted(src_names.begin(), src_names.end());
+      for (const auto & name : layers.list()) {
+        if (!wanted.count(name)) {
+          layers.remove(name);
+        }
+      }
+    }
+
+    // Synchronize layers using cached content hashes
+    for (const auto & name : other.layers.list()) {
+      auto src_base = other.layers.get(name);
+      if (!src_base) {continue;}
+
+      switch (src_base->type()) {
+        case LayerType::U8: {
+            auto src = std::dynamic_pointer_cast<LayerView<uint8_t>>(src_base);
+            auto dst = layers.add_or_get<uint8_t>(name, navcels.size(), layer_type_tag<uint8_t>());
+            const bool same_size = dst->data().size() == src->data().size();
+            const bool same_hash = same_size && (dst->content_hash() == src->content_hash());
+            if (!same_hash) {dst->set_data(src->data());}
+            break;
+          }
+        case LayerType::F32: {
+            auto src = std::dynamic_pointer_cast<LayerView<float>>(src_base);
+            auto dst = layers.add_or_get<float>(name, navcels.size(), layer_type_tag<float>());
+            const bool same_size = dst->data().size() == src->data().size();
+            const bool same_hash = same_size && (dst->content_hash() == src->content_hash());
+            if (!same_hash) {dst->set_data(src->data());}
+            break;
+          }
+        case LayerType::F64: {
+            auto src = std::dynamic_pointer_cast<LayerView<double>>(src_base);
+            auto dst = layers.add_or_get<double>(name, navcels.size(), layer_type_tag<double>());
+            const bool same_size = dst->data().size() == src->data().size();
+            const bool same_hash = same_size && (dst->content_hash() == src->content_hash());
+            if (!same_hash) {dst->set_data(src->data());}
+            break;
+          }
+        default: break;
+      }
+    }
+
+    layer_meta = other.layer_meta;
+    return *this;
+  }
+
+  // Full deep copy
+  positions = other.positions;
+  colors = other.colors;
+  navcels = other.navcels;
+  surfaces = other.surfaces;
+  layers = other.layers;
+  layer_meta = other.layer_meta;
+
+  geometry_dirty_ = true;
+  return *this;
+}
+
+
+NavMap & NavMap::operator=(NavMap && other) noexcept
+{
+  if (this == &other) {return *this;}
+
+  positions = std::move(other.positions);
+  colors = std::move(other.colors);
+  navcels = std::move(other.navcels);
+  surfaces = std::move(other.surfaces);
+  layers = std::move(other.layers);
+  layer_meta = std::move(other.layer_meta);
+
+  geometry_fp_ = other.geometry_fp_;
+  geometry_dirty_ = other.geometry_dirty_;
+  other.geometry_dirty_ = true;
+  other.geometry_fp_ = 0;
+  return *this;
+}
+
 
 // -----------------------------------------------------------------------------
 // Internal: utilities

@@ -47,6 +47,9 @@
 #include <limits>
 #include <stack>
 #include <cmath>
+#include <cstdint>
+#include <span>
+#include <type_traits>
 
 #include <Eigen/Core>
 #include "navmap_core/Geometry.hpp"
@@ -134,6 +137,16 @@ struct LayerViewBase
 
   /// \return Number of items (= number of NavCels).
   virtual size_t size() const = 0;
+
+  /// @brief Return 64-bit content hash (cached; recomputed lazily).
+  virtual std::uint64_t content_hash() const = 0;
+
+  /// @brief Mark content dirty (forces hash recompute on next query).
+  void mark_dirty() const noexcept {hash_dirty_ = true;}
+
+protected:
+  mutable bool hash_dirty_{true};
+  mutable std::uint64_t hash_cache_{0};
 };
 
 /**
@@ -172,6 +185,16 @@ struct LayerView : LayerViewBase
   std::vector<T> & data() {return data_;}
   /// \return Const reference to internal storage.
   const std::vector<T> & data() const {return data_;}
+
+  /// @name Layer hashing & access
+  ///@{
+  std::vector<T> & mutable_data() const
+  {
+    hash_dirty_ = true; return const_cast<std::vector<T> &>(data_);
+  }
+  void set_data(const std::vector<T> & v) {data_ = v; hash_dirty_ = true;}
+  std::uint64_t content_hash() const override;
+  ///@}
 };
 
 /**
@@ -233,6 +256,15 @@ public:
       out.push_back(kv.first);
     }
     return out;
+  }
+
+  /**
+   * \brief Remove a layer by name.
+   * \return true if the layer existed and was removed.
+   */
+  bool remove(const std::string & name)
+  {
+    return layers_.erase(name) > 0;
   }
 
   /**
@@ -406,6 +438,24 @@ public:
    * call \ref LayerRegistry::resize_all() if you modified \ref navcels.
    */
   void rebuild_geometry_accels();
+
+/**
+ * \brief Copy assignment optimized to avoid geometry duplication.
+ *
+ * If both maps share identical geometry (same vertex arrays and NavCel indices),
+ * layers are synchronized by name/type (copy-on-difference) and destination-only layers are removed.
+ * Otherwise, a full deep copy is performed.
+ */
+  NavMap & operator=(const NavMap & other);
+
+/**
+ * \brief Move assignment.
+ * Transfers ownership of geometry, surfaces, layers and metadata.
+ */
+  NavMap & operator=(NavMap && other) noexcept;
+
+/// \brief Fast check for identical geometry (vertices and NavCel indices).
+  bool has_same_geometry(const NavMap & other) const;
 
   /**
    * \brief Build topological adjacency between neighboring NavCels.
@@ -799,6 +849,19 @@ public:
     const LocateOpts & opts) const;
 
 private:
+  // Geometry fingerprint cache (lazy recompute)
+  void ensure_geometry_fingerprint_() const;
+  static std::uint64_t hash_geometry_bytes_(
+    const float *x, std::size_t nx,
+    const float *y, std::size_t ny,
+    const float *z, std::size_t nz,
+    const std::uint32_t *v0, std::size_t nv0,
+    const std::uint32_t *v1, std::size_t nv1,
+    const std::uint32_t *v2, std::size_t nv2);
+
+  mutable bool geometry_dirty_{true};
+  mutable std::uint64_t geometry_fp_{0};
+
   // Builders and traversal helpers.
 
   /**
