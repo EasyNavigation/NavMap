@@ -184,6 +184,13 @@ void NavMapDisplay::reset()
   layer_property_->clearOptions();
   info_property_->setStdString("");
 
+  navmap_msg_count_ = 0;
+  layer_update_count_ = 0;
+  last_navmap_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+  last_layer_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+  setStatus(rviz_common::properties::StatusProperty::Warn, "NavMap Topic", "waiting for messages…");
+  setStatus(rviz_common::properties::StatusProperty::Warn, "Layer Update", "waiting for updates…");
+
   updateGeometry_();
   updateNormals_();
 }
@@ -204,6 +211,16 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
 {
   // Keep a mutable copy to integrate layer updates
   last_msg_ = std::make_shared<NavMapMsg>(*msg);
+
+  ++navmap_msg_count_;
+  last_navmap_stamp_ = rviz_ros_node_.lock()->get_raw_node()->now();
+  {
+    QString s = QString("OK — msgs: %1 | last: %2.%3 s")
+      .arg(qulonglong(navmap_msg_count_))
+      .arg(last_navmap_stamp_.seconds())
+      .arg(last_navmap_stamp_.nanoseconds() % 1000000000, 9, 10, QChar('0'));
+    setStatus(rviz_common::properties::StatusProperty::Ok, "NavMap Topic", s);
+  }
 
   {
     std::string info = "Surfaces: " + std::to_string(last_msg_->surfaces.size()) +
@@ -326,7 +343,32 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
 
   applyOrCacheLayer_(*msg);
 
+  // Status: layer update counter + last update summary
+  ++layer_update_count_;
+  last_layer_stamp_ = rviz_ros_node_.lock()->get_raw_node()->now();
+
+  const char * type_str =
+    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::U8) ? "U8" :
+    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F32) ? "F32" :
+    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F64) ? "F64" : "UNKNOWN";
+
+  const size_t len = !msg->data_u8.empty() ? msg->data_u8.size() :
+    !msg->data_f32.empty() ? msg->data_f32.size() :
+    msg->data_f64.size();
+
+  // Put the human-friendly line on the *subscription* row you already see:
+  QString line = QString("OK — updates: %1 | last: \"%2\" (%3, len=%4)")
+    .arg(qulonglong(layer_update_count_))
+    .arg(QString::fromStdString(msg->name))
+    .arg(type_str)
+    .arg(qulonglong(len));
+
+  // IMPORTANT: write it into "Layer Update Topic"
+  setStatus(rviz_common::properties::StatusProperty::Ok,
+            "Layer Update Topic", line);
+
   if (currentSelectedLayer_() == msg->name) {
+    updateColorSchemeOptions_();
     updateGeometry_();
   }
   if (draw_normals_property_->getBool()) {

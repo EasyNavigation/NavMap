@@ -302,6 +302,11 @@ private:
 
   /// @brief Manual object for per-triangle normal segments.
   Ogre::ManualObject * normals_obj_{nullptr};
+
+  std::uint64_t navmap_msg_count_{0};
+  std::uint64_t layer_update_count_{0};
+  rclcpp::Time last_navmap_stamp_;
+  rclcpp::Time last_layer_stamp_;
 };
 
 }  // namespace navmap_rviz_plugin
