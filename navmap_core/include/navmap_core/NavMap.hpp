@@ -430,6 +430,12 @@ public:
   LayerRegistry layers;                ///< Per-NavCel layers (runtime registry)
   std::unordered_map<std::string, LayerMeta> layer_meta;  ///< Optional metadata per layer
 
+  /// \brief Copy constructor: deep copy of geometry, surfaces, layers and metadata.
+  NavMap();
+
+  /// \brief Copy constructor: deep copy of geometry, surfaces, layers and metadata.
+  NavMap(const NavMap & other);
+
   /**
    * \brief Recompute derived geometry and acceleration structures.
    *

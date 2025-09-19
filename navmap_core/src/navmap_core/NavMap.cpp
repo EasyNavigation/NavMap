@@ -80,6 +80,23 @@ inline std::uint64_t fnv1a64(
 }
 } // namespace
 
+NavMap::NavMap()
+{
+}
+
+NavMap::NavMap(const NavMap & other)
+{
+  positions = other.positions;
+  colors = other.colors;
+  navcels = other.navcels;
+  surfaces = other.surfaces;
+  layers = other.layers;
+  layer_meta = other.layer_meta;
+
+  geometry_dirty_ = true;
+  geometry_fp_ = 0;
+}
+
 void NavMap::ensure_geometry_fingerprint_() const
 {
   if (!geometry_dirty_) {return;}
