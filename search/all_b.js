@@ -10,13 +10,14 @@ var searchData=
   ['colors_7',['colors',['../classnavmap_1_1NavMap.html#a460d4eef97e1513f37e555a93ff62c35',1,'navmap::NavMap::colors'],['../classNavMap.html#a460d4eef97e1513f37e555a93ff62c35',1,'NavMap::colors']]],
   ['contains_5fxy_8',['contains_xy',['../structnavmap_1_1AABB.html#a104e413ff13240e1418d5e545eabca42',1,'navmap::AABB']]],
   ['contains_5fxy_5fonly_9',['contains_xy_only',['../structnavmap_1_1AABB.html#a8548f0f32e8f29e0bdd2c53a40a6a3bb',1,'navmap::AABB']]],
-  ['contributing_10',['🤝 Contributing',['../index.html#autotoc_md33',1,'']]],
-  ['conversions_2ecpp_11',['conversions.cpp',['../conversions_8cpp.html',1,'']]],
-  ['conversions_2ehpp_12',['conversions.hpp',['../conversions_8hpp.html',1,'']]],
-  ['corresponding_20to_20a_203d_20position_13',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
-  ['cost_20or_20occupancy_14',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
-  ['count_15',['count',['../structnavmap_1_1BVHNode.html#ad43c3812e6d13e0518d9f8b8f463ffcf',1,'navmap::BVHNode']]],
-  ['create_20a_20minimal_20navmap_20single_20square_20floor_20with_20two_20triangles_16',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
-  ['create_5fsurface_17',['create_surface',['../classnavmap_1_1NavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'navmap::NavMap::create_surface()'],['../classNavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'NavMap::create_surface()']]],
-  ['create_5fsurface_5fobj_18',['create_surface_obj',['../classnavmap_1_1NavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'navmap::NavMap::create_surface_obj()'],['../classNavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'NavMap::create_surface_obj()']]]
+  ['content_5fhash_10',['content_hash',['../structnavmap_1_1LayerViewBase.html#a7013c93c5b8c980840c8fb0138b3bf51',1,'navmap::LayerViewBase::content_hash()'],['../structnavmap_1_1LayerView.html#a0004705aea04a4d5ae569f630378a999',1,'navmap::LayerView::content_hash()'],['../structLayerView.html#a0004705aea04a4d5ae569f630378a999',1,'LayerView::content_hash()']]],
+  ['contributing_11',['🤝 Contributing',['../index.html#autotoc_md33',1,'']]],
+  ['conversions_2ecpp_12',['conversions.cpp',['../conversions_8cpp.html',1,'']]],
+  ['conversions_2ehpp_13',['conversions.hpp',['../conversions_8hpp.html',1,'']]],
+  ['corresponding_20to_20a_203d_20position_14',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
+  ['cost_20or_20occupancy_15',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
+  ['count_16',['count',['../structnavmap_1_1BVHNode.html#ad43c3812e6d13e0518d9f8b8f463ffcf',1,'navmap::BVHNode']]],
+  ['create_20a_20minimal_20navmap_20single_20square_20floor_20with_20two_20triangles_17',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
+  ['create_5fsurface_18',['create_surface',['../classnavmap_1_1NavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'navmap::NavMap::create_surface()'],['../classNavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'NavMap::create_surface()']]],
+  ['create_5fsurface_5fobj_19',['create_surface_obj',['../classnavmap_1_1NavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'navmap::NavMap::create_surface_obj()'],['../classNavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'NavMap::create_surface_obj()']]]
 ];

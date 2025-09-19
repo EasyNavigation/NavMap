@@ -1,33 +1,39 @@
 <map id="navmap_core/include/navmap_core/NavMap.hpp" name="navmap_core/include/navmap_core/NavMap.hpp">
-<area shape="rect" id="Node000001" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="404,5,584,46"/>
+<area shape="rect" id="Node000001" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="480,5,660,46"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,94,63,120"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="404,41,255,63,79,96,78,91,254,58,403,36"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="480,38,298,60,78,96,78,91,298,55,479,33"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="87,94,154,120"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="404,47,170,96,169,91,403,42"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="480,43,338,65,170,96,169,91,338,60,479,37"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="179,94,289,120"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="430,49,289,92,288,86,428,44"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="487,49,301,92,300,87,485,44"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="313,94,379,120"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="458,49,383,89,381,84,456,44"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="515,49,395,91,393,86,513,44"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="403,94,457,120"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="480,48,451,83,447,80,476,45"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="536,49,466,88,463,84,534,44"/>
 <area shape="rect" id="Node000007" title=" " alt="" coords="441,168,491,193"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="493,47,474,153,468,152,488,46"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="559,48,485,156,481,153,555,45"/>
 <area shape="rect" id="Node000008" title=" " alt="" coords="514,168,567,193"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="502,45,535,152,530,154,497,47"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="569,47,548,153,543,152,564,46"/>
 <area shape="rect" id="Node000009" title=" " alt="" coords="891,94,945,120"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="585,38,721,62,873,91,877,92,875,97,872,97,720,67,584,44"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="661,44,873,91,877,92,875,97,872,97,660,49"/>
 <area shape="rect" id="Node000010" title=" " alt="" coords="591,168,648,193"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="512,45,602,154,598,157,508,48"/>
-<area shape="rect" id="Node000011" title=" " alt="" coords="908,168,992,193"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="585,32,704,52,768,69,830,92,884,122,927,155,924,159,881,126,828,96,766,74,703,58,584,38"/>
-<area shape="rect" id="Node000012" href="$Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="633,94,816,120"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="552,44,676,86,674,91,551,49"/>
-<area shape="poly" id="edge17_Node000012_Node000007" title=" " alt="" coords="677,123,506,169,505,164,676,118"/>
-<area shape="poly" id="edge14_Node000012_Node000008" title=" " alt="" coords="694,123,582,166,580,161,692,118"/>
-<area shape="poly" id="edge15_Node000012_Node000010" title=" " alt="" coords="708,122,651,161,648,156,705,118"/>
-<area shape="poly" id="edge12_Node000012_Node000011" title=" " alt="" coords="764,118,898,160,896,165,762,123"/>
-<area shape="rect" id="Node000013" title=" " alt="" coords="672,168,785,193"/>
-<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="728,120,730,152,724,152,723,120"/>
-<area shape="rect" id="Node000014" title=" " alt="" coords="809,168,883,193"/>
-<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="747,118,814,157,811,162,744,123"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="579,45,613,152,608,154,574,47"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="969,94,1030,120"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="661,38,796,60,955,91,954,96,795,65,660,43"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="1053,94,1103,120"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="661,33,833,54,935,70,1039,91,1038,96,934,75,832,59,660,38"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="1127,94,1208,120"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="661,33,864,55,1112,91,1111,96,863,61,660,38"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="908,168,992,193"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="661,40,745,60,830,92,883,123,926,155,923,160,880,127,828,96,743,65,660,45"/>
+<area shape="rect" id="Node000015" href="$Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="633,94,816,120"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="610,44,689,84,686,89,607,49"/>
+<area shape="poly" id="edge20_Node000015_Node000007" title=" " alt="" coords="677,123,506,169,505,164,676,118"/>
+<area shape="poly" id="edge17_Node000015_Node000008" title=" " alt="" coords="694,123,582,166,580,161,692,118"/>
+<area shape="poly" id="edge18_Node000015_Node000010" title=" " alt="" coords="708,122,651,161,648,156,705,118"/>
+<area shape="poly" id="edge15_Node000015_Node000014" title=" " alt="" coords="764,118,898,160,896,165,762,123"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="672,168,785,193"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="728,120,730,152,724,152,723,120"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="809,168,883,193"/>
+<area shape="poly" id="edge19_Node000015_Node000017" title=" " alt="" coords="747,118,814,157,811,162,744,123"/>
 </map>

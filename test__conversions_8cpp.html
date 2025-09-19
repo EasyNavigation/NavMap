@@ -95,6 +95,8 @@ $(function(){ initResizable(false); });
 <div class="contents">
 <div class="textblock"><code>#include &lt;gtest/gtest.h&gt;</code><br />
 <code>#include &lt;nav_msgs/msg/occupancy_grid.hpp&gt;</code><br />
+<code>#include &quot;navmap_ros_interfaces/msg/nav_map_layer.hpp&quot;</code><br />
+<code>#include &quot;navmap_ros_interfaces/msg/nav_map.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="conversions_8hpp_source.html">navmap_ros/conversions.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="NavMap_8hpp_source.html">navmap_core/NavMap.hpp</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -102,57 +104,66 @@ Include dependency graph for test_conversions.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="test__conversions_8cpp__incl.png" border="0" usemap="#anavmap__ros_2tests_2test__conversions_8cpp" alt=""/></div>
 <map name="anavmap__ros_2tests_2test__conversions_8cpp" id="anavmap__ros_2tests_2test__conversions_8cpp">
-<area shape="rect" title=" " alt="" coords="366,5,517,46"/>
-<area shape="rect" title=" " alt="" coords="246,94,339,120"/>
-<area shape="poly" title=" " alt="" coords="405,49,330,89,327,84,403,44"/>
-<area shape="rect" title=" " alt="" coords="5,168,182,208"/>
-<area shape="poly" title=" " alt="" coords="430,48,397,86,376,105,352,122,287,146,198,168,197,163,286,141,350,117,373,101,393,82,426,45"/>
-<area shape="rect" href="conversions_8hpp.html" title="Conversions between the core NavMap representation and ROS messages." alt="" coords="413,94,603,120"/>
-<area shape="poly" title=" " alt="" coords="460,45,490,80,486,83,456,48"/>
-<area shape="rect" href="NavMap_8hpp.html" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="873,175,1050,201"/>
-<area shape="poly" title=" " alt="" coords="506,44,908,168,907,173,504,49"/>
-<area shape="poly" title=" " alt="" coords="445,123,197,170,196,164,444,118"/>
-<area shape="rect" title=" " alt="" coords="652,256,706,282"/>
-<area shape="poly" title=" " alt="" coords="604,116,699,135,738,148,762,166,769,177,770,188,763,210,744,233,721,251,718,247,740,230,758,207,765,187,764,179,758,169,735,153,697,140,603,121"/>
-<area shape="rect" title=" " alt="" coords="729,256,796,282"/>
-<area shape="poly" title=" " alt="" coords="604,114,712,132,756,147,785,166,794,185,794,205,780,244,775,242,788,205,788,186,781,169,754,151,711,137,604,119"/>
-<area shape="rect" title=" " alt="" coords="414,256,472,282"/>
-<area shape="poly" title=" " alt="" coords="428,123,348,142,316,155,297,169,290,188,297,207,318,228,344,244,372,254,400,261,398,266,371,259,341,249,314,233,293,210,284,188,293,166,314,150,347,137,427,118"/>
-<area shape="rect" title=" " alt="" coords="771,330,856,356"/>
-<area shape="poly" title=" " alt="" coords="413,118,356,129,308,147,291,158,280,172,277,188,284,207,307,238,332,255,402,279,497,307,594,324,683,334,756,338,756,343,683,339,593,329,496,312,401,285,330,260,303,242,279,210,272,188,275,170,287,155,305,142,355,124,412,113"/>
-<area shape="rect" title=" " alt="" coords="306,175,425,201"/>
-<area shape="poly" title=" " alt="" coords="488,122,402,170,399,165,485,118"/>
-<area shape="rect" title=" " alt="" coords="449,175,567,201"/>
-<area shape="poly" title=" " alt="" coords="511,120,511,159,506,159,506,120"/>
-<area shape="rect" title=" " alt="" coords="591,168,748,208"/>
-<area shape="poly" title=" " alt="" coords="534,118,617,158,614,163,532,123"/>
-<area shape="poly" title=" " alt="" coords="580,118,855,165,880,169,879,175,854,170,579,123"/>
-<area shape="poly" title=" " alt="" coords="917,204,721,258,720,253,916,199"/>
-<area shape="poly" title=" " alt="" coords="932,204,808,253,806,248,930,199"/>
-<area shape="poly" title=" " alt="" coords="882,204,487,264,487,259,881,199"/>
-<area shape="poly" title=" " alt="" coords="964,201,958,240,951,263,938,284,907,310,872,328,869,323,904,306,934,280,946,261,953,239,959,201"/>
-<area shape="rect" title=" " alt="" coords="1257,256,1367,282"/>
-<area shape="poly" title=" " alt="" coords="1016,199,1244,250,1243,255,1015,204"/>
-<area shape="rect" title=" " alt="" coords="1391,256,1457,282"/>
-<area shape="poly" title=" " alt="" coords="1051,199,1199,221,1376,253,1375,258,1198,226,1050,204"/>
-<area shape="rect" title=" " alt="" coords="1372,330,1421,356"/>
-<area shape="poly" title=" " alt="" coords="1050,192,1170,201,1302,215,1413,232,1450,243,1471,254,1477,264,1478,274,1471,292,1454,309,1434,324,1431,320,1451,305,1466,289,1473,273,1472,266,1468,258,1448,248,1411,238,1301,220,1170,207,1050,197"/>
-<area shape="rect" title=" " alt="" coords="879,330,932,356"/>
-<area shape="poly" title=" " alt="" coords="929,204,891,225,874,240,861,257,858,273,861,288,882,317,877,320,856,290,852,273,856,255,870,236,888,221,926,199"/>
-<area shape="rect" title=" " alt="" coords="871,256,924,282"/>
-<area shape="poly" title=" " alt="" coords="954,203,919,246,915,242,950,200"/>
-<area shape="rect" title=" " alt="" coords="1192,330,1249,356"/>
-<area shape="poly" title=" " alt="" coords="1051,192,1088,199,1127,211,1164,229,1197,255,1214,283,1221,314,1216,315,1209,285,1193,258,1162,234,1125,216,1087,204,1049,197"/>
-<area shape="rect" href="Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="999,256,1182,282"/>
-<area shape="poly" title=" " alt="" coords="983,199,1060,246,1057,250,980,204"/>
-<area shape="poly" title=" " alt="" coords="1044,285,871,329,870,324,1043,280"/>
-<area shape="poly" title=" " alt="" coords="1144,280,1357,330,1356,335,1142,285"/>
-<area shape="poly" title=" " alt="" coords="1060,285,947,328,945,323,1058,280"/>
-<area shape="poly" title=" " alt="" coords="1114,280,1186,320,1183,324,1111,285"/>
-<area shape="rect" title=" " alt="" coords="1054,330,1168,356"/>
-<area shape="poly" title=" " alt="" coords="1097,282,1106,314,1101,316,1092,283"/>
-<area shape="rect" title=" " alt="" coords="956,330,1031,356"/>
-<area shape="poly" title=" " alt="" coords="1076,285,1023,323,1020,319,1073,280"/>
+<area shape="rect" title=" " alt="" coords="494,5,645,46"/>
+<area shape="rect" title=" " alt="" coords="323,102,416,127"/>
+<area shape="poly" title=" " alt="" coords="525,49,412,98,410,93,523,44"/>
+<area shape="rect" title=" " alt="" coords="5,183,182,223"/>
+<area shape="poly" title=" " alt="" coords="540,49,474,96,453,118,444,128,429,137,197,184,196,179,427,132,440,123,449,114,470,92,537,44"/>
+<area shape="rect" title=" " alt="" coords="806,94,971,135"/>
+<area shape="poly" title=" " alt="" coords="643,44,802,87,801,92,642,49"/>
+<area shape="rect" title=" " alt="" coords="206,183,362,223"/>
+<area shape="poly" title=" " alt="" coords="559,48,524,92,500,116,474,137,427,162,378,181,376,176,425,157,471,132,496,112,520,89,554,45"/>
+<area shape="rect" href="conversions_8hpp.html" title="Conversions between the core NavMap representation and ROS messages." alt="" coords="541,102,731,127"/>
+<area shape="poly" title=" " alt="" coords="587,45,620,87,616,91,583,48"/>
+<area shape="rect" href="NavMap_8hpp.html" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="1048,190,1224,216"/>
+<area shape="poly" title=" " alt="" coords="635,44,689,65,744,92,770,113,780,123,795,132,854,155,916,172,1033,192,1032,197,914,177,852,160,792,137,776,127,766,117,741,96,687,70,633,49"/>
+<area shape="poly" title=" " alt="" coords="550,130,197,185,196,180,549,125"/>
+<area shape="poly" title=" " alt="" coords="587,130,378,181,377,176,586,125"/>
+<area shape="rect" title=" " alt="" coords="788,271,842,297"/>
+<area shape="poly" title=" " alt="" coords="658,125,694,149,733,181,770,220,800,257,796,261,766,224,729,185,691,154,655,130"/>
+<area shape="rect" title=" " alt="" coords="865,271,932,297"/>
+<area shape="poly" title=" " alt="" coords="664,125,714,149,770,180,827,221,875,259,872,263,824,225,767,185,712,154,662,130"/>
+<area shape="rect" title=" " alt="" coords="706,271,764,297"/>
+<area shape="poly" title=" " alt="" coords="653,125,680,149,705,181,722,219,732,255,727,257,717,221,701,184,676,153,650,129"/>
+<area shape="rect" title=" " alt="" coords="883,345,968,371"/>
+<area shape="poly" title=" " alt="" coords="643,127,661,182,669,216,671,245,678,270,697,295,735,322,780,340,826,350,868,354,868,359,825,355,779,345,733,327,693,299,673,272,666,246,663,217,656,183,638,128"/>
+<area shape="rect" title=" " alt="" coords="386,190,505,216"/>
+<area shape="poly" title=" " alt="" coords="610,130,487,186,485,181,608,125"/>
+<area shape="rect" title=" " alt="" coords="529,190,647,216"/>
+<area shape="poly" title=" " alt="" coords="632,129,605,178,600,175,627,126"/>
+<area shape="poly" title=" " alt="" coords="707,125,1051,184,1050,190,706,130"/>
+<area shape="poly" title=" " alt="" coords="1082,219,857,273,855,268,1081,214"/>
+<area shape="poly" title=" " alt="" coords="1100,219,948,269,947,264,1099,214"/>
+<area shape="poly" title=" " alt="" coords="1061,219,933,242,779,274,778,268,932,236,1060,214"/>
+<area shape="poly" title=" " alt="" coords="1121,218,955,338,952,334,1118,214"/>
+<area shape="rect" title=" " alt="" coords="1316,271,1426,297"/>
+<area shape="poly" title=" " alt="" coords="1173,214,1321,263,1319,268,1171,219"/>
+<area shape="rect" title=" " alt="" coords="1450,271,1516,297"/>
+<area shape="poly" title=" " alt="" coords="1194,214,1435,268,1434,273,1192,219"/>
+<area shape="rect" title=" " alt="" coords="1073,345,1122,371"/>
+<area shape="poly" title=" " alt="" coords="1129,218,1112,242,1099,272,1095,301,1096,330,1091,330,1089,301,1094,271,1107,239,1124,215"/>
+<area shape="rect" title=" " alt="" coords="1493,345,1545,371"/>
+<area shape="poly" title=" " alt="" coords="1225,201,1329,204,1443,215,1497,223,1544,235,1582,250,1607,270,1613,280,1614,290,1604,310,1584,327,1561,341,1558,336,1581,322,1600,306,1609,289,1608,281,1604,273,1579,255,1542,240,1496,228,1443,220,1329,210,1225,206"/>
+<area shape="rect" title=" " alt="" coords="1540,271,1594,297"/>
+<area shape="poly" title=" " alt="" coords="1225,214,1363,236,1526,268,1525,274,1362,241,1224,219"/>
+<area shape="rect" title=" " alt="" coords="992,345,1049,371"/>
+<area shape="poly" title=" " alt="" coords="1129,218,1041,334,1036,331,1125,215"/>
+<area shape="rect" title=" " alt="" coords="1669,271,1729,297"/>
+<area shape="poly" title=" " alt="" coords="1225,211,1420,234,1650,269,1654,269,1653,275,1649,274,1420,239,1224,216"/>
+<area shape="rect" title=" " alt="" coords="1753,271,1802,297"/>
+<area shape="poly" title=" " alt="" coords="1225,206,1454,225,1595,243,1738,268,1737,274,1594,248,1454,230,1225,211"/>
+<area shape="rect" title=" " alt="" coords="1826,271,1908,297"/>
+<area shape="poly" title=" " alt="" coords="1225,207,1484,228,1646,246,1811,268,1811,274,1645,251,1484,233,1225,212"/>
+<area shape="rect" href="Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="1108,271,1292,297"/>
+<area shape="poly" title=" " alt="" coords="1148,215,1183,257,1179,261,1144,218"/>
+<area shape="poly" title=" " alt="" coords="1154,300,983,344,982,339,1153,295"/>
+<area shape="poly" title=" " alt="" coords="1184,300,1129,338,1126,334,1181,295"/>
+<area shape="poly" title=" " alt="" coords="1255,295,1478,345,1477,350,1254,300"/>
+<area shape="poly" title=" " alt="" coords="1171,300,1064,342,1062,337,1169,295"/>
+<area shape="rect" title=" " alt="" coords="1146,345,1260,371"/>
+<area shape="poly" title=" " alt="" coords="1203,297,1204,329,1199,330,1198,297"/>
+<area shape="rect" title=" " alt="" coords="1283,345,1357,371"/>
+<area shape="poly" title=" " alt="" coords="1222,295,1288,334,1285,339,1219,300"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -161,6 +172,18 @@ Functions</h2></td></tr>
 <tr class="memitem:af26f003771b7de20efd8c9d2c3c519c8" id="r_af26f003771b7de20efd8c9d2c3c519c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af26f003771b7de20efd8c9d2c3c519c8">from_occupancy_grid</a> (const nav_msgs::msg::OccupancyGrid &amp;grid)</td></tr>
 <tr class="memdesc:af26f003771b7de20efd8c9d2c3c519c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> from a <code>nav_msgs::msg::OccupancyGrid</code> using a regular triangular surface with shared vertices.  <br /></td></tr>
 <tr class="separator:af26f003771b7de20efd8c9d2c3c519c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77ee3e068d4f91a58201bb35d0d5f92d" id="r_a77ee3e068d4f91a58201bb35d0d5f92d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a77ee3e068d4f91a58201bb35d0d5f92d">TEST</a> (NavMap_FullConversions, EmptyMap_RoundTrip)</td></tr>
+<tr class="separator:a77ee3e068d4f91a58201bb35d0d5f92d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4550cc53ab397dc916662593634c3fec" id="r_a4550cc53ab397dc916662593634c3fec"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4550cc53ab397dc916662593634c3fec">TEST</a> (NavMap_FullConversions, RoundTrip_All)</td></tr>
+<tr class="separator:a4550cc53ab397dc916662593634c3fec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4414677bc6becb6cba65ce3b3b9314b2" id="r_a4414677bc6becb6cba65ce3b3b9314b2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4414677bc6becb6cba65ce3b3b9314b2">TEST</a> (NavMap_LayerConversions, F32_RoundTrip)</td></tr>
+<tr class="separator:a4414677bc6becb6cba65ce3b3b9314b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8cdd947ea4a05b3e81c950856e74d83" id="r_ac8cdd947ea4a05b3e81c950856e74d83"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac8cdd947ea4a05b3e81c950856e74d83">TEST</a> (NavMap_LayerConversions, F64_RoundTrip)</td></tr>
+<tr class="separator:ac8cdd947ea4a05b3e81c950856e74d83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0f6545151f3d5d34c9b883922648309" id="r_af0f6545151f3d5d34c9b883922648309"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af0f6545151f3d5d34c9b883922648309">TEST</a> (NavMap_LayerConversions, ToMsg_Throws_OnMissingLayer)</td></tr>
+<tr class="separator:af0f6545151f3d5d34c9b883922648309"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00693fdc4f7d12125417660b7eb4992d" id="r_a00693fdc4f7d12125417660b7eb4992d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a00693fdc4f7d12125417660b7eb4992d">TEST</a> (NavMap_LayerConversions, U8_RoundTrip)</td></tr>
+<tr class="separator:a00693fdc4f7d12125417660b7eb4992d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e01c6f6ff61e4c1f58f76e5eb47a083" id="r_a4e01c6f6ff61e4c1f58f76e5eb47a083"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4e01c6f6ff61e4c1f58f76e5eb47a083">TEST</a> (TestConversions, RoundTrip_ExactEquality_4m_0p1)</td></tr>
 <tr class="separator:a4e01c6f6ff61e4c1f58f76e5eb47a083"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a476c8662c90ef6c72c204fd757d2aab8" id="r_a476c8662c90ef6c72c204fd757d2aab8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a476c8662c90ef6c72c204fd757d2aab8">TEST</a> (TestConversions, TriangleIndicesFollowPattern0)</td></tr>
@@ -208,8 +231,134 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a77ee3e068d4f91a58201bb35d0d5f92d" name="a77ee3e068d4f91a58201bb35d0d5f92d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a77ee3e068d4f91a58201bb35d0d5f92d">&#9670;&#160;</a></span>TEST() <span class="overload">[1/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST </td>
+          <td>(</td>
+          <td class="paramtype">NavMap_FullConversions</td>          <td class="paramname"><span class="paramname"><em></em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EmptyMap_RoundTrip</td>          <td class="paramname"><span class="paramname"><em></em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4550cc53ab397dc916662593634c3fec" name="a4550cc53ab397dc916662593634c3fec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4550cc53ab397dc916662593634c3fec">&#9670;&#160;</a></span>TEST() <span class="overload">[2/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST </td>
+          <td>(</td>
+          <td class="paramtype">NavMap_FullConversions</td>          <td class="paramname"><span class="paramname"><em></em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">RoundTrip_All</td>          <td class="paramname"><span class="paramname"><em></em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4414677bc6becb6cba65ce3b3b9314b2" name="a4414677bc6becb6cba65ce3b3b9314b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4414677bc6becb6cba65ce3b3b9314b2">&#9670;&#160;</a></span>TEST() <span class="overload">[3/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST </td>
+          <td>(</td>
+          <td class="paramtype">NavMap_LayerConversions</td>          <td class="paramname"><span class="paramname"><em></em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F32_RoundTrip</td>          <td class="paramname"><span class="paramname"><em></em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac8cdd947ea4a05b3e81c950856e74d83" name="ac8cdd947ea4a05b3e81c950856e74d83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8cdd947ea4a05b3e81c950856e74d83">&#9670;&#160;</a></span>TEST() <span class="overload">[4/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST </td>
+          <td>(</td>
+          <td class="paramtype">NavMap_LayerConversions</td>          <td class="paramname"><span class="paramname"><em></em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F64_RoundTrip</td>          <td class="paramname"><span class="paramname"><em></em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af0f6545151f3d5d34c9b883922648309" name="af0f6545151f3d5d34c9b883922648309"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0f6545151f3d5d34c9b883922648309">&#9670;&#160;</a></span>TEST() <span class="overload">[5/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST </td>
+          <td>(</td>
+          <td class="paramtype">NavMap_LayerConversions</td>          <td class="paramname"><span class="paramname"><em></em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ToMsg_Throws_OnMissingLayer</td>          <td class="paramname"><span class="paramname"><em></em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a00693fdc4f7d12125417660b7eb4992d" name="a00693fdc4f7d12125417660b7eb4992d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00693fdc4f7d12125417660b7eb4992d">&#9670;&#160;</a></span>TEST() <span class="overload">[6/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TEST </td>
+          <td>(</td>
+          <td class="paramtype">NavMap_LayerConversions</td>          <td class="paramname"><span class="paramname"><em></em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">U8_RoundTrip</td>          <td class="paramname"><span class="paramname"><em></em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a4e01c6f6ff61e4c1f58f76e5eb47a083" name="a4e01c6f6ff61e4c1f58f76e5eb47a083"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4e01c6f6ff61e4c1f58f76e5eb47a083">&#9670;&#160;</a></span>TEST() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e01c6f6ff61e4c1f58f76e5eb47a083">&#9670;&#160;</a></span>TEST() <span class="overload">[7/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -230,7 +379,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a id="a476c8662c90ef6c72c204fd757d2aab8" name="a476c8662c90ef6c72c204fd757d2aab8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a476c8662c90ef6c72c204fd757d2aab8">&#9670;&#160;</a></span>TEST() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a476c8662c90ef6c72c204fd757d2aab8">&#9670;&#160;</a></span>TEST() <span class="overload">[8/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

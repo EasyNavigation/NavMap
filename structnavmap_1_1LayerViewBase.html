@@ -90,6 +90,7 @@ $(function(){ initResizable(false); });
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="structnavmap_1_1LayerViewBase-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">LayerViewBase Struct Reference<span class="mlabels"><span class="mlabel abstract">abstract</span></span></div></div>
 </div><!--header-->
@@ -109,9 +110,27 @@ Inheritance diagram for LayerViewBase:</div>
 <area shape="poly" title=" " alt="" coords="64,46,64,79,59,79,59,46"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<div class="dynheader">
+Collaboration diagram for LayerViewBase:</div>
+<div class="dyncontent">
+<div class="center"><img src="structnavmap_1_1LayerViewBase__coll__graph.png" border="0" usemap="#aLayerViewBase_coll__map" alt="Collaboration graph"/></div>
+<map name="aLayerViewBase_coll__map" id="aLayerViewBase_coll__map">
+<area shape="rect" title="Non&#45;templated base for runtime layer handling." alt="" coords="21,94,134,120"/>
+<area shape="rect" title=" " alt="" coords="5,5,51,31"/>
+<area shape="poly" title=" " alt="" coords="27,46,32,69,42,81,55,91,52,96,38,85,27,71,22,47"/>
+<area shape="rect" title=" " alt="" coords="94,5,162,31"/>
+<area shape="poly" title=" " alt="" coords="116,46,101,71,87,95,82,92,96,69,111,43"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a7013c93c5b8c980840c8fb0138b3bf51" id="r_a7013c93c5b8c980840c8fb0138b3bf51"><td class="memItemLeft" align="right" valign="top">virtual std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7013c93c5b8c980840c8fb0138b3bf51">content_hash</a> () const =0</td></tr>
+<tr class="memdesc:a7013c93c5b8c980840c8fb0138b3bf51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return 64-bit content hash (cached; recomputed lazily).  <br /></td></tr>
+<tr class="separator:a7013c93c5b8c980840c8fb0138b3bf51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa759e012e6f9fe55ea43968e16ba51a8" id="r_aa759e012e6f9fe55ea43968e16ba51a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa759e012e6f9fe55ea43968e16ba51a8">mark_dirty</a> () const noexcept</td></tr>
+<tr class="memdesc:aa759e012e6f9fe55ea43968e16ba51a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark content dirty (forces hash recompute on next query).  <br /></td></tr>
+<tr class="separator:aa759e012e6f9fe55ea43968e16ba51a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c976984805ab775a1876f4484f7f75e" id="r_a5c976984805ab775a1876f4484f7f75e"><td class="memItemLeft" align="right" valign="top">virtual const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5c976984805ab775a1876f4484f7f75e">name</a> () const =0</td></tr>
 <tr class="separator:a5c976984805ab775a1876f4484f7f75e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa983ddaeded5756189f46428be79c631" id="r_aa983ddaeded5756189f46428be79c631"><td class="memItemLeft" align="right" valign="top">virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa983ddaeded5756189f46428be79c631">size</a> () const =0</td></tr>
@@ -120,6 +139,13 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2e553f27ec27fbcea615e60e818fa3d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acbb624dff379bebf3b283b6bbbd03e45" id="r_acbb624dff379bebf3b283b6bbbd03e45"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acbb624dff379bebf3b283b6bbbd03e45">~LayerViewBase</a> ()=default</td></tr>
 <tr class="separator:acbb624dff379bebf3b283b6bbbd03e45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a8581078ac807babd5da5dfee7df0d955" id="r_a8581078ac807babd5da5dfee7df0d955"><td class="memItemLeft" align="right" valign="top">std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8581078ac807babd5da5dfee7df0d955">hash_cache_</a> {0}</td></tr>
+<tr class="separator:a8581078ac807babd5da5dfee7df0d955"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad225cec597f9f6010183540620e3e861" id="r_ad225cec597f9f6010183540620e3e861"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad225cec597f9f6010183540620e3e861">hash_dirty_</a> {true}</td></tr>
+<tr class="separator:ad225cec597f9f6010183540620e3e861"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Non-templated base for runtime layer handling. </p>
@@ -151,6 +177,62 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7013c93c5b8c980840c8fb0138b3bf51" name="a7013c93c5b8c980840c8fb0138b3bf51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7013c93c5b8c980840c8fb0138b3bf51">&#9670;&#160;</a></span>content_hash()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::uint64_t content_hash </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel pure-virtual">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return 64-bit content hash (cached; recomputed lazily). </p>
+
+<p>Implemented in <a class="el" href="structLayerView.html#a0004705aea04a4d5ae569f630378a999">LayerView&lt; T &gt;</a>, and <a class="el" href="structnavmap_1_1LayerView.html#a0004705aea04a4d5ae569f630378a999">LayerView&lt; T &gt;</a>.</p>
+
+</div>
+</div>
+<a id="aa759e012e6f9fe55ea43968e16ba51a8" name="aa759e012e6f9fe55ea43968e16ba51a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa759e012e6f9fe55ea43968e16ba51a8">&#9670;&#160;</a></span>mark_dirty()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mark_dirty </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Mark content dirty (forces hash recompute on next query). </p>
+
+</div>
+</div>
 <a id="a5c976984805ab775a1876f4484f7f75e" name="a5c976984805ab775a1876f4484f7f75e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5c976984805ab775a1876f4484f7f75e">&#9670;&#160;</a></span>name()</h2>
 
@@ -232,6 +314,51 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>Type tag of the underlying storage. </dd></dl>
 
 <p>Implemented in <a class="el" href="structLayerView.html#a73201966aa8d0a76cc56a942351544c8">LayerView&lt; T &gt;</a>, and <a class="el" href="structnavmap_1_1LayerView.html#a73201966aa8d0a76cc56a942351544c8">LayerView&lt; T &gt;</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a8581078ac807babd5da5dfee7df0d955" name="a8581078ac807babd5da5dfee7df0d955"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8581078ac807babd5da5dfee7df0d955">&#9670;&#160;</a></span>hash_cache_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint64_t hash_cache_ {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel mutable">mutable</span><span class="mlabel protected">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad225cec597f9f6010183540620e3e861" name="ad225cec597f9f6010183540620e3e861"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad225cec597f9f6010183540620e3e861">&#9670;&#160;</a></span>hash_dirty_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool hash_dirty_ {true}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel mutable">mutable</span><span class="mlabel protected">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

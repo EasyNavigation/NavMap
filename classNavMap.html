@@ -128,6 +128,10 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a4a821e4a538cc47fbe2439b2ccc15866" id="r_a4a821e4a538cc47fbe2439b2ccc15866"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a4a821e4a538cc47fbe2439b2ccc15866"><td class="memTemplItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerView.html">LayerView</a>&lt; T &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a4a821e4a538cc47fbe2439b2ccc15866">add_layer</a> (const std::string &amp;name, const std::string &amp;description, const std::string &amp;unit, const std::string &amp;src_layer)</td></tr>
+<tr class="memdesc:a4a821e4a538cc47fbe2439b2ccc15866"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create (or get) a typed per-NavCel layer, initialized from another layer.  <br /></td></tr>
+<tr class="separator:a4a821e4a538cc47fbe2439b2ccc15866"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f4c5219dcef644fcc82247a9b017e5b" id="r_a9f4c5219dcef644fcc82247a9b017e5b"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a9f4c5219dcef644fcc82247a9b017e5b"><td class="memTemplItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerView.html">LayerView</a>&lt; T &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a9f4c5219dcef644fcc82247a9b017e5b">add_layer</a> (const std::string &amp;name, const std::string &amp;description={}, const std::string &amp;unit={}, T default_value=T{})</td></tr>
 <tr class="memdesc:a9f4c5219dcef644fcc82247a9b017e5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create (or get) a typed per-NavCel layer with a default value.  <br /></td></tr>
@@ -168,6 +172,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad885b112b390fed2c41b6353938e5a23" id="r_ad885b112b390fed2c41b6353938e5a23"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad885b112b390fed2c41b6353938e5a23">has_layer</a> (const std::string &amp;name) const</td></tr>
 <tr class="memdesc:ad885b112b390fed2c41b6353938e5a23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether a layer named <code class="param">name</code> exists.  <br /></td></tr>
 <tr class="separator:ad885b112b390fed2c41b6353938e5a23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79d1194d1ceb932687b26a0dab12a1f5" id="r_a79d1194d1ceb932687b26a0dab12a1f5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a79d1194d1ceb932687b26a0dab12a1f5">has_same_geometry</a> (const <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;other) const</td></tr>
+<tr class="memdesc:a79d1194d1ceb932687b26a0dab12a1f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fast check for identical geometry (vertices and NavCel indices).  <br /></td></tr>
+<tr class="separator:a79d1194d1ceb932687b26a0dab12a1f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8073b13ebb92df3e5537a475064c7f94" id="r_a8073b13ebb92df3e5537a475064c7f94"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a8073b13ebb92df3e5537a475064c7f94"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a8073b13ebb92df3e5537a475064c7f94">layer_clear</a> (const std::string &amp;name, T value=T{})</td></tr>
+<tr class="memdesc:a8073b13ebb92df3e5537a475064c7f94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset all values in a layer to a given value.  <br /></td></tr>
+<tr class="separator:a8073b13ebb92df3e5537a475064c7f94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2356466b1a87eaf3339807d0f7c2b563" id="r_a2356466b1a87eaf3339807d0f7c2b563"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a2356466b1a87eaf3339807d0f7c2b563"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a2356466b1a87eaf3339807d0f7c2b563">layer_copy</a> (const std::string &amp;src, const std::string &amp;dst)</td></tr>
+<tr class="memdesc:a2356466b1a87eaf3339807d0f7c2b563"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy values from one layer into another.  <br /></td></tr>
+<tr class="separator:a2356466b1a87eaf3339807d0f7c2b563"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95928bff190b5d262a7ea1ffcf714957" id="r_a95928bff190b5d262a7ea1ffcf714957"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a95928bff190b5d262a7ea1ffcf714957">layer_get_as_double</a> (const std::string &amp;name, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
 <tr class="memdesc:a95928bff190b5d262a7ea1ffcf714957"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a per-cell value as double.  <br /></td></tr>
 <tr class="separator:a95928bff190b5d262a7ea1ffcf714957"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,6 +221,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab001fd3c574363e6650de13813784c3d"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#ab001fd3c574363e6650de13813784c3d">navcel_value</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid, const <a class="el" href="structnavmap_1_1LayerView.html">LayerView</a>&lt; T &gt; &amp;layer) const</td></tr>
 <tr class="memdesc:ab001fd3c574363e6650de13813784c3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the value of a typed per-NavCel layer at triangle <code class="param">cid</code>.  <br /></td></tr>
 <tr class="separator:ab001fd3c574363e6650de13813784c3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdba6967622302fdf575a33000719624" id="r_abdba6967622302fdf575a33000719624"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abdba6967622302fdf575a33000719624">operator=</a> (const <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;other)</td></tr>
+<tr class="memdesc:abdba6967622302fdf575a33000719624"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment optimized to avoid geometry duplication.  <br /></td></tr>
+<tr class="separator:abdba6967622302fdf575a33000719624"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f722995f4482cc0933e9d02af566af6" id="r_a8f722995f4482cc0933e9d02af566af6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8f722995f4482cc0933e9d02af566af6">operator=</a> (<a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;&amp;other) noexcept</td></tr>
+<tr class="memdesc:a8f722995f4482cc0933e9d02af566af6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment.  <br /></td></tr>
+<tr class="separator:a8f722995f4482cc0933e9d02af566af6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae06d6240e61c1e07bb574d3ea40376e1" id="r_ae06d6240e61c1e07bb574d3ea40376e1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae06d6240e61c1e07bb574d3ea40376e1">raycast</a> (const Eigen::Vector3f &amp;o, const Eigen::Vector3f &amp;d, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;hit_cid, float &amp;t, Eigen::Vector3f &amp;hit_pt) const</td></tr>
 <tr class="memdesc:ae06d6240e61c1e07bb574d3ea40376e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raycast against all surfaces to find the closest hit.  <br /></td></tr>
 <tr class="separator:ae06d6240e61c1e07bb574d3ea40376e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -253,8 +274,60 @@ Public Attributes</h2></td></tr>
 <li>Query with <a class="el" href="#a58eb66e6c89dab8b20c874d65350998b">locate_navcel()</a>, <a class="el" href="#ae06d6240e61c1e07bb574d3ea40376e1">raycast()</a>, or <a class="el" href="#af57e1de5f4e5a062fa37d1eddf9a2ed4">closest_triangle()</a>. </li>
 </ul>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a4a821e4a538cc47fbe2439b2ccc15866" name="a4a821e4a538cc47fbe2439b2ccc15866"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a821e4a538cc47fbe2439b2ccc15866">&#9670;&#160;</a></span>add_layer() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerView.html">LayerView</a>&lt; T &gt; &gt; add_layer </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>description</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>unit</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>src_layer</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create (or get) a typed per-NavCel layer, initialized from another layer. </p>
+<p>If a layer with <code class="param">name</code> exists, it is returned (size preserved). If the size differs from navcels.size(), it is resized. If the source layer <code class="param">src_layer</code> exists, its values are copied into the destination using <a class="el" href="#a2356466b1a87eaf3339807d0f7c2b563">layer_copy()</a>, performing type conversion if necessary. If the source layer does not exist, the destination is left with defaults.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Storage type. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>Layer name. </td></tr>
+    <tr><td class="paramname">description</td><td>Human-readable description (optional). </td></tr>
+    <tr><td class="paramname">unit</td><td>Unit (e.g., "m", "deg", "%"), optional. </td></tr>
+    <tr><td class="paramname">src_layer</td><td>Source layer name to initialize from. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Shared view of the created/updated layer. </dd></dl>
+
+</div>
+</div>
 <a id="a9f4c5219dcef644fcc82247a9b017e5b" name="a9f4c5219dcef644fcc82247a9b017e5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9f4c5219dcef644fcc82247a9b017e5b">&#9670;&#160;</a></span>add_layer()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f4c5219dcef644fcc82247a9b017e5b">&#9670;&#160;</a></span>add_layer() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -619,6 +692,93 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Check whether a layer named <code class="param">name</code> exists. </p>
+
+</div>
+</div>
+<a id="a79d1194d1ceb932687b26a0dab12a1f5" name="a79d1194d1ceb932687b26a0dab12a1f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79d1194d1ceb932687b26a0dab12a1f5">&#9670;&#160;</a></span>has_same_geometry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool has_same_geometry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>other</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fast check for identical geometry (vertices and NavCel indices). </p>
+
+</div>
+</div>
+<a id="a8073b13ebb92df3e5537a475064c7f94" name="a8073b13ebb92df3e5537a475064c7f94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8073b13ebb92df3e5537a475064c7f94">&#9670;&#160;</a></span>layer_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void layer_clear </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>value</em></span><span class="paramdefsep"> = </span><span class="paramdefval">T{}</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reset all values in a layer to a given value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">T</td><td>Expected storage type of the layer. </td></tr>
+    <tr><td class="paramname">name</td><td>Layer name. </td></tr>
+    <tr><td class="paramname">value</td><td>Value to assign to all entries. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a2356466b1a87eaf3339807d0f7c2b563" name="a2356466b1a87eaf3339807d0f7c2b563"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2356466b1a87eaf3339807d0f7c2b563">&#9670;&#160;</a></span>layer_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool layer_copy </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>src</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>dst</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy values from one layer into another. </p>
+<p>Both layers must have the same type and size.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">T</td><td>Storage type (e.g. float, uint8_t). </td></tr>
+    <tr><td class="paramname">src</td><td>Name of source layer. </td></tr>
+    <tr><td class="paramname">dst</td><td>Name of destination layer. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if copy succeeded, false if type/size mismatch. </dd></dl>
 
 </div>
 </div>
@@ -1004,6 +1164,54 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The value for triangle <code class="param">cid</code>. </dd></dl>
+
+</div>
+</div>
+<a id="abdba6967622302fdf575a33000719624" name="abdba6967622302fdf575a33000719624"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abdba6967622302fdf575a33000719624">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp; operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>other</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy assignment optimized to avoid geometry duplication. </p>
+<p>If both maps share identical geometry (same vertex arrays and NavCel indices), layers are synchronized by name/type (copy-on-difference) and destination-only layers are removed. Otherwise, a full deep copy is performed. </p>
+
+</div>
+</div>
+<a id="a8f722995f4482cc0933e9d02af566af6" name="a8f722995f4482cc0933e9d02af566af6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f722995f4482cc0933e9d02af566af6">&#9670;&#160;</a></span>operator=() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp; operator= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>other</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Move assignment. </p>
+<p>Transfers ownership of geometry, surfaces, layers and metadata. </p>
 
 </div>
 </div>

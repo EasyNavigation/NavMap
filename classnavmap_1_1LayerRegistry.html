@@ -112,6 +112,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a87113fff45a39421caca2fcbcbfd69cc" id="r_a87113fff45a39421caca2fcbcbfd69cc"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a87113fff45a39421caca2fcbcbfd69cc">list</a> () const</td></tr>
 <tr class="memdesc:a87113fff45a39421caca2fcbcbfd69cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">List layer names currently in the registry.  <br /></td></tr>
 <tr class="separator:a87113fff45a39421caca2fcbcbfd69cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a018768fa4b740b3e5abbd2eb06270ac2" id="r_a018768fa4b740b3e5abbd2eb06270ac2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a018768fa4b740b3e5abbd2eb06270ac2">remove</a> (const std::string &amp;name)</td></tr>
+<tr class="memdesc:a018768fa4b740b3e5abbd2eb06270ac2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a layer by name.  <br /></td></tr>
+<tr class="separator:a018768fa4b740b3e5abbd2eb06270ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a039a25cf408f86a30b5932ef29ac6234" id="r_a039a25cf408f86a30b5932ef29ac6234"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a039a25cf408f86a30b5932ef29ac6234">resize_all</a> (size_t nitems)</td></tr>
 <tr class="memdesc:a039a25cf408f86a30b5932ef29ac6234"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resize all known typed layers to <code class="param">nitems</code>.  <br /></td></tr>
 <tr class="separator:a039a25cf408f86a30b5932ef29ac6234"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -209,6 +212,26 @@ template&lt;typename T&gt; </div>
 
 <p>List layer names currently in the registry. </p>
 <dl class="section return"><dt>Returns</dt><dd>Vector of names (unordered). </dd></dl>
+
+</div>
+</div>
+<a id="a018768fa4b740b3e5abbd2eb06270ac2" name="a018768fa4b740b3e5abbd2eb06270ac2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a018768fa4b740b3e5abbd2eb06270ac2">&#9670;&#160;</a></span>remove()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool remove </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>name</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Remove a layer by name. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if the layer existed and was removed. </dd></dl>
 
 </div>
 </div>

@@ -110,12 +110,18 @@ Functions</h2></td></tr>
 <tr class="memitem:ac70f12eb1f059a42b6993cb612720ea0" id="r_ac70f12eb1f059a42b6993cb612720ea0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac70f12eb1f059a42b6993cb612720ea0">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
 <tr class="memdesc:ac70f12eb1f059a42b6993cb612720ea0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reconstruct a core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> from the ROS transport message.  <br /></td></tr>
 <tr class="separator:ac70f12eb1f059a42b6993cb612720ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a570457f653972601dcd8b1fa821af02a" id="r_a570457f653972601dcd8b1fa821af02a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a570457f653972601dcd8b1fa821af02a">from_msg</a> (const navmap_ros_interfaces::msg::NavMapLayer &amp;msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
+<tr class="memdesc:a570457f653972601dcd8b1fa821af02a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Import a single NavMapLayer message into a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>.  <br /></td></tr>
+<tr class="separator:a570457f653972601dcd8b1fa821af02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af26f003771b7de20efd8c9d2c3c519c8" id="r_af26f003771b7de20efd8c9d2c3c519c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af26f003771b7de20efd8c9d2c3c519c8">from_occupancy_grid</a> (const nav_msgs::msg::OccupancyGrid &amp;grid)</td></tr>
 <tr class="memdesc:af26f003771b7de20efd8c9d2c3c519c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> from a <code>nav_msgs::msg::OccupancyGrid</code> using a regular triangular surface with shared vertices.  <br /></td></tr>
 <tr class="separator:af26f003771b7de20efd8c9d2c3c519c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba26a033fbd9456e2368c8f49f62779e" id="r_aba26a033fbd9456e2368c8f49f62779e"><td class="memItemLeft" align="right" valign="top">navmap_ros_interfaces::msg::NavMap&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba26a033fbd9456e2368c8f49f62779e">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:aba26a033fbd9456e2368c8f49f62779e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> into its compact ROS transport message.  <br /></td></tr>
 <tr class="separator:aba26a033fbd9456e2368c8f49f62779e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa68b7b4a46e881dc9304c50a73e69d7d" id="r_aa68b7b4a46e881dc9304c50a73e69d7d"><td class="memItemLeft" align="right" valign="top">navmap_ros_interfaces::msg::NavMapLayer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa68b7b4a46e881dc9304c50a73e69d7d">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std::string &amp;layer)</td></tr>
+<tr class="memdesc:aa68b7b4a46e881dc9304c50a73e69d7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a single layer from a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> into a ROS message.  <br /></td></tr>
+<tr class="separator:aa68b7b4a46e881dc9304c50a73e69d7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42165113e6236698fe947ca8ffa69bc8" id="r_a42165113e6236698fe947ca8ffa69bc8"><td class="memItemLeft" align="right" valign="top">nav_msgs::msg::OccupancyGrid&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42165113e6236698fe947ca8ffa69bc8">to_occupancy_grid</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:a42165113e6236698fe947ca8ffa69bc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> back to <code>nav_msgs::msg::OccupancyGrid</code>.  <br /></td></tr>
 <tr class="separator:a42165113e6236698fe947ca8ffa69bc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -187,7 +193,7 @@ Triangle normals and adjacency are computed by the core upon <code>rebuild_geome
 </div>
 </div>
 <a id="a9835bd4485202df104ab38cb5cdc1ed8" name="a9835bd4485202df104ab38cb5cdc1ed8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9835bd4485202df104ab38cb5cdc1ed8">&#9670;&#160;</a></span>from_msg() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9835bd4485202df104ab38cb5cdc1ed8">&#9670;&#160;</a></span>from_msg() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -204,7 +210,7 @@ Triangle normals and adjacency are computed by the core upon <code>rebuild_geome
 </div>
 </div>
 <a id="ac70f12eb1f059a42b6993cb612720ea0" name="ac70f12eb1f059a42b6993cb612720ea0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac70f12eb1f059a42b6993cb612720ea0">&#9670;&#160;</a></span>from_msg() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac70f12eb1f059a42b6993cb612720ea0">&#9670;&#160;</a></span>from_msg() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -230,6 +236,37 @@ Triangle normals and adjacency are computed by the core upon <code>rebuild_geome
 <li>Intended to be the inverse of <a class="el" href="#aba26a033fbd9456e2368c8f49f62779e" title="Convert a core navmap::NavMap into its compact ROS transport message.">navmap_ros::to_msg</a> for a round-trip without loss.</li>
 <li>Assumes that the message is internally consistent (sizes and indices match). </li>
 </ul>
+
+</div>
+</div>
+<a id="a570457f653972601dcd8b1fa821af02a" name="a570457f653972601dcd8b1fa821af02a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a570457f653972601dcd8b1fa821af02a">&#9670;&#160;</a></span>from_msg() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void from_msg </td>
+          <td>(</td>
+          <td class="paramtype">const navmap_ros_interfaces::msg::NavMapLayer &amp;</td>          <td class="paramname"><span class="paramname"><em>msg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Import a single NavMapLayer message into a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </p>
+<p>If the layer already exists in <code class="param">nm</code>, it is overwritten. Otherwise, it is created. Performs type dispatch based on the message field <code>type</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msg</td><td>Input NavMapLayer message. </td></tr>
+    <tr><td class="paramname">nm</td><td>Destination <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> (must already have navcels sized correctly). </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -272,7 +309,7 @@ Triangle normals and adjacency are computed by the core upon <code>rebuild_geome
 </div>
 </div>
 <a id="aba26a033fbd9456e2368c8f49f62779e" name="aba26a033fbd9456e2368c8f49f62779e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba26a033fbd9456e2368c8f49f62779e">&#9670;&#160;</a></span>to_msg()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aba26a033fbd9456e2368c8f49f62779e">&#9670;&#160;</a></span>to_msg() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -299,6 +336,43 @@ Triangle normals and adjacency are computed by the core upon <code>rebuild_geome
 <li>The ordering of vertices/triangles/layers in <code class="param">nm</code> is preserved in the resulting message.</li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>This function does not perform IO; it only builds the message in-memory. </dd></dl>
+
+</div>
+</div>
+<a id="aa68b7b4a46e881dc9304c50a73e69d7d" name="aa68b7b4a46e881dc9304c50a73e69d7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa68b7b4a46e881dc9304c50a73e69d7d">&#9670;&#160;</a></span>to_msg() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">navmap_ros_interfaces::msg::NavMapLayer to_msg </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>layer</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Convert a single layer from a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> into a ROS message. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nm</td><td>Input <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramname">layer</td><td>Name of the layer to export. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A NavMapLayer message containing the layer values and metadata. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if the layer does not exist. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
