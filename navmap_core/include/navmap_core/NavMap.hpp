@@ -691,6 +691,100 @@ public:
     double def = std::numeric_limits<double>::quiet_NaN()) const;
 
   /**
+   * \brief Reset all values in a layer to a given value.
+   *
+   * \param T Expected storage type of the layer.
+   * \param name Layer name.
+   * \param value Value to assign to all entries.
+   */
+  template<typename T>
+  void layer_clear(const std::string & name, T value = T{})
+  {
+    auto view = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
+    std::fill(view->data().begin(), view->data().end(), value);
+  }
+
+  /**
+   * \brief Copy values from one layer into another.
+   *
+   * Both layers must have the same type and size.
+   *
+   * \param T Storage type (e.g. float, uint8_t).
+   * \param src Name of source layer.
+   * \param dst Name of destination layer.
+   * \return true if copy succeeded, false if type/size mismatch.
+   */
+  template<typename T>
+  bool layer_copy(const std::string & src, const std::string & dst)
+  {
+    auto src_view = std::dynamic_pointer_cast<LayerView<T>>(layers.get(src));
+    auto dst_view = layers.add_or_get<T>(dst, navcels.size(), layer_type_tag<T>());
+    if (!src_view || src_view->size() != dst_view->size()) {
+      return false;
+    }
+    dst_view->data() = src_view->data();
+    return true;
+  }
+
+  /**
+   * \brief Create (or get) a typed per-NavCel layer, initialized from another layer.
+   *
+   * If a layer with \p name exists, it is returned (size preserved). If the
+   * size differs from \ref navcels.size(), it is resized. If the source layer
+   * \p src_layer exists, its values are copied into the destination using
+   * \ref layer_copy(), performing type conversion if necessary.
+   * If the source layer does not exist, the destination is left with defaults.
+   *
+   * \tparam T Storage type.
+   * \param name        Layer name.
+   * \param description Human-readable description (optional).
+   * \param unit        Unit (e.g., "m", "deg", "%"), optional.
+   * \param src_layer   Source layer name to initialize from.
+   * \return Shared view of the created/updated layer.
+   */
+  template<typename T>
+  std::shared_ptr<LayerView<T>> add_layer(
+    const std::string & name,
+    const std::string & description,
+    const std::string & unit,
+    const std::string & src_layer)
+  {
+    auto dst = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
+    if (dst->data().size() != navcels.size()) {
+      dst->data().assign(navcels.size(), T{});
+    }
+    layer_meta[name] = LayerMeta{description, unit, true};
+
+    if (!has_layer(src_layer)) {
+      return dst;
+    }
+
+    if (layer_copy<T>(src_layer, name)) {
+      return dst;
+    }
+
+    const std::size_t n = dst->size();
+    for (NavCelId cid = 0; cid < n; ++cid) {
+      double v = layer_get_as_double(src_layer, cid);
+      if (std::isnan(v)) {v = 0.0;}
+
+      if constexpr (std::is_floating_point_v<T>) {
+        dst->data()[cid] = static_cast<T>(v);
+      } else if constexpr (std::is_integral_v<T>) {
+        double lo = 0.0;
+        double hi = static_cast<double>(std::numeric_limits<T>::max());
+        if (v < lo) {v = lo;}
+        if (v > hi) {v = hi;}
+        dst->data()[cid] = static_cast<T>(std::llround(v));
+      } else {
+        static_assert(sizeof(T) == 0, "Unsupported layer type");
+      }
+    }
+
+    return dst;
+  }
+
+  /**
    * \brief Forward to the existing low-level locator (implemented in .cpp).
    *
    * This hook should call your original, detailed locator implementation.

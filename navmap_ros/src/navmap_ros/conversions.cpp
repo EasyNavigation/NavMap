@@ -190,6 +190,81 @@ navmap::NavMap from_msg(const NavMap & msg)
   return nm;
 }
 
+navmap_ros_interfaces::msg::NavMapLayer to_msg(
+  const navmap::NavMap & nm,
+  const std::string & layer_name)
+{
+  navmap_ros_interfaces::msg::NavMapLayer msg;
+  msg.name = layer_name;
+
+  auto base = nm.layers.get(layer_name);
+  if (!base) {
+    throw std::runtime_error("to_msg(NavMapLayer): layer '" + layer_name + "' not found");
+  }
+
+  switch (base->type()) {
+    case navmap::LayerType::U8: {
+        msg.type = navmap_ros_interfaces::msg::NavMapLayer::U8;
+        auto v = std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(base);
+        msg.data_u8 = v->data();
+        break;
+      }
+    case navmap::LayerType::F32: {
+        msg.type = navmap_ros_interfaces::msg::NavMapLayer::F32;
+        auto v = std::dynamic_pointer_cast<navmap::LayerView<float>>(base);
+        msg.data_f32 = v->data();
+        break;
+      }
+    case navmap::LayerType::F64: {
+        msg.type = navmap_ros_interfaces::msg::NavMapLayer::F64;
+        auto v = std::dynamic_pointer_cast<navmap::LayerView<double>>(base);
+        msg.data_f64 = v->data();
+        break;
+      }
+    default:
+      throw std::runtime_error("to_msg(NavMapLayer): unsupported layer type");
+  }
+
+  return msg;
+}
+
+void from_msg(
+  const navmap_ros_interfaces::msg::NavMapLayer & msg,
+  navmap::NavMap & nm)
+{
+  switch (msg.type) {
+    case navmap_ros_interfaces::msg::NavMapLayer::U8: {
+        auto dst = nm.add_layer<uint8_t>(msg.name, /*desc*/"", /*unit*/"", uint8_t{});
+        if (dst->data().size() != msg.data_u8.size()) {
+          dst->data().resize(msg.data_u8.size());
+        }
+        std::copy(msg.data_u8.begin(), msg.data_u8.end(), dst->data().begin());
+        break;
+      }
+    case navmap_ros_interfaces::msg::NavMapLayer::F32: {
+        auto dst = nm.add_layer<float>(msg.name, /*desc*/"", /*unit*/"", 0.0f);
+        if (dst->data().size() != msg.data_f32.size()) {
+          dst->data().resize(msg.data_f32.size());
+        }
+        std::copy(msg.data_f32.begin(), msg.data_f32.end(), dst->data().begin());
+        break;
+      }
+    case navmap_ros_interfaces::msg::NavMapLayer::F64: {
+        auto dst = nm.add_layer<double>(msg.name, /*desc*/"", /*unit*/"", 0.0);
+        if (dst->data().size() != msg.data_f64.size()) {
+          dst->data().resize(msg.data_f64.size());
+        }
+        std::copy(msg.data_f64.begin(), msg.data_f64.end(), dst->data().begin());
+        break;
+      }
+    default:
+      throw std::runtime_error("from_msg(NavMapLayer): unsupported type value " +
+        std::to_string(msg.type));
+  }
+
+  // No description/unit in the .msg schema; leave metadata empty or keep previous.
+}
+
 // ----------------- OccupancyGrid <-> NavMap -----------------
 
 navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid)

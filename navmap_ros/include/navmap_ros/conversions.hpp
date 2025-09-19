@@ -89,6 +89,31 @@ navmap_ros_interfaces::msg::NavMap to_msg(
  */
 navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap & msg);
 
+/**
+ * \brief Convert a single layer from a NavMap into a ROS message.
+ *
+ * \param nm     Input NavMap.
+ * \param layer  Name of the layer to export.
+ * \return A NavMapLayer message containing the layer values and metadata.
+ * \throw std::runtime_error if the layer does not exist.
+ */
+navmap_ros_interfaces::msg::NavMapLayer to_msg(
+  const navmap::NavMap & nm,
+  const std::string & layer);
+
+/**
+ * \brief Import a single NavMapLayer message into a NavMap.
+ *
+ * If the layer already exists in \p nm, it is overwritten. Otherwise, it is created.
+ * Performs type dispatch based on the message field `type`.
+ *
+ * \param msg Input NavMapLayer message.
+ * \param nm  Destination NavMap (must already have navcels sized correctly).
+ */
+void from_msg(
+  const navmap_ros_interfaces::msg::NavMapLayer & msg,
+  navmap::NavMap & nm);
+
 // --------- OccupancyGrid <-> NavMap (shared vertices, per-NavCel layer) ---------
 
 /**
