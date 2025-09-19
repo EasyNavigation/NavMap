@@ -221,6 +221,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab001fd3c574363e6650de13813784c3d"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#ab001fd3c574363e6650de13813784c3d">navcel_value</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid, const <a class="el" href="structnavmap_1_1LayerView.html">LayerView</a>&lt; T &gt; &amp;layer) const</td></tr>
 <tr class="memdesc:ab001fd3c574363e6650de13813784c3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the value of a typed per-NavCel layer at triangle <code class="param">cid</code>.  <br /></td></tr>
 <tr class="separator:ab001fd3c574363e6650de13813784c3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada6881dcd6865fb03a053244aa5f0e18" id="r_ada6881dcd6865fb03a053244aa5f0e18"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada6881dcd6865fb03a053244aa5f0e18">NavMap</a> ()</td></tr>
+<tr class="memdesc:ada6881dcd6865fb03a053244aa5f0e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor: deep copy of geometry, surfaces, layers and metadata.  <br /></td></tr>
+<tr class="separator:ada6881dcd6865fb03a053244aa5f0e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fa159b44d4d690aca1f65b3e3a4ffe7" id="r_a9fa159b44d4d690aca1f65b3e3a4ffe7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9fa159b44d4d690aca1f65b3e3a4ffe7">NavMap</a> (const <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;other)</td></tr>
+<tr class="memdesc:a9fa159b44d4d690aca1f65b3e3a4ffe7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor: deep copy of geometry, surfaces, layers and metadata.  <br /></td></tr>
+<tr class="separator:a9fa159b44d4d690aca1f65b3e3a4ffe7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdba6967622302fdf575a33000719624" id="r_abdba6967622302fdf575a33000719624"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abdba6967622302fdf575a33000719624">operator=</a> (const <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;other)</td></tr>
 <tr class="memdesc:abdba6967622302fdf575a33000719624"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment optimized to avoid geometry duplication.  <br /></td></tr>
 <tr class="separator:abdba6967622302fdf575a33000719624"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -273,7 +279,46 @@ Public Attributes</h2></td></tr>
 <li>Create layers via LayerRegistry::add_or_get() sized to navcels.size().</li>
 <li>Query with <a class="el" href="#a58eb66e6c89dab8b20c874d65350998b">locate_navcel()</a>, <a class="el" href="#ae06d6240e61c1e07bb574d3ea40376e1">raycast()</a>, or <a class="el" href="#af57e1de5f4e5a062fa37d1eddf9a2ed4">closest_triangle()</a>. </li>
 </ul>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ada6881dcd6865fb03a053244aa5f0e18" name="ada6881dcd6865fb03a053244aa5f0e18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada6881dcd6865fb03a053244aa5f0e18">&#9670;&#160;</a></span>NavMap() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy constructor: deep copy of geometry, surfaces, layers and metadata. </p>
+
+</div>
+</div>
+<a id="a9fa159b44d4d690aca1f65b3e3a4ffe7" name="a9fa159b44d4d690aca1f65b3e3a4ffe7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fa159b44d4d690aca1f65b3e3a4ffe7">&#9670;&#160;</a></span>NavMap() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>other</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy constructor: deep copy of geometry, surfaces, layers and metadata. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a4a821e4a538cc47fbe2439b2ccc15866" name="a4a821e4a538cc47fbe2439b2ccc15866"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4a821e4a538cc47fbe2439b2ccc15866">&#9670;&#160;</a></span>add_layer() <span class="overload">[1/2]</span></h2>
 
