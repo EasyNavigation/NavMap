@@ -773,12 +773,45 @@ public:
   template<typename T>
   bool layer_copy(const std::string & src, const std::string & dst)
   {
-    auto src_view = std::dynamic_pointer_cast<LayerView<T>>(layers.get(src));
+    // No-op if names are equal
+    if (src == dst) {
+      return true;
+    }
+
+    // Get source
+    auto src_base = layers.get(src);
+    auto src_view = std::dynamic_pointer_cast<LayerView<T>>(src_base);
+    if (!src_view) {
+      return false; // source layer missing or wrong type
+    }
+
+    // Ensure destination exists with correct length (navcels.size())
     auto dst_view = layers.add_or_get<T>(dst, navcels.size(), layer_type_tag<T>());
-    if (!src_view || src_view->size() != dst_view->size()) {
+    if (!dst_view) {
       return false;
     }
-    dst_view->data() = src_view->data();
+
+    // If sizes mismatch, something is wrong with geometry/layer size.
+    // You can choose to resize here if your semantics allow it. For safety, fail:
+    if (src_view->data().size() != dst_view->data().size()) {
+      return false;
+    }
+
+    // If both views already refer to the same underlying buffer, no work to do
+    if (!src_view->data().empty() &&
+      src_view->data().data() == dst_view->data().data())
+    {
+      return true;
+    }
+
+    // Hash-based skip: O(1) if cached, O(n) only on first compute (then cached)
+    const bool same_hash = (src_view->content_hash() == dst_view->content_hash());
+    if (same_hash) {
+      return true; // identical content → avoid copy
+    }
+
+    // Copy only when different. set_data() marks hash as dirty for dst.
+    dst_view->set_data(src_view->data());
     return true;
   }
 

@@ -159,6 +159,8 @@ TEST(NavMap_EasyAPI, LocateWithinSquare)
   bool ok = nm.locate_navcel(p, sidx, cid, bary, &hit);
   ASSERT_TRUE(ok);
   EXPECT_EQ(sidx, 0u);
+  EXPECT_NEAR(hit.x(), p.x(), 1e-5);
+  EXPECT_NEAR(hit.y(), p.y(), 1e-5);
   EXPECT_NEAR(hit.z(), 0.0f, 1e-5);
 }
 
