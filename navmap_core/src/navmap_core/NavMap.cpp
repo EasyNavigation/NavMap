@@ -1025,23 +1025,6 @@ std::string NavMap::layer_type_name(const std::string & name) const
   return "unknown";
 }
 
-double NavMap::layer_get_as_double(const std::string & name, NavCelId cid) const
-{
-  if (auto base = layers.get(name)) {
-    // Try concrete views in order of most common usage
-    if (auto u8 = std::dynamic_pointer_cast<LayerView<uint8_t>>(base)) {
-      if (cid < u8->data().size()) {return static_cast<double>(u8->data()[cid]);}
-    }
-    if (auto f32 = std::dynamic_pointer_cast<LayerView<float>>(base)) {
-      if (cid < f32->data().size()) {return static_cast<double>(f32->data()[cid]);}
-    }
-    if (auto f64 = std::dynamic_pointer_cast<LayerView<double>>(base)) {
-      if (cid < f64->data().size()) {return f64->data()[cid];}
-    }
-  }
-  return std::numeric_limits<double>::quiet_NaN();
-}
-
 std::optional<LayerMeta> NavMap::get_layer_meta(const std::string & name) const
 {
   auto it = layer_meta.find(name);
@@ -1069,7 +1052,7 @@ double NavMap::sample_layer_at(
     return def;
   }
 
-  double v = layer_get_as_double(name, c);
+  double v = layer_get<double>(name, c, std::numeric_limits<double>::quiet_NaN());
   if (std::isnan(v)) {
     return def;
   }

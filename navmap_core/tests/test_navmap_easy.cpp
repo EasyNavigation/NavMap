@@ -104,8 +104,10 @@ TEST(NavMap_EasyAPI, LayersBasics)
   nm.layer_set<float>("cost", nm.surfaces[0].navcels[0], 1.5f);
   nm.layer_set<float>("cost", nm.surfaces[0].navcels[1], 2.0f);
 
-  double v0 = nm.layer_get_as_double("cost", nm.surfaces[0].navcels[0]);
-  double v1 = nm.layer_get_as_double("cost", nm.surfaces[0].navcels[1]);
+  double v0 = nm.layer_get<double>("cost", nm.surfaces[0].navcels[0],
+                                    std::numeric_limits<double>::quiet_NaN());
+  double v1 = nm.layer_get<double>("cost", nm.surfaces[0].navcels[1],
+                                    std::numeric_limits<double>::quiet_NaN());
   EXPECT_NEAR(v0, 1.5, 1e-6);
   EXPECT_NEAR(v1, 2.0, 1e-6);
 
@@ -119,14 +121,14 @@ TEST(NavMap_EasyAPI, LayersNegativeCases)
   NavMap nm;
   make_flat_square(nm);
 
-  // Access to nonexistent layer → NaN
-  double val = nm.layer_get_as_double("foo", 0);
+  // Access to nonexistent layer → NaN (using explicit default)
+  double val = nm.layer_get<double>("foo", 0, std::numeric_limits<double>::quiet_NaN());
   EXPECT_TRUE(std::isnan(val));
 
-  // Type mismatch: set as float, read as double is ok via as_double
+  // Type mismatch: set as float, read as double (conversion path)
   nm.add_layer<float>("speed");
   nm.layer_set<float>("speed", 0, 3.14f);
-  double d = nm.layer_get_as_double("speed", 0);
+  double d = nm.layer_get<double>("speed", 0, std::numeric_limits<double>::quiet_NaN());
   EXPECT_NEAR(d, 3.14, 1e-6);
 
   // layer_type_name on nonexistent layer → "unknown"
@@ -225,7 +227,7 @@ TEST(NavMap_EasyAPI, AddSurfaceMoveOverload)
   NavMap nm;
   Surface s = nm.create_surface_obj("map");
   s.navcels.clear();
-  std::size_t idx1 = nm.add_surface(s);      // by copy
+  std::size_t idx1 = nm.add_surface(s);           // by copy
   std::size_t idx2 = nm.add_surface(std::move(s)); // by move
   EXPECT_EQ(idx1, 0u);
   EXPECT_EQ(idx2, 1u);
@@ -249,4 +251,238 @@ TEST(NavMap_EasyAPI, RaycastVerticalHitAndMiss)
   NavCelId cid2{}; float t2{}; Eigen::Vector3f h2;
   bool hit2 = nm.raycast(o2, d2, cid2, t2, h2);
   EXPECT_FALSE(hit2);
+}
+
+// ------------------------- Area-setting tests -------------------------
+
+TEST(NavMap_SetArea, CircularMarksBothTrianglesOnUnitSquare)
+{
+  NavMap nm;
+  make_flat_square(nm);
+
+  // Create obstacles layer as U8, default 0
+  nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
+
+  // Center at (0.5,0.5), radius 0.3 → both triangle centroids are inside
+  const bool ok = nm.set_area<uint8_t>(
+    Eigen::Vector3f(0.5f, 0.5f, 10.0f),
+    static_cast<uint8_t>(254),
+    "obstacles",
+    navmap::AreaShape::CIRCULAR,
+    0.3f);
+
+  ASSERT_TRUE(ok);
+
+  const auto c0 = nm.surfaces[0].navcels[0];
+  const auto c1 = nm.surfaces[0].navcels[1];
+  uint8_t v0 = nm.layer_get<uint8_t>("obstacles", c0, 0);
+  uint8_t v1 = nm.layer_get<uint8_t>("obstacles", c1, 0);
+
+  EXPECT_EQ(v0, static_cast<uint8_t>(254));
+  EXPECT_EQ(v1, static_cast<uint8_t>(254));
+}
+
+TEST(NavMap_SetArea, RectangularCanAffectSingleTriangle)
+{
+  NavMap nm;
+  make_flat_square(nm);
+
+  nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
+
+  // Pick a center closer to the first triangle's centroid (2/3, 1/3)
+  // Use side length 0.35 (half=0.175) so only that centroid falls inside.
+  const bool ok = nm.set_area<uint8_t>(
+    Eigen::Vector3f(0.80f, 0.20f, -5.0f),
+    static_cast<uint8_t>(200),
+    "obstacles",
+    navmap::AreaShape::RECTANGULAR,
+    0.35f);
+
+  ASSERT_TRUE(ok);
+
+  const auto c0 = nm.surfaces[0].navcels[0];
+  const auto c1 = nm.surfaces[0].navcels[1];
+  uint8_t v0 = nm.layer_get<uint8_t>("obstacles", c0, 0);
+  uint8_t v1 = nm.layer_get<uint8_t>("obstacles", c1, 0);
+
+  EXPECT_EQ(v0, static_cast<uint8_t>(200));
+  EXPECT_EQ(v1, static_cast<uint8_t>(0));
+}
+
+TEST(NavMap_SetArea, ReturnsFalseWhenSeedCannotBeLocated)
+{
+  NavMap nm;
+  make_flat_square(nm);
+
+  nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
+
+  // Far away from the mesh; default locator should fail to find a seed.
+  const bool ok = nm.set_area<uint8_t>(
+    Eigen::Vector3f(5.0f, 5.0f, 0.0f),
+    static_cast<uint8_t>(123),
+    "obstacles",
+    navmap::AreaShape::CIRCULAR,
+    1.0f);
+
+  EXPECT_FALSE(ok);
+
+  // Ensure layer remains at default
+  const auto c0 = nm.surfaces[0].navcels[0];
+  const auto c1 = nm.surfaces[0].navcels[1];
+  EXPECT_EQ(nm.layer_get<uint8_t>("obstacles", c0, 0), 0);
+  EXPECT_EQ(nm.layer_get<uint8_t>("obstacles", c1, 0), 0);
+}
+
+TEST(NavMap_SetArea, TypeMismatchReturnsFalseAndDoesNotModifyData)
+{
+  NavMap nm;
+  make_flat_square(nm);
+
+  // Create "obstacles" as float by mistake
+  nm.add_layer<float>("obstacles", "wrong type", "", 0.0f);
+
+  // Try to set it as uint8_t → should fail (type check)
+  const bool ok = nm.set_area<uint8_t>(
+    Eigen::Vector3f(0.5f, 0.5f, 1.0f),
+    static_cast<uint8_t>(254),
+    "obstacles",
+    navmap::AreaShape::CIRCULAR,
+    0.4f);
+
+  EXPECT_FALSE(ok);
+
+  // Verify it was not changed (still float zeros)
+  const auto c0 = nm.surfaces[0].navcels[0];
+  const auto c1 = nm.surfaces[0].navcels[1];
+  float f0 = nm.layer_get<float>("obstacles", c0, -1.0f);
+  float f1 = nm.layer_get<float>("obstacles", c1, -1.0f);
+  EXPECT_NEAR(f0, 0.0f, 1e-6);
+  EXPECT_NEAR(f1, 0.0f, 1e-6);
+}
+
+// ------------------------- Systematic area-setting verification -------------------------
+
+static void make_grid(NavMap & nm, int nx, int ny, float z = 0.0f)
+{
+  // Build a [0,1]x[0,1] plane subdivided in nx*ny quads, 2 triangles per quad
+  nm.create_surface("map"); // index 0
+  auto addv = [&](float x, float y) {
+      return nm.add_vertex(Eigen::Vector3f(x, y, z));
+    };
+
+  std::vector<std::vector<uint32_t>> vid((ny + 1), std::vector<uint32_t>(nx + 1));
+  for (int j = 0; j <= ny; ++j) {
+    for (int i = 0; i <= nx; ++i) {
+      float x = static_cast<float>(i) / nx;
+      float y = static_cast<float>(j) / ny;
+      vid[j][i] = addv(x, y);
+    }
+  }
+
+  for (int j = 0; j < ny; ++j) {
+    for (int i = 0; i < nx; ++i) {
+      uint32_t v00 = vid[j][i];
+      uint32_t v10 = vid[j][i + 1];
+      uint32_t v01 = vid[j + 1][i];
+      uint32_t v11 = vid[j + 1][i + 1];
+      // Diagonal v00->v11
+      auto c0 = nm.add_navcel(v00, v10, v11);
+      auto c1 = nm.add_navcel(v00, v11, v01);
+      nm.add_navcel_to_surface(0, c0);
+      nm.add_navcel_to_surface(0, c1);
+    }
+  }
+
+  nm.rebuild_geometry_accels();
+}
+
+static bool centroid_inside_circle(const Eigen::Vector3f & c, float cx, float cy, float r)
+{
+  const float dx = c.x() - cx;
+  const float dy = c.y() - cy;
+  return (dx * dx + dy * dy) <= (r * r);
+}
+
+static bool centroid_inside_square(const Eigen::Vector3f & c, float cx, float cy, float side)
+{
+  const float half = 0.5f * side;
+  const float dx = std::abs(c.x() - cx);
+  const float dy = std::abs(c.y() - cy);
+  return (dx <= half) && (dy <= half);
+}
+
+static void verify_area_by_centroids_u8(
+  const NavMap & nm,
+  const char *layer,
+  uint8_t expected_value,
+  std::function<bool(const Eigen::Vector3f &)> inside_pred)
+{
+  size_t mismatches = 0;
+  for (auto cid : nm.surfaces[0].navcels) {
+    Eigen::Vector3f cc = nm.navcel_centroid(cid);
+    const bool expected_inside = inside_pred(cc);
+    const uint8_t v = nm.layer_get<uint8_t>(layer, cid, 0u);
+    if (expected_inside) {
+      if (v != expected_value) {++mismatches;}
+    } else {
+      if (v != 0u) {++mismatches;}
+    }
+  }
+  EXPECT_EQ(mismatches, 0u);
+}
+
+TEST(NavMap_SetArea_Systematic, CircularOnGridByCentroids)
+{
+  NavMap nm;
+  make_grid(nm, /*nx=*/20, /*ny=*/20);
+
+  // Obstacles layer U8 to 0
+  nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
+
+  // Circle centered at (0.5, 0.5), radius 0.22 → afecta a una vecindad razonable
+  const float cx = 0.5f, cy = 0.5f, r = 0.22f;
+  const bool ok = nm.set_area<uint8_t>(
+    Eigen::Vector3f(cx, cy, 1.0f), static_cast<uint8_t>(254),
+    "obstacles", navmap::AreaShape::CIRCULAR, r);
+  ASSERT_TRUE(ok);
+
+  verify_area_by_centroids_u8(
+    nm, "obstacles", static_cast<uint8_t>(254),
+    [&](const Eigen::Vector3f & cc){return centroid_inside_circle(cc, cx, cy, r);});
+}
+
+TEST(NavMap_SetArea_Systematic, RectangularOnGridByCentroids)
+{
+  NavMap nm;
+  make_grid(nm, /*nx=*/24, /*ny=*/24);
+  nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
+
+  // Square centered off-center to avoid simetrías
+  const float cx = 0.35f, cy = 0.7f, side = 0.18f;
+  const bool ok = nm.set_area<uint8_t>(
+    Eigen::Vector3f(cx, cy, -2.0f), static_cast<uint8_t>(200),
+    "obstacles", navmap::AreaShape::RECTANGULAR, side);
+  ASSERT_TRUE(ok);
+
+  verify_area_by_centroids_u8(
+    nm, "obstacles", static_cast<uint8_t>(200),
+    [&](const Eigen::Vector3f & cc){return centroid_inside_square(cc, cx, cy, side);});
+}
+
+TEST(NavMap_SetArea_Systematic, CircularNearBoundary)
+{
+  NavMap nm;
+  make_grid(nm, /*nx=*/30, /*ny=*/30);
+  nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
+
+  // Centro cerca del borde (evita que el BFS salga del mapa)
+  const float cx = 0.05f, cy = 0.10f, r = 0.12f;
+  const bool ok = nm.set_area<uint8_t>(
+    Eigen::Vector3f(cx, cy, 0.0f), static_cast<uint8_t>(180),
+    "obstacles", navmap::AreaShape::CIRCULAR, r);
+  ASSERT_TRUE(ok);
+
+  verify_area_by_centroids_u8(
+    nm, "obstacles", static_cast<uint8_t>(180),
+    [&](const Eigen::Vector3f & cc){return centroid_inside_circle(cc, cx, cy, r);});
 }

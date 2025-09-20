@@ -50,6 +50,8 @@
 #include <cstdint>
 #include <span>
 #include <type_traits>
+#include <deque>
+#include <algorithm>
 
 #include <Eigen/Core>
 #include "navmap_core/Geometry.hpp"
@@ -403,6 +405,11 @@ template<> inline constexpr LayerType layer_type_tag<uint8_t>() {return LayerTyp
 template<> inline constexpr LayerType layer_type_tag<float>() {return LayerType::F32;}
 template<> inline constexpr LayerType layer_type_tag<double>() {return LayerType::F64;}
 
+/**
+ * \brief Shape selector for area-writing APIs.
+ */
+enum class AreaShape { CIRCULAR, RECTANGULAR };
+
 // -----------------------------------------------------------------------------
 // NavMap: public API
 // -----------------------------------------------------------------------------
@@ -712,12 +719,65 @@ public:
   }
 
   /**
-   * \brief Get a per-cell value as double.
-   * \param name Layer name.
-   * \param cid  Triangle id.
-   * \return Value as double, or NaN if missing/type-mismatch.
+   * \brief Get a per-cell value as the requested type.
+   *
+   * If the stored type matches \p T, returns directly. Otherwise falls back to
+   * conversion vía double: floating → static_cast<T>, integral → clamp [0,max(T)]
+   * y redondeo (llround).
+   *
+   * Si la capa no existe o \p cid está fuera de rango, devuelve \p def.
+   *
+   * \tparam T uint8_t, float, or double
+   * \param name Layer name
+   * \param cid  Triangle id
+   * \param def  Default value on failure
+   * \return Value converted to T, or \p def
    */
-  double layer_get_as_double(const std::string & name, NavCelId cid) const;
+  template<typename T>
+  T layer_get(const std::string & name, NavCelId cid, T def = T{}) const
+  {
+    if (auto base = layers.get(name)) {
+      if (auto view = std::dynamic_pointer_cast<LayerView<T>>(base)) {
+        const auto & buf = view->data();
+        if (static_cast<size_t>(cid) < buf.size()) {
+          return buf[cid];
+        }
+        return def;
+      }
+    }
+    // Fallback: try to fetch as double from any stored type and convert
+    double v;
+    if (auto base = layers.get(name)) {
+      if (auto v8 = std::dynamic_pointer_cast<LayerView<uint8_t>>(base)) {
+        const auto & buf = v8->data();
+        if (static_cast<size_t>(cid) >= buf.size()) {return def;}
+        v = static_cast<double>(buf[cid]);
+      } else if (auto vf = std::dynamic_pointer_cast<LayerView<float>>(base)) {
+        const auto & buf = vf->data();
+        if (static_cast<size_t>(cid) >= buf.size()) {return def;}
+        v = static_cast<double>(buf[cid]);
+      } else if (auto vd = std::dynamic_pointer_cast<LayerView<double>>(base)) {
+        const auto & buf = vd->data();
+        if (static_cast<size_t>(cid) >= buf.size()) {return def;}
+        v = buf[cid];
+      } else {
+        return def;
+      }
+    } else {
+      return def;
+    }
+
+    if constexpr (std::is_floating_point_v<T>) {
+      return static_cast<T>(v);
+    } else if constexpr (std::is_integral_v<T>) {
+      double lo = 0.0;
+      double hi = static_cast<double>(std::numeric_limits<T>::max());
+      double vv = v < lo ? lo : (v > hi ? hi : v);
+      return static_cast<T>(std::llround(vv));
+    } else {
+      static_assert(sizeof(T) == 0, "Unsupported layer type");
+    }
+  }
 
   /**
    * \brief Return metadata for a layer if present (implementation-defined).
@@ -854,7 +914,7 @@ public:
 
     const std::size_t n = dst->size();
     for (NavCelId cid = 0; cid < n; ++cid) {
-      double v = layer_get_as_double(src_layer, cid);
+      double v = layer_get<double>(src_layer, cid, std::numeric_limits<double>::quiet_NaN());
       if (std::isnan(v)) {v = 0.0;}
 
       if constexpr (std::is_floating_point_v<T>) {
@@ -886,6 +946,123 @@ public:
     Eigen::Vector3f & bary,
     Eigen::Vector3f * hit_pt,
     const LocateOpts & opts) const;
+
+  /**
+   * \brief Set a per-NavCel layer to a constant value over a 2D area.
+   *
+   * The center is the ground projection of \p p_world. If the projected NavCel
+   * cannot be determined, returns false. Supports U8/F32/F64 layers.
+   *
+   * Efficiency: BFS from the seed NavCel with XY AABB pruning against the
+   * circumscribed square of the area. Inclusion test by triangle centroid.
+   *
+   * \tparam T uint8_t, float, or double
+   * \param p_world 3D point in world coordinates (projected to ground)
+   * \param value Value to set in the layer
+   * \param layer_name Target layer name
+   * \param shape CIRCULAR or RECTANGULAR
+   * \param size Radius (CIRCULAR) or side length (RECTANGULAR)
+   * \return true if the seed NavCel was located and the layer updated
+   */
+  template<typename T>
+  bool set_area(
+    const Eigen::Vector3f & p_world,
+    T value,
+    const std::string & layer_name,
+    AreaShape shape,
+    float size)
+  {
+    if (navcels.empty() || surfaces.empty() || size <= 0.0f) {
+      return false;
+    }
+
+    std::size_t surface_idx = 0;
+    NavCelId start_cid{};
+    Eigen::Vector3f bary{};
+    Eigen::Vector3f hit_pt{};
+    if (!locate_navcel(p_world, surface_idx, start_cid, bary, &hit_pt)) {
+      return false;
+    }
+
+    const float cx = hit_pt.x();
+    const float cy = hit_pt.y();
+
+    {
+      auto existing = layers.get(layer_name);
+      if (existing && existing->type() != layer_type_tag<T>()) {
+        return false;  // type mismatch
+      }
+    }
+    auto layer = layers.add_or_get<T>(layer_name, navcels.size(), layer_type_tag<T>());
+    if (!layer) {
+      return false;
+    }
+    if (layer->data().size() != navcels.size()) {
+      layer->data().resize(navcels.size(), T{});
+    }
+
+    const float half = (shape == AreaShape::CIRCULAR) ? size : (0.5f * size);
+    const float minx = cx - half, maxx = cx + half;
+    const float miny = cy - half, maxy = cy + half;
+    const float r2 = (shape == AreaShape::CIRCULAR) ? (size * size) : 0.0f;
+
+    auto tri_aabb_intersects_box = [&](NavCelId cid) -> bool {
+        const auto & tri = navcels[static_cast<std::size_t>(cid)];
+        const Eigen::Vector3f p0{positions.x[tri.v[0]], positions.y[tri.v[0]],
+          positions.z[tri.v[0]]};
+        const Eigen::Vector3f p1{positions.x[tri.v[1]], positions.y[tri.v[1]],
+          positions.z[tri.v[1]]};
+        const Eigen::Vector3f p2{positions.x[tri.v[2]], positions.y[tri.v[2]],
+          positions.z[tri.v[2]]};
+        const float tminx = std::min({p0.x(), p1.x(), p2.x()});
+        const float tmaxx = std::max({p0.x(), p1.x(), p2.x()});
+        const float tminy = std::min({p0.y(), p1.y(), p2.y()});
+        const float tmaxy = std::max({p0.y(), p1.y(), p2.y()});
+        if (tmaxx < minx || tminx > maxx || tmaxy < miny || tminy > maxy) {
+          return false;
+        }
+        return true;
+      };
+
+    auto inside_area = [&](const Eigen::Vector3f & c) -> bool {
+        const float dx = c.x() - cx;
+        const float dy = c.y() - cy;
+        if (shape == AreaShape::CIRCULAR) {
+          return (dx * dx + dy * dy) <= r2;
+        } else {
+          return (std::abs(dx) <= half) && (std::abs(dy) <= half);
+        }
+      };
+
+    std::vector<char> visited(navcels.size(), 0);
+    std::deque<NavCelId> q;
+    q.push_back(start_cid);
+    visited[static_cast<std::size_t>(start_cid)] = 1;
+
+    auto & data = layer->data();
+    while (!q.empty()) {
+      const NavCelId cid = q.front(); q.pop_front();
+
+      if (!tri_aabb_intersects_box(cid)) {
+        continue;
+      }
+
+      const Eigen::Vector3f c = navcel_centroid(cid);
+      if (inside_area(c)) {
+        data[static_cast<std::size_t>(cid)] = value;
+      }
+
+      for (const auto ncid : navcel_neighbors(cid)) {
+        const std::size_t nidx = static_cast<std::size_t>(ncid);
+        if (nidx < navcels.size() && !visited[nidx] && tri_aabb_intersects_box(ncid)) {
+          visited[nidx] = 1;
+          q.push_back(ncid);
+        }
+      }
+    }
+
+    return true;
+  }
 
 private:
   // Geometry fingerprint cache (lazy recompute)

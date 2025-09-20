@@ -161,8 +161,8 @@ TEST(NavMap_FullConversions, RoundTrip_All)
     EXPECT_EQ(b.layer_type_name(lname), a.layer_type_name(lname));
     ASSERT_EQ(b.layer_size(lname), a.layer_size(lname));
     for (navmap::NavCelId cid = 0; cid < a.navcels.size(); ++cid) {
-      double va = a.layer_get_as_double(lname, cid);
-      double vb = b.layer_get_as_double(lname, cid);
+      double va = a.layer_get<double>(lname, cid);
+      double vb = b.layer_get<double>(lname, cid);
       if (std::isnan(va) || std::isnan(vb)) {
         EXPECT_TRUE(std::isnan(va) && std::isnan(vb));
       } else {
@@ -199,8 +199,8 @@ TEST(NavMap_LayerConversions, U8_RoundTrip)
   navmap::NavMap nm2; make_flat_square(nm2);
   navmap_ros::from_msg(msg, nm2);
   ASSERT_TRUE(nm2.has_layer("occupancy"));
-  EXPECT_NEAR(nm2.layer_get_as_double("occupancy", 0), 10.0, 1e-6);
-  EXPECT_NEAR(nm2.layer_get_as_double("occupancy", 1), 250.0, 1e-6);
+  EXPECT_NEAR(nm2.layer_get<double>("occupancy", 0), 10.0, 1e-6);
+  EXPECT_NEAR(nm2.layer_get<double>("occupancy", 1), 250.0, 1e-6);
 }
 
 TEST(NavMap_LayerConversions, F32_RoundTrip)
@@ -218,8 +218,8 @@ TEST(NavMap_LayerConversions, F32_RoundTrip)
   navmap::NavMap nm2; make_flat_square(nm2);
   navmap_ros::from_msg(msg, nm2);
   ASSERT_TRUE(nm2.has_layer("cost"));
-  EXPECT_NEAR(nm2.layer_get_as_double("cost", 0), 1.25, 1e-6);
-  EXPECT_NEAR(nm2.layer_get_as_double("cost", 1), 9.5, 1e-6);
+  EXPECT_NEAR(nm2.layer_get<double>("cost", 0), 1.25, 1e-6);
+  EXPECT_NEAR(nm2.layer_get<double>("cost", 1), 9.5, 1e-6);
 }
 
 TEST(NavMap_LayerConversions, F64_RoundTrip)
@@ -238,8 +238,8 @@ TEST(NavMap_LayerConversions, F64_RoundTrip)
   navmap::NavMap nm2; make_flat_square(nm2);
   navmap_ros::from_msg(msg, nm2);
   ASSERT_TRUE(nm2.has_layer("elevation"));
-  EXPECT_NEAR(nm2.layer_get_as_double("elevation", 0), 12.345, 1e-9);
-  EXPECT_NEAR(nm2.layer_get_as_double("elevation", 1), -2.5, 1e-9);
+  EXPECT_NEAR(nm2.layer_get<double>("elevation", 0), 12.345, 1e-9);
+  EXPECT_NEAR(nm2.layer_get<double>("elevation", 1), -2.5, 1e-9);
 }
 
 TEST(NavMap_LayerConversions, ToMsg_Throws_OnMissingLayer)

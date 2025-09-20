@@ -132,7 +132,7 @@ nm.layer_set<float>("cost", c1, 5.0f);
 ## 3. Read a layer value for a given NavCel
 
 ```cpp
-double v = nm.layer_get_as_double("cost", c0);  // → 1.0
+double v = nm.layer_get<double>("cost", c0);  // → 1.0
 ```
 
 ---
