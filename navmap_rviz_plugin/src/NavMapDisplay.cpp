@@ -1,28 +1,23 @@
-// Copyright 2025 Intelligent Robotics Lab
-//
-// This file is part of the project Easy Navigation (EasyNav in short)
-// licensed under the GNU General Public License v3.0.
-// See <http://www.gnu.org/licenses/> for details.
-//
-// Easy Navigation program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <http://www.gnu.org/licenses/>.
-
+// Copyright 2025
+// GPLv3
 
 #include "navmap_rviz_plugin/NavMapDisplay.hpp"
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 #include <OgreManualObject.h>
+#include <OgreEntity.h>
+#include <OgreMesh.h>
+#include <OgreMeshManager.h>
+#include <OgreHardwareVertexBuffer.h>
+#include <OgreHardwareBufferManager.h>
+#include <OgreMaterialManager.h>
+#include <OgreSubMesh.h>
+#include <OgreMaterial.h>
+#include <OgreTechnique.h>
+#include <OgrePass.h>
+#include <OgreVertexIndexData.h>
+#include <OgreRoot.h>
 
 #include <rclcpp/exceptions.hpp>
 #include <rviz_common/display_context.hpp>
@@ -32,11 +27,12 @@
 #include <rviz_common/validate_floats.hpp>
 
 #include <QCoreApplication>
+#include <cmath>
+#include <sstream>
 
 namespace
 {
 
-// HSV → RGB (H in [0,360), S,V in [0,1])
 inline void hsv2rgb(float H, float S, float V, float & R, float & G, float & B)
 {
   const float C = V * S;
@@ -50,26 +46,21 @@ inline void hsv2rgb(float H, float S, float V, float & R, float & G, float & B)
     r1 = 0.f; g1 = X; b1 = C;
   } else if (H < 300.f) {r1 = X; g1 = 0.f; b1 = C;} else {r1 = C; g1 = 0.f; b1 = X;}
 
-  R = r1 + m;
-  G = g1 + m;
-  B = b1 + m;
+  R = r1 + m; G = g1 + m; B = b1 + m;
 }
 
-// Rainbow HSV (blue→...→red). If max≈0, fall back to green.
 inline Ogre::ColourValue colorFromRainbow(float value, float max_value, float alpha)
 {
   if (max_value <= 1e-9f) {
     return Ogre::ColourValue(0.0f, 1.0f, 0.0f, alpha);
   }
   float n = std::max(0.0f, std::min(1.0f, value / max_value));
-  const float H = (1.0f - n) * 240.0f;  // 240° (blue) → 0° (red)
+  const float H = (1.0f - n) * 240.0f;  // blue → red
   float r, g, b;
   hsv2rgb(H, 1.0f, 1.0f, r, g, b);
   return Ogre::ColourValue(r, g, b, alpha);
 }
 
-// Occupancy-style U8 mapping with global alpha.
-// 0 -> light gray (free), 254 -> black (occupied), 255 -> dark green (unknown), 1..253 -> inverted gray.
 inline Ogre::ColourValue colorFromU8(uint8_t v, float alpha)
 {
   if (v == 0) {return Ogre::ColourValue(0.5f, 0.5f, 0.5f, alpha);}
@@ -80,15 +71,11 @@ inline Ogre::ColourValue colorFromU8(uint8_t v, float alpha)
   return Ogre::ColourValue(c, c, c, alpha);
 }
 
-// Simple blue→red heatmap; if max is ~0, fall back to solid green.
 inline Ogre::ColourValue colorFromHeat(float value, float max_value, float alpha)
 {
   if (max_value <= 1e-9f) {return Ogre::ColourValue(0.0f, 1.0f, 0.0f, alpha);}
   float t = std::max(0.0f, std::min(1.0f, value / max_value));
-  float r = t;
-  float g = 1.0f - t;
-  float b = 0.0f;
-  return Ogre::ColourValue(r, g, b, alpha);
+  return Ogre::ColourValue(t, 1.0f - t, 0.0f, alpha);
 }
 
 } // namespace
@@ -98,7 +85,6 @@ namespace navmap_rviz_plugin
 
 NavMapDisplay::NavMapDisplay()
 {
-  // Properties
   layer_property_ = new rviz_common::properties::EnumProperty(
     "Layer", "",
     "Select the layer used to colorize triangles.",
@@ -138,17 +124,12 @@ NavMapDisplay::NavMapDisplay()
 
 NavMapDisplay::~NavMapDisplay()
 {
-  // Destroy OGRE objects if they exist
-  if (triangles_obj_) {
-    triangles_obj_->detachFromParent();
-    context_->getSceneManager()->destroyManualObject(triangles_obj_);
-    triangles_obj_ = nullptr;
-  }
   if (normals_obj_) {
     normals_obj_->detachFromParent();
     context_->getSceneManager()->destroyManualObject(normals_obj_);
     normals_obj_ = nullptr;
   }
+  destroyMesh_();
   if (root_node_) {
     root_node_->removeAndDestroyAllChildren();
     context_->getSceneManager()->destroySceneNode(root_node_);
@@ -159,8 +140,6 @@ NavMapDisplay::~NavMapDisplay()
 void NavMapDisplay::onInitialize()
 {
   MFDClass::onInitialize();
-
-  // Initialize QoS-configurable layer subscription
   layer_topic_property_->initialize(rviz_ros_node_);
   layer_profile_property_->initialize(
     [this](rclcpp::QoS profile) {
@@ -168,9 +147,15 @@ void NavMapDisplay::onInitialize()
       updateLayerUpdateTopic();
     });
 
-  // Create root scene node if needed
   if (!root_node_) {
     root_node_ = context_->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+  }
+
+  // Prepare normals object
+  if (!normals_obj_) {
+    normals_obj_ = context_->getSceneManager()->createManualObject();
+    normals_obj_->setDynamic(true);
+    root_node_->attachObject(normals_obj_);
   }
 }
 
@@ -191,7 +176,7 @@ void NavMapDisplay::reset()
   setStatus(rviz_common::properties::StatusProperty::Warn, "NavMap Topic", "waiting for messages…");
   setStatus(rviz_common::properties::StatusProperty::Warn, "Layer Update", "waiting for updates…");
 
-  updateGeometry_();
+  destroyMesh_();
   updateNormals_();
 }
 
@@ -209,7 +194,6 @@ void NavMapDisplay::onDisable()
 
 void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
 {
-  // Keep a mutable copy to integrate layer updates
   last_msg_ = std::make_shared<NavMapMsg>(*msg);
 
   ++navmap_msg_count_;
@@ -232,13 +216,14 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
   rebuildLayerIndex_();
   updateColorSchemeOptions_();
 
-  // Autocomplete a default layer topic from the base topic (optional)
   if (layer_topic_property_->isEmpty() && !topic_property_->isEmpty()) {
     layer_topic_property_->setStdString(topic_property_->getTopicStd() + "_layers");
     updateLayerUpdateTopic();
   }
 
-  updateGeometry_();
+  // Build/refresh mesh and color buffer
+  ensureMeshBuilt_();
+  updateColorsOnly_();
   updateNormals_();
 
   context_->queueRender();
@@ -249,7 +234,6 @@ void NavMapDisplay::subscribeToLayerTopic()
   if (!isEnabled()) {
     return;
   }
-
   if (layer_topic_property_->isEmpty()) {
     setStatus(
       rviz_common::properties::StatusProperty::Warn,
@@ -282,15 +266,11 @@ void NavMapDisplay::subscribeToLayerTopic()
     layer_subscription_start_time_ = node->now();
     setStatus(rviz_common::properties::StatusProperty::Ok, "Layer Update Topic", "OK");
   } catch (const rclcpp::exceptions::InvalidTopicNameError & e) {
-    setStatus(
-      rviz_common::properties::StatusProperty::Error,
-      "Layer Update Topic",
-      QString("Invalid topic: ") + e.what());
+    setStatus(rviz_common::properties::StatusProperty::Error,
+      "Layer Update Topic", QString("Invalid topic: ") + e.what());
   } catch (const std::exception & e) {
-    setStatus(
-      rviz_common::properties::StatusProperty::Error,
-      "Layer Update Topic",
-      QString("Failed to subscribe: ") + e.what());
+    setStatus(rviz_common::properties::StatusProperty::Error,
+      "Layer Update Topic", QString("Failed to subscribe: ") + e.what());
   }
 }
 
@@ -301,7 +281,6 @@ void NavMapDisplay::unsubscribeToLayerTopic()
 
 void NavMapDisplay::updateLayerUpdateTopic()
 {
-  // Re-hook only the layer subscription (main NavMap subscription is managed by the base class)
   unsubscribeToLayerTopic();
   subscribeToLayerTopic();
   context_->queueRender();
@@ -317,7 +296,6 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
     return;
   }
 
-  // Exactly one data array must be non-empty and match the number of triangles
   const size_t n_tris = last_msg_->navcels_v0.size();
   const size_t n_u8 = msg->data_u8.size();
   const size_t n_f32 = msg->data_f32.size();
@@ -325,17 +303,13 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
   const int non_empty = (n_u8 ? 1 : 0) + (n_f32 ? 1 : 0) + (n_f64 ? 1 : 0);
 
   if (non_empty != 1) {
-    setStatus(
-      rviz_common::properties::StatusProperty::Error,
-      "Layer Update",
+    setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
       "Exactly one of data_u8 / data_f32 / data_f64 must be non-empty.");
     return;
   }
   const size_t eff_len = n_u8 ? n_u8 : (n_f32 ? n_f32 : n_f64);
   if (eff_len != n_tris) {
-    setStatus(
-      rviz_common::properties::StatusProperty::Error,
-      "Layer Update",
+    setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
       QString("Layer size (%1) does not match number of triangles (%2)")
       .arg(eff_len).arg(n_tris));
     return;
@@ -343,7 +317,6 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
 
   applyOrCacheLayer_(*msg);
 
-  // Status: layer update counter + last update summary
   ++layer_update_count_;
   last_layer_stamp_ = rviz_ros_node_.lock()->get_raw_node()->now();
 
@@ -356,20 +329,18 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
     !msg->data_f32.empty() ? msg->data_f32.size() :
     msg->data_f64.size();
 
-  // Put the human-friendly line on the *subscription* row you already see:
   QString line = QString("OK — updates: %1 | last: \"%2\" (%3, len=%4)")
     .arg(qulonglong(layer_update_count_))
     .arg(QString::fromStdString(msg->name))
     .arg(type_str)
     .arg(qulonglong(len));
-
-  // IMPORTANT: write it into "Layer Update Topic"
   setStatus(rviz_common::properties::StatusProperty::Ok,
             "Layer Update Topic", line);
 
   if (currentSelectedLayer_() == msg->name) {
     updateColorSchemeOptions_();
-    updateGeometry_();
+    // Fast path: only recolor, geometry unchanged
+    updateColorsOnly_();
   }
   if (draw_normals_property_->getBool()) {
     updateNormals_();
@@ -411,9 +382,8 @@ void NavMapDisplay::repopulateLayerEnum_()
 
 void NavMapDisplay::applyOrCacheLayer_(const NavMapLayerMsg & layer)
 {
-  if (!last_msg_) {
-    return;
-  }
+  if (!last_msg_) {return;}
+
   bool found = false;
   for (auto & L : last_msg_->layers) {
     if (L.name == layer.name) {
@@ -429,11 +399,11 @@ void NavMapDisplay::applyOrCacheLayer_(const NavMapLayerMsg & layer)
   rebuildLayerIndex_();
 }
 
-// Property slots
 void NavMapDisplay::onLayerSelectionChanged()
 {
   updateColorSchemeOptions_();
-  updateGeometry_();
+  // Fast recolor on same geometry
+  updateColorsOnly_();
   if (draw_normals_property_->getBool()) {
     updateNormals_();
   }
@@ -448,7 +418,8 @@ void NavMapDisplay::onDrawNormalsChanged()
 
 void NavMapDisplay::onAlphaChanged()
 {
-  updateGeometry_();
+  // Alpha affects only colors, not geometry
+  updateColorsOnly_();
   context_->queueRender();
 }
 
@@ -462,37 +433,19 @@ void NavMapDisplay::onNormalScaleChanged()
 
 void NavMapDisplay::onColorSchemeChanged()
 {
-  updateGeometry_();
+  updateColorsOnly_();
   if (draw_normals_property_->getBool()) {
     updateNormals_();
   }
   context_->queueRender();
 }
 
-// Rendering pipeline
+// ----- Mesh/Entity: build once, recolor fast -----
 
-void NavMapDisplay::updateGeometry_()
+void NavMapDisplay::ensureMeshBuilt_()
 {
-  if (!context_ || !last_msg_) {return;}
+  if (mesh_built_ || !context_ || !last_msg_) {return;}
 
-  // Ensure scene objects exist
-  if (!root_node_) {
-    root_node_ = context_->getSceneManager()->getRootSceneNode()->createChildSceneNode();
-  }
-  if (!triangles_obj_) {
-    triangles_obj_ = context_->getSceneManager()->createManualObject();
-    triangles_obj_->setDynamic(true);
-    root_node_->attachObject(triangles_obj_);
-  }
-  if (!normals_obj_) {
-    normals_obj_ = context_->getSceneManager()->createManualObject();
-    normals_obj_->setDynamic(true);
-    root_node_->attachObject(normals_obj_);
-  }
-
-  triangles_obj_->clear();
-
-  // Aliases
   const auto & X = last_msg_->positions_x;
   const auto & Y = last_msg_->positions_y;
   const auto & Z = last_msg_->positions_z;
@@ -504,50 +457,194 @@ void NavMapDisplay::updateGeometry_()
     return;
   }
 
-  // Decide color mode: selected layer vs per-vertex RGBA
-  const navmap_ros_interfaces::msg::NavMapLayer * selected_layer = nullptr;
+  // 1) Build a ManualObject once to get vertex/index streams, with a neutral colour
+  Ogre::ManualObject * mo = context_->getSceneManager()->createManualObject();
+  mo->setDynamic(false);
+  mo->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+
+  const Ogre::ColourValue neutral(0.7f, 0.7f, 0.7f, alpha_property_->getFloat());
+  for (size_t t = 0; t < V0.size(); ++t) {
+    const uint32_t i0 = V0[t], i1 = V1[t], i2 = V2[t];
+    mo->position(X[i0], Y[i0], Z[i0]); mo->colour(neutral);
+    mo->position(X[i1], Y[i1], Z[i1]); mo->colour(neutral);
+    mo->position(X[i2], Y[i2], Z[i2]); mo->colour(neutral);
+  }
+  mo->end();
+
+  // 2) Convert to Mesh and create Entity
+  static int mesh_counter = 0;
+  const std::string mesh_name = "NavMapMesh_" + std::to_string(++mesh_counter);
+  Ogre::MeshPtr m = mo->convertToMesh(mesh_name);
+
+  // Material with vertex-colour tracking
+  Ogre::MaterialPtr base = Ogre::MaterialManager::getSingleton().getByName("BaseWhiteNoLighting");
+  Ogre::MaterialPtr mat = base->clone(mesh_name + "/mat");
+  mat->setLightingEnabled(false);
+  // For alpha < 1 you may uncomment:
+  // auto * pass = mat->getTechnique(0)->getPass(0);
+  // pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
+  // pass->setDepthWriteEnabled(false);
+  mat->getTechnique(0)->getPass(0)->setVertexColourTracking(Ogre::TVC_AMBIENT | Ogre::TVC_DIFFUSE);
+
+  // Destroy temp ManualObject
+  mo->detachFromParent();
+  context_->getSceneManager()->destroyManualObject(mo);
+
+  // Create entity and attach to our node
+  entity_ = context_->getSceneManager()->createEntity(mesh_name);
+  entity_->setMaterialName(mat->getName());
+  if (!root_node_) {
+    root_node_ = context_->getSceneManager()->getRootSceneNode()->createChildSceneNode();
+  }
+  root_node_->attachObject(entity_);
+
+  // Keep mesh/shared pointers
+  mesh_ = m;
+
+  // 3) Move VES_DIFFUSE to its own vertex buffer (dedicated colour stream)
+  Ogre::SubMesh * sub = mesh_->getSubMesh(0);
+  Ogre::VertexData * vdata = sub->useSharedVertices ? mesh_->sharedVertexData : sub->vertexData;
+  Ogre::VertexDeclaration * decl = vdata->vertexDeclaration;
+  Ogre::VertexBufferBinding * bind = vdata->vertexBufferBinding;
+
+  const size_t vertex_count = vdata->vertexCount;
+
+  // Remove any existing colour element (usually in source 0). Some Ogre builds provide
+  // removeElement by semantic; if not, rebuild via iteration—here we try semantic removal first.
+  if (decl->findElementBySemantic(Ogre::VES_DIFFUSE)) {
+#if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && (OGRE_VERSION_MINOR > 12 || \
+    (OGRE_VERSION_MINOR == 12 && OGRE_VERSION_PATCH >= 0)))
+    // Many vendors carry removeElement(VES_DIFFUSE)
+    decl->removeElement(Ogre::VES_DIFFUSE);
+#else
+    // Fallback: rebuild declaration without VES_DIFFUSE
+    Ogre::VertexDeclaration * newDecl = context_->getSceneManager()->createVertexDeclaration();
+    for (unsigned short s = 0; s < decl->getElementCount(); ++s) {
+      const Ogre::VertexElement & e = decl->getElement(s);
+      if (e.getSemantic() == Ogre::VES_DIFFUSE) {continue;}
+      newDecl->addElement(e.getSource(), e.getOffset(), e.getType(), e.getSemantic(), e.getIndex());
+    }
+    // Copy back
+    *decl = *newDecl;
+#endif
+  }
+
+  // Choose a free binding source for colours (avoid clashing with positions/normals)
+  unsigned short COLOR_SRC = 1;
+  while (bind->isBufferBound(COLOR_SRC)) {++COLOR_SRC;}
+
+  // Create the dynamic colour buffer (one 32-bit colour per vertex)
+  const Ogre::VertexElementType col_type = Ogre::VET_COLOUR_ARGB; // we'll pack ARGB
+  decl->addElement(COLOR_SRC, /*offset=*/0, col_type, Ogre::VES_DIFFUSE);
+
+  Ogre::HardwareVertexBufferSharedPtr colour_vbuf =
+    Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
+      Ogre::VertexElement::getTypeSize(col_type), // should be 4
+      vertex_count,
+      Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+
+  bind->setBinding(COLOR_SRC, colour_vbuf);
+
+  // Store for fast recolour
+  colour_vbuf_ = colour_vbuf;
+  colour_vbuf_source_ = COLOR_SRC;
+
+  mesh_built_ = true;
+}
+
+void NavMapDisplay::destroyMesh_()
+{
+  if (!context_) {return;}
+
+  if (entity_) {
+    entity_->detachFromParent();
+    context_->getSceneManager()->destroyEntity(entity_);
+    entity_ = nullptr;
+  }
+  if (mesh_) {
+    Ogre::MeshManager::getSingleton().remove(mesh_->getHandle());
+    mesh_.reset();
+  }
+  colour_vbuf_.reset();
+  mesh_built_ = false;
+}
+
+void NavMapDisplay::updateColorsOnly_()
+{
+  if (!mesh_built_ || !last_msg_ || !entity_ || !mesh_) {return;}
+
+  const auto & V0 = last_msg_->navcels_v0;
+  const auto & V1 = last_msg_->navcels_v1;
+  const auto & V2 = last_msg_->navcels_v2;
+  if (V0.empty() || V1.empty() || V2.empty()) {return;}
+
+  // Resolve active layer and scheme
+  const std::string sel = currentSelectedLayer_();
+  const float alpha = alpha_property_->getFloat();
+  const bool use_rainbow = (color_scheme_property_->getStdString() == "Rainbow");
+
+  const NavMapLayerMsg * selected_layer = nullptr;
   bool vertex_color_mode = false;
 
-  const std::string sel = currentSelectedLayer_();
   auto it = layers_by_name_.find(sel);
   if (it != layers_by_name_.end()) {
     selected_layer = it->second;
   } else if (sel == "Color (vertex RGBA)") {
     vertex_color_mode = last_msg_->has_vertex_rgba &&
-      last_msg_->colors_r.size() == X.size() &&
-      last_msg_->colors_g.size() == X.size() &&
-      last_msg_->colors_b.size() == X.size();
+      last_msg_->colors_r.size() == last_msg_->positions_x.size() &&
+      last_msg_->colors_g.size() == last_msg_->positions_x.size() &&
+      last_msg_->colors_b.size() == last_msg_->positions_x.size();
   }
 
-  // For float layers, precompute max for scaling
   float max_val = 0.0f;
   bool is_u8 = false;
   if (selected_layer) {
-    if (selected_layer->type == navmap_ros_interfaces::msg::NavMapLayer::U8 &&
+    if (selected_layer->type == NavMapLayerMsg::U8 &&
       selected_layer->data_u8.size() == V0.size())
     {
       is_u8 = true;
-    } else if (selected_layer->type == navmap_ros_interfaces::msg::NavMapLayer::F32 &&
+    } else if (selected_layer->type == NavMapLayerMsg::F32 &&
       selected_layer->data_f32.size() == V0.size())
     {
       for (float v : selected_layer->data_f32) {
         max_val = std::max(max_val, v);
       }
-    } else if (selected_layer->type == navmap_ros_interfaces::msg::NavMapLayer::F64 &&
+    } else if (selected_layer->type == NavMapLayerMsg::F64 &&
       selected_layer->data_f64.size() == V0.size())
     {
       for (double v : selected_layer->data_f64) {
         max_val = std::max(max_val, static_cast<float>(v));
       }
     } else {
-      selected_layer = nullptr;
+      selected_layer = nullptr; // fallback to neutral grey
     }
   }
 
-  triangles_obj_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+  // Access our dedicated colour buffer
+  if (!colour_vbuf_) {return;}
 
-  const float alpha = alpha_property_->getFloat();
-  const bool use_rainbow = (color_scheme_property_->getStdString() == "Rainbow");
+  const size_t expected_vertices = V0.size() * 3;
+
+  // If geometry changed, rebuild mesh & buffers
+  {
+    Ogre::SubMesh * sub = mesh_->getSubMesh(0);
+    Ogre::VertexData * vdata = sub->useSharedVertices ? mesh_->sharedVertexData : sub->vertexData;
+    if (vdata->vertexCount != expected_vertices) {
+      destroyMesh_();
+      ensureMeshBuilt_();
+      if (!mesh_built_ || !colour_vbuf_) {return;}
+    }
+  }
+
+  // Lock and write one packed colour per vertex (buffer is colour-only → stride is 4)
+  unsigned char * base = static_cast<unsigned char *>(
+    colour_vbuf_->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+  uint32_t * p = reinterpret_cast<uint32_t *>(base);
+
+  auto packARGB = [&](const Ogre::ColourValue & c) -> uint32_t {
+    // Pack into ARGB to match VET_COLOUR_ARGB used at creation
+      return Ogre::VertexElement::convertColourValue(c, Ogre::VET_COLOUR_ARGB);
+    };
 
   if (vertex_color_mode) {
     const auto & R = last_msg_->colors_r;
@@ -568,54 +665,54 @@ void NavMapDisplay::updateGeometry_()
         R[i2] / 255.f, G[i2] / 255.f, B[i2] / 255.f,
         (A.empty() ? alpha : (A[i2] / 255.f) * alpha));
 
-      triangles_obj_->position(X[i0], Y[i0], Z[i0]); triangles_obj_->colour(c0);
-      triangles_obj_->position(X[i1], Y[i1], Z[i1]); triangles_obj_->colour(c1);
-      triangles_obj_->position(X[i2], Y[i2], Z[i2]); triangles_obj_->colour(c2);
+      *p++ = packARGB(c0);
+      *p++ = packARGB(c1);
+      *p++ = packARGB(c2);
     }
   } else if (selected_layer) {
-    // Layer-based coloring (U8 occupancy or float heatmap)
     if (is_u8) {
       for (size_t t = 0; t < V0.size(); ++t) {
-        const uint32_t i0 = V0[t], i1 = V1[t], i2 = V2[t];
         const Ogre::ColourValue col = colorFromU8(selected_layer->data_u8[t], alpha);
-        triangles_obj_->position(X[i0], Y[i0], Z[i0]); triangles_obj_->colour(col);
-        triangles_obj_->position(X[i1], Y[i1], Z[i1]); triangles_obj_->colour(col);
-        triangles_obj_->position(X[i2], Y[i2], Z[i2]); triangles_obj_->colour(col);
+        const uint32_t packed = packARGB(col);
+        *p++ = packed; *p++ = packed; *p++ = packed;
       }
-    } else if (selected_layer->type == navmap_ros_interfaces::msg::NavMapLayer::F32) {
+    } else if (selected_layer->type == NavMapLayerMsg::F32) {
       for (size_t t = 0; t < V0.size(); ++t) {
-        const uint32_t i0 = V0[t], i1 = V1[t], i2 = V2[t];
         const Ogre::ColourValue col = use_rainbow ?
           colorFromRainbow(selected_layer->data_f32[t], max_val, alpha) :
-          colorFromHeat(selected_layer->data_f32[t], max_val, alpha);
-        triangles_obj_->position(X[i0], Y[i0], Z[i0]); triangles_obj_->colour(col);
-        triangles_obj_->position(X[i1], Y[i1], Z[i1]); triangles_obj_->colour(col);
-        triangles_obj_->position(X[i2], Y[i2], Z[i2]); triangles_obj_->colour(col);
+          colorFromHeat   (selected_layer->data_f32[t], max_val, alpha);
+        const uint32_t packed = packARGB(col);
+        *p++ = packed; *p++ = packed; *p++ = packed;
       }
-    } else {  // F64
+    } else { // F64
       for (size_t t = 0; t < V0.size(); ++t) {
-        const uint32_t i0 = V0[t], i1 = V1[t], i2 = V2[t];
         const float v = static_cast<float>(selected_layer->data_f64[t]);
         const Ogre::ColourValue col = use_rainbow ?
           colorFromRainbow(v, max_val, alpha) :
-          colorFromHeat(v, max_val, alpha);
-        triangles_obj_->position(X[i0], Y[i0], Z[i0]); triangles_obj_->colour(col);
-        triangles_obj_->position(X[i1], Y[i1], Z[i1]); triangles_obj_->colour(col);
-        triangles_obj_->position(X[i2], Y[i2], Z[i2]); triangles_obj_->colour(col);
+          colorFromHeat   (v, max_val, alpha);
+        const uint32_t packed = packARGB(col);
+        *p++ = packed; *p++ = packed; *p++ = packed;
       }
     }
   } else {
-    // Neutral gray fallback
-    const Ogre::ColourValue col(0.7f, 0.7f, 0.7f, alpha);
+    // Fallback to neutral grey
+    const uint32_t packed = packARGB(Ogre::ColourValue(0.7f, 0.7f, 0.7f, alpha));
     for (size_t t = 0; t < V0.size(); ++t) {
-      const uint32_t i0 = V0[t], i1 = V1[t], i2 = V2[t];
-      triangles_obj_->position(X[i0], Y[i0], Z[i0]); triangles_obj_->colour(col);
-      triangles_obj_->position(X[i1], Y[i1], Z[i1]); triangles_obj_->colour(col);
-      triangles_obj_->position(X[i2], Y[i2], Z[i2]); triangles_obj_->colour(col);
+      *p++ = packed; *p++ = packed; *p++ = packed;
     }
   }
 
-  triangles_obj_->end();
+  colour_vbuf_->unlock();
+
+  // No extra invalidation is necessary; OGRE will render new colours next frame.
+}
+
+
+void NavMapDisplay::updateGeometry_()
+{
+  // For Option B, geometry build is isolated; colors are updated separately.
+  ensureMeshBuilt_();
+  updateColorsOnly_();
 }
 
 void NavMapDisplay::updateNormals_()
@@ -623,10 +720,7 @@ void NavMapDisplay::updateNormals_()
   if (!context_ || !last_msg_ || !normals_obj_) {return;}
 
   normals_obj_->clear();
-
-  if (!draw_normals_property_->getBool()) {
-    return;
-  }
+  if (!draw_normals_property_->getBool()) {return;}
 
   const auto & X = last_msg_->positions_x;
   const auto & Y = last_msg_->positions_y;
@@ -662,12 +756,9 @@ void NavMapDisplay::updateNormals_()
 
 void NavMapDisplay::updateColorSchemeOptions_()
 {
-  // Preserve current selection if still valid
   const QString prev = color_scheme_property_->getString();
-
   color_scheme_property_->clearOptions();
 
-  // Decide by current selected layer type
   const std::string sel = currentSelectedLayer_();
   auto it = layers_by_name_.find(sel);
 
@@ -677,22 +768,21 @@ void NavMapDisplay::updateColorSchemeOptions_()
       color_scheme_property_->addOption("Occupancy");
       color_scheme_property_->setString("Occupancy");
       color_scheme_property_->setDescription(
-          "U8 occupancy mapping (free=light, occ=black, unknown=dark green).");
+        "U8 occupancy mapping (free=light, occ=black, unknown=dark green).");
       return;
     } else {
       color_scheme_property_->addOption("Heat");
       color_scheme_property_->addOption("Rainbow");
-      // Restore prev if valid; else default to Heat
       if (prev == "Rainbow") {color_scheme_property_->setString("Rainbow");} else {
         color_scheme_property_->setString("Heat");
       }
       color_scheme_property_->setDescription(
-          "Float mapping: Heat (red/yellow) or Rainbow (HSV spectrum).");
+        "Float mapping: Heat (red/yellow) or Rainbow (HSV spectrum).");
       return;
     }
   }
 
-  // No valid layer selected (fallback)
+  // Fallback
   color_scheme_property_->addOption("Heat");
   color_scheme_property_->addOption("Rainbow");
   if (prev == "Rainbow") {color_scheme_property_->setString("Rainbow");} else {
