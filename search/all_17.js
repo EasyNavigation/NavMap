@@ -10,12 +10,13 @@ var searchData=
   ['read_20a_20layer_20value_20for_20a_20given_20navcel_7',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md16',1,'']]],
   ['readme_2emd_8',['README.md',['../README_8md.html',1,'']]],
   ['rebuild_5fgeometry_5faccels_9',['rebuild_geometry_accels',['../classnavmap_1_1NavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'navmap::NavMap::rebuild_geometry_accels()'],['../classNavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'NavMap::rebuild_geometry_accels()']]],
-  ['remove_10',['remove',['../classnavmap_1_1LayerRegistry.html#a018768fa4b740b3e5abbd2eb06270ac2',1,'navmap::LayerRegistry']]],
-  ['remove_5fsurface_11',['remove_surface',['../classnavmap_1_1NavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'navmap::NavMap::remove_surface()'],['../classNavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'NavMap::remove_surface()']]],
-  ['repository_20structure_12',['📂 Repository structure',['../index.html#autotoc_md4',1,'']]],
-  ['reset_13',['reset',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#aebfcdbbd0fe4efbff10b180be50ca6bc',1,'navmap_rviz_plugin::NavMapDisplay']]],
-  ['resize_5fall_14',['resize_all',['../classnavmap_1_1LayerRegistry.html#a039a25cf408f86a30b5932ef29ac6234',1,'navmap::LayerRegistry']]],
-  ['right_15',['right',['../structnavmap_1_1BVHNode.html#a2f54f8b71f0d765e2b7dbd9a8b9774ff',1,'navmap::BVHNode']]],
-  ['ros_202_20colcon_20build_16',['ROS 2 colcon build',['../index.html#autotoc_md7',1,'']]],
-  ['ros_20messages_17',['7. Serialize to / from ROS messages',['../index.html#autotoc_md24',1,'']]]
+  ['rectangular_10',['RECTANGULAR',['../namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51',1,'navmap']]],
+  ['remove_11',['remove',['../classnavmap_1_1LayerRegistry.html#a018768fa4b740b3e5abbd2eb06270ac2',1,'navmap::LayerRegistry']]],
+  ['remove_5fsurface_12',['remove_surface',['../classnavmap_1_1NavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'navmap::NavMap::remove_surface()'],['../classNavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'NavMap::remove_surface()']]],
+  ['repository_20structure_13',['📂 Repository structure',['../index.html#autotoc_md4',1,'']]],
+  ['reset_14',['reset',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#aebfcdbbd0fe4efbff10b180be50ca6bc',1,'navmap_rviz_plugin::NavMapDisplay']]],
+  ['resize_5fall_15',['resize_all',['../classnavmap_1_1LayerRegistry.html#a039a25cf408f86a30b5932ef29ac6234',1,'navmap::LayerRegistry']]],
+  ['right_16',['right',['../structnavmap_1_1BVHNode.html#a2f54f8b71f0d765e2b7dbd9a8b9774ff',1,'navmap::BVHNode']]],
+  ['ros_202_20colcon_20build_17',['ROS 2 colcon build',['../index.html#autotoc_md7',1,'']]],
+  ['ros_20messages_18',['7. Serialize to / from ROS messages',['../index.html#autotoc_md24',1,'']]]
 ];

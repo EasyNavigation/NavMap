@@ -21,6 +21,7 @@ var searchData=
   ['and_20load_20from_20disk_18',['8. Save and load from disk',['../index.html#autotoc_md26',1,'']]],
   ['api_19',['API',['../index.html#autotoc_md10',1,'🚀 Usage (C++ API)'],['../index.html#autotoc_md28',1,'9. Classic low-level API']]],
   ['area_20',['area',['../structnavmap_1_1NavCel.html#a97ab43f6fd28920a42d987c8fec4afec',1,'navmap::NavCel']]],
-  ['at_21',['at',['../structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a',1,'navmap::Positions']]],
-  ['at_20a_20world_20position_22',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]]
+  ['areashape_21',['AreaShape',['../namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7',1,'navmap']]],
+  ['at_22',['at',['../structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a',1,'navmap::Positions']]],
+  ['at_20a_20world_20position_23',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]]
 ];

@@ -187,9 +187,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2356466b1a87eaf3339807d0f7c2b563"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a2356466b1a87eaf3339807d0f7c2b563">layer_copy</a> (const std::string &amp;src, const std::string &amp;dst)</td></tr>
 <tr class="memdesc:a2356466b1a87eaf3339807d0f7c2b563"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy values from one layer into another.  <br /></td></tr>
 <tr class="separator:a2356466b1a87eaf3339807d0f7c2b563"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95928bff190b5d262a7ea1ffcf714957" id="r_a95928bff190b5d262a7ea1ffcf714957"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a95928bff190b5d262a7ea1ffcf714957">layer_get_as_double</a> (const std::string &amp;name, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
-<tr class="memdesc:a95928bff190b5d262a7ea1ffcf714957"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a per-cell value as double.  <br /></td></tr>
-<tr class="separator:a95928bff190b5d262a7ea1ffcf714957"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af549de6d60fe38ed0094d4ed2b7f854f" id="r_af549de6d60fe38ed0094d4ed2b7f854f"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:af549de6d60fe38ed0094d4ed2b7f854f"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#af549de6d60fe38ed0094d4ed2b7f854f">layer_get</a> (const std::string &amp;name, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid, T def=T{}) const</td></tr>
+<tr class="memdesc:af549de6d60fe38ed0094d4ed2b7f854f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a per-cell value as the requested type.  <br /></td></tr>
+<tr class="separator:af549de6d60fe38ed0094d4ed2b7f854f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac05b61577ba90c09afe640e2a05aa4df" id="r_ac05b61577ba90c09afe640e2a05aa4df"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:ac05b61577ba90c09afe640e2a05aa4df"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#ac05b61577ba90c09afe640e2a05aa4df">layer_set</a> (const std::string &amp;name, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid, T value)</td></tr>
 <tr class="memdesc:ac05b61577ba90c09afe640e2a05aa4df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a per-cell value (creates/retypes the layer if needed).  <br /></td></tr>
@@ -252,6 +253,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7b8be98161fa5e570b7b26c294e43ea9" id="r_a7b8be98161fa5e570b7b26c294e43ea9"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7b8be98161fa5e570b7b26c294e43ea9">sample_layer_at</a> (const std::string &amp;name, const Eigen::Vector3f &amp;p_world, double def=std::numeric_limits&lt; double &gt;::quiet_NaN()) const</td></tr>
 <tr class="memdesc:a7b8be98161fa5e570b7b26c294e43ea9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sample a per-NavCel layer at a world position.  <br /></td></tr>
 <tr class="separator:a7b8be98161fa5e570b7b26c294e43ea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88f5d6281e1d15b8443a3c69658b3e8c" id="r_a88f5d6281e1d15b8443a3c69658b3e8c"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a88f5d6281e1d15b8443a3c69658b3e8c"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a88f5d6281e1d15b8443a3c69658b3e8c">set_area</a> (const Eigen::Vector3f &amp;p_world, T value, const std::string &amp;layer_name, <a class="el" href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7">AreaShape</a> shape, float size)</td></tr>
+<tr class="memdesc:a88f5d6281e1d15b8443a3c69658b3e8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a per-NavCel layer to a constant value over a 2D area.  <br /></td></tr>
+<tr class="separator:a88f5d6281e1d15b8443a3c69658b3e8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -831,34 +836,50 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
-<a id="a95928bff190b5d262a7ea1ffcf714957" name="a95928bff190b5d262a7ea1ffcf714957"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a95928bff190b5d262a7ea1ffcf714957">&#9670;&#160;</a></span>layer_get_as_double()</h2>
+<a id="af549de6d60fe38ed0094d4ed2b7f854f" name="af549de6d60fe38ed0094d4ed2b7f854f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af549de6d60fe38ed0094d4ed2b7f854f">&#9670;&#160;</a></span>layer_get()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">double layer_get_as_double </td>
+          <td class="memname">T layer_get </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>cid</em></span>&#160;) const</td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>cid</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>def</em></span><span class="paramdefsep"> = </span><span class="paramdefval">T{}</span>&#160;) const</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Get a per-cell value as double. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">name</td><td>Layer name. </td></tr>
-    <tr><td class="paramname">cid</td><td>Triangle id. </td></tr>
+<p>Get a per-cell value as the requested type. </p>
+<p>If the stored type matches <code class="param">T</code>, returns directly. Otherwise falls back to conversion vía double: floating → static_cast&lt;T&gt;, integral → clamp [0,max(T)] y redondeo (llround).</p>
+<p>Si la capa no existe o <code class="param">cid</code> está fuera de rango, devuelve <code class="param">def</code>.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>uint8_t, float, or double </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Value as double, or NaN if missing/type-mismatch. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>Layer name </td></tr>
+    <tr><td class="paramname">cid</td><td>Triangle id </td></tr>
+    <tr><td class="paramname">def</td><td>Default value on failure </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Value converted to T, or <code class="param">def</code> </dd></dl>
 
 </div>
 </div>
@@ -1424,6 +1445,65 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Value or <code class="param">def</code> if missing. </dd></dl>
+
+</div>
+</div>
+<a id="a88f5d6281e1d15b8443a3c69658b3e8c" name="a88f5d6281e1d15b8443a3c69658b3e8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88f5d6281e1d15b8443a3c69658b3e8c">&#9670;&#160;</a></span>set_area()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool set_area </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>p_world</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>value</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>layer_name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7">AreaShape</a></td>          <td class="paramname"><span class="paramname"><em>shape</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>size</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set a per-NavCel layer to a constant value over a 2D area. </p>
+<p>The center is the ground projection of <code class="param">p_world</code>. If the projected <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> cannot be determined, returns false. Supports U8/F32/F64 layers.</p>
+<p>Efficiency: BFS from the seed <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> with XY <a class="el" href="structnavmap_1_1AABB.html" title="Axis-aligned bounding box.">AABB</a> pruning against the circumscribed square of the area. Inclusion test by triangle centroid.</p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>uint8_t, float, or double </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">p_world</td><td>3D point in world coordinates (projected to ground) </td></tr>
+    <tr><td class="paramname">value</td><td>Value to set in the layer </td></tr>
+    <tr><td class="paramname">layer_name</td><td>Target layer name </td></tr>
+    <tr><td class="paramname">shape</td><td>CIRCULAR or RECTANGULAR </td></tr>
+    <tr><td class="paramname">size</td><td>Radius (CIRCULAR) or side length (RECTANGULAR) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the seed <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> was located and the layer updated </dd></dl>
 
 </div>
 </div>
