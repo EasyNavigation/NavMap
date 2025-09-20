@@ -22,11 +22,11 @@ var searchData=
   ['layerview_19',['LayerView',['../structLayerView.html',1,'LayerView&lt; T &gt;'],['../structnavmap_1_1LayerView.html',1,'LayerView&lt; T &gt;'],['../structnavmap_1_1LayerView.html#ae0eb6b8ec26a2ad3f1e5c3645d922056',1,'navmap::LayerView::LayerView()'],['../structLayerView.html#ae0eb6b8ec26a2ad3f1e5c3645d922056',1,'LayerView::LayerView()']]],
   ['layerviewbase_20',['LayerViewBase',['../structnavmap_1_1LayerViewBase.html',1,'navmap']]],
   ['left_21',['left',['../structnavmap_1_1BVHNode.html#ad8f5e19e19f12974c9713e920ec54331',1,'navmap::BVHNode']]],
-  ['level_20api_22',['9. Classic low-level API',['../index.html#autotoc_md28',1,'']]],
-  ['license_23',['📜 License',['../index.html#autotoc_md35',1,'']]],
+  ['level_20api_22',['10. Classic low-level API',['../index.html#autotoc_md30',1,'']]],
+  ['license_23',['📜 License',['../index.html#autotoc_md41',1,'']]],
   ['list_24',['list',['../classnavmap_1_1LayerRegistry.html#a87113fff45a39421caca2fcbcbfd69cc',1,'navmap::LayerRegistry']]],
   ['list_5flayers_25',['list_layers',['../classnavmap_1_1NavMap.html#ab36912dfdc7f3fa19897b04379f7f650',1,'navmap::NavMap::list_layers()'],['../classNavMap.html#ab36912dfdc7f3fa19897b04379f7f650',1,'NavMap::list_layers()']]],
-  ['load_20from_20disk_26',['8. Save and load from disk',['../index.html#autotoc_md26',1,'']]],
+  ['load_20from_20disk_26',['9. Save and load from disk',['../index.html#autotoc_md28',1,'']]],
   ['load_5ffrom_5ffile_27',['load_from_file',['../namespacenavmap__ros_1_1io.html#acaf42fccfb899ffad41fa83d36c83b59',1,'navmap_ros::io']]],
   ['load_5fmsg_5ffrom_5ffile_28',['load_msg_from_file',['../namespacenavmap__ros_1_1io.html#a9de88efbe247d7153b1690430979baee',1,'navmap_ros::io']]],
   ['locate_20the_20navcel_20corresponding_20to_20a_203d_20position_29',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
@@ -34,5 +34,5 @@ var searchData=
   ['locate_5fnavcel_5fcore_31',['locate_navcel_core',['../classnavmap_1_1NavMap.html#a44e3a9389e8bd73f3b993a94c72b5a7b',1,'navmap::NavMap::locate_navcel_core()'],['../classNavMap.html#a44e3a9389e8bd73f3b993a94c72b5a7b',1,'NavMap::locate_navcel_core(const Eigen::Vector3f &amp;p_world, std::size_t &amp;surface_idx, NavCelId &amp;cid, Eigen::Vector3f &amp;bary, Eigen::Vector3f *hit_pt, const LocateOpts &amp;opts) const']]],
   ['locateopts_32',['LocateOpts',['../structNavMap_1_1LocateOpts.html',1,'NavMap::LocateOpts'],['../structnavmap_1_1NavMap_1_1LocateOpts.html',1,'NavMap::LocateOpts']]],
   ['longest_5faxis_33',['longest_axis',['../structnavmap_1_1AABB.html#ab0bad1999214859bf267ab15b5ee1e82',1,'navmap::AABB']]],
-  ['low_20level_20api_34',['9. Classic low-level API',['../index.html#autotoc_md28',1,'']]]
+  ['low_20level_20api_34',['10. Classic low-level API',['../index.html#autotoc_md30',1,'']]]
 ];

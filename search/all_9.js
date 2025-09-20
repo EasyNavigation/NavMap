@@ -10,7 +10,7 @@ var searchData=
   ['a_20world_20position_7',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]],
   ['aabb_8',['AABB',['../structnavmap_1_1AABB.html',1,'navmap']]],
   ['aabb_9',['aabb',['../structnavmap_1_1Surface.html#a95046b5339e3da4ec2390999706ff853',1,'navmap::Surface::aabb'],['../structSurface.html#a95046b5339e3da4ec2390999706ff853',1,'Surface::aabb']]],
-  ['acknowledgements_10',['🙏 Acknowledgements',['../index.html#autotoc_md37',1,'']]],
+  ['acknowledgements_10',['🙏 Acknowledgements',['../index.html#autotoc_md43',1,'']]],
   ['add_20a_20per_20navcel_20layer_20cost_20or_20occupancy_11',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
   ['add_5flayer_12',['add_layer',['../classnavmap_1_1NavMap.html#a9f4c5219dcef644fcc82247a9b017e5b',1,'navmap::NavMap::add_layer(const std::string &amp;name, const std::string &amp;description={}, const std::string &amp;unit={}, T default_value=T{})'],['../classnavmap_1_1NavMap.html#a4a821e4a538cc47fbe2439b2ccc15866',1,'navmap::NavMap::add_layer(const std::string &amp;name, const std::string &amp;description, const std::string &amp;unit, const std::string &amp;src_layer)'],['../classNavMap.html#a9f4c5219dcef644fcc82247a9b017e5b',1,'NavMap::add_layer(const std::string &amp;name, const std::string &amp;description={}, const std::string &amp;unit={}, T default_value=T{})'],['../classNavMap.html#a4a821e4a538cc47fbe2439b2ccc15866',1,'NavMap::add_layer(const std::string &amp;name, const std::string &amp;description, const std::string &amp;unit, const std::string &amp;src_layer)']]],
   ['add_5fnavcel_13',['add_navcel',['../classnavmap_1_1NavMap.html#a37d374510d01709d4979d2cfdd2412b8',1,'navmap::NavMap::add_navcel()'],['../classNavMap.html#a37d374510d01709d4979d2cfdd2412b8',1,'NavMap::add_navcel()']]],
@@ -18,10 +18,11 @@ var searchData=
   ['add_5for_5fget_15',['add_or_get',['../classnavmap_1_1LayerRegistry.html#a9062d2a18081c8d870ea2c90531027ad',1,'navmap::LayerRegistry']]],
   ['add_5fsurface_16',['add_surface',['../classnavmap_1_1NavMap.html#a707120e20ba59dd5903aa018cf6c1105',1,'navmap::NavMap::add_surface(const Surface &amp;s)'],['../classnavmap_1_1NavMap.html#a306b9c0e63d82da417a2c685188ce64a',1,'navmap::NavMap::add_surface(Surface &amp;&amp;s)'],['../classNavMap.html#a707120e20ba59dd5903aa018cf6c1105',1,'NavMap::add_surface(const Surface &amp;s)'],['../classNavMap.html#a306b9c0e63d82da417a2c685188ce64a',1,'NavMap::add_surface(Surface &amp;&amp;s)']]],
   ['add_5fvertex_17',['add_vertex',['../classnavmap_1_1NavMap.html#a8ca0caf7aeab120684eb998fe14dd067',1,'navmap::NavMap::add_vertex()'],['../classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067',1,'NavMap::add_vertex()']]],
-  ['and_20load_20from_20disk_18',['8. Save and load from disk',['../index.html#autotoc_md26',1,'']]],
-  ['api_19',['API',['../index.html#autotoc_md10',1,'🚀 Usage (C++ API)'],['../index.html#autotoc_md28',1,'9. Classic low-level API']]],
+  ['and_20load_20from_20disk_18',['9. Save and load from disk',['../index.html#autotoc_md28',1,'']]],
+  ['api_19',['API',['../index.html#autotoc_md10',1,'🚀 Usage (C++ API)'],['../index.html#autotoc_md30',1,'10. Classic low-level API']]],
   ['area_20',['area',['../structnavmap_1_1NavCel.html#a97ab43f6fd28920a42d987c8fec4afec',1,'navmap::NavCel']]],
-  ['areashape_21',['AreaShape',['../namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7',1,'navmap']]],
-  ['at_22',['at',['../structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a',1,'navmap::Positions']]],
-  ['at_20a_20world_20position_23',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]]
+  ['areas_20tt_20set_5farea_20tt_21',['7. Marking areas (&lt;tt&gt;set_area&lt;/tt&gt;)',['../index.html#autotoc_md24',1,'']]],
+  ['areashape_22',['AreaShape',['../namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7',1,'navmap']]],
+  ['at_23',['at',['../structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a',1,'navmap::Positions']]],
+  ['at_20a_20world_20position_24',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]]
 ];

@@ -11,16 +11,18 @@ var searchData=
   ['test_5fnavmap_5fio_2ecpp_8',['test_navmap_io.cpp',['../test__navmap__io_8cpp.html',1,'']]],
   ['test_5fnavmap_5funiform_5fand_5fclosest_2ecpp_9',['test_navmap_uniform_and_closest.cpp',['../test__navmap__uniform__and__closest_8cpp.html',1,'']]],
   ['test_5fraycast_5fmany_2ecpp_10',['test_raycast_many.cpp',['../test__raycast__many_8cpp.html',1,'']]],
-  ['testing_11',['🧪 Testing',['../index.html#autotoc_md31',1,'']]],
+  ['testing_11',['🧪 Testing',['../index.html#autotoc_md37',1,'']]],
   ['the_20navcel_20corresponding_20to_20a_203d_20position_12',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
   ['to_20a_203d_20position_13',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
-  ['to_20from_20ros_20messages_14',['7. Serialize to / from ROS messages',['../index.html#autotoc_md24',1,'']]],
+  ['to_20from_20ros_20messages_14',['8. Serialize to / from ROS messages',['../index.html#autotoc_md26',1,'']]],
   ['to_5fmsg_15',['to_msg',['../namespacenavmap__ros.html#aba26a033fbd9456e2368c8f49f62779e',1,'navmap_ros::to_msg(const navmap::NavMap &amp;nm)'],['../namespacenavmap__ros.html#aa68b7b4a46e881dc9304c50a73e69d7d',1,'navmap_ros::to_msg(const navmap::NavMap &amp;nm, const std::string &amp;layer)']]],
   ['to_5foccupancy_5fgrid_16',['to_occupancy_grid',['../namespacenavmap__ros.html#a42165113e6236698fe947ca8ffa69bc8',1,'navmap_ros::to_occupancy_grid()'],['../test__conversions_8cpp.html#a42165113e6236698fe947ca8ffa69bc8',1,'to_occupancy_grid():&#160;conversions.cpp']]],
   ['triangle_5farea_17',['triangle_area',['../namespacenavmap.html#a407e9ecaf6b96cdd89d265586ff5a3f9',1,'navmap']]],
   ['triangle_5fnormal_18',['triangle_normal',['../namespacenavmap.html#a60e8da02e5b45b0ffc00e6d31ec96afa',1,'navmap']]],
   ['triangles_19',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
-  ['two_20triangles_20',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
-  ['type_21',['type',['../structnavmap_1_1LayerViewBase.html#a2e553f27ec27fbcea615e60e818fa3d7',1,'navmap::LayerViewBase::type()'],['../structnavmap_1_1LayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'navmap::LayerView::type()'],['../structLayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'LayerView::type()']]],
-  ['type_5f_22',['type_',['../structnavmap_1_1LayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'navmap::LayerView::type_'],['../structLayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'LayerView::type_']]]
+  ['tt_20',['7. Marking areas (&lt;tt&gt;set_area&lt;/tt&gt;)',['../index.html#autotoc_md24',1,'']]],
+  ['tt_20set_5farea_20tt_21',['7. Marking areas (&lt;tt&gt;set_area&lt;/tt&gt;)',['../index.html#autotoc_md24',1,'']]],
+  ['two_20triangles_22',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
+  ['type_23',['type',['../structnavmap_1_1LayerViewBase.html#a2e553f27ec27fbcea615e60e818fa3d7',1,'navmap::LayerViewBase::type()'],['../structnavmap_1_1LayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'navmap::LayerView::type()'],['../structLayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'LayerView::type()']]],
+  ['type_5f_24',['type_',['../structnavmap_1_1LayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'navmap::LayerView::type_'],['../structLayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'LayerView::type_']]]
 ];

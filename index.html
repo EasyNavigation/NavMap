@@ -129,6 +129,8 @@ $(function(){ initResizable(false); });
 </li>
 <li><b><code>navmap_tools/</code></b> <br  />
  Tools and utilities for building and testing NavMaps (mesh import/export, conversions, etc.)</li>
+<li><b><code>navmap_examples/</code></b> <br  />
+ Practical examples demonstrating the usage of <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>, both core C++ API and ROS 2 integrations.</li>
 </ul>
 <hr  />
 <h1><a class="anchor" id="autotoc_md6"></a>
@@ -142,7 +144,7 @@ ROS 2 colcon build</h2>
 <div class="line"> </div>
 <div class="line"># Build</div>
 <div class="line">cd ~/ros2_ws</div>
-<div class="line">colcon build --packages-up-to navmap_core navmap_ros navmap_rviz_plugin navmap_tools</div>
+<div class="line">colcon build --packages-up-to navmap_core navmap_ros navmap_rviz_plugin navmap_tools navmap_examples</div>
 <div class="line"> </div>
 <div class="line"># Source workspace</div>
 <div class="line">source install/setup.bash</div>
@@ -159,7 +161,8 @@ Dependencies</h2>
 <h1><a class="anchor" id="autotoc_md10"></a>
 🚀 Usage (C++ API)</h1>
 <p><a href="https://easynavigation.github.io/NavMap/">C++ API</a></p>
-<p>This section shows <b>small, self-contained snippets</b> that demonstrate how to create a <code><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></code>, add geometry, attach layers, query values, and locate the triangle (NavCel) corresponding to a 3D position. </p><blockquote class="doxtable">
+<p>This section shows <b>small, self-contained snippets</b> that demonstrate how to create a <code><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></code>, add geometry, attach layers, query values, and locate the triangle (NavCel) corresponding to a 3D position. <br  />
+ </p><blockquote class="doxtable">
 <p><b>Note</b>: After modifying geometry (vertices, triangles, or surfaces), always call <code>rebuild_geometry_accels()</code> before performing queries such as <code>locate_navcel()</code> or <code>raycast()</code>. </p>
 </blockquote>
 <hr  />
@@ -262,7 +265,30 @@ Dependencies</h2>
 <div class="ttc" id="aclassNavMap_html_ae06d6240e61c1e07bb574d3ea40376e1"><div class="ttname"><a href="classNavMap.html#ae06d6240e61c1e07bb574d3ea40376e1">NavMap::raycast</a></div><div class="ttdeci">bool raycast(const Eigen::Vector3f &amp;o, const Eigen::Vector3f &amp;d, NavCelId &amp;hit_cid, float &amp;t, Eigen::Vector3f &amp;hit_pt) const</div><div class="ttdoc">Raycast against all surfaces to find the closest hit.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:470</div></div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md24"></a>
-7. Serialize to / from ROS messages</h1>
+7. Marking areas (<code>set_area</code>)</h1>
+<p>You can set values over regions of the map using shapes such as <b>circular</b> or <b>rectangular</b> areas:</p>
+<div class="fragment"><div class="line"><span class="comment">// Add an occupancy layer</span></div>
+<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a9f4c5219dcef644fcc82247a9b017e5b">add_layer</a>&lt;uint8_t&gt;(<span class="stringliteral">&quot;occupancy&quot;</span>, <span class="stringliteral">&quot;Occupancy&quot;</span>, <span class="stringliteral">&quot;%&quot;</span>, 0);</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Mark a circular area at (0.5,0.5) with radius 0.3</span></div>
+<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a88f5d6281e1d15b8443a3c69658b3e8c">set_area</a>&lt;uint8_t&gt;(Eigen::Vector3f(0.5f, 0.5f, 0.0f),</div>
+<div class="line">                     (uint8_t)254,</div>
+<div class="line">                     <span class="stringliteral">&quot;occupancy&quot;</span>,</div>
+<div class="line">                     <a class="code hl_enumvalue" href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68">navmap::AreaShape::CIRCULAR</a>,</div>
+<div class="line">                     0.3f);</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Mark a rectangular area centered at (0.8,0.2)</span></div>
+<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a88f5d6281e1d15b8443a3c69658b3e8c">set_area</a>&lt;uint8_t&gt;(Eigen::Vector3f(0.8f, 0.2f, 0.0f),</div>
+<div class="line">                     (uint8_t)200,</div>
+<div class="line">                     <span class="stringliteral">&quot;occupancy&quot;</span>,</div>
+<div class="line">                     <a class="code hl_enumvalue" href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">navmap::AreaShape::RECTANGULAR</a>,</div>
+<div class="line">                     0.35f);</div>
+<div class="ttc" id="aclassNavMap_html_a88f5d6281e1d15b8443a3c69658b3e8c"><div class="ttname"><a href="classNavMap.html#a88f5d6281e1d15b8443a3c69658b3e8c">NavMap::set_area</a></div><div class="ttdeci">bool set_area(const Eigen::Vector3f &amp;p_world, T value, const std::string &amp;layer_name, AreaShape shape, float size)</div><div class="ttdoc">Set a per-NavCel layer to a constant value over a 2D area.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:973</div></div>
+<div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">navmap::AreaShape::RECTANGULAR</a></div><div class="ttdeci">@ RECTANGULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:414</div></div>
+<div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68">navmap::AreaShape::CIRCULAR</a></div><div class="ttdeci">@ CIRCULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:414</div></div>
+</div><!-- fragment --><hr  />
+<h1><a class="anchor" id="autotoc_md26"></a>
+8. Serialize to / from ROS messages</h1>
 <p>Conversion functions are provided in <code><a class="el" href="namespacenavmap__ros.html" title="Conversions between core NavMap and ROS-level structures.">navmap_ros</a></code>:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="conversions_8hpp.html">navmap_ros/conversions.hpp</a>&gt;</span></div>
 <div class="line"><span class="preprocessor">#include &lt;navmap_ros_interfaces/msg/nav_map.hpp&gt;</span></div>
@@ -276,8 +302,8 @@ Dependencies</h2>
 <div class="ttc" id="anamespacenavmap__ros_html_aba26a033fbd9456e2368c8f49f62779e"><div class="ttname"><a href="namespacenavmap__ros.html#aba26a033fbd9456e2368c8f49f62779e">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:66</div></div>
 <div class="ttc" id="anamespacenavmap__ros_html_ac70f12eb1f059a42b6993cb612720ea0"><div class="ttname"><a href="namespacenavmap__ros.html#ac70f12eb1f059a42b6993cb612720ea0">navmap_ros::from_msg</a></div><div class="ttdeci">navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap &amp;msg)</div><div class="ttdoc">Reconstruct a core navmap::NavMap from the ROS transport message.</div></div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md26"></a>
-8. Save and load from disk</h1>
+<h1><a class="anchor" id="autotoc_md28"></a>
+9. Save and load from disk</h1>
 <p><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> supports saving and loading using YAML + mesh files:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;navmap_ros/map_io.hpp&gt;</span></div>
 <div class="line"> </div>
@@ -287,8 +313,8 @@ Dependencies</h2>
 <div class="line"><span class="comment">// Load NavMap from disk</span></div>
 <div class="line"><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> nm3 = navmap_ros::loadMapFromYaml(<span class="stringliteral">&quot;/tmp/navmap.yaml&quot;</span>);</div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md28"></a>
-9. Classic low-level API</h1>
+<h1><a class="anchor" id="autotoc_md30"></a>
+10. Classic low-level API</h1>
 <p>For advanced control you can still access internal data directly:</p>
 <div class="fragment"><div class="line"><span class="comment">// Access vertex positions</span></div>
 <div class="line">Eigen::Vector3f v = nm.<a class="code hl_variable" href="classNavMap.html#abf1f84c70542a19818af0ec43f2086cc">positions</a>.at(0);</div>
@@ -303,27 +329,55 @@ Dependencies</h2>
 <div class="ttc" id="aclassNavMap_html_a335aa8bcae202f21e43194758a024a9c"><div class="ttname"><a href="classNavMap.html#a335aa8bcae202f21e43194758a024a9c">NavMap::navcels</a></div><div class="ttdeci">std::vector&lt; NavCel &gt; navcels</div><div class="ttdoc">All triangles (global indexing)</div><div class="ttdef"><b>Definition</b> NavMap.hpp:438</div></div>
 <div class="ttc" id="aclassNavMap_html_abf1f84c70542a19818af0ec43f2086cc"><div class="ttname"><a href="classNavMap.html#abf1f84c70542a19818af0ec43f2086cc">NavMap::positions</a></div><div class="ttdeci">Positions positions</div><div class="ttdoc">Vertex positions (SoA)</div><div class="ttdef"><b>Definition</b> NavMap.hpp:436</div></div>
 </div><!-- fragment --><hr  />
-<p>With this combination of <b>easy-to-use high-level methods</b> and the <b>classic API</b>, you can build and query navigation meshes both quickly and with full control when needed.</p>
-<hr  />
-<h1><a class="anchor" id="autotoc_md31"></a>
+<h1><a class="anchor" id="autotoc_md32"></a>
+📦 Usage (Examples package)</h1>
+<p>In addition to the snippets above, the repository provides the package <code>navmap_examples</code> with ready-to-run executables.</p>
+<h2><a class="anchor" id="autotoc_md33"></a>
+Build</h2>
+<div class="fragment"><div class="line">colcon build --packages-select navmap_examples</div>
+</div><!-- fragment --><p>If your <code>navmap_core</code> / <code><a class="el" href="namespacenavmap__ros.html" title="Conversions between core NavMap and ROS-level structures.">navmap_ros</a></code> do not yet export CMake targets, you can provide include paths:</p>
+<div class="fragment"><div class="line">colcon build --packages-select navmap_examples   --cmake-args -DNAVMAP_CORE_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_core/include                -DNAVMAP_ROS_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_ros/include</div>
+</div><!-- fragment --><p>Disable ROS 2 examples:</p>
+<div class="fragment"><div class="line">colcon build --packages-select navmap_examples --cmake-args -DBUILD_ROS_EXAMPLES=OFF</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md34"></a>
+Run core examples</h2>
+<div class="fragment"><div class="line">ros2 run navmap_examples 01_flat_plane</div>
+<div class="line">ros2 run navmap_examples 02_two_floors</div>
+<div class="line">ros2 run navmap_examples 03_slope_surface</div>
+<div class="line">ros2 run navmap_examples 04_layers</div>
+<div class="line">ros2 run navmap_examples 05_neighbors_and_centroids</div>
+<div class="line">ros2 run navmap_examples 06_area_marking</div>
+<div class="line">ros2 run navmap_examples 07_raycast</div>
+<div class="line">ros2 run navmap_examples 08_copy_and_assign</div>
+</div><!-- fragment --><p>Each demonstrates a different feature: geometry creation, multi-surface, U8/F32 layers, centroids and neighbors, area marking, raycasting, and copy/assign semantics.</p>
+<h2><a class="anchor" id="autotoc_md35"></a>
+Run ROS 2 examples</h2>
+<p>If <code>BUILD_ROS_EXAMPLES=ON</code>:</p>
+<div class="fragment"><div class="line">ros2 run navmap_examples 01_from_occgrid</div>
+<div class="line">ros2 run navmap_examples 02_to_occgrid</div>
+<div class="line">ros2 run navmap_examples 03_save_load</div>
+</div><!-- fragment --><p>Or via launch:</p>
+<div class="fragment"><div class="line">ros2 launch navmap_examples navmap_to_occgrid.launch.py</div>
+</div><!-- fragment --><hr  />
+<h1><a class="anchor" id="autotoc_md37"></a>
 🧪 Testing</h1>
 <p><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> provides unit tests with GTest. To run them:</p>
 <div class="fragment"><div class="line">colcon test --packages-select navmap_core navmap_ros</div>
 <div class="line">colcon test-result --verbose</div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md33"></a>
+<h1><a class="anchor" id="autotoc_md39"></a>
 🤝 Contributing</h1>
 <p>Contributions are welcome! Please open issues and pull requests on GitHub. <br  />
  Before submitting code, run the linters and tests:</p>
 <div class="fragment"><div class="line">colcon test</div>
 <div class="line">ament_lint_auto</div>
 </div><!-- fragment --><hr  />
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md41"></a>
 📜 License</h1>
 <p>This project is licensed under the <b>GNU General Public License v3.0 (GPL-3.0)</b>. <br  />
  See the [LICENSE](LICENSE) file for details.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md37"></a>
+<h1><a class="anchor" id="autotoc_md43"></a>
 🙏 Acknowledgements</h1>
 <p>Developed at the <b>Intelligent Robotics Lab (Universidad Rey Juan Carlos)</b>. <br  />
  Part of the Easy Navigation (EasyNav) project. </p>

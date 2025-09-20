@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['🚀_20usage_20c_20api_0',['🚀 Usage (C++ API)',['../index.html#autotoc_md10',1,'']]]
+  ['🙏_20acknowledgements_0',['🙏 Acknowledgements',['../index.html#autotoc_md43',1,'']]]
 ];
