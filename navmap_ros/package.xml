@@ -4,7 +4,8 @@
   <version>0.0.1</version>
   <description>Conversions between navmap_core and ROS messages</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
-  <license>GPLv3</license>
+
+  <license>Apache License, Version 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
