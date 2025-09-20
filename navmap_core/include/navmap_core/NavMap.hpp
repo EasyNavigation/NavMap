@@ -281,14 +281,17 @@ public:
     for (auto & kv : layers_) {
       if (auto v = std::dynamic_pointer_cast<LayerView<uint8_t>>(kv.second)) {
         v->data_.resize(nitems);
+        kv.second->mark_dirty();
         continue;
       }
       if (auto v = std::dynamic_pointer_cast<LayerView<float>>(kv.second)) {
         v->data_.resize(nitems);
+        kv.second->mark_dirty();
         continue;
       }
       if (auto v = std::dynamic_pointer_cast<LayerView<double>>(kv.second)) {
         v->data_.resize(nitems);
+        kv.second->mark_dirty();
         continue;
       }
     }
@@ -715,6 +718,7 @@ public:
     auto view = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     if (static_cast<size_t>(cid) < view->data().size()) {
       view->data()[cid] = value;
+      view->mark_dirty();
     }
   }
 
@@ -818,6 +822,7 @@ public:
   {
     auto view = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     std::fill(view->data().begin(), view->data().end(), value);
+    view->mark_dirty();
   }
 
   /**
@@ -998,7 +1003,7 @@ public:
       return false;
     }
     if (layer->data().size() != navcels.size()) {
-      layer->data().resize(navcels.size(), T{});
+      const_cast<std::vector<T> &>(layer->data()).resize(navcels.size(), T{});
     }
 
     const float half = (shape == AreaShape::CIRCULAR) ? size : (0.5f * size);
@@ -1039,7 +1044,8 @@ public:
     q.push_back(start_cid);
     visited[static_cast<std::size_t>(start_cid)] = 1;
 
-    auto & data = layer->data();
+    auto & data = layer->mutable_data();
+
     while (!q.empty()) {
       const NavCelId cid = q.front(); q.pop_front();
 

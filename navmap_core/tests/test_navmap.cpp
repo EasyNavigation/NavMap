@@ -355,3 +355,31 @@ TEST(NavMap_Edges, OutOfBoundsAndNoHit) {
   const bool hit_ok = nm.raycast(o, d, cid_out, t, h);
   EXPECT_FALSE(hit_ok);
 }
+
+TEST(NavMap_Layers, HashInvalidationOnElementWrite)
+{
+  navmap::NavMap a, b;
+  make_flat_square(a);
+  b = a;
+
+  a.add_layer<uint8_t>("occupancy", "", "", 0);
+  a.add_layer<uint8_t>("obstacles", "", "", 0);
+
+  a.layer_set<uint8_t>("obstacles", a.surfaces[0].navcels[0], 254);
+  a.layer_set<uint8_t>("obstacles", a.surfaces[0].navcels[1], 254);
+
+  b = a;
+
+  auto la = b.layers.get("occupancy");
+  auto lb = b.layers.get("obstacles");
+  auto occ = std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(la);
+  auto obs = std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(lb);
+  ASSERT_TRUE(occ && obs);
+  size_t diffs = 0;
+  for (size_t i = 0; i < occ->size(); ++i) {
+    if (occ->data()[i] != obs->data()[i]) {
+      ++diffs;
+    }
+}
+  EXPECT_GE(diffs, 2u);
+}
