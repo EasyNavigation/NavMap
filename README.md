@@ -5,7 +5,6 @@
 <img width="5148" height="1469" alt="Captura desde 2025-09-17 10-35-51" src="https://github.com/user-attachments/assets/70316194-98fe-4c29-8f9f-653c9c1b06bb" />
 <img width="2242" height="1183" alt="Captura desde 2025-09-17 10-31-43" src="https://github.com/user-attachments/assets/ed593be0-80a8-4b74-b72e-182bb7de3f28" />
 
-
 NavMap is an open-source C++ and ROS 2 library for representing **navigable surfaces** for mobile robot navigation and localization.  
 Unlike classic grid-based maps, NavMap stores the environment as **triangular meshes** (NavCels), enabling efficient queries and multi-surface environments (e.g., multi-floor buildings).
 
@@ -42,6 +41,9 @@ This repository is organized into several ROS 2 packages:
 - **`navmap_tools/`**  
   Tools and utilities for building and testing NavMaps (mesh import/export, conversions, etc.)
 
+- **`navmap_examples/`**  
+  Practical examples demonstrating the usage of NavMap, both core C++ API and ROS 2 integrations.
+
 ---
 
 ## ⚙️ Build instructions
@@ -57,7 +59,7 @@ git clone https://github.com/<your-org>/NavMap.git
 
 # Build
 cd ~/ros2_ws
-colcon build --packages-up-to navmap_core navmap_ros navmap_rviz_plugin navmap_tools
+colcon build --packages-up-to navmap_core navmap_ros navmap_rviz_plugin navmap_tools navmap_examples
 
 # Source workspace
 source install/setup.bash
@@ -77,7 +79,7 @@ source install/setup.bash
 
 [C++ API](https://easynavigation.github.io/NavMap/)
 
-This section shows **small, self-contained snippets** that demonstrate how to create a `NavMap`, add geometry, attach layers, query values, and locate the triangle (NavCel) corresponding to a 3D position.
+This section shows **small, self-contained snippets** that demonstrate how to create a `NavMap`, add geometry, attach layers, query values, and locate the triangle (NavCel) corresponding to a 3D position.  
 > **Note**: After modifying geometry (vertices, triangles, or surfaces), always call `rebuild_geometry_accels()` before performing queries such as `locate_navcel()` or `raycast()`.
 
 ---
@@ -189,7 +191,32 @@ if (hit) {
 
 ---
 
-## 7. Serialize to / from ROS messages
+## 7. Marking areas (`set_area`)
+
+You can set values over regions of the map using shapes such as **circular** or **rectangular** areas:
+
+```cpp
+// Add an occupancy layer
+nm.add_layer<uint8_t>("occupancy", "Occupancy", "%", 0);
+
+// Mark a circular area at (0.5,0.5) with radius 0.3
+nm.set_area<uint8_t>(Eigen::Vector3f(0.5f, 0.5f, 0.0f),
+                     (uint8_t)254,
+                     "occupancy",
+                     navmap::AreaShape::CIRCULAR,
+                     0.3f);
+
+// Mark a rectangular area centered at (0.8,0.2)
+nm.set_area<uint8_t>(Eigen::Vector3f(0.8f, 0.2f, 0.0f),
+                     (uint8_t)200,
+                     "occupancy",
+                     navmap::AreaShape::RECTANGULAR,
+                     0.35f);
+```
+
+---
+
+## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:
 
@@ -206,7 +233,7 @@ navmap::NavMap nm2 = navmap_ros::from_msg(msg);
 
 ---
 
-## 8. Save and load from disk
+## 9. Save and load from disk
 
 NavMap supports saving and loading using YAML + mesh files:
 
@@ -222,7 +249,7 @@ navmap::NavMap nm3 = navmap_ros::loadMapFromYaml("/tmp/navmap.yaml");
 
 ---
 
-## 9. Classic low-level API
+## 10. Classic low-level API
 
 For advanced control you can still access internal data directly:
 
@@ -240,7 +267,58 @@ for (const auto & cel : nm.navcels) {
 
 ---
 
-With this combination of **easy-to-use high-level methods** and the **classic API**, you can build and query navigation meshes both quickly and with full control when needed.
+## 📦 Usage (Examples package)
+
+In addition to the snippets above, the repository provides the package `navmap_examples` with ready-to-run executables.
+
+### Build
+
+```bash
+colcon build --packages-select navmap_examples
+```
+
+If your `navmap_core` / `navmap_ros` do not yet export CMake targets, you can provide include paths:
+
+```bash
+colcon build --packages-select navmap_examples   --cmake-args -DNAVMAP_CORE_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_core/include                -DNAVMAP_ROS_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_ros/include
+```
+
+Disable ROS 2 examples:
+
+```bash
+colcon build --packages-select navmap_examples --cmake-args -DBUILD_ROS_EXAMPLES=OFF
+```
+
+### Run core examples
+
+```bash
+ros2 run navmap_examples 01_flat_plane
+ros2 run navmap_examples 02_two_floors
+ros2 run navmap_examples 03_slope_surface
+ros2 run navmap_examples 04_layers
+ros2 run navmap_examples 05_neighbors_and_centroids
+ros2 run navmap_examples 06_area_marking
+ros2 run navmap_examples 07_raycast
+ros2 run navmap_examples 08_copy_and_assign
+```
+
+Each demonstrates a different feature: geometry creation, multi-surface, U8/F32 layers, centroids and neighbors, area marking, raycasting, and copy/assign semantics.
+
+### Run ROS 2 examples
+
+If `BUILD_ROS_EXAMPLES=ON`:
+
+```bash
+ros2 run navmap_examples 01_from_occgrid
+ros2 run navmap_examples 02_to_occgrid
+ros2 run navmap_examples 03_save_load
+```
+
+Or via launch:
+
+```bash
+ros2 launch navmap_examples navmap_to_occgrid.launch.py
+```
 
 ---
 
