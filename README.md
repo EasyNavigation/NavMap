@@ -2,8 +2,7 @@
 [![Doxygen Deployment](https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml/badge.svg)](https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml)
 [![rolling](https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml/badge.svg)](https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml)
 
-<img width="5148" height="1469" alt="Captura desde 2025-09-17 10-35-51" src="https://github.com/user-attachments/assets/70316194-98fe-4c29-8f9f-653c9c1b06bb" />
-<img width="2242" height="1183" alt="Captura desde 2025-09-17 10-31-43" src="https://github.com/user-attachments/assets/ed593be0-80a8-4b74-b72e-182bb7de3f28" />
+[![NavMap SLAM](https://img.youtube.com/vi/ib2Xe6eTWhY/0.jpg)](https://www.youtube.com/watch?v=ib2Xe6eTWhY)
 
 NavMap is an open-source C++ and ROS 2 library for representing **navigable surfaces** for mobile robot navigation and localization.  
 Unlike classic grid-based maps, NavMap stores the environment as **triangular meshes** (NavCels), enabling efficient queries and multi-surface environments (e.g., multi-floor buildings).
