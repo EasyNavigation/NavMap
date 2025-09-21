@@ -61,7 +61,7 @@ static inline int8_t u8_to_occ(uint8_t u)
   return static_cast<int8_t>(std::lround((u / 254.0) * 100.0));
 }
 
-// Given grid dims (W,H) and pattern=0, the two triangles indices for cell (i,j):
+// Given grid dims (W,H) and pattern=0, the two triangle indices for cell (i,j):
 // tri0=(i,j)->(i+1,j)->(i+1,j+1), tri1=(i,j)->(i+1,j+1)->(i,j+1)
 static inline navmap::NavCelId tri_index_for_cell(uint32_t i, uint32_t j, uint32_t W)
 {
@@ -331,7 +331,7 @@ navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid)
   // 4) Derived geometry
   nm.rebuild_geometry_accels();
 
-  // 5) Per-NavCel layer "occupancy" (U8), two tris per cell with same value
+  // 5) Per-NavCel "occupancy" layer (U8), two triangles per cell with the same value
   auto occ = nm.layers.add_or_get<uint8_t>("occupancy", nm.navcels.size(), navmap::LayerType::U8);
   tidx = 0;
   auto cell_id = [W](uint32_t i, uint32_t j) {return j * W + i;};
@@ -366,10 +366,8 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
   auto occ = std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(base);
 
   // Fast path: detect regular grid from positions and triangle layout.
-  // We infer W,H, res and origin from the surface AABB & vertex lattice.
-  // Assumptions: single flat Z plane, regular spacing in X,Y, raster tri order.
+  // Assumptions: single flat Z plane, regular spacing in X/Y, raster triangle order.
   if (nm.surfaces.size() == 1) {
-    // Heuristic: infer W,H by counting unique X and Y coordinates.
     std::vector<float> xs(nm.positions.x.begin(), nm.positions.x.end());
     std::vector<float> ys(nm.positions.y.begin(), nm.positions.y.end());
     std::sort(xs.begin(), xs.end()); xs.erase(std::unique(xs.begin(), xs.end()), xs.end());
@@ -516,7 +514,7 @@ bool build_navmap_from_mesh(
     out_msg.layers.push_back(std::move(layer));
   }
 
-  // 4) Convert a kernel if requested
+  // 4) Convert to core structure if requested
   if (out_core_opt) {
     *out_core_opt = navmap_ros::from_msg(out_msg);
   }
@@ -556,13 +554,13 @@ static inline float tri_slope_deg(
   Eigen::Vector3f n = (b - a).cross(c - a);
   float nn = n.norm();
   if (nn < 1e-9f) {return 0.0f;}
-  float cos_theta = std::abs(n.normalized().dot(Eigen::Vector3f::UnitZ())); // cos con vertical
+  float cos_theta = std::abs(n.normalized().dot(Eigen::Vector3f::UnitZ())); // cosine w.r.t. vertical
   cos_theta = std::clamp(cos_theta, 0.0f, 1.0f);
-  float theta = std::acos(cos_theta); // ángulo con vertical
+  float theta = std::acos(cos_theta); // angle w.r.t. vertical
   return theta * 180.0f / static_cast<float>(M_PI);
 }
 
-// Claves para evitar duplicados
+// Keys to avoid duplicates
 struct EdgeKey
 {
   int a, b;
@@ -608,28 +606,27 @@ static inline TriKey make_tri(int i, int j, int k)
   return {v[0], v[1], v[2]};
 }
 
-// PCA local para obtener plano tangente en v
-// Devuelve dos ejes ortogonales t1, t2 en el plano tangente.
-// Si falla PCA (muy pocos puntos), usa un par ortonormal arbitrario.
+// Local PCA to obtain a tangent plane at v.
+// Returns two orthogonal axes t1, t2 on the tangent plane.
+// If PCA is unreliable (too few points), fall back to a stable orthonormal pair.
 inline void local_tangent_basis(
   const std::vector<Eigen::Vector3f> & nbrs,
   Eigen::Vector3f & t1, Eigen::Vector3f & t2)
 {
   if (nbrs.size() < 3) {
-    // base por defecto (proyección estable)
     t1 = Eigen::Vector3f::UnitX();
     t2 = Eigen::Vector3f::UnitY();
     return;
   }
 
-  // Centra
+  // Center
   Eigen::Vector3f mean = Eigen::Vector3f::Zero();
   for (auto & p : nbrs) {
     mean += p;
   }
   mean /= static_cast<float>(nbrs.size());
 
-  // Covarianza
+  // Covariance
   Eigen::Matrix3f C = Eigen::Matrix3f::Zero();
   for (auto & p : nbrs) {
     Eigen::Vector3f d = p - mean;
@@ -637,15 +634,13 @@ inline void local_tangent_basis(
   }
   C /= static_cast<float>(nbrs.size());
 
-  // Autovectores
+  // Eigenvectors
   Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> es(C);
-  // Valores ascendentes: 0 -> menor (normal aproximada)
-  // Eigen::Vector3f e0 = es.eigenvectors().col(0); // normal aproximada
+  // Ascending eigenvalues: column 0 ~ smallest (approximate normal)
   Eigen::Vector3f e1 = es.eigenvectors().col(1);
   Eigen::Vector3f e2 = es.eigenvectors().col(2);
 
-  // Plano tangente: proyectaremos en {e1, e2}
-  // Asegura ortonormalidad y evita inversión esporádica
+  // Tangent plane basis {e1, e2}
   t1 = e1.normalized();
   t2 = (e2 - e2.dot(t1) * t1).normalized();
 }
@@ -656,18 +651,18 @@ inline void triangle_angles_deg(
   const Eigen::Vector3f & C,
   float & angA, float & angB, float & angC)
 {
-  // Lados opuestos a A, B, C
+  // Sides opposite to vertices A, B, C
   float a = (B - C).norm();
   float b = (C - A).norm();
   float c = (A - B).norm();
 
-  // Evitar divisiones por cero
+  // Avoid divisions by zero
   const float eps = 1e-12f;
   a = std::max(a, eps);
   b = std::max(b, eps);
   c = std::max(c, eps);
 
-  // Ley de cosenos con clamp numérico
+  // Law of cosines with numeric clamping
   auto angle_from = [](float opp, float x, float y) -> float {
       float cosv = (x * x + y * y - opp * opp) / (2.0f * x * y);
       cosv = std::min(1.0f, std::max(-1.0f, cosv));
@@ -679,7 +674,7 @@ inline void triangle_angles_deg(
   angC = angle_from(c, a, b);
 }
 
-// Ordena vecinos por ángulo en el plano tangente de v
+// Sort neighbors by angle on the tangent plane at v
 inline void sort_neighbors_angular(
   const Eigen::Vector3f & vpos,
   const std::vector<std::pair<int, Eigen::Vector3f>> & nbrs,  // (idx, pos)
@@ -715,7 +710,7 @@ inline void sort_neighbors_angular(
   }
 }
 
-// Intenta crear un triángulo (i,j,k) bajo las restricciones
+// Attempt to add triangle (i,j,k) under the given constraints
 inline bool try_add_triangle(
   int i, int j, int k,
   const pcl::PointCloud<pcl::PointXYZ> & cloud,
@@ -732,7 +727,7 @@ inline bool try_add_triangle(
   const auto & C = cloud[k];
   if (!pcl::isFinite(A) || !pcl::isFinite(B) || !pcl::isFinite(C)) {return false;}
 
-  // Longitudes máximas de arista
+  // Max edge length
   auto dAB = dist3(A, B);
   auto dBC = dist3(B, C);
   auto dCA = dist3(C, A);
@@ -742,14 +737,14 @@ inline bool try_add_triangle(
   Eigen::Vector3f b(B.x, B.y, B.z);
   Eigen::Vector3f c(C.x, C.y, C.z);
 
-  // Área mínima
+  // Min area
   if (tri_area(a, b, c) < P.min_area) {return false;}
 
-  // Pendiente máxima
+  // Max slope
   float slope = tri_slope_deg(a, b, c);
   if (slope > P.max_slope_deg) {return false;}
 
-  // Ángulo mínimo en los tres vértices
+  // Min angle at each vertex
   float angA, angB, angC;
   triangle_angles_deg(a, b, c, angA, angB, angC);
   if (angA < P.min_angle_deg || angB < P.min_angle_deg || angC < P.min_angle_deg) {
@@ -762,13 +757,10 @@ inline bool try_add_triangle(
     if (n.norm() < 1e-9f) {return false;}
     if (n.dot(up) < 0.0f) {
       std::swap(j, k);
-      // si más abajo usas b/c otra vez, re-asigna:
-      // b = Eigen::Vector3f(cloud[j].x, cloud[j].y, cloud[j].z);
-      // c = Eigen::Vector3f(cloud[k].x, cloud[k].y, cloud[k].z);
     }
   }
 
-  // Aceptar
+  // Accept
   tri_set.insert(tk);
   edge_set.insert(make_edge(i, j));
   edge_set.insert(make_edge(j, k));
@@ -790,7 +782,7 @@ struct VoxelHash
 {
   std::size_t operator()(const Voxel & v) const noexcept
   {
-    // Hash simple y estable
+    // Simple, stable hash
     std::size_t h = 1469598103934665603ull; // FNV-1a offset
     auto mix = [&](int k) {
         std::size_t x = static_cast<std::size_t>(k);
@@ -818,9 +810,9 @@ downsample_voxelize_avgXYZ(
   pcl::PointCloud<pcl::PointXYZ> output;
 
   std::unordered_map<Voxel, VoxelAccum, VoxelHash> voxels;
-  voxels.reserve(input_points.size() / 2); // estimación
+  voxels.reserve(input_points.size() / 2); // rough estimate
 
-  // 1) Acumular todos los puntos por voxel
+  // 1) Accumulate all points per voxel
   for (std::size_t i = 0; i < input_points.size(); ++i) {
     const auto & pt = input_points[i];
     if (!pcl::isFinite(pt)) {continue;}
@@ -837,7 +829,7 @@ downsample_voxelize_avgXYZ(
     acc.count += 1;
   }
 
-  // 2) Generar un punto promedio por voxel
+  // 2) Emit one averaged point per voxel
   output.points.reserve(voxels.size());
   for (const auto & kv : voxels) {
     const VoxelAccum & acc = kv.second;
@@ -860,7 +852,6 @@ std::vector<Triangle> grow_surface_from_seed(
   int seed_idx,
   const BuildParams & P)
 {
-  std::cerr << "1" << std::endl;
   std::vector<Triangle> tris;
   if (cloud.empty() || seed_idx < 0 || seed_idx >= static_cast<int>(cloud.size())) {
     return tris;
@@ -886,7 +877,7 @@ std::vector<Triangle> grow_surface_from_seed(
 
     if (!pcl::isFinite(V)) {continue;}
 
-    // 1) Vecindad
+    // 1) Neighborhood
     nbr_indices.clear(); nbr_dists.clear();
     int found = 0;
     if (P.use_radius) {
@@ -894,9 +885,9 @@ std::vector<Triangle> grow_surface_from_seed(
     } else {
       found = kdtree.nearestKSearch(V, P.k_neighbors, nbr_indices, nbr_dists);
     }
-    if (found <= 1) {continue;} // sólo él mismo
+    if (found <= 1) {continue;} // only itself
 
-    // 2) Filtra por arista y descarta el propio v
+    // 2) Filter by edge length and drop v itself
     std::vector<std::pair<int, Eigen::Vector3f>> candidates;
     candidates.reserve(found);
     for (int idx : nbr_indices) {
@@ -909,15 +900,14 @@ std::vector<Triangle> grow_surface_from_seed(
     }
     if (candidates.size() < 2) {continue;}
 
-    // 3) Orden angular en plano tangente local de v
+    // 3) Angular order on the local tangent plane at v
     Eigen::Vector3f vpos(V.x, V.y, V.z);
     std::vector<int> ordered;
     sort_neighbors_angular(vpos, candidates, ordered);
 
-    // 4) Intenta triángulos en abanico (pares consecutivos)
-    //    También puedes cerrar el abanico conectando último con primero si procede.
+    // 4) Try fan triangles from consecutive pairs
+    //    Optionally close the fan by connecting last with first.
     for (size_t t = 0; t + 1 < ordered.size(); ++t) {
-      // std::cerr << "t = " << t <<std::endl;
       int i = v;
       int j = ordered[t];
       int k = ordered[t + 1];
@@ -927,7 +917,7 @@ std::vector<Triangle> grow_surface_from_seed(
         if (!seen.count(k)) {frontier.push(k); seen.insert(k);}
       }
     }
-    // Cierre opcional del abanico (si quieres malla más densa):
+    // Optional fan closure
     int j0 = ordered.front(), k0 = ordered.back();
     try_add_triangle(v, k0, j0, cloud, P, tri_set, edge_set, tris);
   }
