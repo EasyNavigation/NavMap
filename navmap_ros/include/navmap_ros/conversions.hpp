@@ -163,12 +163,12 @@ struct BuildParams
   Eigen::Vector3f seed = {0.0, 0.0, 0.0};
   float resolution = 1.0;
   float max_edge_len = 2.0;
-  float max_slope_deg = 30.0f;   // pendiente máxima respecto a vertical
-  float neighbor_radius = 2.0f;  // radio de búsqueda
-  int   k_neighbors = 20;        // si prefieres k-NN en vez de radio
-  float min_area = 1e-6f;        // área mínima para evitar degenerados
+  float max_slope_deg = 30.0f;   // maximum slope w.r.t. vertical
+  float neighbor_radius = 2.0f;  // search radius
+  int   k_neighbors = 20;        // k-NN alternative to radius
+  float min_area = 1e-6f;        // minimum triangle area to avoid degenerates
   bool  use_radius = true;
-  float min_angle_deg = 20.0f;   // grados -> evita triángulos muy agudos (slivers)
+  float min_angle_deg = 20.0f;   // minimum interior angle (deg) to avoid sliver triangles
 };
 
 navmap::NavMap from_pointcloud2(
