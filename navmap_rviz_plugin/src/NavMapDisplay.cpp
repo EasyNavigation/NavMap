@@ -186,8 +186,8 @@ void NavMapDisplay::reset()
   layer_update_count_ = 0;
   last_navmap_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   last_layer_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
-  setStatus(rviz_common::properties::StatusProperty::Warn, "NavMap Topic", "waiting for messages…");
-  setStatus(rviz_common::properties::StatusProperty::Warn, "Layer Update", "waiting for updates…");
+  setStatus(rviz_common::properties::StatusProperty::Ok, "NavMap Topic", "waiting for messages…");
+  setStatus(rviz_common::properties::StatusProperty::Ok, "Layer Update", "waiting for updates…");
 
   destroyMesh_();
   updateNormals_();

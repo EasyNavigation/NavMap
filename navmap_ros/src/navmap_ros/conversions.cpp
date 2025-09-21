@@ -20,12 +20,23 @@
 #include <cassert>
 #include <unordered_map>
 
-#include <geometry_msgs/msg/pose.hpp>
+#include "geometry_msgs/msg/pose.hpp"
 #include <std_msgs/msg/header.hpp>
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "navmap_ros_interfaces/msg/nav_map.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
 
-#include <navmap_core/Geometry.hpp>
-#include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
-#include <navmap_ros_interfaces/msg/nav_map_surface.hpp>
+#include "navmap_core/Geometry.hpp"
+
+#include "pcl_conversions/pcl_conversions.h"
+#include "pcl/point_types_conversion.h"
+
+#include "pcl/common/transforms.h"
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl/PointIndices.h"
+#include "pcl/kdtree/kdtree_flann.h"
 
 namespace navmap_ros
 {
@@ -505,14 +516,465 @@ bool build_navmap_from_mesh(
     out_msg.layers.push_back(std::move(layer));
   }
 
-  // (Optional) Vertex colors -> out_msg.has_vertex_rgba = true; ... (r,g,b,a)
-  // (Optional) Surfaces -> you can group navcels by surface later
-
   // 4) Convert a kernel if requested
   if (out_core_opt) {
     *out_core_opt = navmap_ros::from_msg(out_msg);
   }
   return true;
 }
+
+// ----------------- Surface from PC2 -----------------
+
+
+using Triangle = Eigen::Vector3i;
+
+static inline float sqr(float v) {return v * v;}
+static inline float dist3(const pcl::PointXYZ & a, const pcl::PointXYZ & b)
+{
+  return std::sqrt(sqr(a.x - b.x) + sqr(a.y - b.y) + sqr(a.z - b.z));
+}
+
+static inline float clamp01(float x)
+{
+  if (x < 0.0f) {return 0.0f;}
+  if (x > 1.0f) {return 1.0f;}
+  return x;
+}
+
+static inline float tri_area(
+  const Eigen::Vector3f & a,
+  const Eigen::Vector3f & b,
+  const Eigen::Vector3f & c)
+{
+  return 0.5f * ((b - a).cross(c - a)).norm();
+}
+static inline float tri_slope_deg(
+  const Eigen::Vector3f & a,
+  const Eigen::Vector3f & b,
+  const Eigen::Vector3f & c)
+{
+  Eigen::Vector3f n = (b - a).cross(c - a);
+  float nn = n.norm();
+  if (nn < 1e-9f) {return 0.0f;}
+  float cos_theta = std::abs(n.normalized().dot(Eigen::Vector3f::UnitZ())); // cos con vertical
+  cos_theta = std::clamp(cos_theta, 0.0f, 1.0f);
+  float theta = std::acos(cos_theta); // ángulo con vertical
+  return theta * 180.0f / static_cast<float>(M_PI);
+}
+
+// Claves para evitar duplicados
+struct EdgeKey
+{
+  int a, b;
+  bool operator==(const EdgeKey & o) const noexcept {return a == o.a && b == o.b;}
+};
+struct EdgeHasher
+{
+  std::size_t operator()(const EdgeKey & e) const noexcept
+  {
+    return (static_cast<std::size_t>(e.a) << 32) ^ static_cast<std::size_t>(e.b);
+  }
+};
+static inline EdgeKey make_edge(int i, int j)
+{
+  if (i < j) {return {i, j};}
+  return {j, i};
+}
+
+struct TriKey
+{
+  int a, b, c;
+  bool operator==(const TriKey & o) const noexcept
+  {
+    return a == o.a && b == o.b && c == o.c;
+  }
+};
+struct TriHasher
+{
+  std::size_t operator()(const TriKey & t) const noexcept
+  {
+    std::size_t h = 1469598103934665603ull;
+    auto mix = [&](int k){
+        h ^= static_cast<std::size_t>(k) + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
+      };
+    mix(t.a); mix(t.b); mix(t.c);
+    return h;
+  }
+};
+static inline TriKey make_tri(int i, int j, int k)
+{
+  int v[3] = {i, j, k};
+  std::sort(v, v + 3);
+  return {v[0], v[1], v[2]};
+}
+
+// PCA local para obtener plano tangente en v
+// Devuelve dos ejes ortogonales t1, t2 en el plano tangente.
+// Si falla PCA (muy pocos puntos), usa un par ortonormal arbitrario.
+inline void local_tangent_basis(
+  const std::vector<Eigen::Vector3f> & nbrs,
+  Eigen::Vector3f & t1, Eigen::Vector3f & t2)
+{
+  if (nbrs.size() < 3) {
+    // base por defecto (proyección estable)
+    t1 = Eigen::Vector3f::UnitX();
+    t2 = Eigen::Vector3f::UnitY();
+    return;
+  }
+
+  // Centra
+  Eigen::Vector3f mean = Eigen::Vector3f::Zero();
+  for (auto & p : nbrs) {
+    mean += p;
+  }
+  mean /= static_cast<float>(nbrs.size());
+
+  // Covarianza
+  Eigen::Matrix3f C = Eigen::Matrix3f::Zero();
+  for (auto & p : nbrs) {
+    Eigen::Vector3f d = p - mean;
+    C += d * d.transpose();
+  }
+  C /= static_cast<float>(nbrs.size());
+
+  // Autovectores
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> es(C);
+  // Valores ascendentes: 0 -> menor (normal aproximada)
+  // Eigen::Vector3f e0 = es.eigenvectors().col(0); // normal aproximada
+  Eigen::Vector3f e1 = es.eigenvectors().col(1);
+  Eigen::Vector3f e2 = es.eigenvectors().col(2);
+
+  // Plano tangente: proyectaremos en {e1, e2}
+  // Asegura ortonormalidad y evita inversión esporádica
+  t1 = e1.normalized();
+  t2 = (e2 - e2.dot(t1) * t1).normalized();
+}
+
+inline void triangle_angles_deg(
+  const Eigen::Vector3f & A,
+  const Eigen::Vector3f & B,
+  const Eigen::Vector3f & C,
+  float & angA, float & angB, float & angC)
+{
+  // Lados opuestos a A, B, C
+  float a = (B - C).norm();
+  float b = (C - A).norm();
+  float c = (A - B).norm();
+
+  // Evitar divisiones por cero
+  const float eps = 1e-12f;
+  a = std::max(a, eps);
+  b = std::max(b, eps);
+  c = std::max(c, eps);
+
+  // Ley de cosenos con clamp numérico
+  auto angle_from = [](float opp, float x, float y) -> float {
+      float cosv = (x * x + y * y - opp * opp) / (2.0f * x * y);
+      cosv = std::min(1.0f, std::max(-1.0f, cosv));
+      return std::acos(cosv) * 180.0f / static_cast<float>(M_PI);
+    };
+
+  angA = angle_from(a, b, c);
+  angB = angle_from(b, c, a);
+  angC = angle_from(c, a, b);
+}
+
+// Ordena vecinos por ángulo en el plano tangente de v
+inline void sort_neighbors_angular(
+  const Eigen::Vector3f & vpos,
+  const std::vector<std::pair<int, Eigen::Vector3f>> & nbrs,  // (idx, pos)
+  std::vector<int> & out_ordered)
+{
+  std::vector<Eigen::Vector3f> pts;
+  pts.reserve(nbrs.size() + 1);
+  pts.push_back(vpos);
+  for (auto & it : nbrs) {
+    pts.push_back(it.second);
+  }
+
+  Eigen::Vector3f t1, t2;
+  local_tangent_basis(pts, t1, t2);
+
+  std::vector<std::pair<float, int>> ang_idx;
+  ang_idx.reserve(nbrs.size());
+  for (auto & it : nbrs) {
+    Eigen::Vector3f d = it.second - vpos;
+    float x = d.dot(t1);
+    float y = d.dot(t2);
+    float ang = std::atan2(y, x); // -pi..pi
+    ang_idx.emplace_back(ang, it.first);
+  }
+
+  std::sort(ang_idx.begin(), ang_idx.end(),
+    [](auto & a, auto & b){return a.first < b.first;});
+
+  out_ordered.clear();
+  out_ordered.reserve(ang_idx.size());
+  for (auto & ai : ang_idx) {
+    out_ordered.push_back(ai.second);
+  }
+}
+
+// Intenta crear un triángulo (i,j,k) bajo las restricciones
+inline bool try_add_triangle(
+  int i, int j, int k,
+  const pcl::PointCloud<pcl::PointXYZ> & cloud,
+  const BuildParams & P,
+  std::unordered_set<TriKey, TriHasher> & tri_set,
+  std::unordered_set<EdgeKey, EdgeHasher> & edge_set,
+  std::vector<Triangle> & tris)
+{
+  TriKey tk = make_tri(i, j, k);
+  if (tri_set.find(tk) != tri_set.end()) {return false;}
+
+  const auto & A = cloud[i];
+  const auto & B = cloud[j];
+  const auto & C = cloud[k];
+  if (!pcl::isFinite(A) || !pcl::isFinite(B) || !pcl::isFinite(C)) {return false;}
+
+  // Longitudes máximas de arista
+  auto dAB = dist3(A, B);
+  auto dBC = dist3(B, C);
+  auto dCA = dist3(C, A);
+  if (dAB > P.max_edge_len || dBC > P.max_edge_len || dCA > P.max_edge_len) {return false;}
+
+  Eigen::Vector3f a(A.x, A.y, A.z);
+  Eigen::Vector3f b(B.x, B.y, B.z);
+  Eigen::Vector3f c(C.x, C.y, C.z);
+
+  // Área mínima
+  if (tri_area(a, b, c) < P.min_area) {return false;}
+
+  // Pendiente máxima
+  float slope = tri_slope_deg(a, b, c);
+  if (slope > P.max_slope_deg) {return false;}
+
+  // Ángulo mínimo en los tres vértices
+  float angA, angB, angC;
+  triangle_angles_deg(a, b, c, angA, angB, angC);
+  if (angA < P.min_angle_deg || angB < P.min_angle_deg || angC < P.min_angle_deg) {
+    return false;
+  }
+
+  {
+    const Eigen::Vector3f up = Eigen::Vector3f::UnitZ();
+    Eigen::Vector3f n = (b - a).cross(c - a);
+    if (n.norm() < 1e-9f) {return false;}
+    if (n.dot(up) < 0.0f) {
+      std::swap(j, k);
+      // si más abajo usas b/c otra vez, re-asigna:
+      // b = Eigen::Vector3f(cloud[j].x, cloud[j].y, cloud[j].z);
+      // c = Eigen::Vector3f(cloud[k].x, cloud[k].y, cloud[k].z);
+    }
+  }
+
+  // Aceptar
+  tri_set.insert(tk);
+  edge_set.insert(make_edge(i, j));
+  edge_set.insert(make_edge(j, k));
+  edge_set.insert(make_edge(k, i));
+  tris.emplace_back(Triangle(i, j, k));
+  return true;
+}
+
+struct Voxel
+{
+  int x, y, z;
+  bool operator==(const Voxel & o) const noexcept
+  {
+    return x == o.x && y == o.y && z == o.z;
+  }
+};
+
+struct VoxelHash
+{
+  std::size_t operator()(const Voxel & v) const noexcept
+  {
+    // Hash simple y estable
+    std::size_t h = 1469598103934665603ull; // FNV-1a offset
+    auto mix = [&](int k) {
+        std::size_t x = static_cast<std::size_t>(k);
+        h ^= x + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
+      };
+    mix(v.x); mix(v.y); mix(v.z);
+    return h;
+  }
+};
+
+struct VoxelAccum
+{
+  float sum_x = 0.0f;
+  float sum_y = 0.0f;
+  float sum_z = 0.0f;
+  int count = 0;
+};
+
+
+pcl::PointCloud<pcl::PointXYZ>
+downsample_voxelize_avgXYZ(
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
+  float resolution)
+{
+  pcl::PointCloud<pcl::PointXYZ> output;
+
+  std::unordered_map<Voxel, VoxelAccum, VoxelHash> voxels;
+  voxels.reserve(input_points.size() / 2); // estimación
+
+  // 1) Acumular todos los puntos por voxel
+  for (std::size_t i = 0; i < input_points.size(); ++i) {
+    const auto & pt = input_points[i];
+    if (!pcl::isFinite(pt)) {continue;}
+
+    int vx = static_cast<int>(std::floor(pt.x / resolution));
+    int vy = static_cast<int>(std::floor(pt.y / resolution));
+    int vz = static_cast<int>(std::floor(pt.z / resolution));
+
+    Voxel v{vx, vy, vz};
+    auto & acc = voxels[v];
+    acc.sum_x += pt.x;
+    acc.sum_y += pt.y;
+    acc.sum_z += pt.z;
+    acc.count += 1;
+  }
+
+  // 2) Generar un punto promedio por voxel
+  output.points.reserve(voxels.size());
+  for (const auto & kv : voxels) {
+    const VoxelAccum & acc = kv.second;
+    float cx = acc.sum_x / acc.count;
+    float cy = acc.sum_y / acc.count;
+    float cz = acc.sum_z / acc.count;
+    output.emplace_back(cx, cy, cz);
+  }
+
+  output.width = static_cast<uint32_t>(output.size());
+  output.height = 1;
+  output.is_dense = true;
+
+  return output;
+}
+
+
+std::vector<Triangle> grow_surface_from_seed(
+  const pcl::PointCloud<pcl::PointXYZ> & cloud,
+  int seed_idx,
+  const BuildParams & P)
+{
+  std::cerr << "1" << std::endl;
+  std::vector<Triangle> tris;
+  if (cloud.empty() || seed_idx < 0 || seed_idx >= static_cast<int>(cloud.size())) {
+    return tris;
+  }
+
+  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+  kdtree.setInputCloud(cloud.makeShared());
+
+  std::queue<int> frontier;
+  std::unordered_set<int> seen;
+  frontier.push(seed_idx);
+  seen.insert(seed_idx);
+
+  std::unordered_set<TriKey, TriHasher> tri_set;
+  std::unordered_set<EdgeKey, EdgeHasher> edge_set;
+
+  std::vector<int> nbr_indices;
+  std::vector<float> nbr_dists;
+
+  while (!frontier.empty()) {
+    int v = frontier.front(); frontier.pop();
+    const auto & V = cloud[v];
+
+    if (!pcl::isFinite(V)) {continue;}
+
+    // 1) Vecindad
+    nbr_indices.clear(); nbr_dists.clear();
+    int found = 0;
+    if (P.use_radius) {
+      found = kdtree.radiusSearch(V, P.neighbor_radius, nbr_indices, nbr_dists);
+    } else {
+      found = kdtree.nearestKSearch(V, P.k_neighbors, nbr_indices, nbr_dists);
+    }
+    if (found <= 1) {continue;} // sólo él mismo
+
+    // 2) Filtra por arista y descarta el propio v
+    std::vector<std::pair<int, Eigen::Vector3f>> candidates;
+    candidates.reserve(found);
+    for (int idx : nbr_indices) {
+      if (idx == v) {continue;}
+      const auto & Pn = cloud[idx];
+      if (!pcl::isFinite(Pn)) {continue;}
+      if (dist3(V, Pn) <= P.max_edge_len) {
+        candidates.emplace_back(idx, Eigen::Vector3f(Pn.x, Pn.y, Pn.z));
+      }
+    }
+    if (candidates.size() < 2) {continue;}
+
+    // 3) Orden angular en plano tangente local de v
+    Eigen::Vector3f vpos(V.x, V.y, V.z);
+    std::vector<int> ordered;
+    sort_neighbors_angular(vpos, candidates, ordered);
+
+    // 4) Intenta triángulos en abanico (pares consecutivos)
+    //    También puedes cerrar el abanico conectando último con primero si procede.
+    for (size_t t = 0; t + 1 < ordered.size(); ++t) {
+      // std::cerr << "t = " << t <<std::endl;
+      int i = v;
+      int j = ordered[t];
+      int k = ordered[t + 1];
+
+      if (try_add_triangle(i, j, k, cloud, P, tri_set, edge_set, tris)) {
+        if (!seen.count(j)) {frontier.push(j); seen.insert(j);}
+        if (!seen.count(k)) {frontier.push(k); seen.insert(k);}
+      }
+    }
+    // Cierre opcional del abanico (si quieres malla más densa):
+    int j0 = ordered.front(), k0 = ordered.back();
+    try_add_triangle(v, k0, j0, cloud, P, tri_set, edge_set, tris);
+  }
+
+  return tris;
+}
+
+navmap::NavMap from_pointcloud2(
+  const sensor_msgs::msg::PointCloud2 & pc2,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  BuildParams params)
+{
+  pcl::PointCloud<pcl::PointXYZ> input_points;
+  pcl::fromROSMsg(pc2, input_points);
+
+  auto downsampled_points = downsample_voxelize_avgXYZ(input_points, params.resolution);
+
+  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+  kdtree.setInputCloud(downsampled_points.makeShared());
+
+  pcl::PointXYZ origin(params.seed.x(), params.seed.y(), params.seed.z());
+
+  std::vector<int> nbr_indices;
+  std::vector<float> nbr_dists;
+
+  nbr_indices.clear(); nbr_dists.clear();
+  bool found = kdtree.radiusSearch(origin, params.resolution, nbr_indices, nbr_dists);
+
+  if (!found) {
+    std::cerr << "Unable to find surface near seed" << std::endl;
+    return {};
+  }
+
+  int seed = nbr_indices[0];
+
+  auto triangles = grow_surface_from_seed(downsampled_points, seed, params);
+
+  navmap::NavMap navmap;
+  if (!navmap_ros::build_navmap_from_mesh(
+    downsampled_points, triangles, "map", out_msg, &navmap))
+  {
+    std::cerr << "Error building ::navmap::NavMap from mesh" << std::endl;
+    return {};
+  }
+
+  return navmap;
+}
+
 
 } // namespace navmap_ros
