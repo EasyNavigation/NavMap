@@ -15,7 +15,9 @@ find_package(navmap_ros_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(PCL REQUIRED COMPONENTS common io)
+find_package(std_srvs REQUIRED)
+find_package(PCL REQUIRED COMPONENTS common io kdtree search)
+find_package(pcl_conversions REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}/conversions.cpp
@@ -29,13 +31,19 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
   rclcpp::rclcpp
   navmap_core::navmap_core
+  pcl_conversions::pcl_conversions
   ${navmap_ros_interfaces_TARGETS}
   ${geometry_msgs_TARGETS}
   ${nav_msgs_TARGETS}
   ${sensor_msgs_TARGETS}
+  ${std_srvs_TARGETS}
   ${PCL_LIBRARIES}
 )
 
+add_executable(slam_server_app
+  src/slam_server_app.cpp
+)
+target_link_libraries(slam_server_app ${PROJECT_NAME})
 
 install(
   DIRECTORY include/
@@ -44,6 +52,7 @@ install(
 
 install(TARGETS
   ${PROJECT_NAME}
+  slam_server_app
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -71,5 +80,6 @@ ament_export_dependencies(
   geometry_msgs
   sensor_msgs
   PCL
+  pcl_conversions
 )
 ament_package()

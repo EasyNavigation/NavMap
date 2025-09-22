@@ -43,10 +43,12 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-#include <navmap_ros_interfaces/msg/nav_map.hpp>
-#include <nav_msgs/msg/occupancy_grid.hpp>
-#include <navmap_core/NavMap.hpp>
-#include <navmap_ros_interfaces/msg/nav_map.hpp>
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "navmap_ros_interfaces/msg/nav_map.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+
+#include "navmap_core/NavMap.hpp"
 
 /**
  * @namespace navmap_ros
@@ -156,42 +158,23 @@ navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid);
  */
 nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm);
 
-/**
- * @brief Serialize a triangle mesh (from a PCL point cloud and index triplets) into
- *        a `navmap_ros_interfaces::msg::NavMap`, optionally returning the core `navmap::NavMap`.
- *
- * This function is useful to publish arbitrary triangle surfaces through ROS without having to
- * manually assemble the transport message. The input mesh is assumed to be watertight or at
- * least manifold enough for downstream consumers; no global repair is performed.
- *
- * @param[in] cloud      Vertex positions as a PCL point cloud. Only XYZ is used.
- * @param[in] triangles  Triangle index triplets (each `Eigen::Vector3i` stores indices into @p cloud).
- * @param[in] frame_id   TF frame id to assign to the resulting surface.
- * @param[out] out_msg   Output transport message containing geometry, one surface, and no layers.
- * @param[out] out_core_opt Optional pointer to receive the constructed core `navmap::NavMap`.
- *                          If non-null, a copy of the internal core representation is written here.
- *
- * @return `true` on success, `false` if inputs are inconsistent (e.g., out-of-range indices,
- *         NaN/Inf coordinates) and the message cannot be built.
- *
- * @post
- *  - `out_msg` contains:
- *      * All input vertices in order.
- *      * All input triangles (winding preserved as provided).
- *      * A single surface with `frame_id` set to @p frame_id and containing all triangles.
- *  - If @p out_core_opt is provided, it mirrors the same content for direct core-level use.
- *
- * @warning This function does not compute or attach per-NavCel layers. If you need layers
- *          (e.g., `"elevation"`, `"occupancy"`), create and populate them explicitly afterward.
- * @warning Triangle normals and adjacency are computed by the core upon `rebuild_geometry_accels()`.
- *          If you plan to query topology or do ray casts, call that method on the core map you use.
- */
-bool build_navmap_from_mesh(
-  const pcl::PointCloud<pcl::PointXYZ> & cloud,
-  const std::vector<Eigen::Vector3i> & triangles,
-  const std::string & frame_id,
+struct BuildParams
+{
+  Eigen::Vector3f seed = {0.0, 0.0, 0.0};
+  float resolution = 1.0;
+  float max_edge_len = 2.0;
+  float max_slope_deg = 30.0f;   // maximum slope w.r.t. vertical
+  float neighbor_radius = 2.0f;  // search radius
+  int   k_neighbors = 20;        // k-NN alternative to radius
+  float min_area = 1e-6f;        // minimum triangle area to avoid degenerates
+  bool  use_radius = true;
+  float min_angle_deg = 20.0f;   // minimum interior angle (deg) to avoid sliver triangles
+};
+
+navmap::NavMap from_pointcloud2(
+  const sensor_msgs::msg::PointCloud2 & pc2,
   navmap_ros_interfaces::msg::NavMap & out_msg,
-  navmap::NavMap * out_core_opt = nullptr);
+  BuildParams params);
 
 }  // namespace navmap_ros
 
