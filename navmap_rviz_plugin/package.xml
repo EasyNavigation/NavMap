@@ -6,7 +6,8 @@
   <version>0.1.0</version>
   <description>RViz2 display plugin for NavMap surfaces and layers.</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
-  <license>GPL-3.0-or-later</license>
+
+  <license>Apache License, Version 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

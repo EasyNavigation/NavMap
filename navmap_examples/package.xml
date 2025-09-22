@@ -5,7 +5,8 @@
   <version>0.1.0</version>
   <description>Examples related to navmap_core y navmap_ros.</description>
   <maintainer email="fmrico@gmail.com">fmrico</maintainer>
-  <license>MIT</license>
+
+  <license>Apache License, Version 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
