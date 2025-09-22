@@ -1,15 +1,15 @@
 var searchData=
 [
-  ['p_0',['p',['../structnavmap_1_1RayHit.html#a3a96810042eedd9cd982bd320412688f',1,'navmap::RayHit']]],
-  ['package_1',['📦 Usage (Examples package)',['../index.html#autotoc_md32',1,'']]],
-  ['per_20navcel_20layer_20cost_20or_20occupancy_2',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
-  ['per_5fcell_3',['per_cell',['../structnavmap_1_1LayerMeta.html#a613b72a6d524268b27910caec7645e16',1,'navmap::LayerMeta']]],
-  ['planar_5feps_4',['planar_eps',['../structnavmap_1_1NavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'navmap::NavMap::LocateOpts::planar_eps'],['../structNavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'NavMap::LocateOpts::planar_eps']]],
-  ['point_5ftriangle_5fsquared_5fdistance_5',['point_triangle_squared_distance',['../namespacenavmap.html#a1e63337f4523878b0a7c1cea68a23a26',1,'navmap']]],
-  ['pointid_6',['PointId',['../namespacenavmap.html#ab6033fb29a33510706c3211b18a41e12',1,'navmap']]],
-  ['position_7',['position',['../index.html#autotoc_md18',1,'4. Locate the NavCel corresponding to a 3D position'],['../index.html#autotoc_md20',1,'5. Sample a layer at a world position']]],
-  ['positions_8',['Positions',['../structnavmap_1_1Positions.html',1,'navmap']]],
-  ['positions_9',['positions',['../classnavmap_1_1NavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'navmap::NavMap::positions'],['../classNavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'NavMap::positions']]],
-  ['prim_5findices_10',['prim_indices',['../structnavmap_1_1Surface.html#afa2adca8a80850f7f7e108220b96e529',1,'navmap::Surface::prim_indices'],['../structSurface.html#afa2adca8a80850f7f7e108220b96e529',1,'Surface::prim_indices']]],
-  ['processmessage_11',['processMessage',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8bc06d0f3a205ba74048a6e77df137ff',1,'navmap_rviz_plugin::NavMapDisplay']]]
+  ['o_0',['o',['../structnavmap_1_1Ray.html#a39bf78a4874a184484ae2a12923ce16d',1,'navmap::Ray']]],
+  ['occupancy_1',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]],
+  ['occupancy_20mapping_2',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md44',1,'']]],
+  ['ogre_3',['Ogre',['../namespaceOgre.html',1,'']]],
+  ['ondisable_4',['onDisable',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#af041e206014834233cfef8eaa793530b',1,'navmap_rviz_plugin::NavMapDisplay']]],
+  ['onenable_5',['onEnable',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a2992e4007d8d98088d435881998a51b6',1,'navmap_rviz_plugin::NavMapDisplay']]],
+  ['oninitialize_6',['onInitialize',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a1e324fefb81c0b94f64b35a181428a9f',1,'navmap_rviz_plugin::NavMapDisplay']]],
+  ['operator_28_29_7',['operator()',['../structnavmap__ros_1_1EdgeHasher.html#a98c9461e09745fb414e851cf64e58332',1,'navmap_ros::EdgeHasher::operator()()'],['../structnavmap__ros_1_1TriHasher.html#a8be8b7cfc7573d4d4c5c976f8acf224c',1,'navmap_ros::TriHasher::operator()()'],['../structnavmap__ros_1_1VoxelHash.html#a9b6d25e2a6a155617ec9e71da71ee768',1,'navmap_ros::VoxelHash::operator()()']]],
+  ['operator_3d_8',['operator=',['../classnavmap_1_1NavMap.html#abdba6967622302fdf575a33000719624',1,'navmap::NavMap::operator=(const NavMap &amp;other)'],['../classnavmap_1_1NavMap.html#a8f722995f4482cc0933e9d02af566af6',1,'navmap::NavMap::operator=(NavMap &amp;&amp;other) noexcept'],['../classNavMap.html#abdba6967622302fdf575a33000719624',1,'NavMap::operator=(const NavMap &amp;other)'],['../classNavMap.html#a8f722995f4482cc0933e9d02af566af6',1,'NavMap::operator=(NavMap &amp;&amp;other) noexcept']]],
+  ['operator_3d_3d_9',['operator==',['../structnavmap__ros_1_1EdgeKey.html#ae3ead36c6bcf18cefe058768d87fc10f',1,'navmap_ros::EdgeKey::operator==()'],['../structnavmap__ros_1_1TriKey.html#a3f897fbc33a9587ffddc5b704f9622d9',1,'navmap_ros::TriKey::operator==()'],['../structnavmap__ros_1_1Voxel.html#a02b6aa635af6bb57345a6c783e16d6fc',1,'navmap_ros::Voxel::operator==()']]],
+  ['operator_5b_5d_10',['operator[]',['../structnavmap_1_1LayerView.html#ab3d4ad35b3316b963d838b84bc9112b0',1,'navmap::LayerView::operator[](NavCelId cid)'],['../structnavmap_1_1LayerView.html#a9057cb89a7fa4e42e4cd1d56374f444e',1,'navmap::LayerView::operator[](NavCelId cid) const'],['../structLayerView.html#ab3d4ad35b3316b963d838b84bc9112b0',1,'LayerView::operator[](NavCelId cid)'],['../structLayerView.html#a9057cb89a7fa4e42e4cd1d56374f444e',1,'LayerView::operator[](NavCelId cid) const']]],
+  ['or_20occupancy_11',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md14',1,'']]]
 ];

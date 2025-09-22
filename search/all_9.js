@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['a_0',['a',['../structnavmap_1_1Colors.html#a7a24a5ebfe8988f8c514b8028ac756ec',1,'navmap::Colors']]],
+  ['a_0',['a',['../structnavmap_1_1Colors.html#a7a24a5ebfe8988f8c514b8028ac756ec',1,'navmap::Colors::a'],['../structnavmap__ros_1_1EdgeKey.html#aa4c2a5552e9bc49b1816ff532f558c74',1,'navmap_ros::EdgeKey::a'],['../structnavmap__ros_1_1TriKey.html#aa4c2a5552e9bc49b1816ff532f558c74',1,'navmap_ros::TriKey::a']]],
   ['a_203d_20position_1',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md18',1,'']]],
   ['a_20given_20navcel_2',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md16',1,'']]],
   ['a_20layer_20at_20a_20world_20position_3',['5. Sample a layer at a world position',['../index.html#autotoc_md20',1,'']]],

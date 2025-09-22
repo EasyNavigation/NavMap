@@ -86,6 +86,8 @@ $(function(){ initResizable(false); });
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">navmap_ros Namespace Reference</div></div>
 </div><!--header-->
@@ -100,11 +102,36 @@ Namespaces</h2></td></tr>
 <tr class="memdesc:namespacenavmap__ros_1_1io"><td class="mdescLeft">&#160;</td><td class="mdescRight">IO helpers to persist <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> objects to/from disk. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1Voxel.html">Voxel</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1VoxelAccum.html">VoxelAccum</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1VoxelHash.html">VoxelHash</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a37d0f527460c6073c32227c05174f022" id="r_a37d0f527460c6073c32227c05174f022"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> = Eigen::Vector3i</td></tr>
+<tr class="separator:a37d0f527460c6073c32227c05174f022"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa5a180515b93326061670d12b2fdb02b" id="r_aa5a180515b93326061670d12b2fdb02b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa5a180515b93326061670d12b2fdb02b">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt=nullptr)</td></tr>
-<tr class="memdesc:aa5a180515b93326061670d12b2fdb02b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize a triangle mesh (from a PCL point cloud and index triplets) into a <code>navmap_ros_interfaces::msg::NavMap</code>, optionally returning the core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code>.  <br /></td></tr>
-<tr class="separator:aa5a180515b93326061670d12b2fdb02b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a05354967c19acb4e9cb8675a0c251d" id="r_a0a05354967c19acb4e9cb8675a0c251d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a05354967c19acb4e9cb8675a0c251d">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt)</td></tr>
+<tr class="separator:a0a05354967c19acb4e9cb8675a0c251d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e0c617b70b967e302c81d3ac6773c3e" id="r_a6e0c617b70b967e302c81d3ac6773c3e"><td class="memItemLeft" align="right" valign="top">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6e0c617b70b967e302c81d3ac6773c3e">downsample_voxelize_avgXYZ</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, float resolution)</td></tr>
+<tr class="separator:a6e0c617b70b967e302c81d3ac6773c3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9835bd4485202df104ab38cb5cdc1ed8" id="r_a9835bd4485202df104ab38cb5cdc1ed8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9835bd4485202df104ab38cb5cdc1ed8">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg)</td></tr>
 <tr class="separator:a9835bd4485202df104ab38cb5cdc1ed8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac70f12eb1f059a42b6993cb612720ea0" id="r_ac70f12eb1f059a42b6993cb612720ea0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac70f12eb1f059a42b6993cb612720ea0">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
@@ -116,6 +143,14 @@ Functions</h2></td></tr>
 <tr class="memitem:af26f003771b7de20efd8c9d2c3c519c8" id="r_af26f003771b7de20efd8c9d2c3c519c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af26f003771b7de20efd8c9d2c3c519c8">from_occupancy_grid</a> (const nav_msgs::msg::OccupancyGrid &amp;grid)</td></tr>
 <tr class="memdesc:af26f003771b7de20efd8c9d2c3c519c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> from a <code>nav_msgs::msg::OccupancyGrid</code> using a regular triangular surface with shared vertices.  <br /></td></tr>
 <tr class="separator:af26f003771b7de20efd8c9d2c3c519c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1d0f450cee491ef385215a317c6876a" id="r_af1d0f450cee491ef385215a317c6876a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af1d0f450cee491ef385215a317c6876a">from_pointcloud2</a> (const sensor_msgs::msg::PointCloud2 &amp;pc2, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
+<tr class="separator:af1d0f450cee491ef385215a317c6876a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a391baafe170d124869d315420e795d48" id="r_a391baafe170d124869d315420e795d48"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a391baafe170d124869d315420e795d48">grow_surface_from_seed</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, int seed_idx, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P)</td></tr>
+<tr class="separator:a391baafe170d124869d315420e795d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a564468dabda962aacaf59d5c959c6319" id="r_a564468dabda962aacaf59d5c959c6319"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a564468dabda962aacaf59d5c959c6319">local_tangent_basis</a> (const std::vector&lt; Eigen::Vector3f &gt; &amp;nbrs, Eigen::Vector3f &amp;t1, Eigen::Vector3f &amp;t2)</td></tr>
+<tr class="separator:a564468dabda962aacaf59d5c959c6319"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aead1c4b8b2a643351737b6097c379120" id="r_aead1c4b8b2a643351737b6097c379120"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aead1c4b8b2a643351737b6097c379120">sort_neighbors_angular</a> (const Eigen::Vector3f &amp;vpos, const std::vector&lt; std::pair&lt; int, Eigen::Vector3f &gt; &gt; &amp;nbrs, std::vector&lt; int &gt; &amp;out_ordered)</td></tr>
+<tr class="separator:aead1c4b8b2a643351737b6097c379120"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba26a033fbd9456e2368c8f49f62779e" id="r_aba26a033fbd9456e2368c8f49f62779e"><td class="memItemLeft" align="right" valign="top">navmap_ros_interfaces::msg::NavMap&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba26a033fbd9456e2368c8f49f62779e">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:aba26a033fbd9456e2368c8f49f62779e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> into its compact ROS transport message.  <br /></td></tr>
 <tr class="separator:aba26a033fbd9456e2368c8f49f62779e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,12 +160,31 @@ Functions</h2></td></tr>
 <tr class="memitem:a42165113e6236698fe947ca8ffa69bc8" id="r_a42165113e6236698fe947ca8ffa69bc8"><td class="memItemLeft" align="right" valign="top">nav_msgs::msg::OccupancyGrid&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42165113e6236698fe947ca8ffa69bc8">to_occupancy_grid</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:a42165113e6236698fe947ca8ffa69bc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> back to <code>nav_msgs::msg::OccupancyGrid</code>.  <br /></td></tr>
 <tr class="separator:a42165113e6236698fe947ca8ffa69bc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad089d6caf5156b818488bbec8de30a4b" id="r_ad089d6caf5156b818488bbec8de30a4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad089d6caf5156b818488bbec8de30a4b">triangle_angles_deg</a> (const Eigen::Vector3f &amp;A, const Eigen::Vector3f &amp;B, const Eigen::Vector3f &amp;C, float &amp;angA, float &amp;angB, float &amp;angC)</td></tr>
+<tr class="separator:ad089d6caf5156b818488bbec8de30a4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad27d5737db6b45f6d50f445c5cdeabda" id="r_ad27d5737db6b45f6d50f445c5cdeabda"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad27d5737db6b45f6d50f445c5cdeabda">try_add_triangle</a> (int i, int j, int k, const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a>, <a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a> &gt; &amp;tri_set, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a>, <a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a> &gt; &amp;edge_set, std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; &amp;tris)</td></tr>
+<tr class="separator:ad27d5737db6b45f6d50f445c5cdeabda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Conversions between core <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> and ROS-level structures. </p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a id="aa5a180515b93326061670d12b2fdb02b" name="aa5a180515b93326061670d12b2fdb02b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5a180515b93326061670d12b2fdb02b">&#9670;&#160;</a></span>build_navmap_from_mesh()</h2>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a37d0f527460c6073c32227c05174f022" name="a37d0f527460c6073c32227c05174f022"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37d0f527460c6073c32227c05174f022">&#9670;&#160;</a></span>Triangle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> = Eigen::Vector3i</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a0a05354967c19acb4e9cb8675a0c251d" name="a0a05354967c19acb4e9cb8675a0c251d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a05354967c19acb4e9cb8675a0c251d">&#9670;&#160;</a></span>build_navmap_from_mesh()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -158,37 +212,31 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *</td>          <td class="paramname"><span class="paramname"><em>out_core_opt</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *</td>          <td class="paramname"><span class="paramname"><em>out_core_opt</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Serialize a triangle mesh (from a PCL point cloud and index triplets) into a <code>navmap_ros_interfaces::msg::NavMap</code>, optionally returning the core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code>. </p>
-<p>This function is useful to publish arbitrary triangle surfaces through ROS without having to manually assemble the transport message. The input mesh is assumed to be watertight or at least manifold enough for downstream consumers; no global repair is performed.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">cloud</td><td>Vertex positions as a PCL point cloud. Only XYZ is used. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">triangles</td><td>Triangle index triplets (each <code>Eigen::Vector3i</code> stores indices into <code class="param">cloud</code>). </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">frame_id</td><td>TF frame id to assign to the resulting surface. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message containing geometry, one surface, and no layers. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out_core_opt</td><td>Optional pointer to receive the constructed core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code>. If non-null, a copy of the internal core representation is written here.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><code>true</code> on success, <code>false</code> if inputs are inconsistent (e.g., out-of-range indices, NaN/Inf coordinates) and the message cannot be built.</dd></dl>
-<dl class="section post"><dt>Postcondition</dt><dd><ul>
-<li><code>out_msg</code> contains:<ul>
-<li>All input vertices in order.</li>
-<li>All input triangles (winding preserved as provided).</li>
-<li>A single surface with <code>frame_id</code> set to <code class="param">frame_id</code> and containing all triangles.</li>
-</ul>
-</li>
-<li>If <code class="param">out_core_opt</code> is provided, it mirrors the same content for direct core-level use.</li>
-</ul>
-</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>This function does not compute or attach per-NavCel layers. If you need layers (e.g., <code>"elevation"</code>, <code>"occupancy"</code>), create and populate them explicitly afterward. </dd>
-<dd>
-Triangle normals and adjacency are computed by the core upon <code>rebuild_geometry_accels()</code>. If you plan to query topology or do ray casts, call that method on the core map you use. </dd></dl>
+</div>
+</div>
+<a id="a6e0c617b70b967e302c81d3ac6773c3e" name="a6e0c617b70b967e302c81d3ac6773c3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e0c617b70b967e302c81d3ac6773c3e">&#9670;&#160;</a></span>downsample_voxelize_avgXYZ()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pcl::PointCloud&lt; pcl::PointXYZ &gt; downsample_voxelize_avgXYZ </td>
+          <td>(</td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>input_points</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>resolution</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -301,10 +349,114 @@ Triangle normals and adjacency are computed by the core upon <code>rebuild_geome
 </dd></dl>
 <ul>
 <li>Vertex layout follows the grid indexation with shared vertices across adjacent cells.</li>
-<li>Triangle winding and diagonal split are deterministic (pattern = 0).</li>
+<li><a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> winding and diagonal split are deterministic (pattern = 0).</li>
 <li>If <code>width == 0</code> or <code>height == 0</code>, the returned map contains no triangles.</li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>The grid origin pose may contain a rotation. The vertex Z is taken from the origin Z; handling of non-zero yaw/roll/pitch (if any) is implementation-defined in the builder. </dd></dl>
+
+</div>
+</div>
+<a id="af1d0f450cee491ef385215a317c6876a" name="af1d0f450cee491ef385215a317c6876a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1d0f450cee491ef385215a317c6876a">&#9670;&#160;</a></span>from_pointcloud2()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> from_pointcloud2 </td>
+          <td>(</td>
+          <td class="paramtype">const sensor_msgs::msg::PointCloud2 &amp;</td>          <td class="paramname"><span class="paramname"><em>pc2</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">navmap_ros_interfaces::msg::NavMap &amp;</td>          <td class="paramname"><span class="paramname"><em>out_msg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td>          <td class="paramname"><span class="paramname"><em>params</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a391baafe170d124869d315420e795d48" name="a391baafe170d124869d315420e795d48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a391baafe170d124869d315420e795d48">&#9670;&#160;</a></span>grow_surface_from_seed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; grow_surface_from_seed </td>
+          <td>(</td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>cloud</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>seed_idx</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>P</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a564468dabda962aacaf59d5c959c6319" name="a564468dabda962aacaf59d5c959c6319"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a564468dabda962aacaf59d5c959c6319">&#9670;&#160;</a></span>local_tangent_basis()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void local_tangent_basis </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector3f &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>nbrs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>t1</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>t2</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aead1c4b8b2a643351737b6097c379120" name="aead1c4b8b2a643351737b6097c379120"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aead1c4b8b2a643351737b6097c379120">&#9670;&#160;</a></span>sort_neighbors_angular()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sort_neighbors_angular </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>vpos</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::pair&lt; int, Eigen::Vector3f &gt; &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>nbrs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; int &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>out_ordered</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -404,6 +556,98 @@ Triangle normals and adjacency are computed by the core upon <code>rebuild_geome
 <li><b>Generic fallback</b>: If the exact path is not applicable, the function samples cell centers via a navcel-locator (e.g., <code>locate_navcel</code>) and reads <code>"occupancy"</code> values to populate the grid.</li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>The fallback path assumes the presence of an <code>"occupancy"</code> layer. The precise sampling strategy (bounds, resolution, and handling of cells without a containing navcel) is implementation-defined. </dd></dl>
+
+</div>
+</div>
+<a id="ad089d6caf5156b818488bbec8de30a4b" name="ad089d6caf5156b818488bbec8de30a4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad089d6caf5156b818488bbec8de30a4b">&#9670;&#160;</a></span>triangle_angles_deg()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void triangle_angles_deg </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>A</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>B</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>C</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float &amp;</td>          <td class="paramname"><span class="paramname"><em>angA</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float &amp;</td>          <td class="paramname"><span class="paramname"><em>angB</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float &amp;</td>          <td class="paramname"><span class="paramname"><em>angC</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad27d5737db6b45f6d50f445c5cdeabda" name="ad27d5737db6b45f6d50f445c5cdeabda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad27d5737db6b45f6d50f445c5cdeabda">&#9670;&#160;</a></span>try_add_triangle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool try_add_triangle </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>i</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>j</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>k</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>cloud</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>P</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a>, <a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tri_set</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a>, <a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>edge_set</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tris</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

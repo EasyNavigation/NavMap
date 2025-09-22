@@ -174,34 +174,28 @@ Dependencies</h2>
 <div class="line"><span class="keyword">using </span><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>;</div>
 <div class="line"><span class="keyword">using </span><a class="code hl_typedef" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">navmap::NavCelId</a>;</div>
 <div class="line"> </div>
-<div class="line"><a class="code hl_class" href="classNavMap.html">NavMap</a> nm;</div>
+<div class="line">NavMap nm;</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Create a surface</span></div>
-<div class="line">std::size_t surf_idx = nm.<a class="code hl_function" href="classNavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd">create_surface</a>(<span class="stringliteral">&quot;map&quot;</span>);</div>
+<div class="line">std::size_t surf_idx = nm.create_surface(<span class="stringliteral">&quot;map&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Add 4 vertices of a unit square (z=0)</span></div>
-<div class="line">uint32_t v0 = nm.<a class="code hl_function" href="classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067">add_vertex</a>({0.f, 0.f, 0.f});</div>
-<div class="line">uint32_t v1 = nm.<a class="code hl_function" href="classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067">add_vertex</a>({1.f, 0.f, 0.f});</div>
-<div class="line">uint32_t v2 = nm.<a class="code hl_function" href="classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067">add_vertex</a>({1.f, 1.f, 0.f});</div>
-<div class="line">uint32_t v3 = nm.<a class="code hl_function" href="classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067">add_vertex</a>({0.f, 1.f, 0.f});</div>
+<div class="line">uint32_t v0 = nm.add_vertex({0.f, 0.f, 0.f});</div>
+<div class="line">uint32_t v1 = nm.add_vertex({1.f, 0.f, 0.f});</div>
+<div class="line">uint32_t v2 = nm.add_vertex({1.f, 1.f, 0.f});</div>
+<div class="line">uint32_t v3 = nm.add_vertex({0.f, 1.f, 0.f});</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Add 2 triangles</span></div>
-<div class="line"><a class="code hl_typedef" href="test__navmap__easy_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> c0 = nm.<a class="code hl_function" href="classNavMap.html#a37d374510d01709d4979d2cfdd2412b8">add_navcel</a>(v0, v1, v2);</div>
-<div class="line"><a class="code hl_typedef" href="test__navmap__easy_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> c1 = nm.<a class="code hl_function" href="classNavMap.html#a37d374510d01709d4979d2cfdd2412b8">add_navcel</a>(v0, v2, v3);</div>
+<div class="line"><a class="code hl_typedef" href="test__navmap__easy_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> c0 = nm.add_navcel(v0, v1, v2);</div>
+<div class="line"><a class="code hl_typedef" href="test__navmap__easy_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> c1 = nm.add_navcel(v0, v2, v3);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Assign them to the surface</span></div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a1a410766f27bceef33d37cf8de38e08c">add_navcel_to_surface</a>(surf_idx, c0);</div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a1a410766f27bceef33d37cf8de38e08c">add_navcel_to_surface</a>(surf_idx, c1);</div>
+<div class="line">nm.add_navcel_to_surface(surf_idx, c0);</div>
+<div class="line">nm.add_navcel_to_surface(surf_idx, c1);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Build normals, adjacency, BVH, etc.</span></div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#aeb8444f2290bd34e7904f036ebf17ab1">rebuild_geometry_accels</a>();</div>
+<div class="line">nm.rebuild_geometry_accels();</div>
 <div class="ttc" id="aNavMap_8hpp_html"><div class="ttname"><a href="NavMap_8hpp.html">NavMap.hpp</a></div><div class="ttdoc">Core container and data structures for EasyNav navigable meshes.</div></div>
-<div class="ttc" id="aclassNavMap_html"><div class="ttname"><a href="classNavMap.html">NavMap</a></div><div class="ttdoc">Main container for navigable surfaces, geometry, and layers.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:434</div></div>
-<div class="ttc" id="aclassNavMap_html_a1a410766f27bceef33d37cf8de38e08c"><div class="ttname"><a href="classNavMap.html#a1a410766f27bceef33d37cf8de38e08c">NavMap::add_navcel_to_surface</a></div><div class="ttdeci">void add_navcel_to_surface(std::size_t surface_index, NavCelId cid)</div><div class="ttdoc">Add an existing nav cell id to a surface.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:871</div></div>
-<div class="ttc" id="aclassNavMap_html_a37d374510d01709d4979d2cfdd2412b8"><div class="ttname"><a href="classNavMap.html#a37d374510d01709d4979d2cfdd2412b8">NavMap::add_navcel</a></div><div class="ttdeci">NavCelId add_navcel(uint32_t v0, uint32_t v1, uint32_t v2)</div><div class="ttdoc">Append a triangle (NavCel) and return its id.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:864</div></div>
-<div class="ttc" id="aclassNavMap_html_a8ca0caf7aeab120684eb998fe14dd067"><div class="ttname"><a href="classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067">NavMap::add_vertex</a></div><div class="ttdeci">uint32_t add_vertex(const Eigen::Vector3f &amp;p)</div><div class="ttdoc">Append a vertex and return its index.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:856</div></div>
-<div class="ttc" id="aclassNavMap_html_ac62eb8c6caa3e48dd52fc2c49c6ec5fd"><div class="ttname"><a href="classNavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd">NavMap::create_surface</a></div><div class="ttdeci">std::size_t create_surface(std::string frame_id)</div><div class="ttdoc">Create a new empty Surface and append it to the map.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:823</div></div>
-<div class="ttc" id="aclassNavMap_html_aeb8444f2290bd34e7904f036ebf17ab1"><div class="ttname"><a href="classNavMap.html#aeb8444f2290bd34e7904f036ebf17ab1">NavMap::rebuild_geometry_accels</a></div><div class="ttdeci">void rebuild_geometry_accels()</div><div class="ttdoc">Recompute derived geometry and acceleration structures.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:386</div></div>
 <div class="ttc" id="aclassnavmap_1_1NavMap_html"><div class="ttname"><a href="classnavmap_1_1NavMap.html">navmap::NavMap</a></div><div class="ttdoc">Main container for navigable surfaces, geometry, and layers.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:434</div></div>
 <div class="ttc" id="anamespacenavmap_html_aa58a3ffe91264dc6f20df0cd2edd9cd0"><div class="ttname"><a href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">navmap::NavCelId</a></div><div class="ttdeci">uint32_t NavCelId</div><div class="ttdoc">Index of a triangle (NavCel) within the global mesh.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:65</div></div>
 <div class="ttc" id="atest__navmap__easy_8cpp_html_aa58a3ffe91264dc6f20df0cd2edd9cd0"><div class="ttname"><a href="test__navmap__easy_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></div><div class="ttdeci">uint32_t NavCelId</div><div class="ttdoc">Index of a triangle (NavCel) within the global mesh.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:65</div></div>
@@ -209,18 +203,15 @@ Dependencies</h2>
 <h1><a class="anchor" id="autotoc_md14"></a>
 2. Add a per-NavCel layer (cost or occupancy)</h1>
 <div class="fragment"><div class="line"><span class="comment">// Add a layer of type float called &quot;cost&quot;</span></div>
-<div class="line"><span class="keyword">auto</span> cost = nm.<a class="code hl_function" href="classNavMap.html#a9f4c5219dcef644fcc82247a9b017e5b">add_layer</a>&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, <span class="stringliteral">&quot;Traversal cost&quot;</span>, <span class="stringliteral">&quot;&quot;</span> , 0.0f);</div>
+<div class="line"><span class="keyword">auto</span> cost = nm.add_layer&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, <span class="stringliteral">&quot;Traversal cost&quot;</span>, <span class="stringliteral">&quot;&quot;</span> , 0.0f);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Assign values to each triangle</span></div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#ac05b61577ba90c09afe640e2a05aa4df">layer_set</a>&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, c0, 1.0f);</div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#ac05b61577ba90c09afe640e2a05aa4df">layer_set</a>&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, c1, 5.0f);</div>
-<div class="ttc" id="aclassNavMap_html_a9f4c5219dcef644fcc82247a9b017e5b"><div class="ttname"><a href="classNavMap.html#a9f4c5219dcef644fcc82247a9b017e5b">NavMap::add_layer</a></div><div class="ttdeci">std::shared_ptr&lt; LayerView&lt; T &gt; &gt; add_layer(const std::string &amp;name, const std::string &amp;description={}, const std::string &amp;unit={}, T default_value=T{})</div><div class="ttdoc">Create (or get) a typed per-NavCel layer with a default value.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:685</div></div>
-<div class="ttc" id="aclassNavMap_html_ac05b61577ba90c09afe640e2a05aa4df"><div class="ttname"><a href="classNavMap.html#ac05b61577ba90c09afe640e2a05aa4df">NavMap::layer_set</a></div><div class="ttdeci">void layer_set(const std::string &amp;name, NavCelId cid, T value)</div><div class="ttdoc">Set a per-cell value (creates/retypes the layer if needed).</div><div class="ttdef"><b>Definition</b> NavMap.hpp:716</div></div>
+<div class="line">nm.layer_set&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, c0, 1.0f);</div>
+<div class="line">nm.layer_set&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, c1, 5.0f);</div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md16"></a>
 3. Read a layer value for a given NavCel</h1>
-<div class="fragment"><div class="line"><span class="keywordtype">double</span> v = nm.<a class="code hl_function" href="classNavMap.html#af549de6d60fe38ed0094d4ed2b7f854f">layer_get</a>&lt;<span class="keywordtype">double</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, c0);  <span class="comment">// → 1.0</span></div>
-<div class="ttc" id="aclassNavMap_html_af549de6d60fe38ed0094d4ed2b7f854f"><div class="ttname"><a href="classNavMap.html#af549de6d60fe38ed0094d4ed2b7f854f">NavMap::layer_get</a></div><div class="ttdeci">T layer_get(const std::string &amp;name, NavCelId cid, T def=T{}) const</div><div class="ttdoc">Get a per-cell value as the requested type.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:741</div></div>
+<div class="fragment"><div class="line"><span class="keywordtype">double</span> v = nm.layer_get&lt;<span class="keywordtype">double</span>&gt;(<span class="stringliteral">&quot;cost&quot;</span>, c0);  <span class="comment">// → 1.0</span></div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md18"></a>
 4. Locate the NavCel corresponding to a 3D position</h1>
@@ -228,7 +219,7 @@ Dependencies</h2>
 <div class="line"><a class="code hl_typedef" href="test__navmap__easy_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid;</div>
 <div class="line">Eigen::Vector3f bary, hit;</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">bool</span> ok = nm.<a class="code hl_function" href="classNavMap.html#a58eb66e6c89dab8b20c874d65350998b">locate_navcel</a>(Eigen::Vector3f(0.5f, 0.5f, 0.1f),</div>
+<div class="line"><span class="keywordtype">bool</span> ok = nm.locate_navcel(Eigen::Vector3f(0.5f, 0.5f, 0.1f),</div>
 <div class="line">                           surf_idx, cid, bary, &amp;hit);</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordflow">if</span> (ok) {</div>
@@ -236,15 +227,13 @@ Dependencies</h2>
 <div class="line">            &lt;&lt; <span class="stringliteral">&quot;, NavCel &quot;</span> &lt;&lt; cid</div>
 <div class="line">            &lt;&lt; <span class="stringliteral">&quot; with barycentric coords &quot;</span> &lt;&lt; bary.transpose() &lt;&lt; std::endl;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassNavMap_html_a58eb66e6c89dab8b20c874d65350998b"><div class="ttname"><a href="classNavMap.html#a58eb66e6c89dab8b20c874d65350998b">NavMap::locate_navcel</a></div><div class="ttdeci">bool locate_navcel(const Eigen::Vector3f &amp;p_world, size_t &amp;surface_idx, NavCelId &amp;cid, Eigen::Vector3f &amp;bary, Eigen::Vector3f *hit_pt) const</div><div class="ttdoc">Locate the triangle under / near a world point (convenience).</div><div class="ttdef"><b>Definition</b> NavMap.hpp:1150</div></div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md20"></a>
 5. Sample a layer at a world position</h1>
-<div class="fragment"><div class="line"><span class="keywordtype">double</span> val = nm.<a class="code hl_function" href="classNavMap.html#a7b8be98161fa5e570b7b26c294e43ea9">sample_layer_at</a>(<span class="stringliteral">&quot;cost&quot;</span>, Eigen::Vector3f(0.2f, 0.8f, 1.0f), -1.0);</div>
+<div class="fragment"><div class="line"><span class="keywordtype">double</span> val = nm.sample_layer_at(<span class="stringliteral">&quot;cost&quot;</span>, Eigen::Vector3f(0.2f, 0.8f, 1.0f), -1.0);</div>
 <div class="line"><span class="keywordflow">if</span> (!std::isnan(val)) {</div>
 <div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;Cost at (0.2,0.8) is &quot;</span> &lt;&lt; val &lt;&lt; std::endl;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassNavMap_html_a7b8be98161fa5e570b7b26c294e43ea9"><div class="ttname"><a href="classNavMap.html#a7b8be98161fa5e570b7b26c294e43ea9">NavMap::sample_layer_at</a></div><div class="ttdeci">double sample_layer_at(const std::string &amp;name, const Eigen::Vector3f &amp;p_world, double def=std::numeric_limits&lt; double &gt;::quiet_NaN()) const</div><div class="ttdoc">Sample a per-NavCel layer at a world position.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:1036</div></div>
 </div><!-- fragment --><p>If the layer does not exist or the position cannot be located, the fallback value (<code>-1.0</code> here) is returned.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md22"></a>
@@ -253,7 +242,7 @@ Dependencies</h2>
 <div class="line"><span class="keywordtype">float</span> t;</div>
 <div class="line">Eigen::Vector3f hit_pt;</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">bool</span> hit = nm.<a class="code hl_function" href="classNavMap.html#ae06d6240e61c1e07bb574d3ea40376e1">raycast</a>(</div>
+<div class="line"><span class="keywordtype">bool</span> hit = nm.raycast(</div>
 <div class="line">  Eigen::Vector3f(0.5f, 0.5f, 2.0f),   <span class="comment">// origin</span></div>
 <div class="line">  Eigen::Vector3f(0.0f, 0.0f, -1.0f),  <span class="comment">// direction</span></div>
 <div class="line">  hit_cid, t, hit_pt);</div>
@@ -262,28 +251,26 @@ Dependencies</h2>
 <div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;Ray hit NavCel &quot;</span> &lt;&lt; hit_cid</div>
 <div class="line">            &lt;&lt; <span class="stringliteral">&quot; at &quot;</span> &lt;&lt; hit_pt.transpose() &lt;&lt; std::endl;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassNavMap_html_ae06d6240e61c1e07bb574d3ea40376e1"><div class="ttname"><a href="classNavMap.html#ae06d6240e61c1e07bb574d3ea40376e1">NavMap::raycast</a></div><div class="ttdeci">bool raycast(const Eigen::Vector3f &amp;o, const Eigen::Vector3f &amp;d, NavCelId &amp;hit_cid, float &amp;t, Eigen::Vector3f &amp;hit_pt) const</div><div class="ttdoc">Raycast against all surfaces to find the closest hit.</div><div class="ttdef"><b>Definition</b> NavMap.cpp:466</div></div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md24"></a>
 7. Marking areas (<code>set_area</code>)</h1>
 <p>You can set values over regions of the map using shapes such as <b>circular</b> or <b>rectangular</b> areas:</p>
 <div class="fragment"><div class="line"><span class="comment">// Add an occupancy layer</span></div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a9f4c5219dcef644fcc82247a9b017e5b">add_layer</a>&lt;uint8_t&gt;(<span class="stringliteral">&quot;occupancy&quot;</span>, <span class="stringliteral">&quot;Occupancy&quot;</span>, <span class="stringliteral">&quot;%&quot;</span>, 0);</div>
+<div class="line">nm.add_layer&lt;uint8_t&gt;(<span class="stringliteral">&quot;occupancy&quot;</span>, <span class="stringliteral">&quot;Occupancy&quot;</span>, <span class="stringliteral">&quot;%&quot;</span>, 0);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Mark a circular area at (0.5,0.5) with radius 0.3</span></div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a88f5d6281e1d15b8443a3c69658b3e8c">set_area</a>&lt;uint8_t&gt;(Eigen::Vector3f(0.5f, 0.5f, 0.0f),</div>
+<div class="line">nm.set_area&lt;uint8_t&gt;(Eigen::Vector3f(0.5f, 0.5f, 0.0f),</div>
 <div class="line">                     (uint8_t)254,</div>
 <div class="line">                     <span class="stringliteral">&quot;occupancy&quot;</span>,</div>
 <div class="line">                     <a class="code hl_enumvalue" href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68">navmap::AreaShape::CIRCULAR</a>,</div>
 <div class="line">                     0.3f);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Mark a rectangular area centered at (0.8,0.2)</span></div>
-<div class="line">nm.<a class="code hl_function" href="classNavMap.html#a88f5d6281e1d15b8443a3c69658b3e8c">set_area</a>&lt;uint8_t&gt;(Eigen::Vector3f(0.8f, 0.2f, 0.0f),</div>
+<div class="line">nm.set_area&lt;uint8_t&gt;(Eigen::Vector3f(0.8f, 0.2f, 0.0f),</div>
 <div class="line">                     (uint8_t)200,</div>
 <div class="line">                     <span class="stringliteral">&quot;occupancy&quot;</span>,</div>
 <div class="line">                     <a class="code hl_enumvalue" href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">navmap::AreaShape::RECTANGULAR</a>,</div>
 <div class="line">                     0.35f);</div>
-<div class="ttc" id="aclassNavMap_html_a88f5d6281e1d15b8443a3c69658b3e8c"><div class="ttname"><a href="classNavMap.html#a88f5d6281e1d15b8443a3c69658b3e8c">NavMap::set_area</a></div><div class="ttdeci">bool set_area(const Eigen::Vector3f &amp;p_world, T value, const std::string &amp;layer_name, AreaShape shape, float size)</div><div class="ttdoc">Set a per-NavCel layer to a constant value over a 2D area.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:973</div></div>
 <div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">navmap::AreaShape::RECTANGULAR</a></div><div class="ttdeci">@ RECTANGULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:414</div></div>
 <div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68">navmap::AreaShape::CIRCULAR</a></div><div class="ttdeci">@ CIRCULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:414</div></div>
 </div><!-- fragment --><hr  />
@@ -299,7 +286,7 @@ Dependencies</h2>
 <div class="line"><span class="comment">// Convert back to core structure</span></div>
 <div class="line"><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> nm2 = <a class="code hl_function" href="namespacenavmap__ros.html#ac70f12eb1f059a42b6993cb612720ea0">navmap_ros::from_msg</a>(msg);</div>
 <div class="ttc" id="aconversions_8hpp_html"><div class="ttname"><a href="conversions_8hpp.html">conversions.hpp</a></div><div class="ttdoc">Conversions between the core NavMap representation and ROS messages.</div></div>
-<div class="ttc" id="anamespacenavmap__ros_html_aba26a033fbd9456e2368c8f49f62779e"><div class="ttname"><a href="namespacenavmap__ros.html#aba26a033fbd9456e2368c8f49f62779e">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:62</div></div>
+<div class="ttc" id="anamespacenavmap__ros_html_aba26a033fbd9456e2368c8f49f62779e"><div class="ttname"><a href="namespacenavmap__ros.html#aba26a033fbd9456e2368c8f49f62779e">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:73</div></div>
 <div class="ttc" id="anamespacenavmap__ros_html_ac70f12eb1f059a42b6993cb612720ea0"><div class="ttname"><a href="namespacenavmap__ros.html#ac70f12eb1f059a42b6993cb612720ea0">navmap_ros::from_msg</a></div><div class="ttdeci">navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap &amp;msg)</div><div class="ttdoc">Reconstruct a core navmap::NavMap from the ROS transport message.</div></div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md28"></a>
@@ -317,17 +304,14 @@ Dependencies</h2>
 10. Classic low-level API</h1>
 <p>For advanced control you can still access internal data directly:</p>
 <div class="fragment"><div class="line"><span class="comment">// Access vertex positions</span></div>
-<div class="line">Eigen::Vector3f v = nm.<a class="code hl_variable" href="classNavMap.html#abf1f84c70542a19818af0ec43f2086cc">positions</a>.at(0);</div>
+<div class="line">Eigen::Vector3f v = nm.positions.at(0);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Iterate over NavCels</span></div>
-<div class="line"><span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; cel : nm.<a class="code hl_variable" href="classNavMap.html#a335aa8bcae202f21e43194758a024a9c">navcels</a>) {</div>
-<div class="line">  Eigen::Vector3f centroid = nm.<a class="code hl_function" href="classNavMap.html#a23220b7bea1310d9853ca902b3576633">navcel_centroid</a>(&amp;cel - &amp;nm.<a class="code hl_variable" href="classNavMap.html#a335aa8bcae202f21e43194758a024a9c">navcels</a>[0]);</div>
+<div class="line"><span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; cel : nm.navcels) {</div>
+<div class="line">  Eigen::Vector3f centroid = nm.navcel_centroid(&amp;cel - &amp;nm.navcels[0]);</div>
 <div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;NavCel area: &quot;</span> &lt;&lt; cel.area</div>
 <div class="line">            &lt;&lt; <span class="stringliteral">&quot; centroid: &quot;</span> &lt;&lt; centroid.transpose() &lt;&lt; std::endl;</div>
 <div class="line">}</div>
-<div class="ttc" id="aclassNavMap_html_a23220b7bea1310d9853ca902b3576633"><div class="ttname"><a href="classNavMap.html#a23220b7bea1310d9853ca902b3576633">NavMap::navcel_centroid</a></div><div class="ttdeci">Eigen::Vector3f navcel_centroid(NavCelId cid) const</div><div class="ttdoc">Triangle centroid (computed on the fly).</div><div class="ttdef"><b>Definition</b> NavMap.cpp:878</div></div>
-<div class="ttc" id="aclassNavMap_html_a335aa8bcae202f21e43194758a024a9c"><div class="ttname"><a href="classNavMap.html#a335aa8bcae202f21e43194758a024a9c">NavMap::navcels</a></div><div class="ttdeci">std::vector&lt; NavCel &gt; navcels</div><div class="ttdoc">All triangles (global indexing)</div><div class="ttdef"><b>Definition</b> NavMap.hpp:438</div></div>
-<div class="ttc" id="aclassNavMap_html_abf1f84c70542a19818af0ec43f2086cc"><div class="ttname"><a href="classNavMap.html#abf1f84c70542a19818af0ec43f2086cc">NavMap::positions</a></div><div class="ttdeci">Positions positions</div><div class="ttdoc">Vertex positions (SoA)</div><div class="ttdef"><b>Definition</b> NavMap.hpp:436</div></div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md32"></a>
 📦 Usage (Examples package)</h1>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['📂_20repository_20structure_0',['📂 Repository structure',['../index.html#autotoc_md4',1,'']]]
+  ['✨_20features_0',['✨ Features',['../index.html#autotoc_md2',1,'']]]
 ];

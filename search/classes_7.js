@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['saveoptions_0',['SaveOptions',['../structnavmap__ros_1_1io_1_1SaveOptions.html',1,'navmap_ros::io']]],
-  ['surface_1',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]]
+  ['ray_0',['Ray',['../structnavmap_1_1Ray.html',1,'navmap']]],
+  ['rayhit_1',['RayHit',['../structnavmap_1_1RayHit.html',1,'navmap']]]
 ];

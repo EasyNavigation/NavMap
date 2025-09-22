@@ -272,17 +272,17 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:abf1f84c70542a19818af0ec43f2086cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vertex positions (SoA)  <br /></td></tr>
 <tr class="separator:abf1f84c70542a19818af0ec43f2086cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95a6ee32fbf35d6fecc5a3ea2f1610f2" id="r_a95a6ee32fbf35d6fecc5a3ea2f1610f2"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structnavmap_1_1Surface.html">Surface</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a95a6ee32fbf35d6fecc5a3ea2f1610f2">surfaces</a></td></tr>
-<tr class="memdesc:a95a6ee32fbf35d6fecc5a3ea2f1610f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Surfaces (partitions of <a class="el" href="#a335aa8bcae202f21e43194758a024a9c">navcels</a>)  <br /></td></tr>
+<tr class="memdesc:a95a6ee32fbf35d6fecc5a3ea2f1610f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Surfaces (partitions of navcels)  <br /></td></tr>
 <tr class="separator:a95a6ee32fbf35d6fecc5a3ea2f1610f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Main container for navigable surfaces, geometry, and layers. </p>
 <p>A <a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a> aggregates vertex positions, a list of <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">navmap::NavCel</a> triangles (global indexing), one or more <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">navmap::Surface</a> partitions, and a <a class="el" href="classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per-NavCel).">navmap::LayerRegistry</a> with arbitrary per-NavCel scalar attributes.</p>
 <p><b>Typical workflow</b></p><ul>
-<li>Fill <a class="el" href="#abf1f84c70542a19818af0ec43f2086cc">positions</a>, <a class="el" href="#a335aa8bcae202f21e43194758a024a9c">navcels</a>, and <a class="el" href="#a95a6ee32fbf35d6fecc5a3ea2f1610f2">surfaces</a>.</li>
-<li>Call <a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1">rebuild_geometry_accels()</a> to compute normals, areas, adjacency, and build per-surface BVHs.</li>
+<li>Fill positions, navcels, and surfaces.</li>
+<li>Call rebuild_geometry_accels() to compute normals, areas, adjacency, and build per-surface BVHs.</li>
 <li>Create layers via LayerRegistry::add_or_get() sized to navcels.size().</li>
-<li>Query with <a class="el" href="#a58eb66e6c89dab8b20c874d65350998b">locate_navcel()</a>, <a class="el" href="#ae06d6240e61c1e07bb574d3ea40376e1">raycast()</a>, or <a class="el" href="#af57e1de5f4e5a062fa37d1eddf9a2ed4">closest_triangle()</a>. </li>
+<li>Query with locate_navcel(), raycast(), or closest_triangle(). </li>
 </ul>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ada6881dcd6865fb03a053244aa5f0e18" name="ada6881dcd6865fb03a053244aa5f0e18"></a>
@@ -356,7 +356,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Create (or get) a typed per-NavCel layer, initialized from another layer. </p>
-<p>If a layer with <code class="param">name</code> exists, it is returned (size preserved). If the size differs from navcels.size(), it is resized. If the source layer <code class="param">src_layer</code> exists, its values are copied into the destination using <a class="el" href="#a2356466b1a87eaf3339807d0f7c2b563">layer_copy()</a>, performing type conversion if necessary. If the source layer does not exist, the destination is left with defaults.</p>
+<p>If a layer with <code class="param">name</code> exists, it is returned (size preserved). If the size differs from navcels.size(), it is resized. If the source layer <code class="param">src_layer</code> exists, its values are copied into the destination using layer_copy(), performing type conversion if necessary. If the source layer does not exist, the destination is left with defaults.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>Storage type. </td></tr>
@@ -503,7 +503,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Append an existing <a class="el" href="structSurface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> (by value). </p>
-<dl class="section return"><dt>Returns</dt><dd>New index in <a class="el" href="#a95a6ee32fbf35d6fecc5a3ea2f1610f2">surfaces</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>New index in surfaces. </dd></dl>
 
 </div>
 </div>
@@ -523,7 +523,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Add a <a class="el" href="structSurface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> by move (avoids copy). </p>
-<dl class="section return"><dt>Returns</dt><dd>New index in <a class="el" href="#a95a6ee32fbf35d6fecc5a3ea2f1610f2">surfaces</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>New index in surfaces. </dd></dl>
 
 </div>
 </div>
@@ -562,7 +562,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Build topological adjacency between neighboring NavCels. </p>
-<p>Two triangles are neighbors if they share an undirected edge. Called by <a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1">rebuild_geometry_accels()</a>. </p>
+<p>Two triangles are neighbors if they share an undirected edge. Called by rebuild_geometry_accels(). </p>
 
 </div>
 </div>
@@ -644,7 +644,7 @@ template&lt;typename T&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Index of the created surface in <a class="el" href="#a95a6ee32fbf35d6fecc5a3ea2f1610f2">surfaces</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Index of the created surface in surfaces. </dd></dl>
 
 </div>
 </div>
@@ -1071,7 +1071,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Locate the triangle under / near a world point. </p>
-<p>Strategy: 1) If <a class="el" href="structNavMap_1_1LocateOpts.html#a02127d6d5445b1eca259725b39337d25">hint_cid</a> is provided, try walking neighbors. 2) Else, try a per-surface 2D seed grid near (x,y) with planar test. 3) If still not found, vertical raycast (downward or upward).</p>
+<p>Strategy: 1) If LocateOpts::hint_cid is provided, try walking neighbors. 2) Else, try a per-surface 2D seed grid near (x,y) with planar test. 3) If still not found, vertical raycast (downward or upward).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">p_world</td><td>Query point in world coordinates. </td></tr>
@@ -1382,7 +1382,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Recompute derived geometry and acceleration structures. </p>
-<p>Computes triangle normals and areas, builds adjacency between neighbors, and builds per-surface BVHs. Layer sizes are not changed automatically; call LayerRegistry::resize_all() if you modified <a class="el" href="#a335aa8bcae202f21e43194758a024a9c">navcels</a>. </p>
+<p>Computes triangle normals and areas, builds adjacency between neighbors, and builds per-surface BVHs. Layer sizes are not changed automatically; call LayerRegistry::resize_all() if you modified navcels. </p>
 
 </div>
 </div>
@@ -1402,7 +1402,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Remove a <a class="el" href="structSurface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> by index. </p>
-<p>Does NOT touch <a class="el" href="#a335aa8bcae202f21e43194758a024a9c">navcels</a> / <a class="el" href="#abf1f84c70542a19818af0ec43f2086cc">positions</a>. </p><dl class="section note"><dt>Note</dt><dd>The caller must ensure there are no dangling indices. </dd></dl>
+<p>Does NOT touch navcels / positions. </p><dl class="section note"><dt>Note</dt><dd>The caller must ensure there are no dangling indices. </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the surface existed and was removed. </dd></dl>
 
 </div>
@@ -1596,7 +1596,7 @@ template&lt;typename T&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Surfaces (partitions of <a class="el" href="#a335aa8bcae202f21e43194758a024a9c">navcels</a>) </p>
+<p>Surfaces (partitions of navcels) </p>
 
 </div>
 </div>

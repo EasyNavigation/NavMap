@@ -89,7 +89,9 @@ $(function(){ initResizable(false); });
 <div id="doc-content">
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">conversions.cpp File Reference</div></div>
 </div><!--header-->
@@ -99,100 +101,148 @@ $(function(){ initResizable(false); });
 <code>#include &lt;cmath&gt;</code><br />
 <code>#include &lt;cassert&gt;</code><br />
 <code>#include &lt;unordered_map&gt;</code><br />
-<code>#include &lt;geometry_msgs/msg/pose.hpp&gt;</code><br />
+<code>#include &quot;geometry_msgs/msg/pose.hpp&quot;</code><br />
 <code>#include &lt;std_msgs/msg/header.hpp&gt;</code><br />
-<code>#include &lt;<a class="el" href="Geometry_8hpp_source.html">navmap_core/Geometry.hpp</a>&gt;</code><br />
-<code>#include &lt;navmap_ros_interfaces/msg/nav_map_layer.hpp&gt;</code><br />
-<code>#include &lt;navmap_ros_interfaces/msg/nav_map_surface.hpp&gt;</code><br />
+<code>#include &quot;sensor_msgs/msg/point_cloud2.hpp&quot;</code><br />
+<code>#include &quot;navmap_ros_interfaces/msg/nav_map.hpp&quot;</code><br />
+<code>#include &quot;navmap_ros_interfaces/msg/nav_map_layer.hpp&quot;</code><br />
+<code>#include &quot;nav_msgs/msg/occupancy_grid.hpp&quot;</code><br />
+<code>#include &quot;<a class="el" href="Geometry_8hpp_source.html">navmap_core/Geometry.hpp</a>&quot;</code><br />
+<code>#include &quot;pcl_conversions/pcl_conversions.h&quot;</code><br />
+<code>#include &quot;pcl/point_types_conversion.h&quot;</code><br />
+<code>#include &quot;pcl/common/transforms.h&quot;</code><br />
+<code>#include &quot;pcl/point_cloud.h&quot;</code><br />
+<code>#include &quot;pcl/point_types.h&quot;</code><br />
+<code>#include &quot;pcl/PointIndices.h&quot;</code><br />
+<code>#include &quot;pcl/kdtree/kdtree_flann.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for conversions.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="conversions_8cpp__incl.png" border="0" usemap="#anavmap__ros_2src_2navmap__ros_2conversions_8cpp" alt=""/></div>
 <map name="anavmap__ros_2src_2navmap__ros_2conversions_8cpp" id="anavmap__ros_2src_2navmap__ros_2conversions_8cpp">
-<area shape="rect" title=" " alt="" coords="1337,5,1502,46"/>
-<area shape="rect" href="conversions_8hpp.html" title="Conversions between the core NavMap representation and ROS messages." alt="" coords="1023,102,1213,127"/>
-<area shape="poly" title=" " alt="" coords="1351,49,1176,99,1174,94,1350,44"/>
-<area shape="rect" title=" " alt="" coords="1482,271,1592,297"/>
-<area shape="poly" title=" " alt="" coords="1415,47,1408,88,1408,111,1413,134,1432,172,1457,206,1511,259,1507,263,1453,210,1427,175,1407,136,1402,112,1402,88,1410,46"/>
-<area shape="rect" title=" " alt="" coords="5,345,63,371"/>
-<area shape="poly" title=" " alt="" coords="1337,30,1110,32,815,42,665,50,526,62,408,77,319,97,243,126,215,142,191,161,146,208,95,273,52,334,47,331,91,270,142,205,187,157,212,138,241,121,317,91,407,72,526,56,665,45,815,36,1110,27,1337,24"/>
-<area shape="rect" title=" " alt="" coords="98,345,172,371"/>
-<area shape="poly" title=" " alt="" coords="1337,33,927,54,706,73,615,84,546,97,417,120,361,129,311,140,265,157,222,182,181,220,140,273,134,286,131,301,132,330,127,330,126,300,129,284,136,270,177,216,219,178,263,152,310,135,360,124,416,115,546,91,615,79,706,68,927,49,1337,27"/>
-<area shape="rect" href="Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="173,271,356,297"/>
-<area shape="poly" title=" " alt="" coords="1337,29,1161,35,1049,43,925,57,794,77,660,104,528,140,402,185,369,202,338,222,289,263,286,258,335,218,366,197,400,180,527,135,659,99,793,71,924,52,1048,38,1161,30,1336,24"/>
-<area shape="rect" title=" " alt="" coords="1422,102,1486,127"/>
-<area shape="poly" title=" " alt="" coords="1430,46,1446,86,1441,88,1425,48"/>
-<area shape="rect" title=" " alt="" coords="1511,102,1709,127"/>
-<area shape="poly" title=" " alt="" coords="1464,44,1571,92,1568,97,1462,49"/>
-<area shape="rect" title=" " alt="" coords="1734,102,1908,127"/>
-<area shape="poly" title=" " alt="" coords="1503,42,1750,95,1749,100,1501,47"/>
-<area shape="rect" title=" " alt="" coords="1931,94,2097,135"/>
-<area shape="poly" title=" " alt="" coords="1502,34,1688,57,1916,91,1916,96,1687,62,1502,39"/>
-<area shape="rect" title=" " alt="" coords="2121,94,2302,135"/>
-<area shape="poly" title=" " alt="" coords="1502,30,1767,52,1934,70,2105,91,2105,96,1933,75,1766,58,1502,35"/>
-<area shape="rect" title=" " alt="" coords="1045,271,1098,297"/>
-<area shape="poly" title=" " alt="" coords="1117,128,1081,257,1076,256,1112,127"/>
-<area shape="rect" title=" " alt="" coords="1122,271,1189,297"/>
-<area shape="poly" title=" " alt="" coords="1123,127,1152,256,1147,257,1118,128"/>
-<area shape="rect" title=" " alt="" coords="1288,271,1345,297"/>
-<area shape="poly" title=" " alt="" coords="1207,125,1305,147,1345,162,1371,181,1378,202,1373,224,1360,245,1344,263,1340,259,1356,242,1368,222,1373,202,1367,184,1343,167,1303,152,1206,130"/>
-<area shape="rect" title=" " alt="" coords="965,345,1050,371"/>
-<area shape="poly" title=" " alt="" coords="1214,124,1321,145,1365,161,1393,181,1399,192,1400,202,1394,224,1385,266,1376,283,1360,299,1337,312,1306,322,1228,338,1142,349,1065,356,1065,351,1141,344,1227,333,1305,317,1335,307,1356,295,1372,280,1380,264,1389,223,1394,201,1394,193,1389,184,1363,166,1320,150,1213,129"/>
-<area shape="rect" title=" " alt="" coords="614,190,732,216"/>
-<area shape="poly" title=" " alt="" coords="1041,130,902,154,745,185,732,188,730,183,744,180,901,149,1040,125"/>
-<area shape="rect" title=" " alt="" coords="756,190,874,216"/>
-<area shape="poly" title=" " alt="" coords="1076,130,873,188,872,183,1075,125"/>
-<area shape="rect" title=" " alt="" coords="898,183,1055,223"/>
-<area shape="poly" title=" " alt="" coords="1100,130,1023,177,1020,172,1097,125"/>
-<area shape="rect" title=" " alt="" coords="1180,183,1357,223"/>
-<area shape="poly" title=" " alt="" coords="1140,125,1223,172,1220,177,1138,130"/>
-<area shape="rect" href="NavMap_8hpp.html" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="412,190,589,216"/>
-<area shape="poly" title=" " alt="" coords="1023,129,828,153,602,185,578,189,577,184,602,180,828,148,1022,124"/>
-<area shape="poly" title=" " alt="" coords="562,214,602,221,721,235,815,242,908,251,1026,269,1030,269,1029,275,1026,274,907,256,814,248,721,241,602,226,561,219"/>
-<area shape="poly" title=" " alt="" coords="561,214,602,221,742,236,853,242,965,249,1107,268,1106,274,964,255,853,247,742,241,602,226,560,219"/>
-<area shape="poly" title=" " alt="" coords="560,214,602,221,770,240,901,249,1032,256,1201,269,1273,276,1273,281,1200,274,1032,261,901,254,770,245,602,226,559,219"/>
-<area shape="poly" title=" " alt="" coords="563,214,602,221,688,226,799,229,856,233,908,240,951,252,984,269,995,282,1002,298,1009,329,1004,330,997,299,990,285,980,273,949,256,907,245,855,238,799,234,688,231,602,226,562,219"/>
-<area shape="poly" title=" " alt="" coords="559,214,602,221,814,243,979,252,1145,258,1358,269,1466,276,1466,281,1358,274,1145,263,979,258,814,248,602,226,558,219"/>
-<area shape="rect" title=" " alt="" coords="904,271,970,297"/>
-<area shape="poly" title=" " alt="" coords="565,214,602,221,744,244,885,269,889,270,888,275,884,274,743,249,602,226,564,219"/>
-<area shape="rect" title=" " alt="" coords="632,345,681,371"/>
-<area shape="poly" title=" " alt="" coords="562,214,719,246,813,269,821,286,819,302,807,315,790,325,744,342,697,353,696,348,743,337,787,321,804,310,814,299,816,287,810,273,718,251,561,219"/>
-<area shape="rect" title=" " alt="" coords="450,345,503,371"/>
-<area shape="poly" title=" " alt="" coords="562,214,705,244,764,259,792,269,798,284,792,299,778,307,752,315,678,331,518,354,518,349,678,326,751,310,776,302,788,295,793,284,788,273,762,264,704,249,561,219"/>
-<area shape="rect" title=" " alt="" coords="381,271,434,297"/>
-<area shape="poly" title=" " alt="" coords="488,218,435,263,431,259,485,214"/>
-<area shape="poly" title=" " alt="" coords="412,211,350,218,280,230,208,248,139,274,93,303,57,336,53,332,90,299,137,269,206,243,279,224,349,212,412,206"/>
-<area shape="rect" title=" " alt="" coords="458,271,519,297"/>
-<area shape="poly" title=" " alt="" coords="501,217,495,256,490,255,496,216"/>
-<area shape="rect" title=" " alt="" coords="543,271,592,297"/>
-<area shape="poly" title=" " alt="" coords="513,215,549,258,545,261,509,218"/>
-<area shape="rect" title=" " alt="" coords="616,271,697,297"/>
-<area shape="poly" title=" " alt="" coords="526,214,621,262,618,266,524,219"/>
-<area shape="rect" title=" " alt="" coords="722,271,778,297"/>
-<area shape="poly" title=" " alt="" coords="540,214,708,267,706,272,538,219"/>
-<area shape="poly" title=" " alt="" coords="413,214,341,223,268,235,204,252,180,262,162,273,153,285,146,300,139,330,134,329,141,298,148,283,159,269,177,257,202,247,266,230,340,217,412,209"/>
-<area shape="poly" title=" " alt="" coords="465,219,316,268,315,263,463,214"/>
-<area shape="poly" title=" " alt="" coords="357,293,369,294,950,349,949,354,368,300,356,298"/>
-<area shape="poly" title=" " alt="" coords="332,295,617,347,616,352,331,300"/>
-<area shape="poly" title=" " alt="" coords="301,295,436,340,435,345,300,300"/>
-<area shape="poly" title=" " alt="" coords="226,300,78,346,77,340,225,295"/>
-<area shape="poly" title=" " alt="" coords="244,300,172,339,169,335,241,295"/>
-<area shape="rect" title=" " alt="" coords="208,345,321,371"/>
-<area shape="poly" title=" " alt="" coords="267,297,267,329,262,329,262,297"/>
+<area shape="rect" title=" " alt="" coords="1554,5,1719,46"/>
+<area shape="rect" href="conversions_8hpp.html" title="Conversions between the core NavMap representation and ROS messages." alt="" coords="503,102,693,127"/>
+<area shape="poly" title=" " alt="" coords="1554,36,811,97,709,106,708,100,811,91,1554,31"/>
+<area shape="rect" title=" " alt="" coords="5,190,124,216"/>
+<area shape="poly" title=" " alt="" coords="1554,29,1364,31,1100,40,797,60,643,76,492,97,387,116,283,141,117,188,116,183,282,136,385,111,491,91,642,71,797,55,1100,35,1364,26,1554,24"/>
+<area shape="rect" title=" " alt="" coords="624,190,742,216"/>
+<area shape="poly" title=" " alt="" coords="1554,35,1334,57,1201,74,1069,97,976,118,884,142,735,187,733,182,882,137,974,112,1068,91,1200,69,1333,51,1554,30"/>
+<area shape="rect" title=" " alt="" coords="767,183,927,223"/>
+<area shape="poly" title=" " alt="" coords="1554,41,1405,64,1234,97,1068,139,925,180,923,175,1067,133,1233,91,1404,59,1553,35"/>
+<area shape="rect" title=" " alt="" coords="952,183,1108,223"/>
+<area shape="poly" title=" " alt="" coords="1554,49,1372,97,1103,180,1102,175,1370,91,1553,44"/>
+<area shape="rect" title=" " alt="" coords="1132,183,1298,223"/>
+<area shape="poly" title=" " alt="" coords="1587,49,1468,96,1275,179,1273,174,1466,92,1585,44"/>
+<area shape="rect" title=" " alt="" coords="1322,183,1498,223"/>
+<area shape="poly" title=" " alt="" coords="1596,49,1557,70,1518,96,1474,134,1438,173,1434,169,1471,131,1515,92,1554,66,1593,44"/>
+<area shape="rect" title=" " alt="" coords="1471,271,1581,297"/>
+<area shape="poly" title=" " alt="" coords="1631,48,1556,224,1541,258,1536,256,1551,222,1626,46"/>
+<area shape="rect" title=" " alt="" coords="1296,345,1353,371"/>
+<area shape="poly" title=" " alt="" coords="1643,46,1648,96,1647,164,1642,200,1632,236,1616,269,1594,299,1569,321,1544,334,1519,341,1493,343,1437,341,1405,342,1369,347,1368,342,1404,337,1437,336,1493,337,1518,336,1542,329,1566,317,1591,295,1612,267,1627,234,1636,199,1642,164,1643,97,1637,47"/>
+<area shape="rect" title=" " alt="" coords="1377,345,1451,371"/>
+<area shape="poly" title=" " alt="" coords="1648,46,1667,95,1683,161,1687,197,1684,233,1675,268,1657,299,1645,310,1626,319,1577,335,1467,354,1466,348,1576,329,1624,314,1642,305,1653,295,1670,266,1679,232,1681,197,1678,162,1662,96,1643,48"/>
+<area shape="rect" href="Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="1114,271,1298,297"/>
+<area shape="poly" title=" " alt="" coords="1624,48,1591,95,1571,134,1558,166,1542,196,1511,226,1477,241,1428,254,1313,274,1313,268,1427,249,1475,236,1508,221,1538,193,1554,164,1566,131,1586,93,1620,45"/>
+<area shape="rect" title=" " alt="" coords="1724,102,1789,127"/>
+<area shape="poly" title=" " alt="" coords="1665,44,1729,90,1726,94,1662,49"/>
+<area shape="rect" title=" " alt="" coords="1813,102,2012,127"/>
+<area shape="poly" title=" " alt="" coords="1700,44,1860,94,1859,99,1699,49"/>
+<area shape="rect" title=" " alt="" coords="2036,102,2210,127"/>
+<area shape="poly" title=" " alt="" coords="1720,38,2024,91,2046,96,2045,101,2023,97,1719,44"/>
+<area shape="rect" title=" " alt="" coords="2235,94,2371,135"/>
+<area shape="poly" title=" " alt="" coords="1720,31,1941,53,2079,70,2220,91,2219,96,2078,75,1941,58,1719,36"/>
+<area shape="rect" title=" " alt="" coords="2396,102,2584,127"/>
+<area shape="poly" title=" " alt="" coords="1719,29,2013,52,2198,69,2384,91,2412,96,2411,101,2383,97,2197,75,2013,57,1719,35"/>
+<area shape="rect" title=" " alt="" coords="2608,102,2777,127"/>
+<area shape="poly" title=" " alt="" coords="1719,27,2099,45,2347,64,2597,91,2623,95,2622,101,2596,97,2346,69,2099,50,1719,32"/>
+<area shape="rect" title=" " alt="" coords="2801,102,2925,127"/>
+<area shape="poly" title=" " alt="" coords="1719,24,1911,26,2176,34,2481,55,2637,71,2789,91,2807,95,2806,100,2788,97,2636,76,2480,60,2176,40,1910,31,1719,29"/>
+<area shape="rect" title=" " alt="" coords="2950,102,3112,127"/>
+<area shape="poly" title=" " alt="" coords="1719,24,1932,27,2234,36,2583,57,2763,72,2938,91,2964,95,2964,101,2937,97,2762,77,2583,62,2234,42,1932,32,1719,30"/>
+<area shape="rect" title=" " alt="" coords="198,271,251,297"/>
+<area shape="poly" title=" " alt="" coords="518,130,432,151,388,166,346,185,291,222,248,262,244,258,287,218,343,180,386,161,431,146,516,125"/>
+<area shape="rect" title=" " alt="" coords="275,271,342,297"/>
+<area shape="poly" title=" " alt="" coords="528,130,459,151,424,166,391,185,371,202,353,221,325,260,320,257,349,218,367,198,388,180,421,161,457,146,527,125"/>
+<area shape="rect" title=" " alt="" coords="366,271,424,297"/>
+<area shape="poly" title=" " alt="" coords="509,130,457,150,433,165,413,184,403,201,398,219,395,256,390,256,393,218,399,198,409,181,430,161,454,145,508,125"/>
+<area shape="rect" title=" " alt="" coords="420,345,504,371"/>
+<area shape="poly" title=" " alt="" coords="503,125,395,145,338,162,284,185,251,203,226,219,206,240,188,272,184,285,188,295,201,306,222,316,278,332,343,343,404,350,404,355,343,348,277,337,220,321,199,311,184,299,179,285,183,270,202,237,222,215,248,198,282,180,336,157,393,140,502,120"/>
+<area shape="poly" title=" " alt="" coords="503,130,334,153,142,185,126,189,125,184,141,180,333,147,502,124"/>
+<area shape="poly" title=" " alt="" coords="612,126,662,177,659,181,608,130"/>
+<area shape="poly" title=" " alt="" coords="634,125,777,175,776,180,632,130"/>
+<area shape="poly" title=" " alt="" coords="661,125,937,180,936,185,660,130"/>
+<area shape="poly" title=" " alt="" coords="694,123,885,146,1117,180,1117,185,885,151,693,129"/>
+<area shape="poly" title=" " alt="" coords="693,119,965,141,1134,158,1306,180,1306,185,1133,163,964,146,693,124"/>
+<area shape="rect" href="NavMap_8hpp.html" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="423,190,599,216"/>
+<area shape="poly" title=" " alt="" coords="588,130,535,181,532,178,584,126"/>
+<area shape="poly" title=" " alt="" coords="466,219,267,273,265,268,464,214"/>
+<area shape="poly" title=" " alt="" coords="481,219,355,268,353,263,479,214"/>
+<area shape="poly" title=" " alt="" coords="495,218,427,265,424,260,492,214"/>
+<area shape="poly" title=" " alt="" coords="509,217,490,272,472,331,467,329,485,270,504,215"/>
+<area shape="poly" title=" " alt="" coords="569,214,613,221,839,242,1015,250,1192,255,1419,269,1456,272,1455,277,1419,274,1192,260,1015,255,838,248,612,226,568,219"/>
+<area shape="rect" title=" " alt="" coords="946,271,1012,297"/>
+<area shape="poly" title=" " alt="" coords="574,214,613,221,771,243,931,268,930,274,770,248,612,226,573,219"/>
+<area shape="rect" title=" " alt="" coords="680,345,729,371"/>
+<area shape="poly" title=" " alt="" coords="528,214,679,333,676,337,525,218"/>
+<area shape="rect" title=" " alt="" coords="860,345,912,371"/>
+<area shape="poly" title=" " alt="" coords="534,214,631,269,653,283,675,295,765,326,845,346,844,351,764,331,673,299,650,287,628,274,531,219"/>
+<area shape="rect" title=" " alt="" coords="1036,271,1090,297"/>
+<area shape="poly" title=" " alt="" coords="573,214,613,221,726,234,816,241,907,250,1021,268,1021,274,906,255,816,246,726,240,612,226,572,219"/>
+<area shape="poly" title=" " alt="" coords="570,214,613,221,746,225,969,229,1084,233,1188,241,1267,252,1294,260,1312,269,1322,282,1328,298,1330,329,1325,330,1322,299,1317,285,1308,273,1292,265,1266,257,1187,246,1084,239,968,234,746,230,612,226,569,219"/>
+<area shape="rect" title=" " alt="" coords="500,271,560,297"/>
+<area shape="poly" title=" " alt="" coords="517,216,526,255,521,257,511,217"/>
+<area shape="rect" title=" " alt="" coords="686,271,736,297"/>
+<area shape="poly" title=" " alt="" coords="543,214,673,265,671,270,541,219"/>
+<area shape="rect" title=" " alt="" coords="760,271,841,297"/>
+<area shape="poly" title=" " alt="" coords="556,214,746,265,744,270,555,219"/>
+<area shape="rect" title=" " alt="" coords="866,271,922,297"/>
+<area shape="poly" title=" " alt="" coords="575,214,851,269,850,274,574,219"/>
+<area shape="poly" title=" " alt="" coords="570,214,613,221,684,226,772,227,979,226,1085,228,1184,235,1270,248,1306,257,1336,269,1356,281,1374,297,1401,330,1397,334,1370,301,1353,286,1334,274,1304,262,1268,253,1183,240,1085,234,979,232,772,232,683,231,612,226,569,219"/>
+<area shape="poly" title=" " alt="" coords="571,214,613,221,747,238,854,248,1099,268,1099,274,853,253,747,243,612,226,571,219"/>
+<area shape="poly" title=" " alt="" coords="1114,298,1102,300,520,354,519,349,1102,294,1114,293"/>
+<area shape="poly" title=" " alt="" coords="1121,300,745,354,744,348,1120,295"/>
+<area shape="poly" title=" " alt="" coords="1152,300,928,350,927,345,1151,295"/>
+<area shape="poly" title=" " alt="" coords="1227,295,1293,334,1290,339,1225,300"/>
+<area shape="poly" title=" " alt="" coords="1242,295,1365,337,1363,342,1240,300"/>
+<area shape="rect" title=" " alt="" coords="1149,345,1262,371"/>
+<area shape="poly" title=" " alt="" coords="1208,297,1208,329,1203,329,1203,297"/>
 </map>
 </div>
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1Voxel.html">Voxel</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1VoxelAccum.html">VoxelAccum</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1VoxelHash.html">VoxelHash</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html">navmap_ros</a></td></tr>
 <tr class="memdesc:namespacenavmap__ros"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conversions between core <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> and ROS-level structures. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a37d0f527460c6073c32227c05174f022" id="r_a37d0f527460c6073c32227c05174f022"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a37d0f527460c6073c32227c05174f022">Triangle</a> = Eigen::Vector3i</td></tr>
+<tr class="separator:a37d0f527460c6073c32227c05174f022"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa5a180515b93326061670d12b2fdb02b" id="r_aa5a180515b93326061670d12b2fdb02b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#aa5a180515b93326061670d12b2fdb02b">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt=nullptr)</td></tr>
-<tr class="memdesc:aa5a180515b93326061670d12b2fdb02b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize a triangle mesh (from a PCL point cloud and index triplets) into a <code>navmap_ros_interfaces::msg::NavMap</code>, optionally returning the core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code>.  <br /></td></tr>
-<tr class="separator:aa5a180515b93326061670d12b2fdb02b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a05354967c19acb4e9cb8675a0c251d" id="r_a0a05354967c19acb4e9cb8675a0c251d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a0a05354967c19acb4e9cb8675a0c251d">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt)</td></tr>
+<tr class="separator:a0a05354967c19acb4e9cb8675a0c251d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e0c617b70b967e302c81d3ac6773c3e" id="r_a6e0c617b70b967e302c81d3ac6773c3e"><td class="memItemLeft" align="right" valign="top">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a6e0c617b70b967e302c81d3ac6773c3e">downsample_voxelize_avgXYZ</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, float resolution)</td></tr>
+<tr class="separator:a6e0c617b70b967e302c81d3ac6773c3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9835bd4485202df104ab38cb5cdc1ed8" id="r_a9835bd4485202df104ab38cb5cdc1ed8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a9835bd4485202df104ab38cb5cdc1ed8">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg)</td></tr>
 <tr class="separator:a9835bd4485202df104ab38cb5cdc1ed8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a570457f653972601dcd8b1fa821af02a" id="r_a570457f653972601dcd8b1fa821af02a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a570457f653972601dcd8b1fa821af02a">from_msg</a> (const navmap_ros_interfaces::msg::NavMapLayer &amp;msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
@@ -201,6 +251,14 @@ Functions</h2></td></tr>
 <tr class="memitem:af26f003771b7de20efd8c9d2c3c519c8" id="r_af26f003771b7de20efd8c9d2c3c519c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#af26f003771b7de20efd8c9d2c3c519c8">from_occupancy_grid</a> (const nav_msgs::msg::OccupancyGrid &amp;grid)</td></tr>
 <tr class="memdesc:af26f003771b7de20efd8c9d2c3c519c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> from a <code>nav_msgs::msg::OccupancyGrid</code> using a regular triangular surface with shared vertices.  <br /></td></tr>
 <tr class="separator:af26f003771b7de20efd8c9d2c3c519c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1d0f450cee491ef385215a317c6876a" id="r_af1d0f450cee491ef385215a317c6876a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#af1d0f450cee491ef385215a317c6876a">from_pointcloud2</a> (const sensor_msgs::msg::PointCloud2 &amp;pc2, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
+<tr class="separator:af1d0f450cee491ef385215a317c6876a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a391baafe170d124869d315420e795d48" id="r_a391baafe170d124869d315420e795d48"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="namespacenavmap__ros.html#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a391baafe170d124869d315420e795d48">grow_surface_from_seed</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, int seed_idx, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P)</td></tr>
+<tr class="separator:a391baafe170d124869d315420e795d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a564468dabda962aacaf59d5c959c6319" id="r_a564468dabda962aacaf59d5c959c6319"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a564468dabda962aacaf59d5c959c6319">local_tangent_basis</a> (const std::vector&lt; Eigen::Vector3f &gt; &amp;nbrs, Eigen::Vector3f &amp;t1, Eigen::Vector3f &amp;t2)</td></tr>
+<tr class="separator:a564468dabda962aacaf59d5c959c6319"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aead1c4b8b2a643351737b6097c379120" id="r_aead1c4b8b2a643351737b6097c379120"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#aead1c4b8b2a643351737b6097c379120">sort_neighbors_angular</a> (const Eigen::Vector3f &amp;vpos, const std::vector&lt; std::pair&lt; int, Eigen::Vector3f &gt; &gt; &amp;nbrs, std::vector&lt; int &gt; &amp;out_ordered)</td></tr>
+<tr class="separator:aead1c4b8b2a643351737b6097c379120"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba26a033fbd9456e2368c8f49f62779e" id="r_aba26a033fbd9456e2368c8f49f62779e"><td class="memItemLeft" align="right" valign="top">navmap_ros_interfaces::msg::NavMap&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#aba26a033fbd9456e2368c8f49f62779e">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:aba26a033fbd9456e2368c8f49f62779e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> into its compact ROS transport message.  <br /></td></tr>
 <tr class="separator:aba26a033fbd9456e2368c8f49f62779e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -210,6 +268,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a42165113e6236698fe947ca8ffa69bc8" id="r_a42165113e6236698fe947ca8ffa69bc8"><td class="memItemLeft" align="right" valign="top">nav_msgs::msg::OccupancyGrid&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#a42165113e6236698fe947ca8ffa69bc8">to_occupancy_grid</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:a42165113e6236698fe947ca8ffa69bc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> back to <code>nav_msgs::msg::OccupancyGrid</code>.  <br /></td></tr>
 <tr class="separator:a42165113e6236698fe947ca8ffa69bc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad089d6caf5156b818488bbec8de30a4b" id="r_ad089d6caf5156b818488bbec8de30a4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#ad089d6caf5156b818488bbec8de30a4b">triangle_angles_deg</a> (const Eigen::Vector3f &amp;A, const Eigen::Vector3f &amp;B, const Eigen::Vector3f &amp;C, float &amp;angA, float &amp;angB, float &amp;angC)</td></tr>
+<tr class="separator:ad089d6caf5156b818488bbec8de30a4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad27d5737db6b45f6d50f445c5cdeabda" id="r_ad27d5737db6b45f6d50f445c5cdeabda"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenavmap__ros.html#ad27d5737db6b45f6d50f445c5cdeabda">try_add_triangle</a> (int i, int j, int k, const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a>, <a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a> &gt; &amp;tri_set, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a>, <a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a> &gt; &amp;edge_set, std::vector&lt; <a class="el" href="namespacenavmap__ros.html#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; &amp;tris)</td></tr>
+<tr class="separator:ad27d5737db6b45f6d50f445c5cdeabda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->

@@ -5,5 +5,6 @@ var searchData=
   ['data_5f_2',['data_',['../structnavmap_1_1LayerView.html#a50e48a2b8e3773b3ab9af0e5cccd87b5',1,'navmap::LayerView::data_'],['../structLayerView.html#a50e48a2b8e3773b3ab9af0e5cccd87b5',1,'LayerView::data_']]],
   ['dependencies_3',['Dependencies',['../index.html#autotoc_md8',1,'']]],
   ['description_4',['description',['../structnavmap_1_1LayerMeta.html#a2e1454f6988673f814408646edaeb320',1,'navmap::LayerMeta']]],
-  ['disk_5',['9. Save and load from disk',['../index.html#autotoc_md28',1,'']]]
+  ['disk_5',['9. Save and load from disk',['../index.html#autotoc_md28',1,'']]],
+  ['downsample_5fvoxelize_5favgxyz_6',['downsample_voxelize_avgXYZ',['../namespacenavmap__ros.html#a6e0c617b70b967e302c81d3ac6773c3e',1,'navmap_ros']]]
 ];

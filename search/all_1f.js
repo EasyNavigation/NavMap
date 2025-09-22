@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['z_0',['z',['../structnavmap_1_1Positions.html#a923ae2d8f28764bbb045093b8f7ed08f',1,'navmap::Positions']]]
+  ['y_0',['y',['../structnavmap_1_1Positions.html#aa384a3d790ec76fff672927b58dd7bb6',1,'navmap::Positions::y'],['../structnavmap__ros_1_1Voxel.html#a0a2f84ed7838f07779ae24c5a9086d33',1,'navmap_ros::Voxel::y']]]
 ];

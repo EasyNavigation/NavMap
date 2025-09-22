@@ -1,7 +1,9 @@
 <map id="navmap_ros/include/navmap_ros/navmap_io.hpp" name="navmap_ros/include/navmap_ros/navmap_io.hpp">
-<area shape="rect" id="Node000001" title="Save/Load utilities for NavMap to/from disk using ROS 2 CDR serialization." alt="" coords="84,5,272,46"/>
+<area shape="rect" id="Node000001" title="Save/Load utilities for NavMap to/from disk using ROS 2 CDR serialization." alt="" coords="174,5,361,46"/>
 <area shape="rect" id="Node000002" href="$navmap__io_8cpp.html" title=" " alt="" coords="5,94,170,135"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,59,110,95,106,92,145,55"/>
-<area shape="rect" id="Node000003" href="$test__navmap__io_8cpp.html" title=" " alt="" coords="193,94,344,135"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,55,250,92,247,95,208,59"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,55,129,96,127,91,212,51"/>
+<area shape="rect" id="Node000003" href="$slam__server__app_8cpp.html" title=" " alt="" coords="194,94,341,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="270,62,270,94,265,94,265,62"/>
+<area shape="rect" id="Node000004" href="$test__navmap__io_8cpp.html" title=" " alt="" coords="365,94,516,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="322,51,403,91,400,96,319,56"/>
 </map>
