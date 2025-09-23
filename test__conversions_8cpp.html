@@ -432,7 +432,8 @@ Functions</h2></td></tr>
 <li><b>Fast exact path</b>: If the first surface encodes valid grid metadata (GridMeta) and there is a per-NavCel <code>"occupancy"</code> layer of type U8 with size <code>2 * W * H</code>, the function reconstructs an <code>OccupancyGrid</code> exactly (linear inverse mapping <code>0..254 → 0..100</code>, <code>255 → -1</code>).</li>
 <li><b>Generic fallback</b>: If the exact path is not applicable, the function samples cell centers via a navcel-locator (e.g., <code>locate_navcel</code>) and reads <code>"occupancy"</code> values to populate the grid.</li>
 </ul>
-<dl class="section note"><dt>Note</dt><dd>The fallback path assumes the presence of an <code>"occupancy"</code> layer. The precise sampling strategy (bounds, resolution, and handling of cells without a containing navcel) is implementation-defined. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The fallback path assumes the presence of an <code>"occupancy"</code> layer. The precise sampling strategy (bounds, resolution, and handling of cells without a containing navcel) is implementation-defined.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>If the map does not carry grid metadata or the <code>"occupancy"</code> layer is missing, the result may be incomplete or implementation-defined. </dd></dl>
 
 </div>
 </div>

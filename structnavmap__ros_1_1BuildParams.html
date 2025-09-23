@@ -95,13 +95,16 @@ $(function(){ initResizable(false); });
 </div><!--header-->
 <div class="contents">
 
+<p>Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from unorganized points.  
+ <a href="#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="conversions_8hpp_source.html">conversions.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for BuildParams:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap__ros_1_1BuildParams__coll__graph.png" border="0" usemap="#aBuildParams_coll__map" alt="Collaboration graph"/></div>
 <map name="aBuildParams_coll__map" id="aBuildParams_coll__map">
-<area shape="rect" title=" " alt="" coords="134,169,230,195"/>
+<area shape="rect" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="134,169,230,195"/>
 <area shape="rect" title=" " alt="" coords="5,5,76,31"/>
 <area shape="poly" title=" " alt="" coords="43,47,51,96,60,121,75,143,103,162,134,173,133,178,100,167,72,147,56,124,46,97,38,47"/>
 <area shape="rect" title=" " alt="" coords="99,5,144,31"/>
@@ -116,25 +119,37 @@ Collaboration diagram for BuildParams:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a6756d66b9752cff73a41c607d4572ae0" id="r_a6756d66b9752cff73a41c607d4572ae0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6756d66b9752cff73a41c607d4572ae0">k_neighbors</a> = 20</td></tr>
+<tr class="memdesc:a6756d66b9752cff73a41c607d4572ae0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alternative to radius: number of nearest neighbors (k-NN).  <br /></td></tr>
 <tr class="separator:a6756d66b9752cff73a41c607d4572ae0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad13e370af216e1188c1268b74472f57f" id="r_ad13e370af216e1188c1268b74472f57f"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad13e370af216e1188c1268b74472f57f">max_edge_len</a> = 2.0</td></tr>
+<tr class="memdesc:ad13e370af216e1188c1268b74472f57f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum allowed edge length (meters) when forming triangles.  <br /></td></tr>
 <tr class="separator:ad13e370af216e1188c1268b74472f57f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ff349dd9350a87c621e936084ec2d1f" id="r_a0ff349dd9350a87c621e936084ec2d1f"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ff349dd9350a87c621e936084ec2d1f">max_slope_deg</a> = 30.0f</td></tr>
+<tr class="memdesc:a0ff349dd9350a87c621e936084ec2d1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum slope with respect to the vertical axis (degrees).  <br /></td></tr>
 <tr class="separator:a0ff349dd9350a87c621e936084ec2d1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7652613347524c6ec775068fd6c24ca9" id="r_a7652613347524c6ec775068fd6c24ca9"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7652613347524c6ec775068fd6c24ca9">min_angle_deg</a> = 20.0f</td></tr>
+<tr class="memdesc:a7652613347524c6ec775068fd6c24ca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum interior angle (degrees) to avoid sliver triangles.  <br /></td></tr>
 <tr class="separator:a7652613347524c6ec775068fd6c24ca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab6746f896b14d17115f0a020de06c4a7" id="r_ab6746f896b14d17115f0a020de06c4a7"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab6746f896b14d17115f0a020de06c4a7">min_area</a> = 1e-6f</td></tr>
+<tr class="memdesc:ab6746f896b14d17115f0a020de06c4a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum triangle area (square meters) to reject degenerate faces.  <br /></td></tr>
 <tr class="separator:ab6746f896b14d17115f0a020de06c4a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac78a02fc61c6c030d1fee6d9ad314df3" id="r_ac78a02fc61c6c030d1fee6d9ad314df3"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac78a02fc61c6c030d1fee6d9ad314df3">neighbor_radius</a> = 2.0f</td></tr>
+<tr class="memdesc:ac78a02fc61c6c030d1fee6d9ad314df3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Neighborhood radius (meters) for candidate connectivity.  <br /></td></tr>
 <tr class="separator:ac78a02fc61c6c030d1fee6d9ad314df3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4333d786c60465d20826583358b2798d" id="r_a4333d786c60465d20826583358b2798d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4333d786c60465d20826583358b2798d">resolution</a> = 1.0</td></tr>
+<tr class="memdesc:a4333d786c60465d20826583358b2798d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Target in-plane sampling resolution (meters) used by voxelization or gridding.  <br /></td></tr>
 <tr class="separator:a4333d786c60465d20826583358b2798d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9d90f702ab308b11cb45b0d7fd4dd94" id="r_aa9d90f702ab308b11cb45b0d7fd4dd94"><td class="memItemLeft" align="right" valign="top">Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9d90f702ab308b11cb45b0d7fd4dd94">seed</a> = {0.0, 0.0, 0.0}</td></tr>
+<tr class="memdesc:aa9d90f702ab308b11cb45b0d7fd4dd94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Seed position (world frame) used by region growing or initial search heuristics.  <br /></td></tr>
 <tr class="separator:aa9d90f702ab308b11cb45b0d7fd4dd94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aced40c47c4fec9366b6ebb7f04b39f98" id="r_aced40c47c4fec9366b6ebb7f04b39f98"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aced40c47c4fec9366b6ebb7f04b39f98">use_radius</a> = true</td></tr>
+<tr class="memdesc:aced40c47c4fec9366b6ebb7f04b39f98"><td class="mdescLeft">&#160;</td><td class="mdescRight">If true, use radius-based neighborhoods; otherwise use k-NN.  <br /></td></tr>
 <tr class="separator:aced40c47c4fec9366b6ebb7f04b39f98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Data Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from unorganized points. </p>
+<p>These parameters guide neighborhood search, local meshing, and basic geometric filtering used by the point-cloud based builders. </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="a6756d66b9752cff73a41c607d4572ae0" name="a6756d66b9752cff73a41c607d4572ae0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6756d66b9752cff73a41c607d4572ae0">&#9670;&#160;</a></span>k_neighbors</h2>
 
@@ -146,6 +161,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Alternative to radius: number of nearest neighbors (k-NN). </p>
 
 </div>
 </div>
@@ -161,6 +178,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Maximum allowed edge length (meters) when forming triangles. </p>
+
 </div>
 </div>
 <a id="a0ff349dd9350a87c621e936084ec2d1f" name="a0ff349dd9350a87c621e936084ec2d1f"></a>
@@ -174,6 +193,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Maximum slope with respect to the vertical axis (degrees). </p>
 
 </div>
 </div>
@@ -189,6 +210,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Minimum interior angle (degrees) to avoid sliver triangles. </p>
+
 </div>
 </div>
 <a id="ab6746f896b14d17115f0a020de06c4a7" name="ab6746f896b14d17115f0a020de06c4a7"></a>
@@ -202,6 +225,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Minimum triangle area (square meters) to reject degenerate faces. </p>
 
 </div>
 </div>
@@ -217,6 +242,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Neighborhood radius (meters) for candidate connectivity. </p>
+
 </div>
 </div>
 <a id="a4333d786c60465d20826583358b2798d" name="a4333d786c60465d20826583358b2798d"></a>
@@ -230,6 +257,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Target in-plane sampling resolution (meters) used by voxelization or gridding. </p>
 
 </div>
 </div>
@@ -245,6 +274,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Seed position (world frame) used by region growing or initial search heuristics. </p>
+
 </div>
 </div>
 <a id="aced40c47c4fec9366b6ebb7f04b39f98" name="aced40c47c4fec9366b6ebb7f04b39f98"></a>
@@ -258,6 +289,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>If true, use radius-based neighborhoods; otherwise use k-NN. </p>
 
 </div>
 </div>

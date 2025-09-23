@@ -1,5 +1,5 @@
 <map id="BuildParams" name="BuildParams">
-<area shape="rect" id="Node000001" title=" " alt="" coords="134,169,230,195"/>
+<area shape="rect" id="Node000001" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="134,169,230,195"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,5,76,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="43,47,51,96,60,121,75,143,103,162,134,173,133,178,100,167,72,147,56,124,46,97,38,47"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="99,5,144,31"/>

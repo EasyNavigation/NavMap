@@ -105,6 +105,7 @@ Namespaces</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from unorganized points.  <a href="structnavmap__ros_1_1BuildParams.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,6 +133,8 @@ Functions</h2></td></tr>
 <tr class="separator:a0a05354967c19acb4e9cb8675a0c251d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e0c617b70b967e302c81d3ac6773c3e" id="r_a6e0c617b70b967e302c81d3ac6773c3e"><td class="memItemLeft" align="right" valign="top">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6e0c617b70b967e302c81d3ac6773c3e">downsample_voxelize_avgXYZ</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, float resolution)</td></tr>
 <tr class="separator:a6e0c617b70b967e302c81d3ac6773c3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a192218c9a7474a6754aaf069a0e6cb82" id="r_a192218c9a7474a6754aaf069a0e6cb82"><td class="memItemLeft" align="right" valign="top">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a192218c9a7474a6754aaf069a0e6cb82">downsample_voxelize_avgZ</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, float resolution)</td></tr>
+<tr class="separator:a192218c9a7474a6754aaf069a0e6cb82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9835bd4485202df104ab38cb5cdc1ed8" id="r_a9835bd4485202df104ab38cb5cdc1ed8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9835bd4485202df104ab38cb5cdc1ed8">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg)</td></tr>
 <tr class="separator:a9835bd4485202df104ab38cb5cdc1ed8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac70f12eb1f059a42b6993cb612720ea0" id="r_ac70f12eb1f059a42b6993cb612720ea0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac70f12eb1f059a42b6993cb612720ea0">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
@@ -144,7 +147,11 @@ Functions</h2></td></tr>
 <tr class="memdesc:af26f003771b7de20efd8c9d2c3c519c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> from a <code>nav_msgs::msg::OccupancyGrid</code> using a regular triangular surface with shared vertices.  <br /></td></tr>
 <tr class="separator:af26f003771b7de20efd8c9d2c3c519c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1d0f450cee491ef385215a317c6876a" id="r_af1d0f450cee491ef385215a317c6876a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af1d0f450cee491ef385215a317c6876a">from_pointcloud2</a> (const sensor_msgs::msg::PointCloud2 &amp;pc2, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
+<tr class="memdesc:af1d0f450cee491ef385215a317c6876a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a ROS <code>sensor_msgs::msg::PointCloud2</code>.  <br /></td></tr>
 <tr class="separator:af1d0f450cee491ef385215a317c6876a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a731ad13a79c7d061fba796add4aea852" id="r_a731ad13a79c7d061fba796add4aea852"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a731ad13a79c7d061fba796add4aea852">from_points</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
+<tr class="memdesc:a731ad13a79c7d061fba796add4aea852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a PCL point cloud.  <br /></td></tr>
+<tr class="separator:a731ad13a79c7d061fba796add4aea852"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a391baafe170d124869d315420e795d48" id="r_a391baafe170d124869d315420e795d48"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a391baafe170d124869d315420e795d48">grow_surface_from_seed</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, int seed_idx, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P)</td></tr>
 <tr class="separator:a391baafe170d124869d315420e795d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a564468dabda962aacaf59d5c959c6319" id="r_a564468dabda962aacaf59d5c959c6319"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a564468dabda962aacaf59d5c959c6319">local_tangent_basis</a> (const std::vector&lt; Eigen::Vector3f &gt; &amp;nbrs, Eigen::Vector3f &amp;t1, Eigen::Vector3f &amp;t2)</td></tr>
@@ -240,6 +247,27 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a192218c9a7474a6754aaf069a0e6cb82" name="a192218c9a7474a6754aaf069a0e6cb82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a192218c9a7474a6754aaf069a0e6cb82">&#9670;&#160;</a></span>downsample_voxelize_avgZ()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pcl::PointCloud&lt; pcl::PointXYZ &gt; downsample_voxelize_avgZ </td>
+          <td>(</td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>input_points</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>resolution</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a9835bd4485202df104ab38cb5cdc1ed8" name="a9835bd4485202df104ab38cb5cdc1ed8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9835bd4485202df104ab38cb5cdc1ed8">&#9670;&#160;</a></span>from_msg() <span class="overload">[1/3]</span></h2>
 
@@ -282,8 +310,14 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>A core <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code> equivalent to the content of <code class="param">msg</code>.</dd></dl>
 <ul>
 <li>Intended to be the inverse of <a class="el" href="#aba26a033fbd9456e2368c8f49f62779e" title="Convert a core navmap::NavMap into its compact ROS transport message.">navmap_ros::to_msg</a> for a round-trip without loss.</li>
-<li>Assumes that the message is internally consistent (sizes and indices match). </li>
+<li>Assumes that the message is internally consistent (sizes and indices match).</li>
 </ul>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>If the message describes inconsistent geometry or layer sizes. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -310,8 +344,18 @@ Functions</h2></td></tr>
 <p>If the layer already exists in <code class="param">nm</code>, it is overwritten. Otherwise, it is created. Performs type dispatch based on the message field <code>type</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">msg</td><td>Input NavMapLayer message. </td></tr>
-    <tr><td class="paramname">nm</td><td>Destination <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> (must already have navcels sized correctly). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">msg</td><td>Input NavMapLayer message. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">nm</td><td>Destination <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> (must already have navcels sized correctly).</td></tr>
+  </table>
+  </dd>
+</dl>
+<ul>
+<li>The function verifies that the length of the populated data array matches the number of triangles (NavCels) in <code class="param">nm</code>.</li>
+<li>Exactly one of the arrays <code>data_u8</code>, <code>data_f32</code>, or <code>data_f64</code> must be set.</li>
+</ul>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>If sizes are inconsistent or the message is ill-formed. </td></tr>
   </table>
   </dd>
 </dl>
@@ -379,6 +423,80 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a ROS <code>sensor_msgs::msg::PointCloud2</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">pc2</td><td>Input PointCloud2 message (expects fields <code>x</code>, <code>y</code>, <code>z</code>). </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">params</td><td>Meshing and filtering parameters (see <a class="el" href="structnavmap__ros_1_1BuildParams.html" title="Parameters controlling NavMap construction from unorganized points.">BuildParams</a>). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The constructed <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code>.</dd></dl>
+<ul>
+<li>The cloud is decoded to <code>pcl::PointXYZ</code> and processed as in <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap surface from a PCL point cloud.">navmap_ros::from_points</a>.</li>
+<li>Non-Cartesian fields present in <code class="param">pc2</code> are ignored by this overload.</li>
+<li>The resulting <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> is exported to <code class="param">out_msg</code> for downstream publication or storage.</li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>If the message is empty or lacks the required fields, no geometry is produced. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>If decoding fails or meshing cannot be completed. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a731ad13a79c7d061fba796add4aea852" name="a731ad13a79c7d061fba796add4aea852"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a731ad13a79c7d061fba796add4aea852">&#9670;&#160;</a></span>from_points()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> from_points </td>
+          <td>(</td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>input_points</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">navmap_ros_interfaces::msg::NavMap &amp;</td>          <td class="paramname"><span class="paramname"><em>out_msg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td>          <td class="paramname"><span class="paramname"><em>params</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a PCL point cloud. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">input_points</td><td>Point set in world coordinates (<code>pcl::PointXYZ</code>). </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">params</td><td>Meshing and filtering parameters (see <a class="el" href="structnavmap__ros_1_1BuildParams.html" title="Parameters controlling NavMap construction from unorganized points.">BuildParams</a>). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The constructed <code><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></code>.</dd></dl>
+<p>Typical steps implemented by this builder include:</p><ul>
+<li>Optional downsampling according to <code class="param">params.resolution</code>.</li>
+<li>Local neighborhood discovery using either radius (<code class="param">params.use_radius</code>) or k-NN.</li>
+<li>Edge and face filtering based on <code class="param">params.max_edge_len</code>, <code class="param">params.min_area</code> and <code class="param">params.min_angle_deg</code>.</li>
+<li>Optional slope gating using <code class="param">params.max_slope_deg</code> with respect to the vertical axis.</li>
+<li>Creation of a single surface with shared vertices and triangle indices. The function also fills <code class="param">out_msg</code> with the compact ROS representation of the resulting map.</li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>Input is treated as an unorganized cloud. If normals or intensities are present, they are ignored by this overload. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>If meshing fails due to inconsistent parameters or empty input. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -513,15 +631,19 @@ Functions</h2></td></tr>
 <p>Convert a single layer from a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> into a ROS message. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">nm</td><td>Input <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
-    <tr><td class="paramname">layer</td><td>Name of the layer to export. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nm</td><td>Input <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">layer</td><td>Name of the layer to export. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A NavMapLayer message containing the layer values and metadata. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A NavMapLayer message containing the layer values and metadata.</dd></dl>
+<ul>
+<li>The returned message contains the layer name, type tag, and exactly one populated data array whose length equals the number of NavCels in <code class="param">nm</code>.</li>
+<li>The function performs a type-safe extraction (U8/F32/F64).</li>
+</ul>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>if the layer does not exist. </td></tr>
+    <tr><td class="paramname">std::runtime_error</td><td>If the layer does not exist or has an unsupported type. </td></tr>
   </table>
   </dd>
 </dl>
@@ -555,7 +677,8 @@ Functions</h2></td></tr>
 <li><b>Fast exact path</b>: If the first surface encodes valid grid metadata (GridMeta) and there is a per-NavCel <code>"occupancy"</code> layer of type U8 with size <code>2 * W * H</code>, the function reconstructs an <code>OccupancyGrid</code> exactly (linear inverse mapping <code>0..254 → 0..100</code>, <code>255 → -1</code>).</li>
 <li><b>Generic fallback</b>: If the exact path is not applicable, the function samples cell centers via a navcel-locator (e.g., <code>locate_navcel</code>) and reads <code>"occupancy"</code> values to populate the grid.</li>
 </ul>
-<dl class="section note"><dt>Note</dt><dd>The fallback path assumes the presence of an <code>"occupancy"</code> layer. The precise sampling strategy (bounds, resolution, and handling of cells without a containing navcel) is implementation-defined. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The fallback path assumes the presence of an <code>"occupancy"</code> layer. The precise sampling strategy (bounds, resolution, and handling of cells without a containing navcel) is implementation-defined.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>If the map does not carry grid metadata or the <code>"occupancy"</code> layer is missing, the result may be incomplete or implementation-defined. </dd></dl>
 
 </div>
 </div>
