@@ -802,6 +802,62 @@ struct VoxelAccum
 };
 
 
+// Compute voxel index with an offset (used for shifted grids)
+static inline Voxel voxel_index_of_offset(
+  const pcl::PointXYZ & p, float res, float ox, float oy, float oz)
+{
+  return Voxel{
+    static_cast<int>(std::floor((p.x - ox) / res)),
+    static_cast<int>(std::floor((p.y - oy) / res)),
+    static_cast<int>(std::floor((p.z - oz) / res))
+  };
+}
+
+// Single voxelization pass with offset; returns centroids per voxel
+static std::vector<pcl::PointXYZ> voxel_pass_offset(
+  const pcl::PointCloud<pcl::PointXYZ> & in, float res, float ox, float oy, float oz)
+{
+  std::unordered_map<Voxel, VoxelAccum, VoxelHash> map;
+  map.reserve(in.size() / 2 + 1);
+
+  for (const auto & pt : in.points) {
+    if (!pcl::isFinite(pt)) {continue;}
+    Voxel v = voxel_index_of_offset(pt, res, ox, oy, oz);
+    auto & acc = map[v];
+    acc.sum_x += pt.x;
+    acc.sum_y += pt.y;
+    acc.sum_z += pt.z;
+    acc.count += 1;
+  }
+
+  std::vector<pcl::PointXYZ> out;
+  out.reserve(map.size());
+  for (const auto & kv : map) {
+    const VoxelAccum & acc = kv.second;
+    const float inv = acc.count > 0 ? 1.0f / static_cast<float>(acc.count) : 0.0f;
+    out.emplace_back(acc.sum_x * inv, acc.sum_y * inv, acc.sum_z * inv);
+  }
+  return out;
+}
+
+// Compute hash grid cell index for a point
+static inline Voxel cell_of_point(const pcl::PointXYZ & p, float cell)
+{
+  return Voxel{
+    static_cast<int>(std::floor(p.x / cell)),
+    static_cast<int>(std::floor(p.y / cell)),
+    static_cast<int>(std::floor(p.z / cell))
+  };
+}
+
+static inline pcl::PointXYZ accum_centroid(const VoxelAccum & a)
+{
+  const float inv = a.count > 0 ? 1.0f / static_cast<float>(a.count) : 0.0f;
+  return pcl::PointXYZ(a.sum_x * inv, a.sum_y * inv, a.sum_z * inv);
+}
+
+// Downsampling by voxelization with two passes (normal and shifted grid),
+// followed by merging centroids that fall within 0.5*resolution
 pcl::PointCloud<pcl::PointXYZ>
 downsample_voxelize_avgXYZ(
   const pcl::PointCloud<pcl::PointXYZ> & input_points,
@@ -809,43 +865,149 @@ downsample_voxelize_avgXYZ(
 {
   pcl::PointCloud<pcl::PointXYZ> output;
 
-  std::unordered_map<Voxel, VoxelAccum, VoxelHash> voxels;
-  voxels.reserve(input_points.size() / 2); // rough estimate
+  if (input_points.empty() || !(resolution > 0.0f)) {
+    output.width = 0; output.height = 1; output.is_dense = true;
+    return output;
+  }
 
-  // 1) Accumulate all points per voxel
-  for (std::size_t i = 0; i < input_points.size(); ++i) {
-    const auto & pt = input_points[i];
+  const float r = resolution;
+  const float half = 0.5f * r;
+
+  // Pass A: regular grid
+  auto centroids_a = voxel_pass_offset(input_points, r, 0.0f, 0.0f, 0.0f);
+
+  // Pass B: grid shifted by half resolution
+  auto centroids_b = voxel_pass_offset(input_points, r, half, half, half);
+
+  // Merge centroids using a hash grid to join those split by voxel borders
+  const float merge_radius = half;
+  const float merge_radius2 = merge_radius * merge_radius;
+  const float grid_cell_size = r;
+
+  std::vector<VoxelAccum> clusters;
+  clusters.reserve(centroids_a.size());
+
+  std::unordered_map<Voxel, std::vector<int>, VoxelHash> grid;
+  grid.reserve(centroids_a.size() + centroids_b.size());
+
+  auto try_insert = [&](const pcl::PointXYZ & p)
+    {
+      Voxel c = cell_of_point(p, grid_cell_size);
+      int best_idx = -1;
+      float best_d2 = std::numeric_limits<float>::max();
+
+    // Search 27 neighboring cells for a close cluster
+      for (int dz = -1; dz <= 1; ++dz) {
+        for (int dy = -1; dy <= 1; ++dy) {
+          for (int dx = -1; dx <= 1; ++dx) {
+            Voxel nb{c.x + dx, c.y + dy, c.z + dz};
+            auto it = grid.find(nb);
+            if (it == grid.end()) {continue;}
+
+            for (int idx : it->second) {
+              const pcl::PointXYZ q = accum_centroid(clusters[idx]);
+              const float ex = p.x - q.x;
+              const float ey = p.y - q.y;
+              const float ez = p.z - q.z;
+              const float d2 = ex * ex + ey * ey + ez * ez;
+              if (d2 < best_d2) {best_d2 = d2; best_idx = idx;}
+            }
+          }
+        }
+      }
+
+      if (best_idx >= 0 && best_d2 <= merge_radius2) {
+      // Merge into existing cluster
+        clusters[best_idx].sum_x += p.x;
+        clusters[best_idx].sum_y += p.y;
+        clusters[best_idx].sum_z += p.z;
+        clusters[best_idx].count += 1;
+      } else {
+      // Create new cluster
+        VoxelAccum acc;
+        acc.sum_x = p.x; acc.sum_y = p.y; acc.sum_z = p.z; acc.count = 1;
+        int new_idx = static_cast<int>(clusters.size());
+        clusters.push_back(acc);
+        grid[c].push_back(new_idx);
+      }
+    };
+
+  // Insert centroids from both passes
+  for (const auto & p : centroids_a) {
+    try_insert(p);
+  }
+  for (const auto & p : centroids_b) {
+    try_insert(p);
+  }
+
+  // Emit one point per cluster
+  output.points.reserve(clusters.size());
+  for (const auto & cl : clusters) {
+    output.points.push_back(accum_centroid(cl));
+  }
+
+  output.width = static_cast<uint32_t>(output.points.size());
+  output.height = 1;
+  output.is_dense = true;
+  return output;
+}
+
+pcl::PointCloud<pcl::PointXYZ>
+downsample_voxelize_avgZ(
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
+  float resolution)
+{
+  pcl::PointCloud<pcl::PointXYZ> output;
+
+  if (input_points.empty() || !(resolution > 0.0f)) {
+    output.width = 0; output.height = 1; output.is_dense = true;
+    return output;
+  }
+
+  struct Accum
+  {
+    double sum_z{0.0};
+    int count{0};
+  };
+
+  std::unordered_map<Voxel, Accum, VoxelHash> voxels;
+  voxels.reserve(input_points.size() / 2);
+
+  // Accumulate Z per voxel
+  for (const auto & pt : input_points) {
     if (!pcl::isFinite(pt)) {continue;}
 
     int vx = static_cast<int>(std::floor(pt.x / resolution));
     int vy = static_cast<int>(std::floor(pt.y / resolution));
-    int vz = static_cast<int>(std::floor(pt.z / resolution));
+    int vz = static_cast<int>(std::floor(pt.z / resolution)); // only for voxel id
 
     Voxel v{vx, vy, vz};
     auto & acc = voxels[v];
-    acc.sum_x += pt.x;
-    acc.sum_y += pt.y;
     acc.sum_z += pt.z;
     acc.count += 1;
   }
 
-  // 2) Emit one averaged point per voxel
+  // Emit one point per voxel
   output.points.reserve(voxels.size());
   for (const auto & kv : voxels) {
-    const VoxelAccum & acc = kv.second;
-    float cx = acc.sum_x / acc.count;
-    float cy = acc.sum_y / acc.count;
-    float cz = acc.sum_z / acc.count;
+    const Voxel & v = kv.first;
+    const Accum & acc = kv.second;
+
+    // Center of voxel in XY
+    float cx = (v.x + 0.5f) * resolution;
+    float cy = (v.y + 0.5f) * resolution;
+    // Average Z of all points
+    float cz = static_cast<float>(acc.sum_z / acc.count);
+
     output.emplace_back(cx, cy, cz);
   }
 
-  output.width = static_cast<uint32_t>(output.size());
+  output.width = static_cast<uint32_t>(output.points.size());
   output.height = 1;
   output.is_dense = true;
 
   return output;
 }
-
 
 std::vector<Triangle> grow_surface_from_seed(
   const pcl::PointCloud<pcl::PointXYZ> & cloud,
@@ -925,14 +1087,12 @@ std::vector<Triangle> grow_surface_from_seed(
   return tris;
 }
 
-navmap::NavMap from_pointcloud2(
-  const sensor_msgs::msg::PointCloud2 & pc2,
+
+navmap::NavMap from_points(
+  const  pcl::PointCloud<pcl::PointXYZ> & input_points,
   navmap_ros_interfaces::msg::NavMap & out_msg,
   BuildParams params)
 {
-  pcl::PointCloud<pcl::PointXYZ> input_points;
-  pcl::fromROSMsg(pc2, input_points);
-
   auto downsampled_points = downsample_voxelize_avgXYZ(input_points, params.resolution);
 
   pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
@@ -966,5 +1126,15 @@ navmap::NavMap from_pointcloud2(
   return navmap;
 }
 
+navmap::NavMap from_pointcloud2(
+  const sensor_msgs::msg::PointCloud2 & pc2,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  BuildParams params)
+{
+  pcl::PointCloud<pcl::PointXYZ> input_points;
+  pcl::fromROSMsg(pc2, input_points);
+
+  return from_points(input_points, out_msg, params);
+}
 
 } // namespace navmap_ros

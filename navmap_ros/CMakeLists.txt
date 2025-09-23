@@ -79,6 +79,7 @@ ament_export_dependencies(
   navmap_ros_interfaces
   geometry_msgs
   sensor_msgs
+  std_srvs
   PCL
   pcl_conversions
 )
