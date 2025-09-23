@@ -207,6 +207,21 @@ void NavMapDisplay::onDisable()
 
 void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
 {
+  Ogre::Vector3 position;
+  Ogre::Quaternion orientation;
+  geometry_msgs::msg::Pose identity;
+
+  if (!context_->getFrameManager()->transform(
+        msg->header, identity, position, orientation))
+  {
+    setStatus(rviz_common::properties::StatusProperty::Error,
+              "TF", "Unable to transform " + QString::fromStdString(msg->header.frame_id));
+    return;
+  }
+
+  root_node_->setPosition(position);
+  root_node_->setOrientation(orientation);
+
   last_msg_ = std::make_shared<NavMapMsg>(*msg);
 
   ++navmap_msg_count_;
