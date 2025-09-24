@@ -53,10 +53,9 @@ public:
       [this](sensor_msgs::msg::PointCloud2::UniquePtr msg) {
         RCLCPP_INFO(get_logger(), "Creating and publishing NavMap from PointCloud2");
         navmap_ros::BuildParams params;
-        params.max_edge_len = 1.5f;
-        params.neighbor_radius = 1.5f;
-        params.min_angle_deg = 15.0f;
-        params.max_slope_deg = 20.0f;
+        params.max_edge_len = 5.0f;
+        params.min_angle_deg = 25.0f;
+        params.max_slope_deg = 30.0f;
         params.resolution = 1.0f;
         navmap_ = navmap_ros::from_pointcloud2(*msg, navmap_msg_, params);
 

@@ -1106,43 +1106,35 @@ navmap::NavMap from_points(
 
   using std::vector;
 
-  // Guard: empty / too few points
   if (input_points.empty() || input_points.size() < 3) {
     out_msg = navmap_ros_interfaces::msg::NavMap();
     return navmap::NavMap();
   }
 
-  // ---- 1) Downsample (optional) ------------------------------------------
   pcl::PointCloud<pcl::PointXYZ> cloud;
   if (params.resolution > 0.0f) {
-    // Uses your existing helper
     cloud = downsample_voxelize_avgXYZ(input_points, params.resolution);
   } else {
-    cloud = input_points; // copy
+    cloud = input_points;
   }
   if (cloud.size() < 3) {
     out_msg = navmap_ros_interfaces::msg::NavMap();
     return navmap::NavMap();
   }
 
-  // ---- 2) Delaunay triangulation in XY -----------------------------------
   struct Pt2 { double x, y; int idx3d; };
   struct Tri2 { int a, b, c; };
 
   auto orient2d = [](const Pt2 &a, const Pt2 &b, const Pt2 &c) -> double {
-    // Positive if (a,b,c) is CCW
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
   };
 
-  // Orientation-aware in-circle test
   auto in_circumcircle = [&](const Pt2 &p,
                              const Pt2 &A, const Pt2 &B, const Pt2 &C) -> bool
   {
-    // If (A,B, C) is CCW, p is inside iff det > 0; if CW, inside iff det < 0.
     const double ax = A.x - p.x, ay = A.y - p.y;
     const double bx = B.x - p.x, by = B.y - p.y;
     const double cx = C.x - p.x, cy = C.y - p.y;
-
     const double det = (ax*ax + ay*ay) * (bx*cy - by*cx)
                      - (bx*bx + by*by) * (ax*cy - ay*cx)
                      + (cx*cx + cy*cy) * (ax*by - ay*bx);
@@ -1150,14 +1142,12 @@ navmap::NavMap from_points(
     return (o > 0.0) ? (det > 0.0) : (det < 0.0);
   };
 
-  // Prepare 2D projected points
   vector<Pt2> pts2; pts2.reserve(cloud.size());
   for (int i = 0; i < static_cast<int>(cloud.size()); ++i) {
     pts2.push_back({static_cast<double>(cloud[i].x),
                     static_cast<double>(cloud[i].y), i});
   }
 
-  // Super-triangle enclosing all points
   double minx = 1e300, miny = 1e300, maxx = -1e300, maxy = -1e300;
   for (const auto &p : pts2) {
     if (p.x < minx) minx = p.x;
@@ -1175,9 +1165,7 @@ navmap::NavMap from_points(
   const int iS2 = static_cast<int>(vs.size()); vs.push_back(S2);
   const int iS3 = static_cast<int>(vs.size()); vs.push_back(S3);
 
-  vector<Tri2> tris; tris.reserve(pts2.size() * 2);
-
-  // Ensure super-triangle is CCW
+  vector<Tri2> tris;
   if (orient2d(vs[iS1], vs[iS2], vs[iS3]) <= 0.0) {
     std::swap(vs[iS2], vs[iS3]);
   }
@@ -1267,7 +1255,6 @@ navmap::NavMap from_points(
                        const Eigen::Vector3f &C) -> Eigen::Vector3f {
     Eigen::Vector3f n = (B - A).cross(C - A);
     const float L = n.norm();
-    // Avoid Eigen::UnitZ() basis return type on the ternary:
     return (L > 1e-12f) ? (n / L) : Eigen::Vector3f(0.f, 0.f, 1.f);
   };
   auto edge_len3D = [&](int i, int j) -> float {
@@ -1291,6 +1278,9 @@ navmap::NavMap from_points(
   vector<Eigen::Vector3i> triangles;
   triangles.reserve(final_tris.size());
 
+  // Debug counters
+  size_t dropped_area = 0, dropped_edge = 0, dropped_dz = 0, dropped_slope = 0;
+
   for (const auto &t : final_tris) {
     const int ia = vs[t.a].idx3d;
     const int ib = vs[t.b].idx3d;
@@ -1300,33 +1290,41 @@ navmap::NavMap from_points(
     const Eigen::Vector3f B(cloud[ib].x, cloud[ib].y, cloud[ib].z);
     const Eigen::Vector3f C(cloud[ic].x, cloud[ic].y, cloud[ic].z);
 
-    // Area filter
     const float area = tri_area3D(A, B, C);
-    if (area < min_area) continue;
+    if (area < min_area) { ++dropped_area; continue; }
 
-    // Edge-length filter
     const float lAB = edge_len3D(ia, ib);
     const float lBC = edge_len3D(ib, ic);
     const float lCA = edge_len3D(ic, ia);
-    if (lAB > max_edge || lBC > max_edge || lCA > max_edge) continue;
+    if (lAB > max_edge || lBC > max_edge || lCA > max_edge) { ++dropped_edge; continue; }
 
-    // Vertical discontinuity filter
     const float dzAB = std::fabs(A.z() - B.z());
     const float dzBC = std::fabs(B.z() - C.z());
     const float dzCA = std::fabs(C.z() - A.z());
-    if (std::max({dzAB, dzBC, dzCA}) > max_dz) continue;
+    if (std::max({dzAB, dzBC, dzCA}) > max_dz) { ++dropped_dz; continue; }
 
-    // Slope filter (normal vs +Z)
     const Eigen::Vector3f n = tri_normal(A, B, C);
-    if (n.dot(Eigen::Vector3f::UnitZ()) < cos_max_slope) continue;
+    if (n.dot(Eigen::Vector3f::UnitZ()) < cos_max_slope) { ++dropped_slope; continue; }
 
     triangles.emplace_back(ia, ib, ic);
   }
 
+  // ---- 4) Emit message + core --------------------------------------------
   navmap::NavMap core;
   build_navmap_from_mesh(cloud, triangles, /*frame_id*/ "map", out_msg, &core);
+
+  // ---- Debug report ------------------------------------------------------
+  std::cerr << "[from_points] Candidate tris: " << final_tris.size()
+            << " | Accepted: " << triangles.size()
+            << " | Dropped (area=" << dropped_area
+            << ", edge=" << dropped_edge
+            << ", dz=" << dropped_dz
+            << ", slope=" << dropped_slope
+            << ")\n";
+
   return core;
 }
+
 
 navmap::NavMap from_pointcloud2(
   const sensor_msgs::msg::PointCloud2 & pc2,
