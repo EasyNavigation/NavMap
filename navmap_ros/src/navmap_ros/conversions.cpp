@@ -1321,13 +1321,13 @@ navmap::NavMap from_points(
   build_navmap_from_mesh(cloud, triangles, /*frame_id*/ "map", out_msg, &core);
 
   // ---- Debug report ------------------------------------------------------
-  std::cerr << "[from_points] Candidate tris: " << final_tris.size()
-            << " | Accepted: " << triangles.size()
-            << " | Dropped (area=" << dropped_area
-            << ", edge=" << dropped_edge
-            << ", dz=" << dropped_dz
-            << ", slope=" << dropped_slope
-            << ")\n";
+  // std::cerr << "[from_points] Candidate tris: " << final_tris.size()
+  //           << " | Accepted: " << triangles.size()
+  //           << " | Dropped (area=" << dropped_area
+  //           << ", edge=" << dropped_edge
+  //           << ", dz=" << dropped_dz
+  //           << ", slope=" << dropped_slope
+  //           << ")\n";
 
   return core;
 }
