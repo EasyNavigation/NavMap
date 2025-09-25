@@ -2,8 +2,8 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.1 (2025-09-25)
+------------------
 * Fix Eigen3 dep in package.xml
 * Contributors: Francisco Martín Rico
 
