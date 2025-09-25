@@ -193,6 +193,9 @@ struct BuildParams
   /** @brief Maximum allowed edge length (meters) when forming triangles. */
   float max_edge_len = 2.0;
 
+  /** @brief Maximum allowed vertical jump (meters) between vertices of a triangle. */
+  float max_dz = 0.25f;
+
   /** @brief Maximum slope with respect to the vertical axis (degrees). */
   float max_slope_deg = 30.0f;   // maximum slope w.r.t. vertical
 
