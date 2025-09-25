@@ -11,8 +11,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>eigen3_cmake_module</depend>
-  <build_depend>Eigen3</build_depend>
-  <exec_depend>Eigen3</exec_depend>
+  <depend>eigen</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>gtest</test_depend>
