@@ -2,8 +2,8 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2025-09-25)
+------------------
 * Fix tranformations sensible to frame_id
 * Surface reconstruction and Slam server
 * Change License to Apache 2

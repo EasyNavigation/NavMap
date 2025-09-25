@@ -2,8 +2,8 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2025-09-25)
+------------------
 * Merge pull request `#6 <https://github.com/EasyNavigation/NavMap/issues/6>`_ from EasyNavigation/imp_surf
   Imp surf
 * Remove traces

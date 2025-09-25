@@ -2,8 +2,8 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2025-09-25)
+------------------
 * Change License to Apache 2
 * Fix no update layers when dirty
 * Set by areas (cicrcular or rectangular)
