@@ -104,15 +104,15 @@ Collaboration diagram for BuildParams:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap__ros_1_1BuildParams__coll__graph.png" border="0" usemap="#aBuildParams_coll__map" alt="Collaboration graph"/></div>
 <map name="aBuildParams_coll__map" id="aBuildParams_coll__map">
-<area shape="rect" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="134,169,230,195"/>
+<area shape="rect" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="134,184,230,210"/>
 <area shape="rect" title=" " alt="" coords="5,5,76,31"/>
-<area shape="poly" title=" " alt="" coords="43,47,51,96,60,121,75,143,103,162,134,173,133,178,100,167,72,147,56,124,46,97,38,47"/>
+<area shape="poly" title=" " alt="" coords="42,46,48,103,57,132,74,158,102,178,135,188,133,193,100,183,70,162,53,135,42,104,36,47"/>
 <area shape="rect" title=" " alt="" coords="99,5,144,31"/>
-<area shape="poly" title=" " alt="" coords="118,47,113,94,116,120,125,144,136,157,151,166,148,171,133,161,121,146,111,121,108,94,112,46"/>
+<area shape="poly" title=" " alt="" coords="117,46,112,101,115,131,125,159,136,172,151,181,148,186,133,176,121,161,110,132,106,101,112,46"/>
 <area shape="rect" title=" " alt="" coords="224,5,262,31"/>
-<area shape="poly" title=" " alt="" coords="243,47,235,95,216,146,198,170,193,167,211,144,230,93,238,46"/>
+<area shape="poly" title=" " alt="" coords="244,47,236,101,228,132,216,161,198,185,193,182,212,159,223,130,231,100,239,46"/>
 <area shape="rect" title=" " alt="" coords="324,5,370,31"/>
-<area shape="poly" title=" " alt="" coords="351,47,345,97,336,124,320,147,300,162,277,173,231,182,230,177,276,168,297,158,316,143,331,121,340,96,346,46"/>
+<area shape="poly" title=" " alt="" coords="352,47,352,74,347,104,338,135,320,162,300,177,277,188,230,198,229,193,275,183,297,173,316,158,333,133,342,103,346,73,347,47"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -121,6 +121,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a6756d66b9752cff73a41c607d4572ae0" id="r_a6756d66b9752cff73a41c607d4572ae0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6756d66b9752cff73a41c607d4572ae0">k_neighbors</a> = 20</td></tr>
 <tr class="memdesc:a6756d66b9752cff73a41c607d4572ae0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alternative to radius: number of nearest neighbors (k-NN).  <br /></td></tr>
 <tr class="separator:a6756d66b9752cff73a41c607d4572ae0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c2901c184925044a9bd4e62b6b0a79b" id="r_a8c2901c184925044a9bd4e62b6b0a79b"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c2901c184925044a9bd4e62b6b0a79b">max_dz</a> = 0.25f</td></tr>
+<tr class="memdesc:a8c2901c184925044a9bd4e62b6b0a79b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum allowed vertical jump (meters) between vertices of a triangle.  <br /></td></tr>
+<tr class="separator:a8c2901c184925044a9bd4e62b6b0a79b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad13e370af216e1188c1268b74472f57f" id="r_ad13e370af216e1188c1268b74472f57f"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad13e370af216e1188c1268b74472f57f">max_edge_len</a> = 2.0</td></tr>
 <tr class="memdesc:ad13e370af216e1188c1268b74472f57f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum allowed edge length (meters) when forming triangles.  <br /></td></tr>
 <tr class="separator:ad13e370af216e1188c1268b74472f57f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -163,6 +166,22 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Alternative to radius: number of nearest neighbors (k-NN). </p>
+
+</div>
+</div>
+<a id="a8c2901c184925044a9bd4e62b6b0a79b" name="a8c2901c184925044a9bd4e62b6b0a79b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c2901c184925044a9bd4e62b6b0a79b">&#9670;&#160;</a></span>max_dz</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float max_dz = 0.25f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximum allowed vertical jump (meters) between vertices of a triangle. </p>
 
 </div>
 </div>
