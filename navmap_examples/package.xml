@@ -4,7 +4,7 @@
   <name>navmap_examples</name>
   <version>0.2.1</version>
   <description>Examples related to navmap_core y navmap_ros.</description>
-  <maintainer email="fmrico@gmail.com">fmrico</maintainer>
+  <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
 
   <license>Apache License, Version 2.0</license>
 
