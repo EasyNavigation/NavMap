@@ -174,12 +174,10 @@ navmap::NavMap from_msg(const NavMap & msg)
                                   msg.surfaces[i].navcels.end());
   }
 
-// Fallback: if no surfaces were provided but there are triangles,
-// create a default single surface listing all triangles.
+  // Fallback: if no surfaces were provided but there are triangles,
+  // create a default single surface listing all triangles.
   if (nm.surfaces.empty() && ntris > 0) {
     navmap::Surface s;
-  // Si tu .msg tiene header, puedes usarlo aquí:
-  // s.frame_id = msg.header.frame_id;
     s.navcels.resize(ntris);
     for (navmap::NavCelId cid = 0; cid < static_cast<navmap::NavCelId>(ntris); ++cid) {
       s.navcels[cid] = cid;
