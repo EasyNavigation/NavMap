@@ -174,6 +174,17 @@ navmap::NavMap from_msg(const NavMap & msg)
                                   msg.surfaces[i].navcels.end());
   }
 
+  // Fallback: if no surfaces were provided but there are triangles,
+  // create a default single surface listing all triangles.
+  if (nm.surfaces.empty() && ntris > 0) {
+    navmap::Surface s;
+    s.navcels.resize(ntris);
+    for (navmap::NavCelId cid = 0; cid < static_cast<navmap::NavCelId>(ntris); ++cid) {
+      s.navcels[cid] = cid;
+    }
+    nm.surfaces.push_back(std::move(s));
+  }
+
   // layers
   for (const auto & l : msg.layers) {
     switch (l.type) {
@@ -405,7 +416,7 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
     }
   }
 
-  // Generic fallback: sample each cell center with closest_triangle()
+  // Generic fallback: sample each cell center with closest_navcel()
   std::vector<float> xs(nm.positions.x.begin(), nm.positions.x.end());
   std::vector<float> ys(nm.positions.y.begin(), nm.positions.y.end());
   if (xs.size() < 2 || ys.size() < 2) {
@@ -440,8 +451,8 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
       Eigen::Vector3f closest;
       float sq = 0.0f;
 
-      // Use closest_triangle (const) instead of locate_navcel (non-const)
-      if (nm.closest_triangle({cx, cy, static_cast<float>(g.info.origin.position.z)},
+      // Use closest_navcel (const) instead of locate_navcel (non-const)
+      if (nm.closest_navcel({cx, cy, static_cast<float>(g.info.origin.position.z)},
                               sidx, cid, closest, sq))
       {
         const uint8_t u8 = (*occ)[cid];
@@ -494,7 +505,19 @@ bool build_navmap_from_mesh(
     out_msg.navcels_v2.push_back(static_cast<uint32_t>(i2));
   }
 
-  // 3) Per-navcel "elevation" layer (float32): mean Z of triangle vertices
+// 3) One surface listing all triangles (required for raycasting/BVH)
+  {
+    navmap_ros_interfaces::msg::NavMapSurface s;
+    s.frame_id = frame_id;
+    const std::size_t ntris = out_msg.navcels_v0.size();
+    s.navcels.resize(ntris);
+    for (std::size_t cid = 0; cid < ntris; ++cid) {
+      s.navcels[cid] = static_cast<uint32_t>(cid);
+    }
+    out_msg.surfaces.push_back(std::move(s));
+  }
+
+  // 4) Per-navcel "elevation" layer (float32): mean Z of triangle vertices
   {
     std::vector<float> elev;
     elev.reserve(triangles.size());
@@ -514,7 +537,7 @@ bool build_navmap_from_mesh(
     out_msg.layers.push_back(std::move(layer));
   }
 
-  // 4) Convert to core structure if requested
+  // 5) Convert to core structure if requested
   if (out_core_opt) {
     *out_core_opt = navmap_ros::from_msg(out_msg);
   }
