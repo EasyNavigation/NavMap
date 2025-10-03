@@ -101,7 +101,7 @@ TEST(NavMap_Closest, ChoosesNearestFloorAndPoint) {
   NavCelId cid = 777;
   Eigen::Vector3f q;
   float dist2 = 0.0f;
-  ASSERT_TRUE(nm.closest_triangle(p, sidx, cid, q, dist2));
+  ASSERT_TRUE(nm.closest_navcel(p, sidx, cid, q, dist2));
   EXPECT_EQ(sidx, 1u);
   EXPECT_TRUE(cid == 2 || cid == 3);
   EXPECT_NEAR(q.z(), 2.0f, 1e-3f);
@@ -115,12 +115,12 @@ TEST(NavMap_Closest, TerrainDistanceMonotonicity) {
   Eigen::Vector3f p1(0.25f, 0.25f, 10.0f);
   Eigen::Vector3f q1; float d1;
   size_t s1; NavCelId c1;
-  ASSERT_TRUE(nm.closest_triangle(p1, s1, c1, q1, d1));
+  ASSERT_TRUE(nm.closest_navcel(p1, s1, c1, q1, d1));
   EXPECT_GT(d1, 1.0f);
 
   Eigen::Vector3f p2(0.25f, 0.25f, 1.0f);
   Eigen::Vector3f q2; float d2;
   size_t s2; NavCelId c2;
-  ASSERT_TRUE(nm.closest_triangle(p2, s2, c2, q2, d2));
+  ASSERT_TRUE(nm.closest_navcel(p2, s2, c2, q2, d2));
   EXPECT_LT(d2, d1);
 }

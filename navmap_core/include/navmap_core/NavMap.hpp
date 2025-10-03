@@ -429,7 +429,7 @@ enum class AreaShape { CIRCULAR, RECTANGULAR };
  *  - Call \ref rebuild_geometry_accels() to compute normals, areas, adjacency,
  *    and build per-surface BVHs.
  *  - Create layers via \ref LayerRegistry::add_or_get() sized to navcels.size().
- *  - Query with \ref locate_navcel(), \ref raycast(), or \ref closest_triangle().
+ *  - Query with \ref locate_navcel(), \ref raycast(), or \ref closest_navcel().
  */
 class NavMap {
 public:
@@ -616,7 +616,7 @@ public:
    * \param restrict_surface If >= 0, restrict search to this surface.
    * \return true if any triangle was considered.
    */
-  bool closest_triangle(
+  bool closest_navcel(
     const Eigen::Vector3f & p_world,
     size_t & surface_idx,
     NavCelId & cid,
@@ -1138,7 +1138,7 @@ private:
    *                        on output: improved best squared distance.
    * \return true if any candidate improved the best squared distance.
    */
-  bool surface_closest_triangle(
+  bool surface_closest_navcel(
     const Surface & s,
     const Eigen::Vector3f & p,
     NavCelId & cid,

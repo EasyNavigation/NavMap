@@ -709,7 +709,7 @@ bool NavMap::locate_navcel_core(
 // Closest triangle queries
 // -----------------------------------------------------------------------------
 
-bool NavMap::surface_closest_triangle(
+bool NavMap::surface_closest_navcel(
   const Surface & s,
   const Vec3 & p,
   NavCelId & cid,
@@ -761,7 +761,7 @@ bool NavMap::surface_closest_triangle(
   return any;
 }
 
-bool NavMap::closest_triangle(
+bool NavMap::closest_navcel(
   const Vec3 & p_world,
   size_t & surface_idx,
   NavCelId & cid,
@@ -799,7 +799,7 @@ bool NavMap::closest_triangle(
     NavCelId cid_s = 0;
     Vec3 q_s(0.0f, 0.0f, 0.0f);
     float best_sq_s = best_sq;
-    if (surface_closest_triangle(surf, p_world, cid_s, q_s, best_sq_s)) {
+    if (surface_closest_navcel(surf, p_world, cid_s, q_s, best_sq_s)) {
       if (best_sq_s < best_sq) {
         best_sq = best_sq_s;
         best_q = q_s;
@@ -907,7 +907,7 @@ bool NavMap::locate_navcel(
     return true;
   }
 
-  const float R = 1e6f; // altura grande para garantizar intersección si existe
+  const float R = 1e6f;
   const Eigen::Vector3f up_origin = {p_world.x(), p_world.y(), p_world.z() + R};
   const Eigen::Vector3f down_origin = {p_world.x(), p_world.y(), p_world.z() - R};
   const Eigen::Vector3f up_dir = {0.0f, 0.0f, -1.0f};

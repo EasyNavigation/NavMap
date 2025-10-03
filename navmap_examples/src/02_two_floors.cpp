@@ -31,7 +31,7 @@ using navmap::LayerType;
 using Eigen::Vector3f;
 using std::cout; using std::cerr; using std::endl;
 
-// 02_two_floors: two stacked floors, locate & closest_triangle
+// 02_two_floors: two stacked floors, locate & closest_navcel
 static void make_two_floors(NavMap & nm, float z0, float z1)
 {
   // floor 0
@@ -67,9 +67,9 @@ int main()
   bool ok = nm.locate_navcel(p, sidx, cid, bary, &hit);
   cout << "locate=" << ok << " sidx=" << sidx << " cid=" << cid << " hit.z=" << hit.z() << endl;
 
-  // closest_triangle
+  // closest_navcel
   Vector3f q; float d2;
-  bool ok2 = nm.closest_triangle(p, sidx, cid, q, d2);
+  bool ok2 = nm.closest_navcel(p, sidx, cid, q, d2);
   cout << "closest=" << ok2 << " sidx=" << sidx << " cid=" << cid << " q.z=" << q.z() << " d2=" <<
     d2 << endl;
   return 0;
