@@ -154,9 +154,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad4ba9fe2a96dc6cd1b613de3b3c73511" id="r_ad4ba9fe2a96dc6cd1b613de3b3c73511"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad4ba9fe2a96dc6cd1b613de3b3c73511">build_adjacency</a> ()</td></tr>
 <tr class="memdesc:ad4ba9fe2a96dc6cd1b613de3b3c73511"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build topological adjacency between neighboring NavCels.  <br /></td></tr>
 <tr class="separator:ad4ba9fe2a96dc6cd1b613de3b3c73511"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af57e1de5f4e5a062fa37d1eddf9a2ed4" id="r_af57e1de5f4e5a062fa37d1eddf9a2ed4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af57e1de5f4e5a062fa37d1eddf9a2ed4">closest_triangle</a> (const Eigen::Vector3f &amp;p_world, size_t &amp;surface_idx, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;cid, Eigen::Vector3f &amp;closest_point, float &amp;sqdist, int restrict_surface=-1) const</td></tr>
-<tr class="memdesc:af57e1de5f4e5a062fa37d1eddf9a2ed4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the closest triangle to a point.  <br /></td></tr>
-<tr class="separator:af57e1de5f4e5a062fa37d1eddf9a2ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1faa9583317df79ce4a24c92c68dc2f" id="r_aa1faa9583317df79ce4a24c92c68dc2f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa1faa9583317df79ce4a24c92c68dc2f">closest_navcel</a> (const Eigen::Vector3f &amp;p_world, size_t &amp;surface_idx, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;cid, Eigen::Vector3f &amp;closest_point, float &amp;sqdist, int restrict_surface=-1) const</td></tr>
+<tr class="memdesc:aa1faa9583317df79ce4a24c92c68dc2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the closest triangle to a point.  <br /></td></tr>
+<tr class="separator:aa1faa9583317df79ce4a24c92c68dc2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac62eb8c6caa3e48dd52fc2c49c6ec5fd" id="r_ac62eb8c6caa3e48dd52fc2c49c6ec5fd"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac62eb8c6caa3e48dd52fc2c49c6ec5fd">create_surface</a> (std::string frame_id)</td></tr>
 <tr class="memdesc:ac62eb8c6caa3e48dd52fc2c49c6ec5fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new empty <a class="el" href="structSurface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> and append it to the map.  <br /></td></tr>
 <tr class="separator:ac62eb8c6caa3e48dd52fc2c49c6ec5fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -282,7 +282,7 @@ Public Attributes</h2></td></tr>
 <li>Fill positions, navcels, and surfaces.</li>
 <li>Call rebuild_geometry_accels() to compute normals, areas, adjacency, and build per-surface BVHs.</li>
 <li>Create layers via LayerRegistry::add_or_get() sized to navcels.size().</li>
-<li>Query with locate_navcel(), raycast(), or closest_triangle(). </li>
+<li>Query with locate_navcel(), raycast(), or closest_navcel(). </li>
 </ul>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ada6881dcd6865fb03a053244aa5f0e18" name="ada6881dcd6865fb03a053244aa5f0e18"></a>
@@ -566,14 +566,14 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
-<a id="af57e1de5f4e5a062fa37d1eddf9a2ed4" name="af57e1de5f4e5a062fa37d1eddf9a2ed4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af57e1de5f4e5a062fa37d1eddf9a2ed4">&#9670;&#160;</a></span>closest_triangle()</h2>
+<a id="aa1faa9583317df79ce4a24c92c68dc2f" name="aa1faa9583317df79ce4a24c92c68dc2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1faa9583317df79ce4a24c92c68dc2f">&#9670;&#160;</a></span>closest_navcel()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool closest_triangle </td>
+          <td class="memname">bool closest_navcel </td>
           <td>(</td>
           <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>p_world</em></span>, </td>
         </tr>
