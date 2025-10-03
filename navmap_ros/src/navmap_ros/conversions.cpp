@@ -508,7 +508,7 @@ bool build_navmap_from_mesh(
 // 3) One surface listing all triangles (required for raycasting/BVH)
   {
     navmap_ros_interfaces::msg::NavMapSurface s;
-    s.frame_id = frame_id; // usa el frame_id que ya recibe la función
+    s.frame_id = frame_id;
     const std::size_t ntris = out_msg.navcels_v0.size();
     s.navcels.resize(ntris);
     for (std::size_t cid = 0; cid < ntris; ++cid) {
