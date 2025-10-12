@@ -2,6 +2,9 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.2.1 (2025-09-25)
 ------------------
 

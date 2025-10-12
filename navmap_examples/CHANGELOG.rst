@@ -2,6 +2,11 @@
 Changelog for package navmap_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Creates a surface if there isn't anyone
+* Contributors: Francisco Martín Rico
+
 0.2.1 (2025-09-25)
 ------------------
 
