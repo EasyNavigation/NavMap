@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>navmap_ros_interfaces</name>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
   <description>ROS 2 interfaces for NavMap (messages for visualization and layers)</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
   <license>Apache License, Version 2.0</license>

@@ -2,8 +2,8 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.2 (2025-10-12)
+------------------
 * Creates a surface if there isn't anyone
 * Contributors: Francisco Martín Rico
 
