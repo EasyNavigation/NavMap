@@ -12,7 +12,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(ament_cmake_gtest REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}/NavMap.cpp
