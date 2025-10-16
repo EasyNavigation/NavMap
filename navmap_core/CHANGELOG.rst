@@ -2,8 +2,8 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.3 (2025-10-16)
+------------------
 * Fix dependencies
 * Contributors: Francisco Martín Rico
 

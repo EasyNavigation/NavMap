@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>navmap_ros</name>
-  <version>0.2.2</version>
+  <version>0.2.3</version>
   <description>Conversions between navmap_core and ROS messages</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
 
