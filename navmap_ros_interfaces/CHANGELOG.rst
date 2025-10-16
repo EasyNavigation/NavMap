@@ -2,6 +2,11 @@
 Changelog for package navmap_ros_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix dependencies
+* Contributors: Francisco Martín Rico
+
 0.2.2 (2025-10-12)
 ------------------
 
