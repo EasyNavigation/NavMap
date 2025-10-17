@@ -2,6 +2,11 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix pcl_conversions build
+* Contributors: Francisco Martín Rico
+
 0.2.4 (2025-10-16)
 ------------------
 
