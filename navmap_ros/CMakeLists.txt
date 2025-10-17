@@ -27,19 +27,19 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   ${PCL_INCLUDE_DIRS}
+  ${pcl_conversions_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
   rclcpp::rclcpp
   navmap_core::navmap_core
-  pcl_conversions::pcl_conversions
   ${navmap_ros_interfaces_TARGETS}
   ${geometry_msgs_TARGETS}
   ${nav_msgs_TARGETS}
   ${sensor_msgs_TARGETS}
   ${std_srvs_TARGETS}
   ${PCL_LIBRARIES}
+  ${pcl_conversions_LIBRARIES}
 )
-
 add_executable(slam_server_app
   src/slam_server_app.cpp
 )
