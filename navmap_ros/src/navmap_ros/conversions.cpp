@@ -1266,12 +1266,6 @@ navmap::NavMap from_points(
     const size_t tri_cnt = triangles.size() - tri_off;
     if (tri_cnt > 0) {
       surf_tri_ranges.emplace_back(tri_off, tri_cnt);
-
-      if (P.max_surfaces > 0 &&
-        surf_tri_ranges.size() >= static_cast<size_t>(P.max_surfaces))
-      {
-        break;
-      }
     }
 
     // Accumulate global counters (used only for internal accounting)
@@ -1326,7 +1320,6 @@ navmap::NavMap from_pointcloud2(
   pcl::PointCloud<pcl::PointXYZ> input_points;
   pcl::fromROSMsg(pc2, input_points);
 
-  // Local grow variant (now named from_points)
   return from_points(input_points, out_msg, params);
 }
 
