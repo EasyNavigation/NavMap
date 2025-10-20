@@ -23,6 +23,9 @@
 #include <queue>
 #include <limits>
 #include <numeric>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #include "geometry_msgs/msg/pose.hpp"
 #include <std_msgs/msg/header.hpp>
@@ -572,19 +575,6 @@ static inline float tri_area(
 {
   return 0.5f * ((b - a).cross(c - a)).norm();
 }
-static inline float tri_slope_deg(
-  const Eigen::Vector3f & a,
-  const Eigen::Vector3f & b,
-  const Eigen::Vector3f & c)
-{
-  Eigen::Vector3f n = (b - a).cross(c - a);
-  float nn = n.norm();
-  if (nn < 1e-9f) {return 0.0f;}
-  float cos_theta = std::abs(n.normalized().dot(Eigen::Vector3f::UnitZ())); // cosine w.r.t. vertical
-  cos_theta = std::clamp(cos_theta, 0.0f, 1.0f);
-  float theta = std::acos(cos_theta); // angle w.r.t. vertical
-  return theta * 180.0f / static_cast<float>(M_PI);
-}
 
 // Keys to avoid duplicates (edges/triangles)
 struct EdgeKey
@@ -632,45 +622,6 @@ static inline TriKey make_tri(int i, int j, int k)
   return {v[0], v[1], v[2]};
 }
 
-// Local PCA to obtain a tangent plane at v.
-// Returns two orthogonal axes t1, t2 on the tangent plane.
-// If PCA is unreliable (too few points), fall back to a stable orthonormal pair.
-inline void local_tangent_basis(
-  const std::vector<Eigen::Vector3f> & nbrs,
-  Eigen::Vector3f & t1, Eigen::Vector3f & t2)
-{
-  if (nbrs.size() < 3) {
-    t1 = Eigen::Vector3f::UnitX();
-    t2 = Eigen::Vector3f::UnitY();
-    return;
-  }
-
-  // Center
-  Eigen::Vector3f mean = Eigen::Vector3f::Zero();
-  for (auto & p : nbrs) {
-    mean += p;
-  }
-  mean /= static_cast<float>(nbrs.size());
-
-  // Covariance
-  Eigen::Matrix3f C = Eigen::Matrix3f::Zero();
-  for (auto & p : nbrs) {
-    Eigen::Vector3f d = p - mean;
-    C += d * d.transpose();
-  }
-  C /= static_cast<float>(nbrs.size());
-
-  // Eigenvectors
-  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> es(C);
-  // Ascending eigenvalues: column 0 ~ smallest (approximate normal)
-  Eigen::Vector3f e1 = es.eigenvectors().col(1);
-  Eigen::Vector3f e2 = es.eigenvectors().col(2);
-
-  // Tangent plane basis {e1, e2}
-  t1 = e1.normalized();
-  t2 = (e2 - e2.dot(t1) * t1).normalized();
-}
-
 inline void triangle_angles_deg(
   const Eigen::Vector3f & A,
   const Eigen::Vector3f & B,
@@ -698,123 +649,6 @@ inline void triangle_angles_deg(
   angA = angle_from(a, b, c);
   angB = angle_from(b, c, a);
   angC = angle_from(c, a, b);
-}
-
-// Sort neighbors by angle on the tangent plane at v
-inline void sort_neighbors_angular(
-  const Eigen::Vector3f & vpos,
-  const std::vector<std::pair<int, Eigen::Vector3f>> & nbrs,  // (idx, pos)
-  std::vector<int> & out_ordered)
-{
-  std::vector<Eigen::Vector3f> pts;
-  pts.reserve(nbrs.size() + 1);
-  pts.push_back(vpos);
-  for (auto & it : nbrs) {
-    pts.push_back(it.second);
-  }
-
-  Eigen::Vector3f t1, t2;
-  local_tangent_basis(pts, t1, t2);
-
-  std::vector<std::pair<float, int>> ang_idx;
-  ang_idx.reserve(nbrs.size());
-  for (auto & it : nbrs) {
-    Eigen::Vector3f d = it.second - vpos;
-    float x = d.dot(t1);
-    float y = d.dot(t2);
-    float ang = std::atan2(y, x); // -pi..pi
-    ang_idx.emplace_back(ang, it.first);
-  }
-
-  std::sort(ang_idx.begin(), ang_idx.end(),
-    [](auto & a, auto & b){return a.first < b.first;});
-
-  out_ordered.clear();
-  out_ordered.reserve(ang_idx.size());
-  for (auto & ai : ang_idx) {
-    out_ordered.push_back(ai.second);
-  }
-}
-
-// Attempt to add triangle (i,j,k) under the given constraints
-// (NOW includes max_dz and neighbor_radius constraints)
-inline bool try_add_triangle(
-  int i, int j, int k,
-  const pcl::PointCloud<pcl::PointXYZ> & cloud,
-  const BuildParams & P,
-  std::unordered_set<TriKey, TriHasher> & tri_set,
-  std::unordered_set<EdgeKey, EdgeHasher> & edge_set,
-  std::vector<Triangle> & tris)
-{
-  TriKey tk = make_tri(i, j, k);
-  if (tri_set.find(tk) != tri_set.end()) {return false;}
-
-  const auto & A = cloud[i];
-  const auto & B = cloud[j];
-  const auto & C = cloud[k];
-  if (!pcl::isFinite(A) || !pcl::isFinite(B) || !pcl::isFinite(C)) {return false;}
-
-  // Max edge length (3D)
-  auto dAB = dist3(A, B);
-  auto dBC = dist3(B, C);
-  auto dCA = dist3(C, A);
-  if (P.max_edge_len > 0.0f &&
-      (dAB > P.max_edge_len || dBC > P.max_edge_len || dCA > P.max_edge_len)) {return false;}
-
-  // Max |Δz| per edge (avoid bridges between floors)
-  if (P.max_dz > 0.0f) {
-    const float dzAB = std::fabs(A.z - B.z);
-    const float dzBC = std::fabs(B.z - C.z);
-    const float dzCA = std::fabs(C.z - A.z);
-    if (std::max({dzAB, dzBC, dzCA}) > P.max_dz) {return false;}
-  }
-
-  // Neighbor radius (XY) as lateral constraint
-  if (P.neighbor_radius > 0.0f) {
-    auto distXY = [](const pcl::PointXYZ & Pp, const pcl::PointXYZ & Qq) {
-      const float dx = Pp.x - Qq.x, dy = Pp.y - Qq.y;
-      return std::sqrt(dx*dx + dy*dy);
-    };
-    if (distXY(A,B) > P.neighbor_radius ||
-        distXY(B,C) > P.neighbor_radius ||
-        distXY(C,A) > P.neighbor_radius) {return false;}
-  }
-
-  Eigen::Vector3f a(A.x, A.y, A.z);
-  Eigen::Vector3f b(B.x, B.y, B.z);
-  Eigen::Vector3f c(C.x, C.y, C.z);
-
-  // Min area
-  if (tri_area(a, b, c) < std::max(P.min_area, 1e-9f)) {return false;}
-
-  // Max slope
-  float slope = tri_slope_deg(a, b, c);
-  if (slope > P.max_slope_deg) {return false;}
-
-  // Min angle at each vertex
-  float angA, angB, angC;
-  triangle_angles_deg(a, b, c, angA, angB, angC);
-  if (angA < P.min_angle_deg || angB < P.min_angle_deg || angC < P.min_angle_deg) {
-    return false;
-  }
-
-  // Orient consistently (up-facing)
-  {
-    const Eigen::Vector3f up = Eigen::Vector3f::UnitZ();
-    Eigen::Vector3f n = (b - a).cross(c - a);
-    if (n.norm() < 1e-9f) {return false;}
-    if (n.dot(up) < 0.0f) {
-      std::swap(j, k);
-    }
-  }
-
-  // Accept
-  tri_set.insert(tk);
-  edge_set.insert(make_edge(i, j));
-  edge_set.insert(make_edge(j, k));
-  edge_set.insert(make_edge(k, i));
-  tris.emplace_back(Triangle(i, j, k));
-  return true;
 }
 
 // ----------------- Downsampling -----------------
@@ -851,45 +685,6 @@ struct VoxelAccum
   int count = 0;
 };
 
-
-// Compute voxel index with an offset (used for shifted grids)
-static inline Voxel voxel_index_of_offset(
-  const pcl::PointXYZ & p, float res, float ox, float oy, float oz)
-{
-  return Voxel{
-    static_cast<int>(std::floor((p.x - ox) / res)),
-    static_cast<int>(std::floor((p.y - oy) / res)),
-    static_cast<int>(std::floor((p.z - oz) / res))
-  };
-}
-
-// Single voxelization pass with offset; returns centroids per voxel
-static std::vector<pcl::PointXYZ> voxel_pass_offset(
-  const pcl::PointCloud<pcl::PointXYZ> & in, float res, float ox, float oy, float oz)
-{
-  std::unordered_map<Voxel, VoxelAccum, VoxelHash> map;
-  map.reserve(in.size() / 2 + 1);
-
-  for (const auto & pt : in.points) {
-    if (!pcl::isFinite(pt)) {continue;}
-    Voxel v = voxel_index_of_offset(pt, res, ox, oy, oz);
-    auto & acc = map[v];
-    acc.sum_x += pt.x;
-    acc.sum_y += pt.y;
-    acc.sum_z += pt.z;
-    acc.count += 1;
-  }
-
-  std::vector<pcl::PointXYZ> out;
-  out.reserve(map.size());
-  for (const auto & kv : map) {
-    const VoxelAccum & acc = kv.second;
-    const float inv = acc.count > 0 ? 1.0f / static_cast<float>(acc.count) : 0.0f;
-    out.emplace_back(acc.sum_x * inv, acc.sum_y * inv, acc.sum_z * inv);
-  }
-  return out;
-}
-
 // Compute hash grid cell index for a point
 static inline Voxel cell_of_point(const pcl::PointXYZ & p, float cell)
 {
@@ -924,10 +719,45 @@ downsample_voxelize_avgXYZ(
   const float half = 0.5f * r;
 
   // Pass A: regular grid
-  auto centroids_a = voxel_pass_offset(input_points, r, 0.0f, 0.0f, 0.0f);
+  std::unordered_map<Voxel, VoxelAccum, VoxelHash> mapA;
+  mapA.reserve(input_points.size() / 2 + 1);
+
+  for (const auto & pt : input_points.points) {
+    if (!pcl::isFinite(pt)) {continue;}
+    Voxel v{
+      static_cast<int>(std::floor(pt.x / r)),
+      static_cast<int>(std::floor(pt.y / r)),
+      static_cast<int>(std::floor(pt.z / r))
+    };
+    auto & acc = mapA[v];
+    acc.sum_x += pt.x; acc.sum_y += pt.y; acc.sum_z += pt.z; acc.count += 1;
+  }
+
+  std::vector<pcl::PointXYZ> centroids_a;
+  centroids_a.reserve(mapA.size());
+  for (const auto & kv : mapA) {
+    centroids_a.push_back(accum_centroid(kv.second));
+  }
 
   // Pass B: grid shifted by half resolution
-  auto centroids_b = voxel_pass_offset(input_points, r, half, half, half);
+  std::unordered_map<Voxel, VoxelAccum, VoxelHash> mapB;
+  mapB.reserve(input_points.size() / 2 + 1);
+  for (const auto & pt : input_points.points) {
+    if (!pcl::isFinite(pt)) {continue;}
+    Voxel v{
+      static_cast<int>(std::floor((pt.x - half) / r)),
+      static_cast<int>(std::floor((pt.y - half) / r)),
+      static_cast<int>(std::floor((pt.z - half) / r))
+    };
+    auto & acc = mapB[v];
+    acc.sum_x += pt.x; acc.sum_y += pt.y; acc.sum_z += pt.z; acc.count += 1;
+  }
+
+  std::vector<pcl::PointXYZ> centroids_b;
+  centroids_b.reserve(mapB.size());
+  for (const auto & kv : mapB) {
+    centroids_b.push_back(accum_centroid(kv.second));
+  }
 
   // Merge centroids using a hash grid to join those split by voxel borders
   const float merge_radius = half;
@@ -1060,7 +890,311 @@ downsample_voxelize_avgZ(
   return output;
 }
 
-// ----------------- Crecimiento local desde semilla -----------------
+// Downsampling “Top-Z”: un punto por voxel XY con el mayor Z observado (evita contaminar rampas)
+pcl::PointCloud<pcl::PointXYZ>
+downsample_voxelize_topZ(
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
+  float resolution)
+{
+  pcl::PointCloud<pcl::PointXYZ> output;
+  if (input_points.empty() || !(resolution > 0.0f)) {
+    output.width = 0; output.height = 1; output.is_dense = true;
+    return output;
+  }
+
+  struct Accum {
+    float cx, cy, zmax;
+    bool has{false};
+  };
+
+  std::unordered_map<Voxel, Accum, VoxelHash> vox;
+  vox.reserve(input_points.size() / 2);
+
+  for (const auto & pt : input_points) {
+    if (!pcl::isFinite(pt)) continue;
+
+    const int vx = static_cast<int>(std::floor(pt.x / resolution));
+    const int vy = static_cast<int>(std::floor(pt.y / resolution));
+    const int vz = static_cast<int>(std::floor(pt.z / resolution)); // solo para ID
+    Voxel v{vx, vy, vz};
+
+    auto & a = vox[v];
+    if (!a.has) {
+      a.has  = true;
+      a.cx   = (vx + 0.5f) * resolution;   // centro XY del voxel
+      a.cy   = (vy + 0.5f) * resolution;
+      a.zmax = pt.z;
+    } else if (pt.z > a.zmax) {
+      a.zmax = pt.z;
+    }
+  }
+
+  output.points.reserve(vox.size());
+  for (const auto & kv : vox) {
+    const auto & a = kv.second;
+    output.emplace_back(a.cx, a.cy, a.zmax);
+  }
+
+  output.width = static_cast<uint32_t>(output.points.size());
+  output.height = 1;
+  output.is_dense = true;
+  return output;
+}
+
+// === Downsample con capas por Z (un punto por grupo en cada celda XY) ===
+// Si params.max_dz <= 0, usamos un fallback razonable (p.ej. 0.3 m).
+
+pcl::PointCloud<pcl::PointXYZ>
+downsample_voxelize_avgZ_layered(
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
+  float resolution,
+  float dz_merge /* usa params.max_dz */)
+{
+  pcl::PointCloud<pcl::PointXYZ> output;
+  if (input_points.empty() || !(resolution > 0.0f)) {
+    output.width = 0; output.height = 1; output.is_dense = true;
+    return output;
+  }
+  if (!(dz_merge > 0.0f)) dz_merge = 0.30f; // fallback
+
+  struct VoxelXY { int x, y; };
+  struct HashXY {
+    size_t operator()(const VoxelXY& v) const noexcept {
+      return (static_cast<size_t>(v.x) * 73856093u) ^ (static_cast<size_t>(v.y) * 19349663u);
+    }
+  };
+  struct EqXY {
+    bool operator()(const VoxelXY& a, const VoxelXY& b) const noexcept {
+      return a.x == b.x && a.y == b.y;
+    }
+  };
+
+  // Recolecta puntos por celda XY
+  std::unordered_map<VoxelXY, std::vector<int>, HashXY, EqXY> buckets;
+  buckets.reserve(input_points.size() / 4);
+
+  for (int i = 0; i < static_cast<int>(input_points.size()); ++i) {
+    const auto &pt = input_points[i];
+    if (!pcl::isFinite(pt)) continue;
+    const int vx = static_cast<int>(std::floor(pt.x / resolution));
+    const int vy = static_cast<int>(std::floor(pt.y / resolution));
+    buckets[{vx, vy}].push_back(i);
+  }
+
+  output.points.reserve(buckets.size()); // mínimo
+
+  // Por cada celda, clusterea por Z y emite 1 punto por cluster (X,Y,Z = medias)
+  for (auto & kv : buckets) {
+    auto & idxs = kv.second;
+    if (idxs.empty()) continue;
+
+    std::sort(idxs.begin(), idxs.end(),
+              [&](int a, int b){ return input_points[a].z < input_points[b].z; });
+
+    // Acumuladores del cluster actual
+    double sum_x = 0.0, sum_y = 0.0, sum_z = 0.0;
+    int    count = 0;
+    float  last_z = input_points[idxs.front()].z;
+
+    auto flush_cluster = [&](){
+      if (count <= 0) return;
+      const float cx = static_cast<float>(sum_x / count);
+      const float cy = static_cast<float>(sum_y / count);
+      const float cz = static_cast<float>(sum_z / count);
+      output.emplace_back(cx, cy, cz);
+      sum_x = sum_y = sum_z = 0.0; count = 0;
+    };
+
+    for (int ii = 0; ii < static_cast<int>(idxs.size()); ++ii) {
+      const auto &p = input_points[idxs[ii]];
+      if (count == 0) {
+        // inicia cluster
+        sum_x = p.x; sum_y = p.y; sum_z = p.z; count = 1; last_z = p.z;
+      } else {
+        const float dz = std::fabs(p.z - last_z);
+        if (dz <= dz_merge) {
+          sum_x += p.x; sum_y += p.y; sum_z += p.z; ++count; last_z = p.z;
+        } else {
+          // salta a otra capa
+          flush_cluster();
+          sum_x = p.x; sum_y = p.y; sum_z = p.z; count = 1; last_z = p.z;
+        }
+      }
+    }
+    flush_cluster();
+  }
+
+  output.width = static_cast<uint32_t>(output.points.size());
+  output.height = 1;
+  output.is_dense = true;
+  return output;
+}
+
+pcl::PointCloud<pcl::PointXYZ>
+downsample_voxelize_topZ_layered(
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
+  float resolution,
+  float dz_merge /* usa params.max_dz */)
+{
+  pcl::PointCloud<pcl::PointXYZ> output;
+  if (input_points.empty() || !(resolution > 0.0f)) {
+    output.width = 0; output.height = 1; output.is_dense = true;
+    return output;
+  }
+  if (!(dz_merge > 0.0f)) dz_merge = 0.30f; // fallback
+
+  struct VoxelXY { int x, y; };
+  struct HashXY {
+    size_t operator()(const VoxelXY& v) const noexcept {
+      return (static_cast<size_t>(v.x) * 73856093u) ^ (static_cast<size_t>(v.y) * 19349663u);
+    }
+  };
+  struct EqXY {
+    bool operator()(const VoxelXY& a, const VoxelXY& b) const noexcept {
+      return a.x == b.x && a.y == b.y;
+    }
+  };
+
+  std::unordered_map<VoxelXY, std::vector<int>, HashXY, EqXY> buckets;
+  buckets.reserve(input_points.size() / 4);
+
+  for (int i = 0; i < static_cast<int>(input_points.size()); ++i) {
+    const auto &pt = input_points[i];
+    if (!pcl::isFinite(pt)) continue;
+    const int vx = static_cast<int>(std::floor(pt.x / resolution));
+    const int vy = static_cast<int>(std::floor(pt.y / resolution));
+    buckets[{vx, vy}].push_back(i);
+  }
+
+  output.points.reserve(buckets.size());
+
+  for (auto & kv : buckets) {
+    auto & idxs = kv.second;
+    if (idxs.empty()) continue;
+
+    std::sort(idxs.begin(), idxs.end(),
+              [&](int a, int b){ return input_points[a].z < input_points[b].z; });
+
+    // Cluster por Z; emitimos punto con X,Y medios y Z = z_max del cluster
+    double sum_x = 0.0, sum_y = 0.0;
+    float  z_max = -std::numeric_limits<float>::infinity();
+    int    count = 0;
+    float  last_z = input_points[idxs.front()].z;
+
+    auto flush_cluster = [&](){
+      if (count <= 0) return;
+      const float cx = static_cast<float>(sum_x / count);
+      const float cy = static_cast<float>(sum_y / count);
+      output.emplace_back(cx, cy, z_max);
+      sum_x = 0.0; sum_y = 0.0; z_max = -std::numeric_limits<float>::infinity(); count = 0;
+    };
+
+    for (int ii = 0; ii < static_cast<int>(idxs.size()); ++ii) {
+      const auto &p = input_points[idxs[ii]];
+      if (count == 0) {
+        sum_x = p.x; sum_y = p.y; z_max = p.z; count = 1; last_z = p.z;
+      } else {
+        const float dz = std::fabs(p.z - last_z);
+        if (dz <= dz_merge) {
+          sum_x += p.x; sum_y += p.y; z_max = std::max(z_max, p.z); ++count; last_z = p.z;
+        } else {
+          flush_cluster();
+          sum_x = p.x; sum_y = p.y; z_max = p.z; count = 1; last_z = p.z;
+        }
+      }
+    }
+    flush_cluster();
+  }
+
+  output.width = static_cast<uint32_t>(output.points.size());
+  output.height = 1;
+  output.is_dense = true;
+  return output;
+}
+
+
+// ----------------- Attempt to add triangle (fast filters first) -----------------
+// Incluye: max_edge_len, max_dz, neighbor_radius (XY), min_area, min_angle, pendiente por n·z
+inline bool try_add_triangle(
+  int i, int j, int k,
+  const pcl::PointCloud<pcl::PointXYZ> & cloud,
+  const BuildParams & P,
+  std::unordered_set<TriKey, TriHasher> & tri_set,
+  std::unordered_set<EdgeKey, EdgeHasher> & edge_set,
+  std::vector<Triangle> & tris)
+{
+  TriKey tk = make_tri(i, j, k);
+  if (tri_set.find(tk) != tri_set.end()) {return false;}
+
+  const auto & A = cloud[i];
+  const auto & B = cloud[j];
+  const auto & C = cloud[k];
+  if (!pcl::isFinite(A) || !pcl::isFinite(B) || !pcl::isFinite(C)) {return false;}
+
+  // Max edge length (3D)
+  auto dAB = dist3(A, B);
+  auto dBC = dist3(B, C);
+  auto dCA = dist3(C, A);
+  if (P.max_edge_len > 0.0f &&
+      (dAB > P.max_edge_len || dBC > P.max_edge_len || dCA > P.max_edge_len)) {return false;}
+
+  // Max |Δz| per edge
+  if (P.max_dz > 0.0f) {
+    const float dzAB = std::fabs(A.z - B.z);
+    const float dzBC = std::fabs(B.z - C.z);
+    const float dzCA = std::fabs(C.z - A.z);
+    if (std::max({dzAB, dzBC, dzCA}) > P.max_dz) {return false;}
+  }
+
+  // Neighbor radius (XY)
+  if (P.neighbor_radius > 0.0f) {
+    auto distXY = [](const pcl::PointXYZ & Pp, const pcl::PointXYZ & Qq) {
+      const float dx = Pp.x - Qq.x, dy = Pp.y - Qq.y;
+      return std::sqrt(dx*dx + dy*dy);
+    };
+    if (distXY(A,B) > P.neighbor_radius ||
+        distXY(B,C) > P.neighbor_radius ||
+        distXY(C,A) > P.neighbor_radius) {return false;}
+  }
+
+  Eigen::Vector3f a(A.x, A.y, A.z);
+  Eigen::Vector3f b(B.x, B.y, B.z);
+  Eigen::Vector3f c(C.x, C.y, C.z);
+
+  // Min area
+  if (tri_area(a, b, c) < std::max(P.min_area, 1e-9f)) {return false;}
+
+  // Max slope: usa n·z >= cos(max_slope) (sin acos)
+  const float cos_max_slope =
+      std::cos(P.max_slope_deg * static_cast<float>(M_PI) / 180.0f);
+  Eigen::Vector3f n = (b - a).cross(c - a);
+  const float nn = n.norm();
+  if (nn < 1e-9f) {return false;}
+  n /= nn;
+  if (n.dot(Eigen::Vector3f::UnitZ()) < cos_max_slope) {return false;}
+
+  // Min angle en cada vértice
+  float angA, angB, angC;
+  triangle_angles_deg(a, b, c, angA, angB, angC);
+  if (angA < P.min_angle_deg || angB < P.min_angle_deg || angC < P.min_angle_deg) {
+    return false;
+  }
+
+  // Orientación coherente (normal hacia +Z)
+  if (n.dot(Eigen::Vector3f::UnitZ()) < 0.0f) {
+    std::swap(j, k);
+  }
+
+  // Accept
+  tri_set.insert(tk);
+  edge_set.insert(make_edge(i, j));
+  edge_set.insert(make_edge(j, k));
+  edge_set.insert(make_edge(k, i));
+  tris.emplace_back(Triangle(i, j, k));
+  return true;
+}
+
+// ----------------- Crecimiento local desde semilla (acelerado) -----------------
 
 std::vector<Triangle> grow_surface_from_seed(
   const pcl::PointCloud<pcl::PointXYZ> & cloud,
@@ -1083,59 +1217,57 @@ std::vector<Triangle> grow_surface_from_seed(
   std::unordered_set<TriKey, TriHasher> tri_set;
   std::unordered_set<EdgeKey, EdgeHasher> edge_set;
 
-  std::vector<int> nbr_indices;
-  std::vector<float> nbr_dists;
+  const int MAX_NEIGH_SEED = 32;  // cap vecinos semilla
+  const int MAX_NEIGH_BFS  = 24;  // cap vecinos por arista
+
+  auto dist2XY = [](const pcl::PointXYZ &P, const pcl::PointXYZ &Q){
+    const float dx=P.x-Q.x, dy=P.y-Q.y; return dx*dx+dy*dy;
+  };
 
   while (!frontier.empty()) {
     int v = frontier.front(); frontier.pop();
     const auto & V = cloud[v];
-
     if (!pcl::isFinite(V)) {continue;}
 
-    // 1) Neighborhood
-    nbr_indices.clear(); nbr_dists.clear();
-    int found = 0;
-    if (P.use_radius) {
-      found = kdtree.radiusSearch(V, P.neighbor_radius, nbr_indices, nbr_dists);
+    // 1) Vecindad de la semilla (cap por densidad)
+    std::vector<int> neigh; std::vector<float> dists;
+    if (P.neighbor_radius > 0.0f) {
+      kdtree.radiusSearch(V, P.neighbor_radius, neigh, dists);
+      // ordenamos por d² en XY y cap
+      std::sort(neigh.begin(), neigh.end(), [&](int a, int b){
+        return dist2XY(cloud[v], cloud[a]) < dist2XY(cloud[v], cloud[b]);
+      });
+      if ((int)neigh.size() > MAX_NEIGH_SEED) neigh.resize(MAX_NEIGH_SEED);
     } else {
-      found = kdtree.nearestKSearch(V, P.k_neighbors, nbr_indices, nbr_dists);
+      const int K = std::max(P.k_neighbors, MAX_NEIGH_SEED);
+      kdtree.nearestKSearch(V, K, neigh, dists);
     }
-    if (found <= 1) {continue;} // only itself
 
-    // 2) Filter by edge length and drop v itself
-    std::vector<std::pair<int, Eigen::Vector3f>> candidates;
-    candidates.reserve(found);
-    for (int idx : nbr_indices) {
-      if (idx == v) {continue;}
-      const auto & Pn = cloud[idx];
-      if (!pcl::isFinite(Pn)) {continue;}
-      if (P.max_edge_len <= 0.0f || dist3(V, Pn) <= P.max_edge_len) {
-        candidates.emplace_back(idx, Eigen::Vector3f(Pn.x, Pn.y, Pn.z));
-      }
-    }
-    if (candidates.size() < 2) {continue;}
+    // elimina self
+    neigh.erase(std::remove(neigh.begin(), neigh.end(), v), neigh.end());
+    if (neigh.size() < 2) continue;
 
-    // 3) Angular order on the local tangent plane at v
-    Eigen::Vector3f vpos(V.x, V.y, V.z);
-    std::vector<int> ordered;
-    sort_neighbors_angular(vpos, candidates, ordered);
+    // 2) Orden angular simple en XY
+    std::sort(neigh.begin(), neigh.end(), [&](int a, int b){
+      const float ax = cloud[a].x - V.x, ay = cloud[a].y - V.y;
+      const float bx = cloud[b].x - V.x, by = cloud[b].y - V.y;
+      return std::atan2(ay, ax) < std::atan2(by, bx);
+    });
 
-    // 4) Try fan triangles from consecutive pairs
-    for (size_t t = 0; t + 1 < ordered.size(); ++t) {
-      int i = v;
-      int j = ordered[t];
-      int k = ordered[t + 1];
-
-      if (try_add_triangle(i, j, k, cloud, P, tri_set, edge_set, tris)) {
+    // 3) Fan
+    for (size_t t=0; t+1<neigh.size(); ++t) {
+      int j = neigh[t], k = neigh[t+1];
+      if (try_add_triangle(v, j, k, cloud, P, tri_set, edge_set, tris)) {
         if (!seen.count(j)) {frontier.push(j); seen.insert(j);}
         if (!seen.count(k)) {frontier.push(k); seen.insert(k);}
       }
     }
-    // Optional fan closure
-    if (ordered.size() >= 2) {
-      int j0 = ordered.front(), k0 = ordered.back();
-      try_add_triangle(v, k0, j0, cloud, P, tri_set, edge_set, tris);
+    if (neigh.size() >= 3) {
+      int j = neigh.back(), k = neigh.front();
+      try_add_triangle(v, j, k, cloud, P, tri_set, edge_set, tris);
     }
+
+    // 4) BFS por aristas recientes: ya se gestiona en caller en la variante con trazas
   }
 
   return tris;
@@ -1143,9 +1275,7 @@ std::vector<Triangle> grow_surface_from_seed(
 
 // ----------------- Banded Delaunay (gap-based) -----------------
 
-// Separa la nube en "bandas" siguiendo saltos en Z:
-// - Ordena por Z y empieza nueva banda cuando (z_i - z_{i-1}) > gap_z.
-// - Útil para plantas en edificios (saltos grandes) sin romper rampas suaves.
+// Separa la nube en "bandas" siguiendo saltos en Z.
 static std::vector<std::vector<int>>
 split_points_by_z_gaps(const pcl::PointCloud<pcl::PointXYZ> & cloud,
                        float gap_z,
@@ -1196,7 +1326,8 @@ navmap::NavMap from_points(
   // 1) Downsample que NO colapsa plantas (promedia Z por voxel XY)
   pcl::PointCloud<pcl::PointXYZ> cloud;
   if (params.resolution > 0.0f) {
-    cloud = downsample_voxelize_avgZ(input_points, params.resolution);
+    cloud = downsample_voxelize_avgZ_layered(input_points, params.resolution,
+                                         (params.max_dz > 0.0f ? params.max_dz : 0.30f));
   } else {
     cloud = input_points;
   }
@@ -1205,7 +1336,6 @@ navmap::NavMap from_points(
   }
 
   // 2) Bandas por SALTOS en Z
-  //    Para parkings típicos (2.5–3.0 m entre plantas), gap_z=1.0 separa bien.
   const float gap_z = (params.max_dz > 0.0f)
                         ? std::max(1.0f, 3.0f * params.max_dz)
                         : 1.0f;
@@ -1398,7 +1528,6 @@ navmap::NavMap from_points(
   }
 
   // Reclasifica surfaces por banda asumiendo que se preserva el orden.
-  // Si tu builder reordena, puedes re-clasificar por Z media (ver variante en mensajes previos).
   out_msg.surfaces.clear();
   for (const auto & oc : band_tri_ranges) {
     const size_t off = oc.first, cnt = oc.second;
@@ -1416,60 +1545,7 @@ navmap::NavMap from_points(
   return nm;
 }
 
-pcl::PointCloud<pcl::PointXYZ>
-downsample_voxelize_topZ(
-  const pcl::PointCloud<pcl::PointXYZ> & input_points,
-  float resolution)
-{
-  pcl::PointCloud<pcl::PointXYZ> output;
-  if (input_points.empty() || !(resolution > 0.0f)) {
-    output.width = 0; output.height = 1; output.is_dense = true;
-    return output;
-  }
-
-  struct Accum {
-    // Guardamos el punto de mayor Z visto en el voxel
-    float cx, cy, zmax;
-    bool has{false};
-  };
-
-  std::unordered_map<Voxel, Accum, VoxelHash> vox;
-  vox.reserve(input_points.size() / 2);
-
-  for (const auto & pt : input_points) {
-    if (!pcl::isFinite(pt)) continue;
-
-    const int vx = static_cast<int>(std::floor(pt.x / resolution));
-    const int vy = static_cast<int>(std::floor(pt.y / resolution));
-    const int vz = static_cast<int>(std::floor(pt.z / resolution)); // solo para ID
-    Voxel v{vx, vy, vz};
-
-    auto & a = vox[v];
-    if (!a.has) {
-      a.has  = true;
-      a.cx   = (vx + 0.5f) * resolution;   // centro XY del voxel
-      a.cy   = (vy + 0.5f) * resolution;
-      a.zmax = pt.z;
-    } else if (pt.z > a.zmax) {
-      a.zmax = pt.z;
-    }
-  }
-
-  output.points.reserve(vox.size());
-  for (const auto & kv : vox) {
-    const auto & a = kv.second;
-    // emitimos el “techo” del voxel
-    output.emplace_back(a.cx, a.cy, a.zmax);
-  }
-
-  output.width = static_cast<uint32_t>(output.points.size());
-  output.height = 1;
-  output.is_dense = true;
-  return output;
-}
-
-
-// ----------------- Variante Local Grow (opcional) -----------------
+// ----------------- Variante Local Grow (con trazas + aceleraciones) -----------------
 
 navmap::NavMap from_points_local_grow(
   const pcl::PointCloud<pcl::PointXYZ> & input_points,
@@ -1501,7 +1577,7 @@ navmap::NavMap from_points_local_grow(
     return navmap::NavMap();
   }
 
-  // 0) Downsample que no colapsa plantas
+  // 0) Downsample robusto (Top-Z)
   pcl::PointCloud<pcl::PointXYZ> cloud;
   if (P.resolution > 0.0f) {
     cloud = downsample_voxelize_topZ(input_points, P.resolution);
@@ -1547,8 +1623,8 @@ navmap::NavMap from_points_local_grow(
     size_t xy = 0;
     size_t dup = 0;
     size_t geom = 0; // min_area / slope / min_angle / degenerado
-    size_t zwin_seed = 0; // NUEVO: vecinos filtrados por ventana Z en fan
-    size_t zwin_bfs  = 0; // NUEVO: candidatos filtrados por ventana Z en BFS
+    size_t zwin_seed = 0;
+    size_t zwin_bfs  = 0;
   } global_rej{};
 
   size_t global_tri_fan_attempts = 0, global_tri_fan_accept = 0;
@@ -1557,8 +1633,8 @@ navmap::NavMap from_points_local_grow(
   auto dist3f = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
     const float dx=A.x-B.x, dy=A.y-B.y, dz=A.z-B.z; return std::sqrt(dx*dx+dy*dy+dz*dz);
   };
-  auto distXY = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
-    const float dx=A.x-B.x, dy=A.y-B.y; return std::sqrt(dx*dx+dy*dy);
+  auto dist2XY = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
+    const float dx=A.x-B.x, dy=A.y-B.y; return dx*dx+dy*dy;
   };
 
   enum class Phase { FAN, BFS };
@@ -1576,7 +1652,6 @@ navmap::NavMap from_points_local_grow(
       const float lAB = dist3f(A,B), lBC = dist3f(B,C), lCA = dist3f(C,A);
       if (lAB > P.max_edge_len || lBC > P.max_edge_len || lCA > P.max_edge_len) {
         rej.edge_len++;
-        // cerr << "[local_grow]     REJECT(edge_len) |AB|="<<fmtf(lAB)<<" |BC|="<<fmtf(lBC)<<" |CA|="<<fmtf(lCA)<<"\n";
         return false;
       }
     }
@@ -1589,29 +1664,26 @@ navmap::NavMap from_points_local_grow(
       const float dzmax = std::max({dzAB, dzBC, dzCA});
       if (dzmax > P.max_dz) {
         rej.dz++;
-        // cerr << "[local_grow]     REJECT(dz) dzAB="<<fmtf(dzAB)<<" dzBC="<<fmtf(dzBC)<<" dzCA="<<fmtf(dzCA)<<"\n";
         return false;
       }
     }
 
     // neighbor_radius (XY)
     if (P.neighbor_radius > 0.0f) {
-      const float r = P.neighbor_radius;
-      const float dABxy = distXY(A,B);
-      const float dBCxy = distXY(B,C);
-      const float dCAxy = distXY(C,A);
+      const float r2 = P.neighbor_radius * P.neighbor_radius;
+      const float dAB2 = dist2XY(A,B);
+      const float dBC2 = dist2XY(B,C);
+      const float dCA2 = dist2XY(C,A);
 
       bool bad_xy = false;
       if (phase == Phase::FAN) {
-        // en FAN exigimos radio sólo para las aristas con la semilla (i)
-        if (dABxy > r || dCAxy > r) bad_xy = true;
+        if (dAB2 > r2 || dCA2 > r2) bad_xy = true;
       } else {
-        if (dABxy > r || dBCxy > r || dCAxy > r) bad_xy = true;
+        if (dAB2 > r2 || dBC2 > r2 || dCA2 > r2) bad_xy = true;
       }
 
       if (bad_xy) {
         rej.xy++;
-        // cerr << "[local_grow]     REJECT(xy "<<(phase==Phase::FAN?"FAN":"BFS")<<") dAB="<<fmtf(dABxy)<<" dBC="<<fmtf(dBCxy)<<" dCA="<<fmtf(dCAxy)<<" (r="<<fmtf(r)<<")\n";
         return false;
       }
     }
@@ -1619,9 +1691,14 @@ navmap::NavMap from_points_local_grow(
     return true;
   };
 
-  // Ventanas Z (ligeramente más holgadas que max_dz para inicio de rampa)
+  // Ventanas Z (asimétricas para BFS)
   const float z_window_seed = std::max(P.max_dz, 0.35f);
-  const float z_window_bfs  = std::max(P.max_dz, 0.35f);
+  const float z_window_up   = std::max(P.max_dz, 0.35f);
+  const float z_window_down = 0.10f;
+
+  // Límites de vecinos para contener combinatoria
+  const int MAX_NEIGH_SEED = 32;
+  const int MAX_NEIGH_BFS  = 24;
 
   // Bucle de semillas
   size_t seed_idx_counter = 0;
@@ -1630,27 +1707,29 @@ navmap::NavMap from_points_local_grow(
     if (used_vertex[seed_idx]) continue;
 
     const auto &S = cloud[seed_idx];
-    cerr << "\n[local_grow] -- Seed #" << seed_idx_counter
-         << " (idx=" << seed_idx << ") pos=("
-         << fmtf(S.x) << "," << fmtf(S.y) << "," << fmtf(S.z) << ")\n";
+    std::cerr << "\n[local_grow] -- Seed #" << seed_idx_counter
+              << " (idx=" << seed_idx << ") pos=("
+              << fmtf(S.x) << "," << fmtf(S.y) << "," << fmtf(S.z) << ")\n";
 
     // Vecinos de la semilla
-    std::vector<int> neigh_seed;
-    {
-      std::vector<int> inds;
-      std::vector<float> dists;
-      if (P.neighbor_radius > 0.0f) {
-        const int found = kdtree.radiusSearch(S, P.neighbor_radius, inds, dists);
-        cerr << "[local_grow]   radiusSearch: found=" << found << " (including self)\n";
-        if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
-      } else {
-        const int K = std::max(8, P.k_neighbors);
-        const int found = kdtree.nearestKSearch(S, K, inds, dists);
-        cerr << "[local_grow]   kNN: K=" << K << " found=" << found << " (including self)\n";
-        if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
-      }
+    std::vector<int> neigh_seed, inds;
+    std::vector<float> dists;
+    if (P.neighbor_radius > 0.0f) {
+      const int found = kdtree.radiusSearch(S, P.neighbor_radius, inds, dists);
+      std::cerr << "[local_grow]   radiusSearch: found=" << found << " (including self)\n";
+      if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
+      // Cap por densidad (orden por d² XY)
+      std::sort(neigh_seed.begin(), neigh_seed.end(), [&](int a, int b){
+        return dist2XY(cloud[seed_idx], cloud[a]) < dist2XY(cloud[seed_idx], cloud[b]);
+      });
+      if ((int)neigh_seed.size() > MAX_NEIGH_SEED) neigh_seed.resize(MAX_NEIGH_SEED);
+    } else {
+      const int K = std::max(8, std::max(P.k_neighbors, MAX_NEIGH_SEED));
+      const int found = kdtree.nearestKSearch(S, K, inds, dists);
+      std::cerr << "[local_grow]   kNN: K=" << K << " found=" << found << " (including self)\n";
+      if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
     }
-    cerr << "[local_grow]   neigh_seed (raw, excl. self): " << neigh_seed.size() << "\n";
+    std::cerr << "[local_grow]   neigh_seed (raw, excl. self): " << neigh_seed.size() << "\n";
 
     // Filtro rápido por edge_len (semilla–vecino) y finitos
     if (P.max_edge_len > 0.0f) {
@@ -1661,11 +1740,11 @@ navmap::NavMap from_points_local_grow(
           if (!pcl::isFinite(Q)) return true;
           return dist3f(S, Q) > P.max_edge_len;
         }), neigh_seed.end());
-      cerr << "[local_grow]   neigh_seed after edge_len filter: " << neigh_seed.size()
-           << " (removed " << (before - neigh_seed.size()) << ")\n";
+      std::cerr << "[local_grow]   neigh_seed after edge_len filter: " << neigh_seed.size()
+                << " (removed " << (before - neigh_seed.size()) << ")\n";
     }
 
-    // *** NUEVO ***: Filtro por ventana Z respecto a la semilla
+    // Filtro por ventana Z respecto a la semilla (simétrica ±z_window_seed)
     {
       size_t before = neigh_seed.size();
       size_t dump_max = 3, dumped = 0;
@@ -1674,21 +1753,21 @@ navmap::NavMap from_points_local_grow(
           const float dz = std::fabs(cloud[j].z - S.z);
           if (dz > z_window_seed) {
             if (dumped < dump_max)
-              cerr << "[local_grow]   drop(neigh zwin_seed) j="<< j
-                   << " dz="<< fmtf(dz) << " > " << fmtf(z_window_seed) << "\n";
+              std::cerr << "[local_grow]   drop(neigh zwin_seed) j="<< j
+                        << " dz="<< fmtf(dz) << " > " << fmtf(z_window_seed) << "\n";
             ++dumped;
             return true;
           }
           return false;
         }), neigh_seed.end());
-      cerr << "[local_grow]   neigh_seed after Z-window (±"<< fmtf(z_window_seed) << "): "
-           << neigh_seed.size() << " (removed " << (before - neigh_seed.size()) << ")\n";
+      std::cerr << "[local_grow]   neigh_seed after Z-window (±"<< fmtf(z_window_seed) << "): "
+                << neigh_seed.size() << " (removed " << (before - neigh_seed.size()) << ")\n";
       global_rej.zwin_seed += (before - neigh_seed.size());
     }
 
     if (neigh_seed.size() < 2) {
       used_vertex[seed_idx] = 1;
-      cerr << "[local_grow]   Insufficient neighbors (<2) after filtering. Seed skipped.\n";
+      std::cerr << "[local_grow]   Insufficient neighbors (<2) after filtering. Seed skipped.\n";
       continue;
     }
 
@@ -1711,8 +1790,8 @@ navmap::NavMap from_points_local_grow(
     size_t comp_fan_attempts = 0, comp_fan_accept = 0;
     size_t comp_bfs_attempts = 0, comp_bfs_accept = 0;
 
-    // 2) Abanico inicial (con radio XY relajado en lado vecino–vecino; ya lo teníamos)
-    cerr << "[local_grow]   Fan: pairs=" << (neigh_seed.size() > 0 ? (neigh_seed.size()-1) : 0) << "\n";
+    // 2) Abanico inicial
+    std::cerr << "[local_grow]   Fan: pairs=" << (neigh_seed.size() > 0 ? (neigh_seed.size()-1) : 0) << "\n";
     for (size_t t = 0; t + 1 < neigh_seed.size(); ++t) {
       const int j = neigh_seed[t];
       const int k = neigh_seed[t+1];
@@ -1725,7 +1804,7 @@ navmap::NavMap from_points_local_grow(
       if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set, edge_set, triangles)) {
         comp_fan_accept++; global_tri_fan_accept++;
       } else {
-        if (!dup) { comp_rej.geom++; /* cerr << "[local_grow]     REJECT(geom)\n"; */ }
+        if (!dup) { comp_rej.geom++; }
       }
     }
     // Cierre del abanico
@@ -1744,12 +1823,12 @@ navmap::NavMap from_points_local_grow(
       }
     }
 
-    cerr << "[local_grow]   Fan result: attempts=" << comp_fan_attempts
-         << " accepted=" << comp_fan_accept
-         << " tri_now=" << (triangles.size() - tri_off) << "\n";
+    std::cerr << "[local_grow]   Fan result: attempts=" << comp_fan_attempts
+              << " accepted=" << comp_fan_accept
+              << " tri_now=" << (triangles.size() - tri_off) << "\n";
     if (triangles.size() == tri_off) {
       used_vertex[seed_idx] = 1;
-      cerr << "[local_grow]   No triangle from fan. Seed skipped.\n";
+      std::cerr << "[local_grow]   No triangle from fan. Seed skipped.\n";
       // Acumula rechazos del componente en globales y sigue
       global_rej.edge_len += comp_rej.edge_len;
       global_rej.dz       += comp_rej.dz;
@@ -1777,54 +1856,56 @@ navmap::NavMap from_points_local_grow(
         frontier.emplace(EdgeKey(t[1], t[2])); edges_queued++;
         frontier.emplace(EdgeKey(t[2], t[0])); edges_queued++;
       }
-      cerr << "[local_grow]   Frontier initialized: " << edges_queued << " edges\n";
+      std::cerr << "[local_grow]   Frontier initialized: " << edges_queued << " edges\n";
     }
 
-    // 3) Expansión BFS (ahora con ventana Z respecto a la arista)
+    // 3) Expansión BFS (ventana Z asimétrica + cap vecinos)
     size_t bfs_iters = 0;
     while (!frontier.empty()) {
       EdgeKey e = frontier.front(); frontier.pop();
       ++bfs_iters;
 
       const float z_mid = 0.5f * (cloud[e.a].z + cloud[e.b].z);
-      const float z_window_up   = std::max(P.max_dz, 0.35f); // margen “hacia arriba”
-      const float z_window_down = 0.10f;                     // margen “hacia abajo” (estricto)
 
-
-      // Vecinos de e.a y e.b
-      std::vector<int> neigh_a, neigh_b;
-      {
-        std::vector<int> inds; std::vector<float> dists;
-        if (P.neighbor_radius > 0.0f) {
-          if (kdtree.radiusSearch(cloud[e.a], P.neighbor_radius, inds, dists) > 0) {
-            for (int id : inds) if (id != e.a) neigh_a.push_back(id);
-          }
-          inds.clear(); dists.clear();
-          if (kdtree.radiusSearch(cloud[e.b], P.neighbor_radius, inds, dists) > 0) {
-            for (int id : inds) if (id != e.b) neigh_b.push_back(id);
-          }
-        } else {
-          const int K = std::max(8, P.k_neighbors);
-          if (kdtree.nearestKSearch(cloud[e.a], K, inds, dists) > 0) {
-            for (int id : inds) if (id != e.a) neigh_a.push_back(id);
-          }
-          inds.clear(); dists.clear();
-          if (kdtree.nearestKSearch(cloud[e.b], K, inds, dists) > 0) {
-            for (int id : inds) if (id != e.b) neigh_b.push_back(id);
-          }
+      // Vecinos de e.a y e.b (cap por densidad)
+      std::vector<int> neigh_a, neigh_b; std::vector<float> d_aux;
+      if (P.neighbor_radius > 0.0f) {
+        if (kdtree.radiusSearch(cloud[e.a], P.neighbor_radius, neigh_a, d_aux) > 0) {
+          neigh_a.erase(std::remove(neigh_a.begin(), neigh_a.end(), e.a), neigh_a.end());
+          std::sort(neigh_a.begin(), neigh_a.end(), [&](int a, int b){
+            return dist2XY(cloud[e.a], cloud[a]) < dist2XY(cloud[e.a], cloud[b]);
+          });
+          if ((int)neigh_a.size() > MAX_NEIGH_BFS) neigh_a.resize(MAX_NEIGH_BFS);
+        }
+        d_aux.clear();
+        if (kdtree.radiusSearch(cloud[e.b], P.neighbor_radius, neigh_b, d_aux) > 0) {
+          neigh_b.erase(std::remove(neigh_b.begin(), neigh_b.end(), e.b), neigh_b.end());
+          std::sort(neigh_b.begin(), neigh_b.end(), [&](int a, int b){
+            return dist2XY(cloud[e.b], cloud[a]) < dist2XY(cloud[e.b], cloud[b]);
+          });
+          if ((int)neigh_b.size() > MAX_NEIGH_BFS) neigh_b.resize(MAX_NEIGH_BFS);
+        }
+      } else {
+        const int K = std::max(8, std::max(P.k_neighbors, MAX_NEIGH_BFS));
+        if (kdtree.nearestKSearch(cloud[e.a], K, neigh_a, d_aux) > 0) {
+          neigh_a.erase(std::remove(neigh_a.begin(), neigh_a.end(), e.a), neigh_a.end());
+        }
+        d_aux.clear();
+        if (kdtree.nearestKSearch(cloud[e.b], K, neigh_b, d_aux) > 0) {
+          neigh_b.erase(std::remove(neigh_b.begin(), neigh_b.end(), e.b), neigh_b.end());
         }
       }
 
+      // Probamos candidatos de 'a' que estén también razonablemente cerca de 'b'
       for (int c : neigh_a) {
         if (c == e.a || c == e.b) continue;
 
         // Rápido: que c esté también cerca de e.b en XY (si hay radio)
         if (P.neighbor_radius > 0.0f) {
-          const float dx = cloud[c].x - cloud[e.b].x;
-          const float dy = cloud[c].y - cloud[e.b].y;
-          if ((dx*dx + dy*dy) > P.neighbor_radius * P.neighbor_radius) continue;
+          if (dist2XY(cloud[c], cloud[e.b]) > P.neighbor_radius * P.neighbor_radius) continue;
         }
 
+        // Ventana Z asimétrica respecto a la arista
         const float dz = cloud[c].z - z_mid;
         if (dz < -z_window_down || dz > z_window_up) {
           ++global_rej.zwin_bfs;
@@ -1848,9 +1929,9 @@ navmap::NavMap from_points_local_grow(
       }
 
       if (bfs_iters % 128 == 0) {
-        cerr << "[local_grow]   BFS iters=" << bfs_iters
-             << " tri_now=" << (triangles.size() - tri_off)
-             << " frontier_size~" << frontier.size() << "\n";
+        std::cerr << "[local_grow]   BFS iters=" << bfs_iters
+                  << " tri_now=" << (triangles.size() - tri_off)
+                  << " frontier_size~" << frontier.size() << "\n";
       }
     }
 
@@ -1869,35 +1950,35 @@ navmap::NavMap from_points_local_grow(
     global_rej.zwin_seed += comp_rej.zwin_seed;
     global_rej.zwin_bfs  += comp_rej.zwin_bfs;
 
-    cerr << "[local_grow]   Component done: triangles=" << tri_cnt
-         << " (fan acc=" << comp_fan_accept << "/" << comp_fan_attempts
-         << ", bfs acc=" << comp_bfs_accept << "/" << comp_bfs_attempts << ")\n";
-    cerr << "[local_grow]   Rejects: edge=" << comp_rej.edge_len
-         << " dz=" << comp_rej.dz
-         << " xy=" << comp_rej.xy
-         << " dup=" << comp_rej.dup
-         << " geom=" << comp_rej.geom << "\n";
+    std::cerr << "[local_grow]   Component done: triangles=" << tri_cnt
+              << " (fan acc=" << comp_fan_accept << "/" << comp_fan_attempts
+              << ", bfs acc=" << comp_bfs_accept << "/" << comp_bfs_attempts << ")\n";
+    std::cerr << "[local_grow]   Rejects: edge=" << comp_rej.edge_len
+              << " dz=" << comp_rej.dz
+              << " xy=" << comp_rej.xy
+              << " dup=" << comp_rej.dup
+              << " geom=" << comp_rej.geom << "\n";
   }
 
   // Resumen global
-  cerr << "\n[local_grow] ====== SUMMARY ======\n";
-  cerr << "[local_grow] total triangles: " << triangles.size() << "\n";
-  cerr << "[local_grow] components: " << surf_tri_ranges.size() << "\n";
-  cerr << "[local_grow] Fan: attempts=" << global_tri_fan_attempts
-       << " accepted=" << global_tri_fan_accept << "\n";
-  cerr << "[local_grow] BFS: attempts=" << global_tri_bfs_attempts
-       << " accepted=" << global_tri_bfs_accept << "\n";
-  cerr << "[local_grow] Rejects: edge=" << global_rej.edge_len
-       << " dz=" << global_rej.dz
-       << " xy=" << global_rej.xy
-       << " dup=" << global_rej.dup
-       << " geom=" << global_rej.geom
-       << " zwin_seed=" << global_rej.zwin_seed
-       << " zwin_bfs="  << global_rej.zwin_bfs
-       << "\n";
+  std::cerr << "\n[local_grow] ====== SUMMARY ======\n";
+  std::cerr << "[local_grow] total triangles: " << triangles.size() << "\n";
+  std::cerr << "[local_grow] components: " << surf_tri_ranges.size() << "\n";
+  std::cerr << "[local_grow] Fan: attempts=" << global_tri_fan_attempts
+            << " accepted=" << global_tri_fan_accept << "\n";
+  std::cerr << "[local_grow] BFS: attempts=" << global_tri_bfs_attempts
+            << " accepted=" << global_tri_bfs_accept << "\n";
+  std::cerr << "[local_grow] Rejects: edge=" << global_rej.edge_len
+            << " dz=" << global_rej.dz
+            << " xy=" << global_rej.xy
+            << " dup=" << global_rej.dup
+            << " geom=" << global_rej.geom
+            << " zwin_seed=" << global_rej.zwin_seed
+            << " zwin_bfs="  << global_rej.zwin_bfs
+            << "\n";
 
   if (triangles.empty()) {
-    cerr << "[local_grow] No triangles produced. RETURN empty.\n";
+    std::cerr << "[local_grow] No triangles produced. RETURN empty.\n";
     return navmap::NavMap();
   }
 
@@ -1906,7 +1987,7 @@ navmap::NavMap from_points_local_grow(
   navmap_ros_interfaces::msg::NavMap msg_tmp;
   navmap::NavMap core;
   if (!build_navmap_from_mesh(cloud, triangles, frame_id, msg_tmp, &core)) {
-    cerr << "[local_grow] build_navmap_from_mesh FAILED. RETURN empty.\n";
+    std::cerr << "[local_grow] build_navmap_from_mesh FAILED. RETURN empty.\n";
     return navmap::NavMap();
   }
 
@@ -1923,12 +2004,10 @@ navmap::NavMap from_points_local_grow(
   }
 
   out_msg = std::move(msg_tmp);
-  cerr << "[local_grow] Surfaces emitted: " << out_msg.surfaces.size() << "\n";
-  cerr << "[local_grow] ====== END from_points_local_grow ======\n\n";
+  std::cerr << "[local_grow] Surfaces emitted: " << out_msg.surfaces.size() << "\n";
+  std::cerr << "[local_grow] ====== END from_points_local_grow ======\n\n";
   return from_msg(out_msg);
 }
-
-
 
 // ----------------- ROS PointCloud2 entry -----------------
 
@@ -1943,7 +2022,7 @@ navmap::NavMap from_pointcloud2(
   // MODO por defecto: Banded Delaunay
   // return from_points(input_points, out_msg, params);
 
-  // Para probar la variante local:
+  // Para la variante local (con aceleraciones y trazas):
   return from_points_local_grow(input_points, out_msg, params);
 }
 
