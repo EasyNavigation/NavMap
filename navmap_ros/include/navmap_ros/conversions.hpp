@@ -213,6 +213,8 @@ struct BuildParams
 
   /** @brief Minimum interior angle (degrees) to avoid sliver triangles. */
   float min_angle_deg = 20.0f;   // minimum interior angle (deg) to avoid sliver triangles
+
+  int   max_surfaces = 0;  // 0 ó <0 => sin límite. >0 => conservar solo las N mayores
 };
 
 /**

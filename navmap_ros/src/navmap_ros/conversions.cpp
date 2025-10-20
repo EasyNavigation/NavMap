@@ -1146,16 +1146,6 @@ inline bool try_add_triangle(
     if (std::max({dzAB, dzBC, dzCA}) > P.max_dz) {return false;}
   }
 
-  // Neighbor radius (XY)
-  if (P.neighbor_radius > 0.0f) {
-    auto distXY = [](const pcl::PointXYZ & Pp, const pcl::PointXYZ & Qq) {
-      const float dx = Pp.x - Qq.x, dy = Pp.y - Qq.y;
-      return std::sqrt(dx*dx + dy*dy);
-    };
-    if (distXY(A,B) > P.neighbor_radius ||
-        distXY(B,C) > P.neighbor_radius ||
-        distXY(C,A) > P.neighbor_radius) {return false;}
-  }
 
   Eigen::Vector3f a(A.x, A.y, A.z);
   Eigen::Vector3f b(B.x, B.y, B.z);
@@ -1308,6 +1298,8 @@ split_points_by_z_gaps(const pcl::PointCloud<pcl::PointXYZ> & cloud,
 
   return bands;
 }
+
+
 
 // ---- from_points: Delaunay por banda + filtros 3D (slope, max_dz, neighbor_radius, etc.)
 
@@ -1545,6 +1537,147 @@ navmap::NavMap from_points(
   return nm;
 }
 
+// Mantiene solo las 'max_surfaces' superficies más grandes (por nº de navcels), en orden descendente.
+// max_surfaces <= 0 => no hace nada.
+static void keep_top_surfaces_by_size(navmap_ros_interfaces::msg::NavMap & msg, int max_surfaces)
+{
+  if (max_surfaces <= 0) return;
+  if (msg.surfaces.size() <= static_cast<size_t>(max_surfaces)) return;
+
+  // Índices 0..S-1
+  std::vector<size_t> ids(msg.surfaces.size());
+  std::iota(ids.begin(), ids.end(), 0);
+
+  // Ordenar por tamaño de superficie (desc)
+  std::sort(ids.begin(), ids.end(), [&](size_t a, size_t b){
+    return msg.surfaces[a].navcels.size() > msg.surfaces[b].navcels.size();
+  });
+
+  // Construir nueva lista con las N primeras
+  std::vector<navmap_ros_interfaces::msg::NavMapSurface> kept;
+  kept.reserve(static_cast<size_t>(max_surfaces));
+  for (int i = 0; i < max_surfaces; ++i) {
+    kept.push_back(std::move(msg.surfaces[ids[static_cast<size_t>(i)]]));
+  }
+  msg.surfaces.swap(kept);
+}
+
+
+// --- Reconstrucción de surfaces por conectividad de triángulos ---
+// Agrupa triángulos en componentes conectadas por ARISTAS compartidas.
+// No aplica ningún límite: conserva todas las superficies, ordenadas por tamaño (desc).
+// --- Reconstrucción de surfaces por conectividad (rápida, limitada a triángulos ya conservados) ---
+static void rebuild_surfaces_by_connectivity(navmap_ros_interfaces::msg::NavMap & msg)
+{
+  const size_t ntris = msg.navcels_v0.size();
+  if (ntris == 0) { msg.surfaces.clear(); return; }
+
+  // 1) Recolecta el conjunto de triángulos que realmente queremos considerar (los que están en surfaces actuales).
+  //    Si no hay surfaces (caso raro), considera todos.
+  std::vector<char> keep(ntris, 0);
+  size_t kept_count = 0;
+  if (!msg.surfaces.empty()) {
+    for (const auto & s : msg.surfaces) {
+      for (uint32_t cid : s.navcels) {
+        if (cid < ntris && !keep[cid]) { keep[cid] = 1; ++kept_count; }
+      }
+    }
+  } else {
+    // Fallback: sin filtro
+    kept_count = ntris;
+    std::fill(keep.begin(), keep.end(), 1);
+  }
+  if (kept_count == 0) { msg.surfaces.clear(); return; }
+
+  // 2) Mapea tri_global -> tri_local (0..K-1) y lista inversa.
+  std::vector<uint32_t> glob2loc(ntris, UINT32_MAX);
+  std::vector<uint32_t> loc2glob;
+  loc2glob.reserve(kept_count);
+  for (uint32_t t = 0; t < ntris; ++t) {
+    if (keep[t]) {
+      glob2loc[t] = static_cast<uint32_t>(loc2glob.size());
+      loc2glob.push_back(t);
+    }
+  }
+  const uint32_t K = static_cast<uint32_t>(loc2glob.size());
+
+  // 3) Estructura Union-Find (DSU)
+  std::vector<uint32_t> parent(K), rankv(K, 0);
+  std::iota(parent.begin(), parent.end(), 0);
+  auto findp = [&](uint32_t x) {
+    while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x]; }
+    return x;
+  };
+  auto unite = [&](uint32_t a, uint32_t b) {
+    a = findp(a); b = findp(b);
+    if (a == b) return;
+    if (rankv[a] < rankv[b]) std::swap(a, b);
+    parent[b] = a;
+    if (rankv[a] == rankv[b]) ++rankv[a];
+  };
+
+  // 4) Mapa de arista -> tri_local (usa clave 64-bit con (min(v), max(v)))
+  struct U64Hash {
+    size_t operator()(const uint64_t &k) const noexcept { return static_cast<size_t>(k ^ (k >> 33)); }
+  };
+  auto edge_key = [](uint32_t a, uint32_t b) -> uint64_t {
+    const uint64_t mn = (a < b) ? a : b;
+    const uint64_t mx = (a < b) ? b : a;
+    return (mn << 32) | mx;
+  };
+
+  std::unordered_map<uint64_t, uint32_t, U64Hash> edge2tri;
+  edge2tri.reserve(static_cast<size_t>(K) * 3u);
+
+  // 5) Una pasada: para cada tri_local, intenta unir con el tri que ya tenía la misma arista
+  for (uint32_t tl = 0; tl < K; ++tl) {
+    const uint32_t tg = loc2glob[tl];
+    const uint32_t v0 = msg.navcels_v0[tg];
+    const uint32_t v1 = msg.navcels_v1[tg];
+    const uint32_t v2 = msg.navcels_v2[tg];
+
+    const uint64_t e01 = edge_key(v0, v1);
+    const uint64_t e12 = edge_key(v1, v2);
+    const uint64_t e20 = edge_key(v2, v0);
+
+    for (const uint64_t e : {e01, e12, e20}) {
+      auto it = edge2tri.find(e);
+      if (it == edge2tri.end()) {
+        edge2tri.emplace(e, tl);
+      } else {
+        unite(tl, it->second);
+      }
+    }
+  }
+
+  // 6) Recolecta componentes: parent_local -> lista de tri_global
+  std::unordered_map<uint32_t, std::vector<uint32_t>> comp;  // root -> tri_global list
+  comp.reserve(K);
+  for (uint32_t tl = 0; tl < K; ++tl) {
+    uint32_t r = findp(tl);
+    comp[r].push_back(loc2glob[tl]);
+  }
+
+  // 7) Pasa a vector y ordénalas por tamaño (desc)
+  std::vector<std::vector<uint32_t>> comps;
+  comps.reserve(comp.size());
+  for (auto & kv : comp) comps.push_back(std::move(kv.second));
+  std::sort(comps.begin(), comps.end(),
+            [](const auto& A, const auto& B){ return A.size() > B.size(); });
+
+  // 8) Emite las nuevas surfaces (sin recorte aquí; ya hiciste keep_top_surfaces_by_size)
+  const std::string fid = msg.header.frame_id;
+  std::vector<navmap_ros_interfaces::msg::NavMapSurface> out;
+  out.reserve(comps.size());
+  for (auto & C : comps) {
+    navmap_ros_interfaces::msg::NavMapSurface s;
+    s.frame_id = fid;
+    s.navcels.assign(C.begin(), C.end()); // índices globales de triángulo
+    out.push_back(std::move(s));
+  }
+  msg.surfaces.swap(out);
+}
+
 // ----------------- Variante Local Grow (con trazas + aceleraciones) -----------------
 
 navmap::NavMap from_points_local_grow(
@@ -1553,7 +1686,6 @@ navmap::NavMap from_points_local_grow(
   BuildParams P)
 {
   using std::cerr;
-  using std::endl;
 
   out_msg = navmap_ros_interfaces::msg::NavMap();
 
@@ -1570,6 +1702,7 @@ navmap::NavMap from_points_local_grow(
        << " max_slope_deg="   << P.max_slope_deg
        << " min_area="        << P.min_area
        << " min_angle_deg="   << P.min_angle_deg
+       << " max_surfaces="    << P.max_surfaces
        << "\n";
 
   if (input_points.size() < 3) {
@@ -1577,10 +1710,11 @@ navmap::NavMap from_points_local_grow(
     return navmap::NavMap();
   }
 
-  // 0) Downsample robusto (Top-Z)
+  // Downsample que preserva plantas: top-Z por capa de Z (cluster en cada celda XY usando dz_merge)
   pcl::PointCloud<pcl::PointXYZ> cloud;
   if (P.resolution > 0.0f) {
-    cloud = downsample_voxelize_topZ(input_points, P.resolution);
+    const float dz_merge = (P.max_dz > 0.0f ? P.max_dz : 0.30f);
+    cloud = downsample_voxelize_topZ_layered(input_points, P.resolution, dz_merge);
   } else {
     cloud = input_points;
   }
@@ -1590,7 +1724,7 @@ navmap::NavMap from_points_local_grow(
     return navmap::NavMap();
   }
 
-  // 1) KdTree
+  // KdTree
   pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
   kdtree.setInputCloud(cloud.makeShared());
   cerr << "[local_grow] KdTree built.\n";
@@ -1598,7 +1732,7 @@ navmap::NavMap from_points_local_grow(
   const int N = static_cast<int>(cloud.size());
   std::vector<char> used_vertex(N, 0);
   std::vector<Eigen::Vector3i> triangles;
-  triangles.reserve(N * 3);
+  triangles.reserve(N * 2);
 
   // Seeds en orden de Z ascendente
   std::vector<int> order(N);
@@ -1607,171 +1741,134 @@ navmap::NavMap from_points_local_grow(
             [&](int a, int b){ return cloud[a].z < cloud[b].z; });
   cerr << "[local_grow] seeds (ordered by Z): " << order.size() << "\n";
 
-  // Rangos por superficie
-  std::vector<std::pair<size_t, size_t>> surf_tri_ranges;
+  // --- Estado global para toda la construcción ---
+  std::unordered_set<TriKey, TriHasher>  tri_set_global;
+  std::unordered_set<EdgeKey, EdgeHasher> edge_set_global; // requerido por try_add_triangle
+  std::unordered_map<EdgeKey, uint16_t, EdgeHasher> edge_use_count;
 
-  // Estructuras temporales por componente
-  std::unordered_set<TriKey, TriHasher> tri_set;
-  std::unordered_set<EdgeKey, EdgeHasher> edge_set;
+  auto inc_edge = [&](const EdgeKey& e) -> uint16_t {
+    auto it = edge_use_count.find(e);
+    if (it == edge_use_count.end()) { edge_use_count.emplace(e, 1); return 1; }
+    return ++(it->second);
+  };
+  auto edge_count = [&](const EdgeKey& e) -> uint16_t {
+    auto it = edge_use_count.find(e);
+    return (it == edge_use_count.end()) ? 0 : it->second;
+  };
 
   std::queue<EdgeKey> frontier;
+  std::unordered_set<EdgeKey, EdgeHasher> in_frontier;
+  auto push_frontier_if_border = [&](const EdgeKey& e) {
+    if (edge_count(e) == 1) {
+      if (in_frontier.insert(e).second) {
+        frontier.emplace(e);
+      }
+    }
+  };
 
-  // Contadores globales
-  struct RejectCounts {
-    size_t edge_len = 0;
-    size_t dz = 0;
-    size_t xy = 0;
-    size_t dup = 0;
-    size_t geom = 0; // min_area / slope / min_angle / degenerado
-    size_t zwin_seed = 0;
-    size_t zwin_bfs  = 0;
-  } global_rej{};
-
+  // Contadores (trazas)
+  struct RejectCounts { size_t edge_len=0,dz=0,xy=0,dup=0,geom=0,zwin_seed=0,zwin_bfs=0; };
+  RejectCounts global_rej{};
   size_t global_tri_fan_attempts = 0, global_tri_fan_accept = 0;
   size_t global_tri_bfs_attempts = 0, global_tri_bfs_accept = 0;
 
   auto dist3f = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
     const float dx=A.x-B.x, dy=A.y-B.y, dz=A.z-B.z; return std::sqrt(dx*dx+dy*dy+dz*dz);
   };
-  auto dist2XY = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
-    const float dx=A.x-B.x, dy=A.y-B.y; return dx*dx+dy*dy;
+  auto distXY = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
+    const float dx=A.x-B.x, dy=A.y-B.y; return std::sqrt(dx*dx+dy*dy);
   };
 
   enum class Phase { FAN, BFS };
-
   auto precheck = [&](int i, int j, int k, Phase phase, RejectCounts & rej, bool &dup_out)->bool {
-    // Duplicado
     TriKey tk = make_tri(i,j,k);
-    if (tri_set.find(tk) != tri_set.end()) { rej.dup++; dup_out = true; return false; }
+    if (tri_set_global.find(tk) != tri_set_global.end()) { rej.dup++; dup_out = true; return false; }
     dup_out = false;
 
     const auto &A = cloud[i], &B = cloud[j], &C = cloud[k];
 
-    // Max edge (3D)
     if (P.max_edge_len > 0.0f) {
       const float lAB = dist3f(A,B), lBC = dist3f(B,C), lCA = dist3f(C,A);
-      if (lAB > P.max_edge_len || lBC > P.max_edge_len || lCA > P.max_edge_len) {
-        rej.edge_len++;
-        return false;
-      }
+      if (lAB > P.max_edge_len || lBC > P.max_edge_len || lCA > P.max_edge_len) { rej.edge_len++; return false; }
     }
 
-    // Max dz por arista
     if (P.max_dz > 0.0f) {
       const float dzAB = std::fabs(A.z - B.z);
       const float dzBC = std::fabs(B.z - C.z);
       const float dzCA = std::fabs(C.z - A.z);
-      const float dzmax = std::max({dzAB, dzBC, dzCA});
-      if (dzmax > P.max_dz) {
-        rej.dz++;
-        return false;
-      }
+      if (std::max({dzAB, dzBC, dzCA}) > P.max_dz) { rej.dz++; return false; }
     }
 
-    // neighbor_radius (XY)
     if (P.neighbor_radius > 0.0f) {
-      const float r2 = P.neighbor_radius * P.neighbor_radius;
-      const float dAB2 = dist2XY(A,B);
-      const float dBC2 = dist2XY(B,C);
-      const float dCA2 = dist2XY(C,A);
-
-      bool bad_xy = false;
-      if (phase == Phase::FAN) {
-        if (dAB2 > r2 || dCA2 > r2) bad_xy = true;
-      } else {
-        if (dAB2 > r2 || dBC2 > r2 || dCA2 > r2) bad_xy = true;
-      }
-
-      if (bad_xy) {
-        rej.xy++;
-        return false;
-      }
+      const float r = P.neighbor_radius;
+      const float dABxy = distXY(A,B), dBCxy = distXY(B,C), dCAxy = distXY(C,A);
+      bool bad_xy = (phase == Phase::FAN) ? (dABxy > r || dCAxy > r) : (dABxy > r || dBCxy > r || dCAxy > r);
+      if (bad_xy) { rej.xy++; return false; }
     }
 
     return true;
   };
 
-  // Ventanas Z (asimétricas para BFS)
+  // Ventanas Z: algo más holgadas hacia arriba para no cortar rampas
   const float z_window_seed = std::max(P.max_dz, 0.35f);
-  const float z_window_up   = std::max(P.max_dz, 0.35f);
-  const float z_window_down = 0.10f;
+  const float z_window_bfs  = std::max(P.max_dz, 0.35f);
+  const float z_window_down = 0.10f; // estricta hacia abajo en BFS
 
-  // Límites de vecinos para contener combinatoria
-  const int MAX_NEIGH_SEED = 32;
-  const int MAX_NEIGH_BFS  = 24;
+  std::vector<std::pair<size_t, size_t>> surf_tri_ranges; // [offset, count]
 
-  // Bucle de semillas
   size_t seed_idx_counter = 0;
   for (int seed_idx : order) {
     ++seed_idx_counter;
     if (used_vertex[seed_idx]) continue;
 
     const auto &S = cloud[seed_idx];
-    std::cerr << "\n[local_grow] -- Seed #" << seed_idx_counter
-              << " (idx=" << seed_idx << ") pos=("
-              << fmtf(S.x) << "," << fmtf(S.y) << "," << fmtf(S.z) << ")\n";
+    cerr << "\n[local_grow] -- Seed #" << seed_idx_counter
+         << " (idx=" << seed_idx << ") pos=("
+         << fmtf(S.x) << "," << fmtf(S.y) << "," << fmtf(S.z) << ")\n";
 
     // Vecinos de la semilla
-    std::vector<int> neigh_seed, inds;
-    std::vector<float> dists;
-    if (P.neighbor_radius > 0.0f) {
-      const int found = kdtree.radiusSearch(S, P.neighbor_radius, inds, dists);
-      std::cerr << "[local_grow]   radiusSearch: found=" << found << " (including self)\n";
-      if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
-      // Cap por densidad (orden por d² XY)
-      std::sort(neigh_seed.begin(), neigh_seed.end(), [&](int a, int b){
-        return dist2XY(cloud[seed_idx], cloud[a]) < dist2XY(cloud[seed_idx], cloud[b]);
-      });
-      if ((int)neigh_seed.size() > MAX_NEIGH_SEED) neigh_seed.resize(MAX_NEIGH_SEED);
-    } else {
-      const int K = std::max(8, std::max(P.k_neighbors, MAX_NEIGH_SEED));
-      const int found = kdtree.nearestKSearch(S, K, inds, dists);
-      std::cerr << "[local_grow]   kNN: K=" << K << " found=" << found << " (including self)\n";
-      if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
+    std::vector<int> neigh_seed;
+    {
+      std::vector<int> inds; std::vector<float> dists;
+      if (P.neighbor_radius > 0.0f) {
+        const int found = kdtree.radiusSearch(S, P.neighbor_radius, inds, dists);
+        cerr << "[local_grow]   radiusSearch: found=" << found << " (including self)\n";
+        if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
+      } else {
+        const int K = std::max(8, P.k_neighbors);
+        const int found = kdtree.nearestKSearch(S, K, inds, dists);
+        cerr << "[local_grow]   kNN: K=" << K << " found=" << found << " (including self)\n";
+        if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
+      }
     }
-    std::cerr << "[local_grow]   neigh_seed (raw, excl. self): " << neigh_seed.size() << "\n";
+    cerr << "[local_grow]   neigh_seed (raw, excl. self): " << neigh_seed.size() << "\n";
 
-    // Filtro rápido por edge_len (semilla–vecino) y finitos
+    // Filtros rápidos
     if (P.max_edge_len > 0.0f) {
       size_t before = neigh_seed.size();
       neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
-        [&](int j){
-          const auto &Q = cloud[j];
-          if (!pcl::isFinite(Q)) return true;
-          return dist3f(S, Q) > P.max_edge_len;
-        }), neigh_seed.end());
-      std::cerr << "[local_grow]   neigh_seed after edge_len filter: " << neigh_seed.size()
-                << " (removed " << (before - neigh_seed.size()) << ")\n";
+        [&](int j){ const auto &Q = cloud[j]; if (!pcl::isFinite(Q)) return true; return dist3f(S,Q) > P.max_edge_len; }),
+        neigh_seed.end());
+      cerr << "[local_grow]   neigh_seed after edge_len filter: " << neigh_seed.size()
+           << " (removed " << (before - neigh_seed.size()) << ")\n";
     }
-
-    // Filtro por ventana Z respecto a la semilla (simétrica ±z_window_seed)
     {
       size_t before = neigh_seed.size();
-      size_t dump_max = 3, dumped = 0;
       neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
-        [&](int j){
-          const float dz = std::fabs(cloud[j].z - S.z);
-          if (dz > z_window_seed) {
-            if (dumped < dump_max)
-              std::cerr << "[local_grow]   drop(neigh zwin_seed) j="<< j
-                        << " dz="<< fmtf(dz) << " > " << fmtf(z_window_seed) << "\n";
-            ++dumped;
-            return true;
-          }
-          return false;
-        }), neigh_seed.end());
-      std::cerr << "[local_grow]   neigh_seed after Z-window (±"<< fmtf(z_window_seed) << "): "
-                << neigh_seed.size() << " (removed " << (before - neigh_seed.size()) << ")\n";
+        [&](int j){ return std::fabs(cloud[j].z - S.z) > z_window_seed; }),
+        neigh_seed.end());
+      cerr << "[local_grow]   neigh_seed after Z-window (±"<< fmtf(z_window_seed) << "): "
+           << neigh_seed.size() << " (removed " << (before - neigh_seed.size()) << ")\n";
       global_rej.zwin_seed += (before - neigh_seed.size());
     }
 
     if (neigh_seed.size() < 2) {
       used_vertex[seed_idx] = 1;
-      std::cerr << "[local_grow]   Insufficient neighbors (<2) after filtering. Seed skipped.\n";
+      cerr << "[local_grow]   Insufficient neighbors (<2) after filtering. Seed skipped.\n";
       continue;
     }
 
-    // Orden angular XY
+    // Orden angular en XY
     {
       const auto & Cc = cloud[seed_idx];
       std::sort(neigh_seed.begin(), neigh_seed.end(), [&](int a, int b){
@@ -1782,54 +1879,63 @@ navmap::NavMap from_points_local_grow(
     }
 
     const size_t tri_off = triangles.size();
-    tri_set.clear();
-    edge_set.clear();
 
-    // Contadores por componente
     RejectCounts comp_rej{};
     size_t comp_fan_attempts = 0, comp_fan_accept = 0;
     size_t comp_bfs_attempts = 0, comp_bfs_accept = 0;
 
-    // 2) Abanico inicial
-    std::cerr << "[local_grow]   Fan: pairs=" << (neigh_seed.size() > 0 ? (neigh_seed.size()-1) : 0) << "\n";
+    // --- FAN inicial ---
+    cerr << "[local_grow]   Fan: pairs=" << (neigh_seed.size() > 0 ? (neigh_seed.size()-1) : 0) << "\n";
     for (size_t t = 0; t + 1 < neigh_seed.size(); ++t) {
       const int j = neigh_seed[t];
       const int k = neigh_seed[t+1];
-      comp_fan_attempts++; global_tri_fan_attempts++;
+      ++comp_fan_attempts; ++global_tri_fan_attempts;
 
       bool dup=false;
-      if (!precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {
-        continue;
-      }
-      if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set, edge_set, triangles)) {
-        comp_fan_accept++; global_tri_fan_accept++;
-      } else {
-        if (!dup) { comp_rej.geom++; }
+      if (!precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) continue;
+
+      if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global, triangles)) {
+        ++comp_fan_accept; ++global_tri_fan_accept;
+
+        // Actualiza conteos y frontera
+        const EdgeKey e0 = make_edge(seed_idx, j);
+        const EdgeKey e1 = make_edge(j, k);
+        const EdgeKey e2 = make_edge(k, seed_idx);
+        inc_edge(e0); inc_edge(e1); inc_edge(e2);
+        push_frontier_if_border(e0);
+        push_frontier_if_border(e1);
+        push_frontier_if_border(e2);
+      } else if (!dup) {
+        comp_rej.geom++;
       }
     }
-    // Cierre del abanico
     if (neigh_seed.size() >= 3) {
       const int j = neigh_seed.back();
       const int k = neigh_seed.front();
-      comp_fan_attempts++; global_tri_fan_attempts++;
-
+      ++comp_fan_attempts; ++global_tri_fan_attempts;
       bool dup=false;
       if (precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {
-        if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set, edge_set, triangles)) {
-          comp_fan_accept++; global_tri_fan_accept++;
-        } else {
-          if (!dup) { comp_rej.geom++; }
+        if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global, triangles)) {
+          ++comp_fan_accept; ++global_tri_fan_accept;
+          const EdgeKey e0 = make_edge(seed_idx, j);
+          const EdgeKey e1 = make_edge(j, k);
+          const EdgeKey e2 = make_edge(k, seed_idx);
+          inc_edge(e0); inc_edge(e1); inc_edge(e2);
+          push_frontier_if_border(e0);
+          push_frontier_if_border(e1);
+          push_frontier_if_border(e2);
+        } else if (!dup) {
+          comp_rej.geom++;
         }
       }
     }
 
-    std::cerr << "[local_grow]   Fan result: attempts=" << comp_fan_attempts
-              << " accepted=" << comp_fan_accept
-              << " tri_now=" << (triangles.size() - tri_off) << "\n";
+    cerr << "[local_grow]   Fan result: attempts=" << comp_fan_attempts
+         << " accepted=" << comp_fan_accept
+         << " tri_now=" << (triangles.size() - tri_off) << "\n";
     if (triangles.size() == tri_off) {
       used_vertex[seed_idx] = 1;
-      std::cerr << "[local_grow]   No triangle from fan. Seed skipped.\n";
-      // Acumula rechazos del componente en globales y sigue
+      cerr << "[local_grow]   No triangle from fan. Seed skipped.\n";
       global_rej.edge_len += comp_rej.edge_len;
       global_rej.dz       += comp_rej.dz;
       global_rej.xy       += comp_rej.xy;
@@ -1840,98 +1946,87 @@ navmap::NavMap from_points_local_grow(
       continue;
     }
 
-    // Marca vértices usados
+    // Marca vértices usados de los nuevos triángulos
     for (size_t u = tri_off; u < triangles.size(); ++u) {
       used_vertex[triangles[u][0]] = 1;
       used_vertex[triangles[u][1]] = 1;
       used_vertex[triangles[u][2]] = 1;
     }
 
-    // Inicializa frontera con aristas de los nuevos triángulos
-    {
-      size_t edges_queued = 0;
-      for (size_t u = tri_off; u < triangles.size(); ++u) {
-        const auto &t = triangles[u];
-        frontier.emplace(EdgeKey(t[0], t[1])); edges_queued++;
-        frontier.emplace(EdgeKey(t[1], t[2])); edges_queued++;
-        frontier.emplace(EdgeKey(t[2], t[0])); edges_queued++;
-      }
-      std::cerr << "[local_grow]   Frontier initialized: " << edges_queued << " edges\n";
-    }
+    cerr << "[local_grow]   Frontier initialized: " << in_frontier.size() << " edges\n";
 
-    // 3) Expansión BFS (ventana Z asimétrica + cap vecinos)
+    // --- BFS sobre aristas de frontera ---
     size_t bfs_iters = 0;
     while (!frontier.empty()) {
       EdgeKey e = frontier.front(); frontier.pop();
+      in_frontier.erase(e);
       ++bfs_iters;
+
+      // Sólo expandimos bordes actuales (conteo==1)
+      if (edge_count(e) != 1) continue;
 
       const float z_mid = 0.5f * (cloud[e.a].z + cloud[e.b].z);
 
-      // Vecinos de e.a y e.b (cap por densidad)
-      std::vector<int> neigh_a, neigh_b; std::vector<float> d_aux;
-      if (P.neighbor_radius > 0.0f) {
-        if (kdtree.radiusSearch(cloud[e.a], P.neighbor_radius, neigh_a, d_aux) > 0) {
-          neigh_a.erase(std::remove(neigh_a.begin(), neigh_a.end(), e.a), neigh_a.end());
-          std::sort(neigh_a.begin(), neigh_a.end(), [&](int a, int b){
-            return dist2XY(cloud[e.a], cloud[a]) < dist2XY(cloud[e.a], cloud[b]);
-          });
-          if ((int)neigh_a.size() > MAX_NEIGH_BFS) neigh_a.resize(MAX_NEIGH_BFS);
-        }
-        d_aux.clear();
-        if (kdtree.radiusSearch(cloud[e.b], P.neighbor_radius, neigh_b, d_aux) > 0) {
-          neigh_b.erase(std::remove(neigh_b.begin(), neigh_b.end(), e.b), neigh_b.end());
-          std::sort(neigh_b.begin(), neigh_b.end(), [&](int a, int b){
-            return dist2XY(cloud[e.b], cloud[a]) < dist2XY(cloud[e.b], cloud[b]);
-          });
-          if ((int)neigh_b.size() > MAX_NEIGH_BFS) neigh_b.resize(MAX_NEIGH_BFS);
-        }
-      } else {
-        const int K = std::max(8, std::max(P.k_neighbors, MAX_NEIGH_BFS));
-        if (kdtree.nearestKSearch(cloud[e.a], K, neigh_a, d_aux) > 0) {
-          neigh_a.erase(std::remove(neigh_a.begin(), neigh_a.end(), e.a), neigh_a.end());
-        }
-        d_aux.clear();
-        if (kdtree.nearestKSearch(cloud[e.b], K, neigh_b, d_aux) > 0) {
-          neigh_b.erase(std::remove(neigh_b.begin(), neigh_b.end(), e.b), neigh_b.end());
+      // Vecinos de e.a y comprobación rápida con e.b (radio y ventana Z)
+      std::vector<int> neigh_a;
+      {
+        std::vector<int> inds; std::vector<float> dists;
+        if (P.neighbor_radius > 0.0f) {
+          if (kdtree.radiusSearch(cloud[e.a], P.neighbor_radius, inds, dists) > 0) {
+            for (int id : inds) if (id != e.a) neigh_a.push_back(id);
+          }
+        } else {
+          const int K = std::max(8, P.k_neighbors);
+          if (kdtree.nearestKSearch(cloud[e.a], K, inds, dists) > 0) {
+            for (int id : inds) if (id != e.a) neigh_a.push_back(id);
+          }
         }
       }
 
-      // Probamos candidatos de 'a' que estén también razonablemente cerca de 'b'
       for (int c : neigh_a) {
         if (c == e.a || c == e.b) continue;
 
-        // Rápido: que c esté también cerca de e.b en XY (si hay radio)
         if (P.neighbor_radius > 0.0f) {
-          if (dist2XY(cloud[c], cloud[e.b]) > P.neighbor_radius * P.neighbor_radius) continue;
+          const float dx = cloud[c].x - cloud[e.b].x;
+          const float dy = cloud[c].y - cloud[e.b].y;
+          if ((dx*dx + dy*dy) > P.neighbor_radius * P.neighbor_radius) continue;
         }
 
-        // Ventana Z asimétrica respecto a la arista
+        const float z_half = std::max(P.max_dz, 0.35f); // o calcula en función de res & slope
         const float dz = cloud[c].z - z_mid;
-        if (dz < -z_window_down || dz > z_window_up) {
-          ++global_rej.zwin_bfs;
-          continue;
-        }
+        if (std::fabs(dz) > z_half) { ++global_rej.zwin_bfs; continue; }
 
-        comp_bfs_attempts++; global_tri_bfs_attempts++;
+        ++comp_bfs_attempts; ++global_tri_bfs_attempts;
 
         bool dup=false;
-        if (!precheck(e.a, e.b, c, Phase::BFS, comp_rej, dup)) {
-          continue;
-        }
-        if (try_add_triangle(e.a, e.b, c, cloud, P, tri_set, edge_set, triangles)) {
-          comp_bfs_accept++; global_tri_bfs_accept++;
-          frontier.emplace(EdgeKey(e.a, c));
-          frontier.emplace(EdgeKey(c, e.b));
+        if (!precheck(e.a, e.b, c, Phase::BFS, comp_rej, dup)) continue;
+
+        if (try_add_triangle(e.a, e.b, c, cloud, P, tri_set_global, edge_set_global, triangles)) {
+          ++comp_bfs_accept; ++global_tri_bfs_accept;
+
+          // Actualiza conteos: el borde (a,b) deja de ser frontera (pasa a 2)
+          const EdgeKey eab = make_edge(e.a, e.b);
+          const EdgeKey eac = make_edge(e.a, c);
+          const EdgeKey ecb = make_edge(c, e.b);
+
+          inc_edge(eab);
+          inc_edge(eac);
+          inc_edge(ecb);
+
+          // Encola SOLO los nuevos bordes de contorno
+          push_frontier_if_border(eac);
+          push_frontier_if_border(ecb);
+
           used_vertex[e.a] = used_vertex[e.b] = used_vertex[c] = 1;
-        } else {
-          if (!dup) { comp_rej.geom++; }
+        } else if (!dup) {
+          comp_rej.geom++;
         }
       }
 
-      if (bfs_iters % 128 == 0) {
-        std::cerr << "[local_grow]   BFS iters=" << bfs_iters
-                  << " tri_now=" << (triangles.size() - tri_off)
-                  << " frontier_size~" << frontier.size() << "\n";
+      if (bfs_iters % 512 == 0) {
+        cerr << "[local_grow]   BFS iters=" << bfs_iters
+             << " frontier_size~" << in_frontier.size()
+             << " tri_total=" << triangles.size() << "\n";
       }
     }
 
@@ -1939,6 +2034,17 @@ navmap::NavMap from_points_local_grow(
     const size_t tri_cnt = triangles.size() - tri_off;
     if (tri_cnt > 0) {
       surf_tri_ranges.emplace_back(tri_off, tri_cnt);
+      cerr << "[local_grow]   Component done: triangles=" << tri_cnt
+           << " (fan acc=" << comp_fan_accept << "/" << comp_fan_attempts
+           << ", bfs acc=" << comp_bfs_accept << "/" << comp_bfs_attempts << ")\n";
+
+      // Corte temprano por número máximo de superficies
+      if (P.max_surfaces > 0 &&
+          surf_tri_ranges.size() >= static_cast<size_t>(P.max_surfaces)) {
+        cerr << "[local_grow]   Reached max_surfaces (" << P.max_surfaces
+             << "). Early stop of seed loop.\n";
+        break;
+      }
     }
 
     // Acumular contadores globales
@@ -1949,48 +2055,40 @@ navmap::NavMap from_points_local_grow(
     global_rej.geom     += comp_rej.geom;
     global_rej.zwin_seed += comp_rej.zwin_seed;
     global_rej.zwin_bfs  += comp_rej.zwin_bfs;
-
-    std::cerr << "[local_grow]   Component done: triangles=" << tri_cnt
-              << " (fan acc=" << comp_fan_accept << "/" << comp_fan_attempts
-              << ", bfs acc=" << comp_bfs_accept << "/" << comp_bfs_attempts << ")\n";
-    std::cerr << "[local_grow]   Rejects: edge=" << comp_rej.edge_len
-              << " dz=" << comp_rej.dz
-              << " xy=" << comp_rej.xy
-              << " dup=" << comp_rej.dup
-              << " geom=" << comp_rej.geom << "\n";
   }
 
   // Resumen global
-  std::cerr << "\n[local_grow] ====== SUMMARY ======\n";
-  std::cerr << "[local_grow] total triangles: " << triangles.size() << "\n";
-  std::cerr << "[local_grow] components: " << surf_tri_ranges.size() << "\n";
-  std::cerr << "[local_grow] Fan: attempts=" << global_tri_fan_attempts
-            << " accepted=" << global_tri_fan_accept << "\n";
-  std::cerr << "[local_grow] BFS: attempts=" << global_tri_bfs_attempts
-            << " accepted=" << global_tri_bfs_accept << "\n";
-  std::cerr << "[local_grow] Rejects: edge=" << global_rej.edge_len
-            << " dz=" << global_rej.dz
-            << " xy=" << global_rej.xy
-            << " dup=" << global_rej.dup
-            << " geom=" << global_rej.geom
-            << " zwin_seed=" << global_rej.zwin_seed
-            << " zwin_bfs="  << global_rej.zwin_bfs
-            << "\n";
+  cerr << "\n[local_grow] ====== SUMMARY ======\n";
+  cerr << "[local_grow] total triangles: " << triangles.size() << "\n";
+  cerr << "[local_grow] components (before prune): " << surf_tri_ranges.size() << "\n";
+  cerr << "[local_grow] Fan: attempts=" << global_tri_fan_attempts
+       << " accepted=" << global_tri_fan_accept << "\n";
+  cerr << "[local_grow] BFS: attempts=" << global_tri_bfs_attempts
+       << " accepted=" << global_tri_bfs_accept << "\n";
+  cerr << "[local_grow] Rejects: edge=" << global_rej.edge_len
+       << " dz=" << global_rej.dz
+       << " xy=" << global_rej.xy
+       << " dup=" << global_rej.dup
+       << " geom=" << global_rej.geom
+       << " zwin_seed=" << global_rej.zwin_seed
+       << " zwin_bfs="  << global_rej.zwin_bfs
+       << "\n";
 
   if (triangles.empty()) {
-    std::cerr << "[local_grow] No triangles produced. RETURN empty.\n";
+    cerr << "[local_grow] No triangles produced. RETURN empty.\n";
     return navmap::NavMap();
   }
 
-  // 4) Construye NavMap + surfaces
+  // Construcción NavMap + surfaces
   const std::string frame_id = "map";
   navmap_ros_interfaces::msg::NavMap msg_tmp;
   navmap::NavMap core;
   if (!build_navmap_from_mesh(cloud, triangles, frame_id, msg_tmp, &core)) {
-    std::cerr << "[local_grow] build_navmap_from_mesh FAILED. RETURN empty.\n";
+    cerr << "[local_grow] build_navmap_from_mesh FAILED. RETURN empty.\n";
     return navmap::NavMap();
   }
 
+  // Construye surfaces a partir de los rangos por componente
   msg_tmp.surfaces.clear();
   for (const auto & oc : surf_tri_ranges) {
     if (oc.second == 0) continue;
@@ -2003,11 +2101,17 @@ navmap::NavMap from_points_local_grow(
     msg_tmp.surfaces.push_back(std::move(s));
   }
 
+  // Mantener solo top-N superficies (si procede)
+  rebuild_surfaces_by_connectivity(msg_tmp);
+  keep_top_surfaces_by_size(msg_tmp, P.max_surfaces);
+
   out_msg = std::move(msg_tmp);
-  std::cerr << "[local_grow] Surfaces emitted: " << out_msg.surfaces.size() << "\n";
-  std::cerr << "[local_grow] ====== END from_points_local_grow ======\n\n";
+  cerr << "[local_grow] Surfaces emitted: " << out_msg.surfaces.size() << "\n";
+  cerr << "[local_grow] ====== END from_points_local_grow ======\n\n";
   return from_msg(out_msg);
 }
+
+
 
 // ----------------- ROS PointCloud2 entry -----------------
 
