@@ -19,6 +19,10 @@
 #include <cmath>
 #include <cassert>
 #include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <limits>
+#include <numeric>
 
 #include "geometry_msgs/msg/pose.hpp"
 #include <std_msgs/msg/header.hpp>
@@ -505,7 +509,7 @@ bool build_navmap_from_mesh(
     out_msg.navcels_v2.push_back(static_cast<uint32_t>(i2));
   }
 
-// 3) One surface listing all triangles (required for raycasting/BVH)
+  // 3) One surface listing all triangles (required for raycasting/BVH)
   {
     navmap_ros_interfaces::msg::NavMapSurface s;
     s.frame_id = frame_id;
@@ -546,7 +550,6 @@ bool build_navmap_from_mesh(
 
 // ----------------- Surface from PC2 -----------------
 
-
 using Triangle = Eigen::Vector3i;
 
 static inline float sqr(float v) {return v * v;}
@@ -583,7 +586,7 @@ static inline float tri_slope_deg(
   return theta * 180.0f / static_cast<float>(M_PI);
 }
 
-// Keys to avoid duplicates
+// Keys to avoid duplicates (edges/triangles)
 struct EdgeKey
 {
   int a, b;
@@ -734,6 +737,7 @@ inline void sort_neighbors_angular(
 }
 
 // Attempt to add triangle (i,j,k) under the given constraints
+// (NOW includes max_dz and neighbor_radius constraints)
 inline bool try_add_triangle(
   int i, int j, int k,
   const pcl::PointCloud<pcl::PointXYZ> & cloud,
@@ -750,18 +754,38 @@ inline bool try_add_triangle(
   const auto & C = cloud[k];
   if (!pcl::isFinite(A) || !pcl::isFinite(B) || !pcl::isFinite(C)) {return false;}
 
-  // Max edge length
+  // Max edge length (3D)
   auto dAB = dist3(A, B);
   auto dBC = dist3(B, C);
   auto dCA = dist3(C, A);
-  if (dAB > P.max_edge_len || dBC > P.max_edge_len || dCA > P.max_edge_len) {return false;}
+  if (P.max_edge_len > 0.0f &&
+      (dAB > P.max_edge_len || dBC > P.max_edge_len || dCA > P.max_edge_len)) {return false;}
+
+  // Max |Δz| per edge (avoid bridges between floors)
+  if (P.max_dz > 0.0f) {
+    const float dzAB = std::fabs(A.z - B.z);
+    const float dzBC = std::fabs(B.z - C.z);
+    const float dzCA = std::fabs(C.z - A.z);
+    if (std::max({dzAB, dzBC, dzCA}) > P.max_dz) {return false;}
+  }
+
+  // Neighbor radius (XY) as lateral constraint
+  if (P.neighbor_radius > 0.0f) {
+    auto distXY = [](const pcl::PointXYZ & Pp, const pcl::PointXYZ & Qq) {
+      const float dx = Pp.x - Qq.x, dy = Pp.y - Qq.y;
+      return std::sqrt(dx*dx + dy*dy);
+    };
+    if (distXY(A,B) > P.neighbor_radius ||
+        distXY(B,C) > P.neighbor_radius ||
+        distXY(C,A) > P.neighbor_radius) {return false;}
+  }
 
   Eigen::Vector3f a(A.x, A.y, A.z);
   Eigen::Vector3f b(B.x, B.y, B.z);
   Eigen::Vector3f c(C.x, C.y, C.z);
 
   // Min area
-  if (tri_area(a, b, c) < P.min_area) {return false;}
+  if (tri_area(a, b, c) < std::max(P.min_area, 1e-9f)) {return false;}
 
   // Max slope
   float slope = tri_slope_deg(a, b, c);
@@ -774,6 +798,7 @@ inline bool try_add_triangle(
     return false;
   }
 
+  // Orient consistently (up-facing)
   {
     const Eigen::Vector3f up = Eigen::Vector3f::UnitZ();
     Eigen::Vector3f n = (b - a).cross(c - a);
@@ -791,6 +816,8 @@ inline bool try_add_triangle(
   tris.emplace_back(Triangle(i, j, k));
   return true;
 }
+
+// ----------------- Downsampling -----------------
 
 struct Voxel
 {
@@ -919,7 +946,7 @@ downsample_voxelize_avgXYZ(
       int best_idx = -1;
       float best_d2 = std::numeric_limits<float>::max();
 
-    // Search 27 neighboring cells for a close cluster
+      // Search 27 neighboring cells for a close cluster
       for (int dz = -1; dz <= 1; ++dz) {
         for (int dy = -1; dy <= 1; ++dy) {
           for (int dx = -1; dx <= 1; ++dx) {
@@ -940,13 +967,13 @@ downsample_voxelize_avgXYZ(
       }
 
       if (best_idx >= 0 && best_d2 <= merge_radius2) {
-      // Merge into existing cluster
+        // Merge into existing cluster
         clusters[best_idx].sum_x += p.x;
         clusters[best_idx].sum_y += p.y;
         clusters[best_idx].sum_z += p.z;
         clusters[best_idx].count += 1;
       } else {
-      // Create new cluster
+        // Create new cluster
         VoxelAccum acc;
         acc.sum_x = p.x; acc.sum_y = p.y; acc.sum_z = p.z; acc.count = 1;
         int new_idx = static_cast<int>(clusters.size());
@@ -975,6 +1002,7 @@ downsample_voxelize_avgXYZ(
   return output;
 }
 
+// Downsampling que NO colapsa plantas: un punto por voxel XY con Z media
 pcl::PointCloud<pcl::PointXYZ>
 downsample_voxelize_avgZ(
   const pcl::PointCloud<pcl::PointXYZ> & input_points,
@@ -1010,7 +1038,7 @@ downsample_voxelize_avgZ(
     acc.count += 1;
   }
 
-  // Emit one point per voxel
+  // Emit one point per voxel (centro XY del voxel y Z media)
   output.points.reserve(voxels.size());
   for (const auto & kv : voxels) {
     const Voxel & v = kv.first;
@@ -1031,6 +1059,8 @@ downsample_voxelize_avgZ(
 
   return output;
 }
+
+// ----------------- Crecimiento local desde semilla -----------------
 
 std::vector<Triangle> grow_surface_from_seed(
   const pcl::PointCloud<pcl::PointXYZ> & cloud,
@@ -1079,7 +1109,7 @@ std::vector<Triangle> grow_surface_from_seed(
       if (idx == v) {continue;}
       const auto & Pn = cloud[idx];
       if (!pcl::isFinite(Pn)) {continue;}
-      if (dist3(V, Pn) <= P.max_edge_len) {
+      if (P.max_edge_len <= 0.0f || dist3(V, Pn) <= P.max_edge_len) {
         candidates.emplace_back(idx, Eigen::Vector3f(Pn.x, Pn.y, Pn.z));
       }
     }
@@ -1091,7 +1121,6 @@ std::vector<Triangle> grow_surface_from_seed(
     sort_neighbors_angular(vpos, candidates, ordered);
 
     // 4) Try fan triangles from consecutive pairs
-    //    Optionally close the fan by connecting last with first.
     for (size_t t = 0; t + 1 < ordered.size(); ++t) {
       int i = v;
       int j = ordered[t];
@@ -1103,258 +1132,712 @@ std::vector<Triangle> grow_surface_from_seed(
       }
     }
     // Optional fan closure
-    int j0 = ordered.front(), k0 = ordered.back();
-    try_add_triangle(v, k0, j0, cloud, P, tri_set, edge_set, tris);
+    if (ordered.size() >= 2) {
+      int j0 = ordered.front(), k0 = ordered.back();
+      try_add_triangle(v, k0, j0, cloud, P, tri_set, edge_set, tris);
+    }
   }
 
   return tris;
 }
 
+// ----------------- Banded Delaunay (gap-based) -----------------
+
+// Separa la nube en "bandas" siguiendo saltos en Z:
+// - Ordena por Z y empieza nueva banda cuando (z_i - z_{i-1}) > gap_z.
+// - Útil para plantas en edificios (saltos grandes) sin romper rampas suaves.
+static std::vector<std::vector<int>>
+split_points_by_z_gaps(const pcl::PointCloud<pcl::PointXYZ> & cloud,
+                       float gap_z,
+                       int   min_points_per_band = 3)
+{
+  std::vector<int> idx(cloud.size());
+  std::iota(idx.begin(), idx.end(), 0);
+  std::sort(idx.begin(), idx.end(),
+            [&](int a, int b){ return cloud[a].z < cloud[b].z; });
+
+  std::vector<std::vector<int>> bands;
+  if (idx.empty()) return bands;
+
+  std::vector<int> cur;
+  cur.reserve(256);
+  cur.push_back(idx[0]);
+
+  for (size_t t = 1; t < idx.size(); ++t) {
+    const int i_prev = idx[t-1];
+    const int i_curr = idx[t];
+    const float dz = cloud[i_curr].z - cloud[i_prev].z;
+
+    if (dz > gap_z) {
+      if ((int)cur.size() >= min_points_per_band) bands.push_back(std::move(cur));
+      cur.clear();
+    }
+    cur.push_back(i_curr);
+  }
+  if ((int)cur.size() >= min_points_per_band) bands.push_back(std::move(cur));
+
+  return bands;
+}
+
+// ---- from_points: Delaunay por banda + filtros 3D (slope, max_dz, neighbor_radius, etc.)
 
 navmap::NavMap from_points(
   const pcl::PointCloud<pcl::PointXYZ> & input_points,
   navmap_ros_interfaces::msg::NavMap & out_msg,
   BuildParams params)
 {
-  // --- Overview ------------------------------------------------------------
-  // 1) Optional voxel downsampling in XY (averaging XYZ).
-  // 2) 2D Delaunay triangulation in the XY plane (no crossing edges by construction).
-  // 3) Lift triangles back to 3D and filter by:
-  //    - area bounds,
-  //    - maximum edge length,
-  //    - maximum vertical discontinuity per edge (max_dz),
-  //    - maximum slope w.r.t. +Z (max_slope_deg).
-  // 4) Emit a single-surface NavMap and mirror it into out_msg.
-  // -------------------------------------------------------------------------
-
   using std::vector;
 
+  out_msg = navmap_ros_interfaces::msg::NavMap();
   if (input_points.empty() || input_points.size() < 3) {
-    out_msg = navmap_ros_interfaces::msg::NavMap();
     return navmap::NavMap();
   }
 
+  // 1) Downsample que NO colapsa plantas (promedia Z por voxel XY)
   pcl::PointCloud<pcl::PointXYZ> cloud;
   if (params.resolution > 0.0f) {
-    cloud = downsample_voxelize_avgXYZ(input_points, params.resolution);
+    cloud = downsample_voxelize_avgZ(input_points, params.resolution);
   } else {
     cloud = input_points;
   }
   if (cloud.size() < 3) {
-    out_msg = navmap_ros_interfaces::msg::NavMap();
     return navmap::NavMap();
   }
 
+  // 2) Bandas por SALTOS en Z
+  //    Para parkings típicos (2.5–3.0 m entre plantas), gap_z=1.0 separa bien.
+  const float gap_z = (params.max_dz > 0.0f)
+                        ? std::max(1.0f, 3.0f * params.max_dz)
+                        : 1.0f;
+  auto bands = split_points_by_z_gaps(cloud, gap_z, /*min_points_per_band=*/3);
+  if (bands.empty()) {
+    return navmap::NavMap();
+  }
+
+  // 3) Delaunay 2D (XY) por banda + filtros 3D
   struct Pt2 { double x, y; int idx3d; };
   struct Tri2 { int a, b, c; };
 
   auto orient2d = [](const Pt2 & a, const Pt2 & b, const Pt2 & c) -> double {
-      return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-    };
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  };
+  auto in_circumcircle = [&](const Pt2 & p, const Pt2 & A, const Pt2 & B, const Pt2 & C) -> bool {
+    const double ax = A.x - p.x, ay = A.y - p.y;
+    const double bx = B.x - p.x, by = B.y - p.y;
+    const double cx = C.x - p.x, cy = C.y - p.y;
+    const double det = (ax*ax + ay*ay) * (bx*cy - by*cx)
+                     - (bx*bx + by*by) * (ax*cy - ay*cx)
+                     + (cx*cx + cy*cy) * (ax*by - ay*bx);
+    const double o = orient2d(A, B, C);
+    return (o > 0.0) ? (det > 0.0) : (det < 0.0);
+  };
 
-  auto in_circumcircle = [&](const Pt2 & p,
-    const Pt2 & A, const Pt2 & B, const Pt2 & C) -> bool
-    {
-      const double ax = A.x - p.x, ay = A.y - p.y;
-      const double bx = B.x - p.x, by = B.y - p.y;
-      const double cx = C.x - p.x, cy = C.y - p.y;
-      const double det = (ax * ax + ay * ay) * (bx * cy - by * cx) -
-        (bx * bx + by * by) * (ax * cy - ay * cx) +
-        (cx * cx + cy * cy) * (ax * by - ay * bx);
-      const double o = orient2d(A, B, C);
-      return (o > 0.0) ? (det > 0.0) : (det < 0.0);
-    };
+  vector<Eigen::Vector3i> all_triangles;
+  all_triangles.reserve(static_cast<size_t>(cloud.size()) * 2);
 
-  vector<Pt2> pts2; pts2.reserve(cloud.size());
-  for (int i = 0; i < static_cast<int>(cloud.size()); ++i) {
-    pts2.push_back({static_cast<double>(cloud[i].x),
-        static_cast<double>(cloud[i].y), i});
-  }
-
-  double minx = 1e300, miny = 1e300, maxx = -1e300, maxy = -1e300;
-  for (const auto & p : pts2) {
-    if (p.x < minx) {minx = p.x;}
-    if (p.y < miny) {miny = p.y;}
-    if (p.x > maxx) {maxx = p.x;}
-    if (p.y > maxy) {maxy = p.y;}
-  }
-  const double dx = maxx - minx, dy = maxy - miny, d = std::max(dx, dy);
-  Pt2 S1{minx - 10 * d, miny - d, -1};
-  Pt2 S2{minx + 0.5 * d, maxy + 10 * d, -2};
-  Pt2 S3{maxx + 10 * d, miny - d, -3};
-
-  vector<Pt2> vs = pts2;
-  const int iS1 = static_cast<int>(vs.size()); vs.push_back(S1);
-  const int iS2 = static_cast<int>(vs.size()); vs.push_back(S2);
-  const int iS3 = static_cast<int>(vs.size()); vs.push_back(S3);
-
-  vector<Tri2> tris;
-  if (orient2d(vs[iS1], vs[iS2], vs[iS3]) <= 0.0) {
-    std::swap(vs[iS2], vs[iS3]);
-  }
-  tris.push_back({iS1, iS2, iS3});
-
-  // Incremental Bowyer–Watson
-  for (int pi = 0; pi < static_cast<int>(pts2.size()); ++pi) {
-    const Pt2 p = vs[pi];
-
-    // 2.1) Collect "bad" triangles (circumcircle contains p)
-    vector<int> bad; bad.reserve(tris.size());
-    for (int ti = 0; ti < static_cast<int>(tris.size()); ++ti) {
-      const auto & t = tris[ti];
-      if (in_circumcircle(p, vs[t.a], vs[t.b], vs[t.c])) {
-        bad.push_back(ti);
-      }
-    }
-
-    // 2.2) Boundary of the polygonal cavity: edges touched exactly once
-    struct EdgeKey
-    {
-      int u, v;
-      bool operator==(const EdgeKey & o) const noexcept
-      {
-        return u == o.u && v == o.v;
-      }
-    };
-    struct EdgeKeyHash
-    {
-      std::size_t operator()(const EdgeKey & e) const noexcept
-      {
-        return (static_cast<std::size_t>(e.u) << 32) ^ static_cast<std::size_t>(e.v);
-      }
-    };
-
-    std::unordered_map<EdgeKey, int, EdgeKeyHash> edge_count;
-    edge_count.reserve(bad.size() * 3);
-
-    auto add_edge = [&](int u, int v) {
-      // canonicalize (min, max) so opposite directions collide
-        if (u > v) {std::swap(u, v);}
-        EdgeKey e{u, v};
-        ++edge_count[e];
-      };
-
-    for (int ti : bad) {
-      const auto & t = tris[ti];
-      add_edge(t.a, t.b);
-      add_edge(t.b, t.c);
-      add_edge(t.c, t.a);
-    }
-
-    // 2.3) Remove bad triangles
-    vector<Tri2> kept; kept.reserve(tris.size());
-    vector<char> removed(tris.size(), 0);
-    for (int idx : bad) {
-      removed[idx] = 1;
-    }
-    for (int ti = 0; ti < static_cast<int>(tris.size()); ++ti) {
-      if (!removed[ti]) {kept.push_back(tris[ti]);}
-    }
-    tris.swap(kept);
-
-    // 2.4) Retriangulate the cavity with p
-    for (const auto & kv : edge_count) {
-      if (kv.second != 1) {continue;} // interior edges appear twice
-      int u = kv.first.u, v = kv.first.v;
-      // enforce CCW for (u, v, p)
-      if (orient2d(vs[u], vs[v], p) <= 0.0) {std::swap(u, v);}
-      tris.push_back({u, v, pi});
-    }
-  }
-
-  // 2.5) Discard triangles touching the super-triangle
-  vector<Tri2> final_tris; final_tris.reserve(tris.size());
-  for (const auto & t : tris) {
-    if (t.a >= static_cast<int>(pts2.size()) ||
-      t.b >= static_cast<int>(pts2.size()) ||
-      t.c >= static_cast<int>(pts2.size()))
-    {
-      continue;
-    }
-    final_tris.push_back(t);
-  }
-
-  // ---- 3) Lift to 3D and filter ------------------------------------------
-  auto tri_area3D = [](const Eigen::Vector3f & A,
-    const Eigen::Vector3f & B,
-    const Eigen::Vector3f & C) -> float {
-      return 0.5f * ((B - A).cross(C - A)).norm();
-    };
-  auto tri_normal = [](const Eigen::Vector3f & A,
-    const Eigen::Vector3f & B,
-    const Eigen::Vector3f & C) -> Eigen::Vector3f {
-      Eigen::Vector3f n = (B - A).cross(C - A);
-      const float L = n.norm();
-      return (L > 1e-12f) ? (n / L) : Eigen::Vector3f(0.f, 0.f, 1.f);
-    };
-  auto edge_len3D = [&](int i, int j) -> float {
-      const auto & a = cloud[i]; const auto & b = cloud[j];
-      const float dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
-      return std::sqrt(dx * dx + dy * dy + dz * dz);
-    };
+  vector<std::pair<size_t, size_t>> band_tri_ranges; // [offset, count] por banda
 
   const float cos_max_slope =
-    std::cos(params.max_slope_deg * static_cast<float>(M_PI) / 180.0f);
+      std::cos(params.max_slope_deg * static_cast<float>(M_PI) / 180.0f);
   const float min_area = std::max(params.min_area, 1e-9f);
   const float max_edge =
-    (params.max_edge_len > 0.0f) ?
-    params.max_edge_len :
-    std::numeric_limits<float>::infinity();
+      (params.max_edge_len > 0.0f) ? params.max_edge_len
+                                   : std::numeric_limits<float>::infinity();
   const float max_dz =
-    (params.max_dz > 0.0f) ?
-    params.max_dz :
-    std::numeric_limits<float>::infinity();
+      (params.max_dz > 0.0f) ? params.max_dz
+                             : std::numeric_limits<float>::infinity();
+  const float neigh_xy =
+      (params.neighbor_radius > 0.0f) ? params.neighbor_radius
+                                      : std::numeric_limits<float>::infinity();
 
-  vector<Eigen::Vector3i> triangles;
-  triangles.reserve(final_tris.size());
+  auto edge_len3D = [&](int i, int j) -> float {
+    const auto & A = cloud[i];
+    const auto & B = cloud[j];
+    const float dx = A.x - B.x, dy = A.y - B.y, dz = A.z - B.z;
+    return std::sqrt(dx*dx + dy*dy + dz*dz);
+  };
+  auto distXY = [&](const pcl::PointXYZ & P, const pcl::PointXYZ & Q) -> float {
+    const float dx = P.x - Q.x, dy = P.y - Q.y;
+    return std::sqrt(dx*dx + dy*dy);
+  };
 
-  // Debug counters
-  size_t dropped_area = 0, dropped_edge = 0, dropped_dz = 0, dropped_slope = 0;
+  for (const auto & band : bands) {
+    if (band.size() < 3) {
+      band_tri_ranges.emplace_back(all_triangles.size(), 0);
+      continue;
+    }
 
-  for (const auto & t : final_tris) {
-    const int ia = vs[t.a].idx3d;
-    const int ib = vs[t.b].idx3d;
-    const int ic = vs[t.c].idx3d;
+    // Puntos 2D de la banda
+    vector<Pt2> vs; vs.reserve(band.size() + 3);
+    double minx = 1e300, miny = 1e300, maxx = -1e300, maxy = -1e300;
+    for (int i3d : band) {
+      const auto & p = cloud[i3d];
+      vs.push_back({static_cast<double>(p.x), static_cast<double>(p.y), i3d});
+      minx = std::min(minx, (double)p.x);
+      miny = std::min(miny, (double)p.y);
+      maxx = std::max(maxx, (double)p.x);
+      maxy = std::max(maxy, (double)p.y);
+    }
 
-    const Eigen::Vector3f A(cloud[ia].x, cloud[ia].y, cloud[ia].z);
-    const Eigen::Vector3f B(cloud[ib].x, cloud[ib].y, cloud[ib].z);
-    const Eigen::Vector3f C(cloud[ic].x, cloud[ic].y, cloud[ic].z);
+    // Super-triángulo
+    const double dx = maxx - minx, dy = maxy - miny, d = std::max(dx, dy);
+    const int iS1 = (int)vs.size(); vs.push_back({minx - 10*d, miny - d,       -1});
+    const int iS2 = (int)vs.size(); vs.push_back({minx + 0.5*d, maxy + 10*d,   -2});
+    const int iS3 = (int)vs.size(); vs.push_back({maxx + 10*d,  miny - d,      -3});
 
-    const float area = tri_area3D(A, B, C);
-    if (area < min_area) {++dropped_area; continue;}
+    vector<Tri2> tris2; tris2.push_back({iS1, iS2, iS3});
 
-    const float lAB = edge_len3D(ia, ib);
-    const float lBC = edge_len3D(ib, ic);
-    const float lCA = edge_len3D(ic, ia);
-    if (lAB > max_edge || lBC > max_edge || lCA > max_edge) {++dropped_edge; continue;}
+    // Bowyer–Watson
+    for (int pi = 0; pi < (int)band.size(); ++pi) {
+      const Pt2 Pp = vs[pi];
+      vector<int> bad; bad.reserve(tris2.size());
+      for (int t = 0; t < (int)tris2.size(); ++t) {
+        const auto & T = tris2[t];
+        if (in_circumcircle(Pp, vs[T.a], vs[T.b], vs[T.c])) bad.push_back(t);
+      }
 
-    const float dzAB = std::fabs(A.z() - B.z());
-    const float dzBC = std::fabs(B.z() - C.z());
-    const float dzCA = std::fabs(C.z() - A.z());
-    if (std::max({dzAB, dzBC, dzCA}) > max_dz) {++dropped_dz; continue;}
+      // borde de cavidad
+      struct EdgeBW { int a, b; };
+      vector<EdgeBW> poly; poly.reserve(bad.size() * 3);
+      std::vector<char> removed(tris2.size(), 0);
+      for (int bi : bad) removed[bi] = 1;
 
-    const Eigen::Vector3f n = tri_normal(A, B, C);
-    if (n.dot(Eigen::Vector3f::UnitZ()) < cos_max_slope) {++dropped_slope; continue;}
+      auto add_edge = [&](int a, int b){
+        for (auto it = poly.begin(); it != poly.end(); ++it) {
+          if (it->a == b && it->b == a) { poly.erase(it); return; }
+        }
+        poly.push_back({a, b});
+      };
 
-    triangles.emplace_back(ia, ib, ic);
+      for (int t = 0; t < (int)tris2.size(); ++t) {
+        if (!removed[t]) continue;
+        const auto & T = tris2[t];
+        add_edge(T.a, T.b);
+        add_edge(T.b, T.c);
+        add_edge(T.c, T.a);
+      }
+
+      vector<Tri2> keep; keep.reserve(tris2.size());
+      for (int t = 0; t < (int)tris2.size(); ++t) {
+        if (!removed[t]) keep.push_back(tris2[t]);
+      }
+      tris2.swap(keep);
+
+      for (const auto & e : poly) tris2.push_back({e.a, e.b, pi});
+    }
+
+    // Triángulos finales (sin super-triángulo)
+    vector<Tri2> final_tris2; final_tris2.reserve(tris2.size());
+    for (const auto & T : tris2) {
+      if (T.a >= iS1 && T.a <= iS3) continue;
+      if (T.b >= iS1 && T.b <= iS3) continue;
+      if (T.c >= iS1 && T.c <= iS3) continue;
+      final_tris2.push_back(T);
+    }
+
+    // Filtros 3D
+    const size_t tri_off = all_triangles.size();
+    size_t accepted = 0;
+
+    for (const auto & T : final_tris2) {
+      const int ia = vs[T.a].idx3d;
+      const int ib = vs[T.b].idx3d;
+      const int ic = vs[T.c].idx3d;
+
+      const Eigen::Vector3f A(cloud[ia].x, cloud[ia].y, cloud[ia].z);
+      const Eigen::Vector3f B(cloud[ib].x, cloud[ib].y, cloud[ib].z);
+      const Eigen::Vector3f C(cloud[ic].x, cloud[ic].y, cloud[ic].z);
+
+      const float area = tri_area(A, B, C);
+      if (area < min_area) continue;
+
+      const float lAB = edge_len3D(ia, ib);
+      const float lBC = edge_len3D(ib, ic);
+      const float lCA = edge_len3D(ic, ia);
+      if (lAB > max_edge || lBC > max_edge || lCA > max_edge) continue;
+
+      const float dzAB = std::fabs(A.z() - B.z());
+      const float dzBC = std::fabs(B.z() - C.z());
+      const float dzCA = std::fabs(C.z() - A.z());
+      if (std::max({dzAB, dzBC, dzCA}) > max_dz) continue;
+
+      if (neigh_xy < std::numeric_limits<float>::infinity()) {
+        const auto & A3 = cloud[ia];
+        const auto & B3 = cloud[ib];
+        const auto & C3 = cloud[ic];
+        if (distXY(A3, B3) > neigh_xy ||
+            distXY(B3, C3) > neigh_xy ||
+            distXY(C3, A3) > neigh_xy) {
+          continue;
+        }
+      }
+
+      Eigen::Vector3f n = (B - A).cross(C - A);
+      const float nn = n.norm();
+      if (nn < 1e-6f) continue;
+      n /= nn;
+      if (n.dot(Eigen::Vector3f::UnitZ()) < cos_max_slope) continue;
+
+      all_triangles.emplace_back(ia, ib, ic);
+      ++accepted;
+    }
+
+    band_tri_ranges.emplace_back(tri_off, accepted);
   }
 
-  // ---- 4) Emit message + core --------------------------------------------
+  if (all_triangles.empty()) {
+    return navmap::NavMap();
+  }
+
+  // 4) Construcción del NavMap
+  const std::string frame_id = "map";
   navmap::NavMap core;
-  build_navmap_from_mesh(cloud, triangles, /*frame_id*/ "map", out_msg, &core);
+  if (!build_navmap_from_mesh(cloud, all_triangles, frame_id, out_msg, &core)) {
+    out_msg = navmap_ros_interfaces::msg::NavMap();
+    return navmap::NavMap();
+  }
 
-  // ---- Debug report ------------------------------------------------------
-  // std::cerr << "[from_points] Candidate tris: " << final_tris.size()
-  //           << " | Accepted: " << triangles.size()
-  //           << " | Dropped (area=" << dropped_area
-  //           << ", edge=" << dropped_edge
-  //           << ", dz=" << dropped_dz
-  //           << ", slope=" << dropped_slope
-  //           << ")\n";
+  // Reclasifica surfaces por banda asumiendo que se preserva el orden.
+  // Si tu builder reordena, puedes re-clasificar por Z media (ver variante en mensajes previos).
+  out_msg.surfaces.clear();
+  for (const auto & oc : band_tri_ranges) {
+    const size_t off = oc.first, cnt = oc.second;
+    if (cnt == 0) continue;
+    navmap_ros_interfaces::msg::NavMapSurface s;
+    s.frame_id = frame_id;
+    s.navcels.resize(cnt);
+    for (size_t k = 0; k < cnt; ++k) {
+      s.navcels[k] = static_cast<uint32_t>(off + k);
+    }
+    out_msg.surfaces.push_back(std::move(s));
+  }
 
-  return core;
+  navmap::NavMap nm = from_msg(out_msg);
+  return nm;
 }
 
+// ----------------- Variante Local Grow (opcional) -----------------
+
+navmap::NavMap from_points_local_grow(
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  BuildParams P)
+{
+  using std::cerr;
+  using std::endl;
+
+  out_msg = navmap_ros_interfaces::msg::NavMap();
+
+  auto fmtf = [](float v){ std::ostringstream ss; ss<<std::fixed<<std::setprecision(3)<<v; return ss.str(); };
+
+  cerr << "\n[local_grow] ====== BEGIN from_points_local_grow ======\n";
+  cerr << "[local_grow] input_points: " << input_points.size() << "\n";
+  cerr << "[local_grow] params:"
+       << " resolution="      << P.resolution
+       << " neighbor_radius=" << P.neighbor_radius
+       << " k_neighbors="     << P.k_neighbors
+       << " max_edge_len="    << P.max_edge_len
+       << " max_dz="          << P.max_dz
+       << " max_slope_deg="   << P.max_slope_deg
+       << " min_area="        << P.min_area
+       << " min_angle_deg="   << P.min_angle_deg
+       << "\n";
+
+  if (input_points.size() < 3) {
+    cerr << "[local_grow] Not enough input points (<3). RETURN.\n";
+    return navmap::NavMap();
+  }
+
+  // 0) Downsample que no colapsa plantas
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  if (P.resolution > 0.0f) {
+    cloud = downsample_voxelize_avgZ(input_points, P.resolution);
+  } else {
+    cloud = input_points;
+  }
+  cerr << "[local_grow] cloud after downsample: " << cloud.size() << " points\n";
+  if (cloud.size() < 3) {
+    cerr << "[local_grow] Less than 3 points after downsample. RETURN.\n";
+    return navmap::NavMap();
+  }
+
+  // 1) KdTree
+  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+  kdtree.setInputCloud(cloud.makeShared());
+  cerr << "[local_grow] KdTree built.\n";
+
+  const int N = static_cast<int>(cloud.size());
+  std::vector<char> used_vertex(N, 0);
+  std::vector<Eigen::Vector3i> triangles;
+  triangles.reserve(N * 3);
+
+  // Seeds en orden de Z ascendente
+  std::vector<int> order(N);
+  std::iota(order.begin(), order.end(), 0);
+  std::sort(order.begin(), order.end(),
+            [&](int a, int b){ return cloud[a].z < cloud[b].z; });
+  cerr << "[local_grow] seeds (ordered by Z): " << order.size() << "\n";
+
+  // Rangos por superficie
+  std::vector<std::pair<size_t, size_t>> surf_tri_ranges;
+
+  // Estructuras temporales por componente
+  std::unordered_set<TriKey, TriHasher> tri_set;
+  std::unordered_set<EdgeKey, EdgeHasher> edge_set;
+
+  std::queue<EdgeKey> frontier;
+
+  // Contadores globales
+  struct RejectCounts {
+    size_t edge_len = 0;
+    size_t dz = 0;
+    size_t xy = 0;
+    size_t dup = 0;
+    size_t geom = 0; // min_area / slope / min_angle / degenerado
+  } global_rej{};
+
+  size_t global_tri_fan_attempts = 0, global_tri_fan_accept = 0;
+  size_t global_tri_bfs_attempts = 0, global_tri_bfs_accept = 0;
+
+  auto dist3f = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
+    const float dx=A.x-B.x, dy=A.y-B.y, dz=A.z-B.z; return std::sqrt(dx*dx+dy*dy+dz*dz);
+  };
+  auto distXY = [](const pcl::PointXYZ &A, const pcl::PointXYZ &B){
+    const float dx=A.x-B.x, dy=A.y-B.y; return std::sqrt(dx*dx+dy*dy);
+  };
+
+  enum class Phase { FAN, BFS };
+
+  auto precheck = [&](int i, int j, int k, Phase phase, RejectCounts & rej, bool &dup_out)->bool {
+    // Duplicado
+    TriKey tk = make_tri(i,j,k);
+    if (tri_set.find(tk) != tri_set.end()) { rej.dup++; dup_out = true; return false; }
+    dup_out = false;
+
+    const auto &A = cloud[i], &B = cloud[j], &C = cloud[k];
+
+    // Max edge (3D) — en ambas fases
+    if (P.max_edge_len > 0.0f) {
+      const float lAB = dist3f(A,B), lBC = dist3f(B,C), lCA = dist3f(C,A);
+      if (lAB > P.max_edge_len || lBC > P.max_edge_len || lCA > P.max_edge_len) {
+        rej.edge_len++;
+        cerr << "[local_grow]     REJECT(edge_len) |AB|="<<fmtf(lAB)<<" |BC|="<<fmtf(lBC)<<" |CA|="<<fmtf(lCA)<<"\n";
+        return false;
+      }
+    }
+
+    // Max dz por arista — en ambas fases
+    if (P.max_dz > 0.0f) {
+      const float dzAB = std::fabs(A.z - B.z);
+      const float dzBC = std::fabs(B.z - C.z);
+      const float dzCA = std::fabs(C.z - A.z);
+      const float dzmax = std::max({dzAB, dzBC, dzCA});
+      if (dzmax > P.max_dz) {
+        rej.dz++;
+        cerr << "[local_grow]     REJECT(dz) dzAB="<<fmtf(dzAB)<<" dzBC="<<fmtf(dzBC)<<" dzCA="<<fmtf(dzCA)<<"\n";
+        return false;
+      }
+    }
+
+    // neighbor_radius (XY):
+    //  - En FAN: exigirlo SOLO para las aristas que tocan a 'i' (la semilla), NO entre (j,k).
+    //  - En BFS: exigirlo para TODAS (porque (j,k) es arista de frontera o adyacente a ella).
+    if (P.neighbor_radius > 0.0f) {
+      const float r = P.neighbor_radius;
+      const float dABxy = distXY(A,B);
+      const float dBCxy = distXY(B,C);
+      const float dCAxy = distXY(C,A);
+
+      bool bad_xy = false;
+      if (phase == Phase::FAN) {
+        // i = semilla
+        if (dABxy > r || dCAxy > r) bad_xy = true; // (i-j) y (i-k)
+        // NO comprobamos (j-k) aquí
+      } else {
+        // BFS: comprueba las tres
+        if (dABxy > r || dBCxy > r || dCAxy > r) bad_xy = true;
+      }
+
+      if (bad_xy) {
+        rej.xy++;
+        cerr << "[local_grow]     REJECT(xy phase="<<(phase==Phase::FAN?"FAN":"BFS")
+             << ") dAB="<<fmtf(dABxy)<<" dBC="<<fmtf(dBCxy)<<" dCA="<<fmtf(dCAxy)
+             << " (r="<<fmtf(r)<<")\n";
+        return false;
+      }
+    }
+
+    // Los demás (área/slope/angle) los hará try_add_triangle -> si falla, contaremos como 'geom'.
+    return true;
+  };
+
+  // Bucle de semillas
+  size_t seed_idx_counter = 0;
+  for (int seed_idx : order) {
+    ++seed_idx_counter;
+    if (used_vertex[seed_idx]) continue;
+
+    const auto &S = cloud[seed_idx];
+    cerr << "\n[local_grow] -- Seed #" << seed_idx_counter
+         << " (idx=" << seed_idx << ") pos=("
+         << fmtf(S.x) << "," << fmtf(S.y) << "," << fmtf(S.z) << ")\n";
+
+    // Vecinos de la semilla
+    std::vector<int> neigh_seed;
+    {
+      std::vector<int> inds;
+      std::vector<float> dists;
+      if (P.neighbor_radius > 0.0f) {
+        const int found = kdtree.radiusSearch(S, P.neighbor_radius, inds, dists);
+        cerr << "[local_grow]   radiusSearch: found=" << found << " (including self)\n";
+        if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
+      } else {
+        const int K = std::max(8, P.k_neighbors);
+        const int found = kdtree.nearestKSearch(S, K, inds, dists);
+        cerr << "[local_grow]   kNN: K=" << K << " found=" << found << " (including self)\n";
+        if (found > 0) for (int id : inds) if (id != seed_idx) neigh_seed.push_back(id);
+      }
+    }
+    cerr << "[local_grow]   neigh_seed (raw, excl. self): " << neigh_seed.size() << "\n";
+
+    // Filtro rápido por edge_len y finitos (semilla–vecino)
+    if (P.max_edge_len > 0.0f) {
+      size_t before = neigh_seed.size();
+      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
+        [&](int j){
+          const auto &Q = cloud[j];
+          if (!pcl::isFinite(Q)) return true;
+          return dist3f(S, Q) > P.max_edge_len;
+        }), neigh_seed.end());
+      cerr << "[local_grow]   neigh_seed after edge_len filter: " << neigh_seed.size()
+           << " (removed " << (before - neigh_seed.size()) << ")\n";
+    }
+    if (neigh_seed.size() < 2) {
+      used_vertex[seed_idx] = 1;
+      cerr << "[local_grow]   Insufficient neighbors (<2) after filtering. Seed skipped.\n";
+      continue;
+    }
+
+    // Orden angular XY
+    {
+      const auto & Cc = cloud[seed_idx];
+      std::sort(neigh_seed.begin(), neigh_seed.end(), [&](int a, int b){
+        const float ax = cloud[a].x - Cc.x, ay = cloud[a].y - Cc.y;
+        const float bx = cloud[b].x - Cc.x, by = cloud[b].y - Cc.y;
+        return std::atan2(ay, ax) < std::atan2(by, bx);
+      });
+    }
+
+    const size_t tri_off = triangles.size();
+    tri_set.clear();
+    edge_set.clear();
+
+    // Contadores por componente
+    RejectCounts comp_rej{};
+    size_t comp_fan_attempts = 0, comp_fan_accept = 0;
+    size_t comp_bfs_attempts = 0, comp_bfs_accept = 0;
+
+    // 2) Abanico inicial (relajamos XY en el lado vecino–vecino)
+    cerr << "[local_grow]   Fan: pairs=" << (neigh_seed.size() > 0 ? (neigh_seed.size()-1) : 0) << "\n";
+    for (size_t t = 0; t + 1 < neigh_seed.size(); ++t) {
+      const int j = neigh_seed[t];
+      const int k = neigh_seed[t+1];
+      comp_fan_attempts++; global_tri_fan_attempts++;
+
+      bool dup=false;
+      if (!precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {
+        continue;
+      }
+      if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set, edge_set, triangles)) {
+        comp_fan_accept++; global_tri_fan_accept++;
+      } else {
+        if (!dup) { comp_rej.geom++; cerr << "[local_grow]     REJECT(geom) by try_add_triangle\n"; }
+      }
+    }
+    // Cierre del abanico
+    if (neigh_seed.size() >= 3) {
+      const int j = neigh_seed.back();
+      const int k = neigh_seed.front();
+      comp_fan_attempts++; global_tri_fan_attempts++;
+
+      bool dup=false;
+      if (precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {
+        if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set, edge_set, triangles)) {
+          comp_fan_accept++; global_tri_fan_accept++;
+        } else {
+          if (!dup) { comp_rej.geom++; cerr << "[local_grow]     REJECT(geom) by try_add_triangle\n"; }
+        }
+      }
+    }
+
+    cerr << "[local_grow]   Fan result: attempts=" << comp_fan_attempts
+         << " accepted=" << comp_fan_accept
+         << " tri_now=" << (triangles.size() - tri_off) << "\n";
+    if (triangles.size() == tri_off) {
+      used_vertex[seed_idx] = 1;
+      cerr << "[local_grow]   No triangle from fan. Seed skipped.\n";
+      // Acumula rechazos del componente en globales y sigue
+      global_rej.edge_len += comp_rej.edge_len;
+      global_rej.dz       += comp_rej.dz;
+      global_rej.xy       += comp_rej.xy;
+      global_rej.dup      += comp_rej.dup;
+      global_rej.geom     += comp_rej.geom;
+      continue;
+    }
+
+    // Marca vértices usados
+    for (size_t u = tri_off; u < triangles.size(); ++u) {
+      used_vertex[triangles[u][0]] = 1;
+      used_vertex[triangles[u][1]] = 1;
+      used_vertex[triangles[u][2]] = 1;
+    }
+
+    // Inicializa frontera con aristas de los nuevos triángulos
+    {
+      size_t edges_queued = 0;
+      for (size_t u = tri_off; u < triangles.size(); ++u) {
+        const auto &t = triangles[u];
+        frontier.emplace(EdgeKey(t[0], t[1])); edges_queued++;
+        frontier.emplace(EdgeKey(t[1], t[2])); edges_queued++;
+        frontier.emplace(EdgeKey(t[2], t[0])); edges_queued++;
+      }
+      cerr << "[local_grow]   Frontier initialized: " << edges_queued << " edges\n";
+    }
+
+    // 3) Expansión BFS (aquí sí exigimos radio XY en TODAS las aristas del triángulo)
+    size_t bfs_iters = 0;
+    while (!frontier.empty()) {
+      EdgeKey e = frontier.front(); frontier.pop();
+      ++bfs_iters;
+
+      // Vecinos de e.a y e.b
+      std::vector<int> neigh_a, neigh_b;
+      {
+        std::vector<int> inds; std::vector<float> dists;
+        if (P.neighbor_radius > 0.0f) {
+          if (kdtree.radiusSearch(cloud[e.a], P.neighbor_radius, inds, dists) > 0) {
+            for (int id : inds) if (id != e.a) neigh_a.push_back(id);
+          }
+          inds.clear(); dists.clear();
+          if (kdtree.radiusSearch(cloud[e.b], P.neighbor_radius, inds, dists) > 0) {
+            for (int id : inds) if (id != e.b) neigh_b.push_back(id);
+          }
+        } else {
+          const int K = std::max(8, P.k_neighbors);
+          if (kdtree.nearestKSearch(cloud[e.a], K, inds, dists) > 0) {
+            for (int id : inds) if (id != e.a) neigh_a.push_back(id);
+          }
+          inds.clear(); dists.clear();
+          if (kdtree.nearestKSearch(cloud[e.b], K, inds, dists) > 0) {
+            for (int id : inds) if (id != e.b) neigh_b.push_back(id);
+          }
+        }
+      }
+
+      for (int c : neigh_a) {
+        if (c == e.a || c == e.b) continue;
+
+        // Filtro rápido: que c esté también cerca de e.b en XY (si hay radio)
+        if (P.neighbor_radius > 0.0f) {
+          const float dx = cloud[c].x - cloud[e.b].x;
+          const float dy = cloud[c].y - cloud[e.b].y;
+          if ((dx*dx + dy*dy) > P.neighbor_radius * P.neighbor_radius) continue;
+        }
+
+        comp_bfs_attempts++; global_tri_bfs_attempts++;
+
+        bool dup=false;
+        if (!precheck(e.a, e.b, c, Phase::BFS, comp_rej, dup)) {
+          continue;
+        }
+        if (try_add_triangle(e.a, e.b, c, cloud, P, tri_set, edge_set, triangles)) {
+          comp_bfs_accept++; global_tri_bfs_accept++;
+          frontier.emplace(EdgeKey(e.a, c));
+          frontier.emplace(EdgeKey(c, e.b));
+          used_vertex[e.a] = used_vertex[e.b] = used_vertex[c] = 1;
+        } else {
+          if (!dup) { comp_rej.geom++; cerr << "[local_grow]     REJECT(geom) by try_add_triangle\n"; }
+        }
+      }
+
+      if (bfs_iters % 128 == 0) {
+        cerr << "[local_grow]   BFS iters=" << bfs_iters
+             << " tri_now=" << (triangles.size() - tri_off)
+             << " frontier_size~" << frontier.size() << "\n";
+      }
+    }
+
+    // Superficie final para esta semilla
+    const size_t tri_cnt = triangles.size() - tri_off;
+    if (tri_cnt > 0) {
+      surf_tri_ranges.emplace_back(tri_off, tri_cnt);
+    }
+
+    // Acumular contadores globales
+    global_rej.edge_len += comp_rej.edge_len;
+    global_rej.dz       += comp_rej.dz;
+    global_rej.xy       += comp_rej.xy;
+    global_rej.dup      += comp_rej.dup;
+    global_rej.geom     += comp_rej.geom;
+
+    cerr << "[local_grow]   Component done: triangles=" << tri_cnt
+         << " (fan acc=" << comp_fan_accept << "/" << comp_fan_attempts
+         << ", bfs acc=" << comp_bfs_accept << "/" << comp_bfs_attempts << ")\n";
+    cerr << "[local_grow]   Rejects: edge=" << comp_rej.edge_len
+         << " dz=" << comp_rej.dz
+         << " xy=" << comp_rej.xy
+         << " dup=" << comp_rej.dup
+         << " geom=" << comp_rej.geom << "\n";
+  }
+
+  // Resumen global
+  cerr << "\n[local_grow] ====== SUMMARY ======\n";
+  cerr << "[local_grow] total triangles: " << triangles.size() << "\n";
+  cerr << "[local_grow] components: " << surf_tri_ranges.size() << "\n";
+  cerr << "[local_grow] Fan: attempts=" << global_tri_fan_attempts
+       << " accepted=" << global_tri_fan_accept << "\n";
+  cerr << "[local_grow] BFS: attempts=" << global_tri_bfs_attempts
+       << " accepted=" << global_tri_bfs_accept << "\n";
+  cerr << "[local_grow] Rejects: edge=" << global_rej.edge_len
+       << " dz=" << global_rej.dz
+       << " xy=" << global_rej.xy
+       << " dup=" << global_rej.dup
+       << " geom=" << global_rej.geom << "\n";
+
+  if (triangles.empty()) {
+    cerr << "[local_grow] No triangles produced. RETURN empty.\n";
+    return navmap::NavMap();
+  }
+
+  // 4) Construye NavMap + surfaces
+  const std::string frame_id = "map";
+  navmap_ros_interfaces::msg::NavMap msg_tmp;
+  navmap::NavMap core;
+  if (!build_navmap_from_mesh(cloud, triangles, frame_id, msg_tmp, &core)) {
+    cerr << "[local_grow] build_navmap_from_mesh FAILED. RETURN empty.\n";
+    return navmap::NavMap();
+  }
+
+  msg_tmp.surfaces.clear();
+  for (const auto & oc : surf_tri_ranges) {
+    if (oc.second == 0) continue;
+    navmap_ros_interfaces::msg::NavMapSurface s;
+    s.frame_id = frame_id;
+    s.navcels.resize(oc.second);
+    for (size_t k = 0; k < oc.second; ++k) {
+      s.navcels[k] = static_cast<uint32_t>(oc.first + k);
+    }
+    msg_tmp.surfaces.push_back(std::move(s));
+  }
+
+  out_msg = std::move(msg_tmp);
+  cerr << "[local_grow] Surfaces emitted: " << out_msg.surfaces.size() << "\n";
+  cerr << "[local_grow] ====== END from_points_local_grow ======\n\n";
+  return from_msg(out_msg);
+}
+
+
+// ----------------- ROS PointCloud2 entry -----------------
 
 navmap::NavMap from_pointcloud2(
   const sensor_msgs::msg::PointCloud2 & pc2,
@@ -1364,7 +1847,11 @@ navmap::NavMap from_pointcloud2(
   pcl::PointCloud<pcl::PointXYZ> input_points;
   pcl::fromROSMsg(pc2, input_points);
 
-  return from_points(input_points, out_msg, params);
+  // MODO por defecto: Banded Delaunay
+  // return from_points(input_points, out_msg, params);
+
+  // Para probar la variante local:
+  return from_points_local_grow(input_points, out_msg, params);
 }
 
 } // namespace navmap_ros
