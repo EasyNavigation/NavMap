@@ -1416,6 +1416,59 @@ navmap::NavMap from_points(
   return nm;
 }
 
+pcl::PointCloud<pcl::PointXYZ>
+downsample_voxelize_topZ(
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
+  float resolution)
+{
+  pcl::PointCloud<pcl::PointXYZ> output;
+  if (input_points.empty() || !(resolution > 0.0f)) {
+    output.width = 0; output.height = 1; output.is_dense = true;
+    return output;
+  }
+
+  struct Accum {
+    // Guardamos el punto de mayor Z visto en el voxel
+    float cx, cy, zmax;
+    bool has{false};
+  };
+
+  std::unordered_map<Voxel, Accum, VoxelHash> vox;
+  vox.reserve(input_points.size() / 2);
+
+  for (const auto & pt : input_points) {
+    if (!pcl::isFinite(pt)) continue;
+
+    const int vx = static_cast<int>(std::floor(pt.x / resolution));
+    const int vy = static_cast<int>(std::floor(pt.y / resolution));
+    const int vz = static_cast<int>(std::floor(pt.z / resolution)); // solo para ID
+    Voxel v{vx, vy, vz};
+
+    auto & a = vox[v];
+    if (!a.has) {
+      a.has  = true;
+      a.cx   = (vx + 0.5f) * resolution;   // centro XY del voxel
+      a.cy   = (vy + 0.5f) * resolution;
+      a.zmax = pt.z;
+    } else if (pt.z > a.zmax) {
+      a.zmax = pt.z;
+    }
+  }
+
+  output.points.reserve(vox.size());
+  for (const auto & kv : vox) {
+    const auto & a = kv.second;
+    // emitimos el “techo” del voxel
+    output.emplace_back(a.cx, a.cy, a.zmax);
+  }
+
+  output.width = static_cast<uint32_t>(output.points.size());
+  output.height = 1;
+  output.is_dense = true;
+  return output;
+}
+
+
 // ----------------- Variante Local Grow (opcional) -----------------
 
 navmap::NavMap from_points_local_grow(
@@ -1451,7 +1504,7 @@ navmap::NavMap from_points_local_grow(
   // 0) Downsample que no colapsa plantas
   pcl::PointCloud<pcl::PointXYZ> cloud;
   if (P.resolution > 0.0f) {
-    cloud = downsample_voxelize_avgZ(input_points, P.resolution);
+    cloud = downsample_voxelize_topZ(input_points, P.resolution);
   } else {
     cloud = input_points;
   }
@@ -1494,6 +1547,8 @@ navmap::NavMap from_points_local_grow(
     size_t xy = 0;
     size_t dup = 0;
     size_t geom = 0; // min_area / slope / min_angle / degenerado
+    size_t zwin_seed = 0; // NUEVO: vecinos filtrados por ventana Z en fan
+    size_t zwin_bfs  = 0; // NUEVO: candidatos filtrados por ventana Z en BFS
   } global_rej{};
 
   size_t global_tri_fan_attempts = 0, global_tri_fan_accept = 0;
@@ -1516,17 +1571,17 @@ navmap::NavMap from_points_local_grow(
 
     const auto &A = cloud[i], &B = cloud[j], &C = cloud[k];
 
-    // Max edge (3D) — en ambas fases
+    // Max edge (3D)
     if (P.max_edge_len > 0.0f) {
       const float lAB = dist3f(A,B), lBC = dist3f(B,C), lCA = dist3f(C,A);
       if (lAB > P.max_edge_len || lBC > P.max_edge_len || lCA > P.max_edge_len) {
         rej.edge_len++;
-        cerr << "[local_grow]     REJECT(edge_len) |AB|="<<fmtf(lAB)<<" |BC|="<<fmtf(lBC)<<" |CA|="<<fmtf(lCA)<<"\n";
+        // cerr << "[local_grow]     REJECT(edge_len) |AB|="<<fmtf(lAB)<<" |BC|="<<fmtf(lBC)<<" |CA|="<<fmtf(lCA)<<"\n";
         return false;
       }
     }
 
-    // Max dz por arista — en ambas fases
+    // Max dz por arista
     if (P.max_dz > 0.0f) {
       const float dzAB = std::fabs(A.z - B.z);
       const float dzBC = std::fabs(B.z - C.z);
@@ -1534,14 +1589,12 @@ navmap::NavMap from_points_local_grow(
       const float dzmax = std::max({dzAB, dzBC, dzCA});
       if (dzmax > P.max_dz) {
         rej.dz++;
-        cerr << "[local_grow]     REJECT(dz) dzAB="<<fmtf(dzAB)<<" dzBC="<<fmtf(dzBC)<<" dzCA="<<fmtf(dzCA)<<"\n";
+        // cerr << "[local_grow]     REJECT(dz) dzAB="<<fmtf(dzAB)<<" dzBC="<<fmtf(dzBC)<<" dzCA="<<fmtf(dzCA)<<"\n";
         return false;
       }
     }
 
-    // neighbor_radius (XY):
-    //  - En FAN: exigirlo SOLO para las aristas que tocan a 'i' (la semilla), NO entre (j,k).
-    //  - En BFS: exigirlo para TODAS (porque (j,k) es arista de frontera o adyacente a ella).
+    // neighbor_radius (XY)
     if (P.neighbor_radius > 0.0f) {
       const float r = P.neighbor_radius;
       const float dABxy = distXY(A,B);
@@ -1550,26 +1603,25 @@ navmap::NavMap from_points_local_grow(
 
       bool bad_xy = false;
       if (phase == Phase::FAN) {
-        // i = semilla
-        if (dABxy > r || dCAxy > r) bad_xy = true; // (i-j) y (i-k)
-        // NO comprobamos (j-k) aquí
+        // en FAN exigimos radio sólo para las aristas con la semilla (i)
+        if (dABxy > r || dCAxy > r) bad_xy = true;
       } else {
-        // BFS: comprueba las tres
         if (dABxy > r || dBCxy > r || dCAxy > r) bad_xy = true;
       }
 
       if (bad_xy) {
         rej.xy++;
-        cerr << "[local_grow]     REJECT(xy phase="<<(phase==Phase::FAN?"FAN":"BFS")
-             << ") dAB="<<fmtf(dABxy)<<" dBC="<<fmtf(dBCxy)<<" dCA="<<fmtf(dCAxy)
-             << " (r="<<fmtf(r)<<")\n";
+        // cerr << "[local_grow]     REJECT(xy "<<(phase==Phase::FAN?"FAN":"BFS")<<") dAB="<<fmtf(dABxy)<<" dBC="<<fmtf(dBCxy)<<" dCA="<<fmtf(dCAxy)<<" (r="<<fmtf(r)<<")\n";
         return false;
       }
     }
 
-    // Los demás (área/slope/angle) los hará try_add_triangle -> si falla, contaremos como 'geom'.
     return true;
   };
+
+  // Ventanas Z (ligeramente más holgadas que max_dz para inicio de rampa)
+  const float z_window_seed = std::max(P.max_dz, 0.35f);
+  const float z_window_bfs  = std::max(P.max_dz, 0.35f);
 
   // Bucle de semillas
   size_t seed_idx_counter = 0;
@@ -1600,7 +1652,7 @@ navmap::NavMap from_points_local_grow(
     }
     cerr << "[local_grow]   neigh_seed (raw, excl. self): " << neigh_seed.size() << "\n";
 
-    // Filtro rápido por edge_len y finitos (semilla–vecino)
+    // Filtro rápido por edge_len (semilla–vecino) y finitos
     if (P.max_edge_len > 0.0f) {
       size_t before = neigh_seed.size();
       neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
@@ -1612,6 +1664,28 @@ navmap::NavMap from_points_local_grow(
       cerr << "[local_grow]   neigh_seed after edge_len filter: " << neigh_seed.size()
            << " (removed " << (before - neigh_seed.size()) << ")\n";
     }
+
+    // *** NUEVO ***: Filtro por ventana Z respecto a la semilla
+    {
+      size_t before = neigh_seed.size();
+      size_t dump_max = 3, dumped = 0;
+      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
+        [&](int j){
+          const float dz = std::fabs(cloud[j].z - S.z);
+          if (dz > z_window_seed) {
+            if (dumped < dump_max)
+              cerr << "[local_grow]   drop(neigh zwin_seed) j="<< j
+                   << " dz="<< fmtf(dz) << " > " << fmtf(z_window_seed) << "\n";
+            ++dumped;
+            return true;
+          }
+          return false;
+        }), neigh_seed.end());
+      cerr << "[local_grow]   neigh_seed after Z-window (±"<< fmtf(z_window_seed) << "): "
+           << neigh_seed.size() << " (removed " << (before - neigh_seed.size()) << ")\n";
+      global_rej.zwin_seed += (before - neigh_seed.size());
+    }
+
     if (neigh_seed.size() < 2) {
       used_vertex[seed_idx] = 1;
       cerr << "[local_grow]   Insufficient neighbors (<2) after filtering. Seed skipped.\n";
@@ -1637,7 +1711,7 @@ navmap::NavMap from_points_local_grow(
     size_t comp_fan_attempts = 0, comp_fan_accept = 0;
     size_t comp_bfs_attempts = 0, comp_bfs_accept = 0;
 
-    // 2) Abanico inicial (relajamos XY en el lado vecino–vecino)
+    // 2) Abanico inicial (con radio XY relajado en lado vecino–vecino; ya lo teníamos)
     cerr << "[local_grow]   Fan: pairs=" << (neigh_seed.size() > 0 ? (neigh_seed.size()-1) : 0) << "\n";
     for (size_t t = 0; t + 1 < neigh_seed.size(); ++t) {
       const int j = neigh_seed[t];
@@ -1651,7 +1725,7 @@ navmap::NavMap from_points_local_grow(
       if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set, edge_set, triangles)) {
         comp_fan_accept++; global_tri_fan_accept++;
       } else {
-        if (!dup) { comp_rej.geom++; cerr << "[local_grow]     REJECT(geom) by try_add_triangle\n"; }
+        if (!dup) { comp_rej.geom++; /* cerr << "[local_grow]     REJECT(geom)\n"; */ }
       }
     }
     // Cierre del abanico
@@ -1665,7 +1739,7 @@ navmap::NavMap from_points_local_grow(
         if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set, edge_set, triangles)) {
           comp_fan_accept++; global_tri_fan_accept++;
         } else {
-          if (!dup) { comp_rej.geom++; cerr << "[local_grow]     REJECT(geom) by try_add_triangle\n"; }
+          if (!dup) { comp_rej.geom++; }
         }
       }
     }
@@ -1682,6 +1756,8 @@ navmap::NavMap from_points_local_grow(
       global_rej.xy       += comp_rej.xy;
       global_rej.dup      += comp_rej.dup;
       global_rej.geom     += comp_rej.geom;
+      global_rej.zwin_seed += comp_rej.zwin_seed;
+      global_rej.zwin_bfs  += comp_rej.zwin_bfs;
       continue;
     }
 
@@ -1704,11 +1780,16 @@ navmap::NavMap from_points_local_grow(
       cerr << "[local_grow]   Frontier initialized: " << edges_queued << " edges\n";
     }
 
-    // 3) Expansión BFS (aquí sí exigimos radio XY en TODAS las aristas del triángulo)
+    // 3) Expansión BFS (ahora con ventana Z respecto a la arista)
     size_t bfs_iters = 0;
     while (!frontier.empty()) {
       EdgeKey e = frontier.front(); frontier.pop();
       ++bfs_iters;
+
+      const float z_mid = 0.5f * (cloud[e.a].z + cloud[e.b].z);
+      const float z_window_up   = std::max(P.max_dz, 0.35f); // margen “hacia arriba”
+      const float z_window_down = 0.10f;                     // margen “hacia abajo” (estricto)
+
 
       // Vecinos de e.a y e.b
       std::vector<int> neigh_a, neigh_b;
@@ -1737,11 +1818,17 @@ navmap::NavMap from_points_local_grow(
       for (int c : neigh_a) {
         if (c == e.a || c == e.b) continue;
 
-        // Filtro rápido: que c esté también cerca de e.b en XY (si hay radio)
+        // Rápido: que c esté también cerca de e.b en XY (si hay radio)
         if (P.neighbor_radius > 0.0f) {
           const float dx = cloud[c].x - cloud[e.b].x;
           const float dy = cloud[c].y - cloud[e.b].y;
           if ((dx*dx + dy*dy) > P.neighbor_radius * P.neighbor_radius) continue;
+        }
+
+        const float dz = cloud[c].z - z_mid;
+        if (dz < -z_window_down || dz > z_window_up) {
+          ++global_rej.zwin_bfs;
+          continue;
         }
 
         comp_bfs_attempts++; global_tri_bfs_attempts++;
@@ -1756,7 +1843,7 @@ navmap::NavMap from_points_local_grow(
           frontier.emplace(EdgeKey(c, e.b));
           used_vertex[e.a] = used_vertex[e.b] = used_vertex[c] = 1;
         } else {
-          if (!dup) { comp_rej.geom++; cerr << "[local_grow]     REJECT(geom) by try_add_triangle\n"; }
+          if (!dup) { comp_rej.geom++; }
         }
       }
 
@@ -1779,6 +1866,8 @@ navmap::NavMap from_points_local_grow(
     global_rej.xy       += comp_rej.xy;
     global_rej.dup      += comp_rej.dup;
     global_rej.geom     += comp_rej.geom;
+    global_rej.zwin_seed += comp_rej.zwin_seed;
+    global_rej.zwin_bfs  += comp_rej.zwin_bfs;
 
     cerr << "[local_grow]   Component done: triangles=" << tri_cnt
          << " (fan acc=" << comp_fan_accept << "/" << comp_fan_attempts
@@ -1802,7 +1891,10 @@ navmap::NavMap from_points_local_grow(
        << " dz=" << global_rej.dz
        << " xy=" << global_rej.xy
        << " dup=" << global_rej.dup
-       << " geom=" << global_rej.geom << "\n";
+       << " geom=" << global_rej.geom
+       << " zwin_seed=" << global_rej.zwin_seed
+       << " zwin_bfs="  << global_rej.zwin_bfs
+       << "\n";
 
   if (triangles.empty()) {
     cerr << "[local_grow] No triangles produced. RETURN empty.\n";
@@ -1835,6 +1927,7 @@ navmap::NavMap from_points_local_grow(
   cerr << "[local_grow] ====== END from_points_local_grow ======\n\n";
   return from_msg(out_msg);
 }
+
 
 
 // ----------------- ROS PointCloud2 entry -----------------
