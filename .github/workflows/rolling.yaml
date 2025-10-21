@@ -18,6 +18,8 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: rolling
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.15
         with:
