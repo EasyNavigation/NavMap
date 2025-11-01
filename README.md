@@ -3,6 +3,7 @@
 [![rolling](https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml/badge.svg?branch=rolling)](https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml)
 [![kilted](https://github.com/EasyNavigation/NavMap/actions/workflows/kilted.yaml/badge.svg?branch=kilted)](https://github.com/EasyNavigation/NavMap/actions/workflows/kilted.yaml)
 [![jazzy](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml/badge.svg?branch=jazzy)](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml)
+[![humble](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml/badge.svg?branch=humble)](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml)
 
 [![NavMap SLAM](https://img.youtube.com/vi/t5p6c2HO7UA/0.jpg)](https://www.youtube.com/watch?v=t5p6c2HO7UA)
 
