@@ -184,9 +184,6 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm);
  */
 struct BuildParams
 {
-  /** @brief Seed position (world frame) used by region growing or initial search heuristics. */
-  Eigen::Vector3f seed = {0.0, 0.0, 0.0};
-
   /** @brief Target in-plane sampling resolution (meters) used by voxelization or gridding. */
   float resolution = 1.0;
 
@@ -213,6 +210,9 @@ struct BuildParams
 
   /** @brief Minimum interior angle (degrees) to avoid sliver triangles. */
   float min_angle_deg = 20.0f;   // minimum interior angle (deg) to avoid sliver triangles
+
+  /** @brief Maximun surfaces to keep, ordenred by size. */
+  int max_surfaces = 0;  // 0 ó <0 => no limits. >0 => Keep only N larger
 };
 
 /**
