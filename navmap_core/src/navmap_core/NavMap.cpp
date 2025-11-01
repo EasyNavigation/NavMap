@@ -356,7 +356,8 @@ void NavMap::build_surface_bvh(Surface & s)
 
       int axis = s.bvh[idx].box.longest_axis();
       int mid = (begin + end) / 2;
-      std::nth_element(prims.begin() + begin,
+      std::nth_element(
+        prims.begin() + begin,
         prims.begin() + mid,
         prims.begin() + end,
         [&](const PrimBox & A, const PrimBox & B) {
@@ -636,12 +637,12 @@ bool NavMap::locate_navcel_core(
   // 1) Try walking if there is a valid hint.
   if (opts.hint_cid.has_value()) {
     if (locate_by_walking(
-      opts.hint_cid.value(),
-      p_world,
-      cid,
-      bary,
-      hit_pt,
-      opts.planar_eps))
+        opts.hint_cid.value(),
+        p_world,
+        cid,
+        bary,
+        hit_pt,
+        opts.planar_eps))
     {
       for (size_t s = 0; s < surfaces.size(); ++s) {
         const auto & surf = surfaces[s];
