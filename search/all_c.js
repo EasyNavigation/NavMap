@@ -6,6 +6,5 @@ var searchData=
   ['dependencies_3',['Dependencies',['../index.html#autotoc_md8',1,'']]],
   ['description_4',['description',['../structnavmap_1_1LayerMeta.html#a2e1454f6988673f814408646edaeb320',1,'navmap::LayerMeta']]],
   ['disk_5',['9. Save and load from disk',['../index.html#autotoc_md28',1,'']]],
-  ['downsample_5fvoxelize_5favgxyz_6',['downsample_voxelize_avgXYZ',['../namespacenavmap__ros.html#a6e0c617b70b967e302c81d3ac6773c3e',1,'navmap_ros']]],
-  ['downsample_5fvoxelize_5favgz_7',['downsample_voxelize_avgZ',['../namespacenavmap__ros.html#a192218c9a7474a6754aaf069a0e6cb82',1,'navmap_ros']]]
+  ['downsample_5fvoxelize_5ftopz_5flayered_6',['downsample_voxelize_topZ_layered',['../namespacenavmap__ros.html#a1415897f31aa289e68d9a1a6f216ce59',1,'navmap_ros']]]
 ];

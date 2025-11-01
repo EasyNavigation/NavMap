@@ -104,15 +104,13 @@ Collaboration diagram for BuildParams:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap__ros_1_1BuildParams__coll__graph.png" border="0" usemap="#aBuildParams_coll__map" alt="Collaboration graph"/></div>
 <map name="aBuildParams_coll__map" id="aBuildParams_coll__map">
-<area shape="rect" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="134,184,230,210"/>
-<area shape="rect" title=" " alt="" coords="5,5,76,31"/>
-<area shape="poly" title=" " alt="" coords="42,46,48,103,57,132,74,158,102,178,135,188,133,193,100,183,70,162,53,135,42,104,36,47"/>
-<area shape="rect" title=" " alt="" coords="99,5,144,31"/>
-<area shape="poly" title=" " alt="" coords="117,46,112,101,115,131,125,159,136,172,151,181,148,186,133,176,121,161,110,132,106,101,112,46"/>
-<area shape="rect" title=" " alt="" coords="224,5,262,31"/>
-<area shape="poly" title=" " alt="" coords="244,47,236,101,228,132,216,161,198,185,193,182,212,159,223,130,231,100,239,46"/>
-<area shape="rect" title=" " alt="" coords="324,5,370,31"/>
-<area shape="poly" title=" " alt="" coords="352,47,352,74,347,104,338,135,320,162,300,177,277,188,230,198,229,193,275,183,297,173,316,158,333,133,342,103,346,73,347,47"/>
+<area shape="rect" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="102,184,197,210"/>
+<area shape="rect" title=" " alt="" coords="5,5,51,31"/>
+<area shape="poly" title=" " alt="" coords="28,46,31,102,40,132,55,158,76,175,102,186,100,191,74,180,51,162,35,134,26,103,23,46"/>
+<area shape="rect" title=" " alt="" coords="130,5,169,31"/>
+<area shape="poly" title=" " alt="" coords="152,47,152,184,147,184,147,47"/>
+<area shape="rect" title=" " alt="" coords="239,5,284,31"/>
+<area shape="poly" title=" " alt="" coords="265,47,260,103,250,134,234,162,218,176,199,186,196,181,215,172,230,158,245,132,255,102,260,47"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -130,6 +128,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a0ff349dd9350a87c621e936084ec2d1f" id="r_a0ff349dd9350a87c621e936084ec2d1f"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ff349dd9350a87c621e936084ec2d1f">max_slope_deg</a> = 30.0f</td></tr>
 <tr class="memdesc:a0ff349dd9350a87c621e936084ec2d1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum slope with respect to the vertical axis (degrees).  <br /></td></tr>
 <tr class="separator:a0ff349dd9350a87c621e936084ec2d1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6734abebd4b0cf51caa407b285928658" id="r_a6734abebd4b0cf51caa407b285928658"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6734abebd4b0cf51caa407b285928658">max_surfaces</a> = 0</td></tr>
+<tr class="memdesc:a6734abebd4b0cf51caa407b285928658"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximun surfaces to keep, ordenred by size.  <br /></td></tr>
+<tr class="separator:a6734abebd4b0cf51caa407b285928658"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7652613347524c6ec775068fd6c24ca9" id="r_a7652613347524c6ec775068fd6c24ca9"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7652613347524c6ec775068fd6c24ca9">min_angle_deg</a> = 20.0f</td></tr>
 <tr class="memdesc:a7652613347524c6ec775068fd6c24ca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum interior angle (degrees) to avoid sliver triangles.  <br /></td></tr>
 <tr class="separator:a7652613347524c6ec775068fd6c24ca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,9 +143,6 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a4333d786c60465d20826583358b2798d" id="r_a4333d786c60465d20826583358b2798d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4333d786c60465d20826583358b2798d">resolution</a> = 1.0</td></tr>
 <tr class="memdesc:a4333d786c60465d20826583358b2798d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Target in-plane sampling resolution (meters) used by voxelization or gridding.  <br /></td></tr>
 <tr class="separator:a4333d786c60465d20826583358b2798d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9d90f702ab308b11cb45b0d7fd4dd94" id="r_aa9d90f702ab308b11cb45b0d7fd4dd94"><td class="memItemLeft" align="right" valign="top">Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9d90f702ab308b11cb45b0d7fd4dd94">seed</a> = {0.0, 0.0, 0.0}</td></tr>
-<tr class="memdesc:aa9d90f702ab308b11cb45b0d7fd4dd94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Seed position (world frame) used by region growing or initial search heuristics.  <br /></td></tr>
-<tr class="separator:aa9d90f702ab308b11cb45b0d7fd4dd94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aced40c47c4fec9366b6ebb7f04b39f98" id="r_aced40c47c4fec9366b6ebb7f04b39f98"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aced40c47c4fec9366b6ebb7f04b39f98">use_radius</a> = true</td></tr>
 <tr class="memdesc:aced40c47c4fec9366b6ebb7f04b39f98"><td class="mdescLeft">&#160;</td><td class="mdescRight">If true, use radius-based neighborhoods; otherwise use k-NN.  <br /></td></tr>
 <tr class="separator:aced40c47c4fec9366b6ebb7f04b39f98"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -217,6 +215,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a6734abebd4b0cf51caa407b285928658" name="a6734abebd4b0cf51caa407b285928658"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6734abebd4b0cf51caa407b285928658">&#9670;&#160;</a></span>max_surfaces</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int max_surfaces = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximun surfaces to keep, ordenred by size. </p>
+
+</div>
+</div>
 <a id="a7652613347524c6ec775068fd6c24ca9" name="a7652613347524c6ec775068fd6c24ca9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7652613347524c6ec775068fd6c24ca9">&#9670;&#160;</a></span>min_angle_deg</h2>
 
@@ -278,22 +292,6 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Target in-plane sampling resolution (meters) used by voxelization or gridding. </p>
-
-</div>
-</div>
-<a id="aa9d90f702ab308b11cb45b0d7fd4dd94" name="aa9d90f702ab308b11cb45b0d7fd4dd94"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9d90f702ab308b11cb45b0d7fd4dd94">&#9670;&#160;</a></span>seed</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">Eigen::Vector3f seed = {0.0, 0.0, 0.0}</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Seed position (world frame) used by region growing or initial search heuristics. </p>
 
 </div>
 </div>
