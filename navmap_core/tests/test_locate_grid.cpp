@@ -22,7 +22,7 @@ TEST(NavMap_LocateGrid, MultiFloorsChoosesClosestByDz)
 {
   NavMap nm;
   // build 2 square floors, z=0 and z=3
-  for(int k = 0; k < 2; k++) {
+  for (int k = 0; k < 2; k++) {
     float z = k * 3.0f;
     int base = nm.positions.x.size();
     nm.positions.x.insert(nm.positions.x.end(), {0, 1, 1, 0});

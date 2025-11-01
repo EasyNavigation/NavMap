@@ -251,7 +251,7 @@ struct AABB
    */
   inline bool contains_xy(const Vec3 & p, float z_eps) const
   {
-    return  p.x() >= min.x() && p.x() <= max.x() &&
+    return p.x() >= min.x() && p.x() <= max.x() &&
            p.y() >= min.y() && p.y() <= max.y() &&
            p.z() >= min.z() - z_eps && p.z() <= max.z() + z_eps;
   }
@@ -264,7 +264,7 @@ struct AABB
    */
   inline bool contains_xy_only(const Vec3 & p) const
   {
-    return  p.x() >= min.x() && p.x() <= max.x() &&
+    return p.x() >= min.x() && p.x() <= max.x() &&
            p.y() >= min.y() && p.y() <= max.y();
   }
 };

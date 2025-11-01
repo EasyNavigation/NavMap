@@ -100,10 +100,12 @@ TEST(NavMap_EasyAPI, LayersBasics)
   nm.layer_set<float>("cost", nm.surfaces[0].navcels[0], 1.5f);
   nm.layer_set<float>("cost", nm.surfaces[0].navcels[1], 2.0f);
 
-  double v0 = nm.layer_get<double>("cost", nm.surfaces[0].navcels[0],
-                                    std::numeric_limits<double>::quiet_NaN());
-  double v1 = nm.layer_get<double>("cost", nm.surfaces[0].navcels[1],
-                                    std::numeric_limits<double>::quiet_NaN());
+  double v0 = nm.layer_get<double>(
+    "cost", nm.surfaces[0].navcels[0],
+    std::numeric_limits<double>::quiet_NaN());
+  double v1 = nm.layer_get<double>(
+    "cost", nm.surfaces[0].navcels[1],
+    std::numeric_limits<double>::quiet_NaN());
   EXPECT_NEAR(v0, 1.5, 1e-6);
   EXPECT_NEAR(v1, 2.0, 1e-6);
 
@@ -409,7 +411,7 @@ static bool centroid_inside_square(const Eigen::Vector3f & c, float cx, float cy
 
 static void verify_area_by_centroids_u8(
   const NavMap & nm,
-  const char *layer,
+  const char * layer,
   uint8_t expected_value,
   std::function<bool(const Eigen::Vector3f &)> inside_pred)
 {
@@ -430,7 +432,7 @@ static void verify_area_by_centroids_u8(
 TEST(NavMap_SetArea_Systematic, CircularOnGridByCentroids)
 {
   NavMap nm;
-  make_grid(nm, /*nx=*/20, /*ny=*/20);
+  make_grid(nm, /*nx=*/ 20, /*ny=*/ 20);
 
   // Obstacles layer U8 to 0
   nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
@@ -444,13 +446,13 @@ TEST(NavMap_SetArea_Systematic, CircularOnGridByCentroids)
 
   verify_area_by_centroids_u8(
     nm, "obstacles", static_cast<uint8_t>(254),
-    [&](const Eigen::Vector3f & cc){return centroid_inside_circle(cc, cx, cy, r);});
+    [&](const Eigen::Vector3f & cc) {return centroid_inside_circle(cc, cx, cy, r);});
 }
 
 TEST(NavMap_SetArea_Systematic, RectangularOnGridByCentroids)
 {
   NavMap nm;
-  make_grid(nm, /*nx=*/24, /*ny=*/24);
+  make_grid(nm, /*nx=*/ 24, /*ny=*/ 24);
   nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
 
   // Square centered off-center to avoid simetrías
@@ -462,13 +464,13 @@ TEST(NavMap_SetArea_Systematic, RectangularOnGridByCentroids)
 
   verify_area_by_centroids_u8(
     nm, "obstacles", static_cast<uint8_t>(200),
-    [&](const Eigen::Vector3f & cc){return centroid_inside_square(cc, cx, cy, side);});
+    [&](const Eigen::Vector3f & cc) {return centroid_inside_square(cc, cx, cy, side);});
 }
 
 TEST(NavMap_SetArea_Systematic, CircularNearBoundary)
 {
   NavMap nm;
-  make_grid(nm, /*nx=*/30, /*ny=*/30);
+  make_grid(nm, /*nx=*/ 30, /*ny=*/ 30);
   nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
 
   // Centro cerca del borde (evita que el BFS salga del mapa)
@@ -480,5 +482,5 @@ TEST(NavMap_SetArea_Systematic, CircularNearBoundary)
 
   verify_area_by_centroids_u8(
     nm, "obstacles", static_cast<uint8_t>(180),
-    [&](const Eigen::Vector3f & cc){return centroid_inside_circle(cc, cx, cy, r);});
+    [&](const Eigen::Vector3f & cc) {return centroid_inside_circle(cc, cx, cy, r);});
 }

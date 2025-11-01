@@ -50,8 +50,9 @@ std::uint64_t LayerView<T>::content_hash() const
   const std::size_t n = data_.size();
   std::uint64_t h = navmap::detail::fnv1a64_bytes(&n, sizeof(n));
   if (n) {
-    static_assert(std::is_trivially_copyable<T>::value,
-        "LayerView<T> requires trivially copyable T.");
+    static_assert(
+      std::is_trivially_copyable<T>::value,
+      "LayerView<T> requires trivially copyable T.");
     h = navmap::detail::fnv1a64_bytes(data_.data(), n * sizeof(T), h);
   }
   hash_cache_ = h;
@@ -117,12 +118,12 @@ void NavMap::ensure_geometry_fingerprint_() const
 }
 
 std::uint64_t NavMap::hash_geometry_bytes_(
-  const float *x, std::size_t nx,
-  const float *y, std::size_t ny,
-  const float *z, std::size_t nz,
-  const std::uint32_t *v0, std::size_t nv0,
-  const std::uint32_t *v1, std::size_t nv1,
-  const std::uint32_t *v2, std::size_t nv2)
+  const float * x, std::size_t nx,
+  const float * y, std::size_t ny,
+  const float * z, std::size_t nz,
+  const std::uint32_t * v0, std::size_t nv0,
+  const std::uint32_t * v1, std::size_t nv1,
+  const std::uint32_t * v2, std::size_t nv2)
 {
   std::uint64_t h = 1469598103934665603ULL;
   h = fnv1a64(&nx, sizeof(nx), h); h = fnv1a64(x, nx * sizeof(float), h);
@@ -356,11 +357,11 @@ void NavMap::build_surface_bvh(Surface & s)
       int axis = s.bvh[idx].box.longest_axis();
       int mid = (begin + end) / 2;
       std::nth_element(prims.begin() + begin,
-                     prims.begin() + mid,
-                     prims.begin() + end,
+        prims.begin() + mid,
+        prims.begin() + end,
         [&](const PrimBox & A, const PrimBox & B) {
           return A.centroid[axis] < B.centroid[axis];
-                     });
+        });
       int L = build(begin, mid);
       int R = build(mid, end);
       s.bvh[idx].left = L;
@@ -568,7 +569,7 @@ static inline bool point_in_triangle_bary(
   float w = (d00 * d21 - d01 * d20) / denom;
   float u = 1.0f - v - w;
   bary = Vec3(u, v, w);
-  return  u >= -eps && v >= -eps && w >= -eps;
+  return u >= -eps && v >= -eps && w >= -eps;
 }
 
 bool NavMap::locate_by_walking(
@@ -634,12 +635,13 @@ bool NavMap::locate_navcel_core(
 {
   // 1) Try walking if there is a valid hint.
   if (opts.hint_cid.has_value()) {
-    if (locate_by_walking(opts.hint_cid.value(),
-                          p_world,
-                          cid,
-                          bary,
-                          hit_pt,
-                          opts.planar_eps))
+    if (locate_by_walking(
+      opts.hint_cid.value(),
+      p_world,
+      cid,
+      bary,
+      hit_pt,
+      opts.planar_eps))
     {
       for (size_t s = 0; s < surfaces.size(); ++s) {
         const auto & surf = surfaces[s];
@@ -662,7 +664,7 @@ bool NavMap::locate_navcel_core(
     rays.push_back({p_world, Vec3(0.0f, 0.0f, 1.0f)});
 
     std::vector<RayHit> hits;
-    raycast_many(rays, hits, /*first_hit_only=*/true);
+    raycast_many(rays, hits, /*first_hit_only=*/ true);
 
     bool any = false;
     float best_dz = std::numeric_limits<float>::infinity();
@@ -785,12 +787,15 @@ bool NavMap::closest_navcel(
   for (size_t s = s_begin; s < s_end; ++s) {
     const auto & surf = surfaces[s];
 
-    float dx = std::max(std::max(surf.aabb.min.x() - p_world.x(), 0.0f),
-                        p_world.x() - surf.aabb.max.x());
-    float dy = std::max(std::max(surf.aabb.min.y() - p_world.y(), 0.0f),
-                        p_world.y() - surf.aabb.max.y());
-    float dz = std::max(std::max(surf.aabb.min.z() - p_world.z(), 0.0f),
-                        p_world.z() - surf.aabb.max.z());
+    float dx = std::max(
+      std::max(surf.aabb.min.x() - p_world.x(), 0.0f),
+      p_world.x() - surf.aabb.max.x());
+    float dy = std::max(
+      std::max(surf.aabb.min.y() - p_world.y(), 0.0f),
+      p_world.y() - surf.aabb.max.y());
+    float dz = std::max(
+      std::max(surf.aabb.min.z() - p_world.z(), 0.0f),
+      p_world.z() - surf.aabb.max.z());
     float aabb_lb = dx * dx + dy * dy + dz * dz;
     if (aabb_lb > best_sq) {
       continue;
@@ -923,7 +928,8 @@ bool NavMap::locate_navcel(
     float dz{std::numeric_limits<float>::infinity()};
   };
 
-  auto make_candidate = [&](const Eigen::Vector3f & o,
+  auto make_candidate = [&](
+    const Eigen::Vector3f & o,
     const Eigen::Vector3f & d) -> Candidate {
       Candidate c;
       NavCelId hit_cid{};
