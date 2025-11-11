@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['t_0',['t',['../structnavmap_1_1RayHit.html#afea36502e9d227ff62c5fb2719a246f2',1,'navmap::RayHit']]],
-  ['type_5f_1',['type_',['../structnavmap_1_1LayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'navmap::LayerView::type_'],['../structLayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'LayerView::type_']]]
+  ['start_0',['start',['../structnavmap_1_1BVHNode.html#a37722a150250e2a5a98e5e0d11e53449',1,'navmap::BVHNode']]],
+  ['surface_1',['surface',['../structnavmap_1_1RayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'navmap::RayHit']]],
+  ['surfaces_2',['surfaces',['../classnavmap_1_1NavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'navmap::NavMap::surfaces'],['../classNavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'NavMap::surfaces']]]
 ];

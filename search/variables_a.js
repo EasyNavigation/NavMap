@@ -1,8 +1,12 @@
 var searchData=
 [
-  ['name_5f_0',['name_',['../structnavmap_1_1LayerView.html#a4d739cc5d335052eb9f5b2ca559b81d1',1,'navmap::LayerView::name_'],['../structLayerView.html#a4d739cc5d335052eb9f5b2ca559b81d1',1,'LayerView::name_']]],
-  ['navcels_1',['navcels',['../structnavmap_1_1Surface.html#aacd73e1f2a78738787dec5c6d67ef2e0',1,'navmap::Surface::navcels'],['../classnavmap_1_1NavMap.html#a335aa8bcae202f21e43194758a024a9c',1,'navmap::NavMap::navcels'],['../classNavMap.html#a335aa8bcae202f21e43194758a024a9c',1,'NavMap::navcels'],['../structSurface.html#aacd73e1f2a78738787dec5c6d67ef2e0',1,'Surface::navcels']]],
-  ['neighbor_2',['neighbor',['../structnavmap_1_1NavCel.html#a4631b9564878d7e5efeefa94ee034fb9',1,'navmap::NavCel']]],
-  ['neighbor_5fradius_3',['neighbor_radius',['../structnavmap__ros_1_1BuildParams.html#ac78a02fc61c6c030d1fee6d9ad314df3',1,'navmap_ros::BuildParams']]],
-  ['normal_4',['normal',['../structnavmap_1_1NavCel.html#a2dc7f6395235de36ab3a66d476e3444f',1,'navmap::NavCel']]]
+  ['max_0',['max',['../structnavmap_1_1AABB.html#a06dabf68c338d68a93feca98a29b5a6c',1,'navmap::AABB']]],
+  ['max_5fdz_1',['max_dz',['../structnavmap__ros_1_1BuildParams.html#a8c2901c184925044a9bd4e62b6b0a79b',1,'navmap_ros::BuildParams']]],
+  ['max_5fedge_5flen_2',['max_edge_len',['../structnavmap__ros_1_1BuildParams.html#ad13e370af216e1188c1268b74472f57f',1,'navmap_ros::BuildParams']]],
+  ['max_5fnon_5fobstacle_3',['MAX_NON_OBSTACLE',['../namespacenavmap__ros.html#aae5c24b1ea105fa4c97a23cd368ddcf9',1,'navmap_ros']]],
+  ['max_5fslope_5fdeg_4',['max_slope_deg',['../structnavmap__ros_1_1BuildParams.html#a0ff349dd9350a87c621e936084ec2d1f',1,'navmap_ros::BuildParams']]],
+  ['max_5fsurfaces_5',['max_surfaces',['../structnavmap__ros_1_1BuildParams.html#a6734abebd4b0cf51caa407b285928658',1,'navmap_ros::BuildParams']]],
+  ['min_6',['min',['../structnavmap_1_1AABB.html#a281c95909b643b5abda2fdd06e51ba30',1,'navmap::AABB']]],
+  ['min_5fangle_5fdeg_7',['min_angle_deg',['../structnavmap__ros_1_1BuildParams.html#a7652613347524c6ec775068fd6c24ca9',1,'navmap_ros::BuildParams']]],
+  ['min_5farea_8',['min_area',['../structnavmap__ros_1_1BuildParams.html#ab6746f896b14d17115f0a020de06c4a7',1,'navmap_ros::BuildParams']]]
 ];

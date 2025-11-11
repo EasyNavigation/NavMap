@@ -28,5 +28,6 @@ var searchData=
   ['navmapdisplay_2ehpp_25',['NavMapDisplay.hpp',['../NavMapDisplay_8hpp.html',1,'']]],
   ['neighbor_26',['neighbor',['../structnavmap_1_1NavCel.html#a4631b9564878d7e5efeefa94ee034fb9',1,'navmap::NavCel']]],
   ['neighbor_5fradius_27',['neighbor_radius',['../structnavmap__ros_1_1BuildParams.html#ac78a02fc61c6c030d1fee6d9ad314df3',1,'navmap_ros::BuildParams']]],
-  ['normal_28',['normal',['../structnavmap_1_1NavCel.html#a2dc7f6395235de36ab3a66d476e3444f',1,'navmap::NavCel']]]
+  ['no_5finformation_28',['NO_INFORMATION',['../namespacenavmap__ros.html#a25c6ea3d54a1076fb294ba10b49f22f3',1,'navmap_ros']]],
+  ['normal_29',['normal',['../structnavmap_1_1NavCel.html#a2dc7f6395235de36ab3a66d476e3444f',1,'navmap::NavCel']]]
 ];

@@ -161,6 +161,29 @@ Functions</h2></td></tr>
 <tr class="separator:ad089d6caf5156b818488bbec8de30a4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad27d5737db6b45f6d50f445c5cdeabda" id="r_ad27d5737db6b45f6d50f445c5cdeabda"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad27d5737db6b45f6d50f445c5cdeabda">try_add_triangle</a> (int i, int j, int k, const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a>, <a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a> &gt; &amp;tri_set, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a>, <a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a> &gt; &amp;edge_set, std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; &amp;tris)</td></tr>
 <tr class="separator:ad27d5737db6b45f6d50f445c5cdeabda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Costmap value semantics</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Standardized occupancy/cost values used when projecting <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> layers onto a 2D grid (compatible with <code>costmap_2d</code> conventions).</p>
+<p>These constants follow the same meaning as in <code>costmap_2d</code>:</p><ul>
+<li><code>NO_INFORMATION</code> (255): Unknown or unobserved area.</li>
+<li><code>LETHAL_OBSTACLE</code> (254): Non-traversable obstacle.</li>
+<li><code>INSCRIBED_INFLATED_OBSTACLE</code> (253): Inside the robot’s inscribed radius.</li>
+<li><code>MAX_NON_OBSTACLE</code> (252): Highest cost still considered traversable.</li>
+<li><code>FREE_SPACE</code> (0): Known free space. </li>
+</ul>
+</div></td></tr>
+<tr class="memitem:a25c6ea3d54a1076fb294ba10b49f22f3" id="r_a25c6ea3d54a1076fb294ba10b49f22f3"><td class="memItemLeft" align="right" valign="top">constexpr uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25c6ea3d54a1076fb294ba10b49f22f3">NO_INFORMATION</a> = 255</td></tr>
+<tr class="separator:a25c6ea3d54a1076fb294ba10b49f22f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a588ceea73cabcebbd8ccf4bdc9aea979" id="r_a588ceea73cabcebbd8ccf4bdc9aea979"><td class="memItemLeft" align="right" valign="top">constexpr uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a588ceea73cabcebbd8ccf4bdc9aea979">LETHAL_OBSTACLE</a> = 254</td></tr>
+<tr class="separator:a588ceea73cabcebbd8ccf4bdc9aea979"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3256d9191d4add6559784daf93c16a1" id="r_ad3256d9191d4add6559784daf93c16a1"><td class="memItemLeft" align="right" valign="top">constexpr uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad3256d9191d4add6559784daf93c16a1">INSCRIBED_INFLATED_OBSTACLE</a> = 253</td></tr>
+<tr class="separator:ad3256d9191d4add6559784daf93c16a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae5c24b1ea105fa4c97a23cd368ddcf9" id="r_aae5c24b1ea105fa4c97a23cd368ddcf9"><td class="memItemLeft" align="right" valign="top">constexpr uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aae5c24b1ea105fa4c97a23cd368ddcf9">MAX_NON_OBSTACLE</a> = 252</td></tr>
+<tr class="separator:aae5c24b1ea105fa4c97a23cd368ddcf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addc6b5ef2555b7792016c6b3f5d9d320" id="r_addc6b5ef2555b7792016c6b3f5d9d320"><td class="memItemLeft" align="right" valign="top">constexpr uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#addc6b5ef2555b7792016c6b3f5d9d320">FREE_SPACE</a> = 0</td></tr>
+<tr class="separator:addc6b5ef2555b7792016c6b3f5d9d320"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Conversions between core <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> and ROS-level structures. </p>
@@ -666,6 +689,117 @@ Functions</h2></td></tr>
           <td class="paramtype">std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tris</em></span>&#160;)</td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="addc6b5ef2555b7792016c6b3f5d9d320" name="addc6b5ef2555b7792016c6b3f5d9d320"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#addc6b5ef2555b7792016c6b3f5d9d320">&#9670;&#160;</a></span>FREE_SPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t FREE_SPACE = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad3256d9191d4add6559784daf93c16a1" name="ad3256d9191d4add6559784daf93c16a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3256d9191d4add6559784daf93c16a1">&#9670;&#160;</a></span>INSCRIBED_INFLATED_OBSTACLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t INSCRIBED_INFLATED_OBSTACLE = 253</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a588ceea73cabcebbd8ccf4bdc9aea979" name="a588ceea73cabcebbd8ccf4bdc9aea979"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a588ceea73cabcebbd8ccf4bdc9aea979">&#9670;&#160;</a></span>LETHAL_OBSTACLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t LETHAL_OBSTACLE = 254</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aae5c24b1ea105fa4c97a23cd368ddcf9" name="aae5c24b1ea105fa4c97a23cd368ddcf9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae5c24b1ea105fa4c97a23cd368ddcf9">&#9670;&#160;</a></span>MAX_NON_OBSTACLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t MAX_NON_OBSTACLE = 252</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a25c6ea3d54a1076fb294ba10b49f22f3" name="a25c6ea3d54a1076fb294ba10b49f22f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25c6ea3d54a1076fb294ba10b49f22f3">&#9670;&#160;</a></span>NO_INFORMATION</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t NO_INFORMATION = 255</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>
