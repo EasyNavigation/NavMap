@@ -77,7 +77,7 @@ inline Ogre::ColourValue colorFromRainbow(float value, float max_value, float al
 inline Ogre::ColourValue colorFromU8(uint8_t v, float alpha)
 {
   if (v == 0) {return Ogre::ColourValue(1.0f, 1.0f, 1.0f, alpha);}
-  if (v == 255) { return Ogre::ColourValue(0.25f, 0.25f, 0.25f, alpha); }
+  if (v == 255) {return Ogre::ColourValue(0.25f, 0.25f, 0.25f, alpha);}
   if (v == 254) {return Ogre::ColourValue(0.0f, 0.0f, 0.0f, alpha);}
   float occ = static_cast<float>(v) / 253.0f;
   float c = 1.0f - occ;
