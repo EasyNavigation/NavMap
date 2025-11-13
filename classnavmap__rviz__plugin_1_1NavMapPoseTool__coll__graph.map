@@ -1,0 +1,15 @@
+<map id="NavMapPoseTool" name="NavMapPoseTool">
+<area shape="rect" id="Node000001" title=" " alt="" coords="341,145,466,171"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="74,5,120,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,20,222,36,271,52,318,73,342,89,363,108,394,143,390,147,359,112,338,93,315,78,269,57,221,41,135,25"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="10,55,184,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,90,317,120,375,142,373,147,316,125,198,95"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="71,120,123,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="139,134,341,150,340,156,139,139"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="67,169,127,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="142,181,223,181,316,175,349,169,349,174,317,180,224,186,142,186"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="64,219,130,244"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="145,228,226,221,272,213,316,201,351,186,381,169,383,174,353,191,318,206,273,218,227,226,146,233"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="5,268,189,309"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="204,278,261,265,315,243,339,227,361,207,391,169,395,173,364,210,343,231,318,248,262,270,205,283"/>
+</map>

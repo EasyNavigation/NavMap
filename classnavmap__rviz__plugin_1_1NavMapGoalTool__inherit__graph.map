@@ -1,0 +1,7 @@
+<map id="NavMapGoalTool" name="NavMapGoalTool">
+<area shape="rect" id="Node000001" title=" " alt="" coords="7,153,129,178"/>
+<area shape="rect" id="Node000002" href="$classnavmap__rviz__plugin_1_1NavMapPoseTool.html" title=" " alt="" coords="5,79,131,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="71,120,71,152,65,152,65,120"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="45,5,91,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="71,46,71,79,65,79,65,46"/>
+</map>

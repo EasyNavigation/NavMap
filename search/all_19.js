@@ -16,8 +16,10 @@ var searchData=
   ['slamservernode_13',['SLAMServerNode',['../classSLAMServerNode.html',1,'SLAMServerNode'],['../classSLAMServerNode.html#aa736bc4d635f9a35bff2eeda216e8e61',1,'SLAMServerNode::SLAMServerNode()']]],
   ['square_20floor_20with_20two_20triangles_14',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
   ['start_15',['start',['../structnavmap_1_1BVHNode.html#a37722a150250e2a5a98e5e0d11e53449',1,'navmap::BVHNode']]],
-  ['structure_16',['📂 Repository structure',['../index.html#autotoc_md4',1,'']]],
-  ['surface_17',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]],
-  ['surface_18',['surface',['../structnavmap_1_1RayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'navmap::RayHit']]],
-  ['surfaces_19',['surfaces',['../classnavmap_1_1NavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'navmap::NavMap::surfaces'],['../classNavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'NavMap::surfaces']]]
+  ['state_16',['State',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a5d74787dedbc4e11c1ab15bf487e61f8',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['state_5f_17',['state_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a3b1c09ed3908d987b7452bdcdf3dc06f',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['structure_18',['📂 Repository structure',['../index.html#autotoc_md4',1,'']]],
+  ['surface_19',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]],
+  ['surface_20',['surface',['../structnavmap_1_1RayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'navmap::RayHit']]],
+  ['surfaces_21',['surfaces',['../classnavmap_1_1NavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'navmap::NavMap::surfaces'],['../classNavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'NavMap::surfaces']]]
 ];
