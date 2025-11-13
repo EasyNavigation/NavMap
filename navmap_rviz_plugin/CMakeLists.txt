@@ -4,34 +4,49 @@ project(navmap_rviz_plugin)
 # 1) Qt y AUTOMOC
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 set(CMAKE_AUTOMOC ON)
-add_definitions(-DQT_NO_KEYWORDS)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# add_definitions(-DQT_NO_KEYWORDS)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_rendering REQUIRED)
+find_package(rviz_default_plugins REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rosidl_default_runtime REQUIRED)
 find_package(navmap_ros_interfaces REQUIRED)
+find_package(navmap_ros REQUIRED)
+find_package(navmap_core REQUIRED)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 qt5_wrap_cpp(NAVMAP_MOC_SRCS
   include/navmap_rviz_plugin/NavMapDisplay.hpp
+  include/navmap_rviz_plugin/navmap_goal_tool.hpp
+  include/navmap_rviz_plugin/navmap_pose_tool.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED
-  src/NavMapDisplay.cpp
+  src/navmap_rviz_plugin/NavMapDisplay.cpp
+  src/navmap_rviz_plugin/navmap_goal_tool.cpp
+  src/navmap_rviz_plugin/navmap_pose_tool.cpp
   include/navmap_rviz_plugin/NavMapDisplay.hpp
+  include/navmap_rviz_plugin/navmap_goal_tool.hpp
+  include/navmap_rviz_plugin/navmap_pose_tool.hpp
   ${NAVMAP_MOC_SRCS}
 )
 target_link_libraries(navmap_rviz_plugin PUBLIC
   ${navmap_ros_interfaces_TARGETS}
+  navmap_ros::navmap_ros
+  navmap_core::navmap_core
   pluginlib::pluginlib
   rclcpp::rclcpp
   rviz_common::rviz_common
   rviz_rendering::rviz_rendering
+  rviz_default_plugins::rviz_default_plugins
   Qt5::Core
   Qt5::Widgets
 )
@@ -48,6 +63,11 @@ install(TARGETS
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/icons"
+  DESTINATION "share/${PROJECT_NAME}"
 )
 
 install(FILES resource/navmap_rviz_plugin_description.xml
