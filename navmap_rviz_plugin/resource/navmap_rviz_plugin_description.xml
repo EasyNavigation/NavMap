@@ -5,4 +5,15 @@
       base_class_type="rviz_common::Display">
     <description>Visualize NavMap triangles and layers, with optional normals and alpha.</description>
   </class>
+
+  <class
+    name="navmap_rviz_plugin/SetGoal"
+    type="navmap_rviz_plugin::NavMapGoalTool"
+    base_class_type="rviz_common::Tool"
+  >
+    <description>
+      Publish a goal pose for the robot.  After one use, reverts to default tool.
+    </description>
+  </class>
+
 </library>

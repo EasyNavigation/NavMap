@@ -39,6 +39,10 @@
 #include <rviz_common/uniform_string_stream.hpp>
 #include <rviz_common/validate_floats.hpp>
 
+#include "navmap_core/NavMap.hpp"
+#include "navmap_ros/conversions.hpp"
+
+
 #include <QCoreApplication>
 #include <cmath>
 #include <sstream>
@@ -223,6 +227,7 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
   root_node_->setOrientation(orientation);
 
   last_msg_ = std::make_shared<NavMapMsg>(*msg);
+  received_navmap = navmap_ros::from_msg(*last_msg_);
 
   ++navmap_msg_count_;
   last_navmap_stamp_ = rviz_ros_node_.lock()->get_raw_node()->now();
