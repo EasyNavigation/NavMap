@@ -1,32 +1,29 @@
-name: humble
+name: kilted
 
 on:
-  pull_request:
-    branches:
-      - humble
-  push:
-    branches:
-      - humble
+  schedule:
+      - cron: '0 0 * * 6'     
 jobs:
   build-and-test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04]
+        os: [ubuntu-24.04]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: humble
+          ref: kilted
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.15
         with:
-          required-ros-distributions: humble
+          required-ros-distributions: kilted
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.4.5
         with:
           package-name: navmap_core navmap_ros navmap_ros_interfaces navmap_rviz_plugin
-          target-ros2-distro: humble
+          target-ros2-distro: kilted
+          ref: kilted
           colcon-defaults: |
             {
               "test": {

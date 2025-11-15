@@ -7,8 +7,6 @@ on:
   push:
     branches:
       - rolling
-  schedule:
-      - cron: '0 0 * * 6'     
 jobs:
   build-and-test:
     runs-on: ${{ matrix.os }}
@@ -29,7 +27,6 @@ jobs:
         with:
           package-name: navmap_core navmap_ros navmap_ros_interfaces navmap_rviz_plugin
           target-ros2-distro: rolling
-          ref: rolling
           colcon-defaults: |
             {
               "test": {
