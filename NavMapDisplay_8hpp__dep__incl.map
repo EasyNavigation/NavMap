@@ -1,13 +1,7 @@
 <map id="navmap_rviz_plugin/include/navmap_rviz_plugin/NavMapDisplay.hpp" name="navmap_rviz_plugin/include/navmap_rviz_plugin/NavMapDisplay.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="215,5,396,61"/>
-<area shape="rect" id="Node000002" href="$navmap__pose__tool_8hpp.html" title=" " alt="" coords="105,109,304,165"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="270,74,233,110,230,106,266,70"/>
-<area shape="rect" id="Node000006" href="$NavMapDisplay_8cpp.html" title=" " alt="" coords="328,109,489,165"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="346,70,383,106,379,110,342,74"/>
-<area shape="rect" id="Node000003" href="$navmap__goal__tool_8hpp.html" title=" " alt="" coords="5,213,201,268"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="168,178,132,214,128,210,165,174"/>
-<area shape="rect" id="Node000005" href="$navmap__pose__tool_8cpp.html" title=" " alt="" coords="225,213,386,268"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="244,174,280,210,277,214,240,178"/>
-<area shape="rect" id="Node000004" href="$navmap__goal__tool_8cpp.html" title=" " alt="" coords="22,316,184,372"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="106,284,106,316,100,316,100,284"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="87,5,269,61"/>
+<area shape="rect" id="Node000002" href="$NavMapDisplay_8cpp.html" title=" " alt="" coords="5,109,167,165"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,74,113,110,109,107,141,71"/>
+<area shape="rect" id="Node000003" href="$navmap__pose__tool_8cpp.html" title=" " alt="" coords="191,109,352,165"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,71,248,107,244,110,211,74"/>
 </map>

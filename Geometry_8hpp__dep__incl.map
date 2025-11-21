@@ -1,58 +1,51 @@
 <map id="navmap_core/include/navmap_core/Geometry.hpp" name="navmap_core/include/navmap_core/Geometry.hpp">
-<area shape="rect" id="Node000001" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="2130,5,2317,46"/>
-<area shape="rect" id="Node000002" href="$NavMap_8hpp.html" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="1066,94,1247,135"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2114,38,1247,108,1247,103,2114,33"/>
-<area shape="rect" id="Node000015" href="$conversions_8cpp.html" title=" " alt="" coords="1678,294,1843,334"/>
-<area shape="poly" id="edge33_Node000001_Node000015" title=" " alt="" coords="2233,61,2238,102,2237,150,2226,198,2215,221,2200,240,2172,258,2132,269,2085,276,2034,280,1932,283,1854,289,1826,296,1824,291,1853,284,1932,277,2034,274,2085,271,2131,264,2170,253,2196,236,2210,218,2221,197,2232,150,2232,102,2228,62"/>
-<area shape="rect" id="Node000023" href="$test__geometry_8cpp.html" title=" " alt="" coords="2260,94,2418,135"/>
-<area shape="poly" id="edge32_Node000001_Node000023" title=" " alt="" coords="2263,53,2315,91,2311,96,2260,58"/>
-<area shape="rect" id="Node000003" href="$NavMap_8cpp.html" title=" " alt="" coords="1446,190,1617,231"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1252,136,1428,180,1455,187,1454,192,1427,185,1250,142"/>
-<area shape="rect" id="Node000004" href="$test__locate__grid_8cpp.html" title=" " alt="" coords="1845,190,2004,231"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1262,117,1524,137,1679,155,1834,180,1864,187,1862,192,1833,185,1679,160,1523,142,1262,123"/>
-<area shape="rect" id="Node000005" href="$test__navmap_8cpp.html" title=" " alt="" coords="2028,190,2186,231"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="1262,114,1411,119,1599,130,1808,150,2016,180,2046,187,2045,192,2015,185,1807,155,1599,136,1411,125,1262,120"/>
-<area shape="rect" id="Node000006" href="$test__navmap__assign_8cpp.html" title=" " alt="" coords="5,190,164,231"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="1051,118,882,122,664,132,421,152,297,167,177,185,147,192,145,187,176,180,297,161,420,146,664,126,882,116,1051,113"/>
-<area shape="rect" id="Node000007" href="$test__navmap__easy_8cpp.html" title=" " alt="" coords="188,190,346,231"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="1051,120,913,126,739,137,548,157,358,185,329,192,328,187,357,180,548,151,739,132,912,121,1051,115"/>
-<area shape="rect" id="Node000008" href="$test__navmap__uniform__and__closest_8cpp.html" title=" " alt="" coords="370,190,596,231"/>
-<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="1051,128,846,152,609,185,572,192,571,187,608,180,845,146,1051,123"/>
-<area shape="rect" id="Node000009" href="$test__raycast__many_8cpp.html" title=" " alt="" coords="620,190,778,231"/>
-<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="1051,136,929,158,797,185,769,192,768,187,796,180,928,153,1050,130"/>
-<area shape="rect" id="Node000010" href="$conversions_8hpp.html" title="Conversions between the core NavMap representation and ROS messages." alt="" coords="1126,190,1320,231"/>
-<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="1181,146,1212,188,1207,191,1177,149"/>
-<area shape="rect" id="Node000011" href="$navmap__io_8hpp.html" title="Save/Load utilities for NavMap to/from disk using ROS 2 CDR serialization." alt="" coords="1130,294,1317,334"/>
-<area shape="poly" id="edge20_Node000002_Node000011" title=" " alt="" coords="1134,149,1122,169,1113,192,1110,215,1116,237,1128,254,1143,268,1177,291,1174,296,1139,273,1124,257,1111,239,1105,215,1108,191,1117,167,1129,146"/>
-<area shape="rect" id="Node000012" href="$navmap__io_8cpp.html" title=" " alt="" coords="1141,398,1305,438"/>
-<area shape="poly" id="edge21_Node000002_Node000012" title=" " alt="" coords="1085,143,1003,179,962,201,925,226,897,253,880,281,877,295,878,310,883,325,893,340,918,365,944,379,969,385,997,385,1058,381,1092,381,1130,387,1157,394,1156,399,1129,393,1092,387,1058,386,997,391,969,390,942,384,915,369,889,344,878,327,873,311,872,295,875,279,893,249,922,222,959,197,1000,174,1083,138"/>
-<area shape="rect" id="Node000013" href="$slam__server__app_8cpp.html" title=" " alt="" coords="1331,398,1478,438"/>
-<area shape="poly" id="edge22_Node000002_Node000013" title=" " alt="" coords="1260,138,1299,156,1334,181,1356,205,1373,233,1395,294,1405,352,1407,397,1402,397,1400,353,1390,295,1368,235,1352,208,1331,185,1296,161,1258,143"/>
-<area shape="rect" id="Node000014" href="$test__navmap__io_8cpp.html" title=" " alt="" coords="966,398,1118,438"/>
-<area shape="poly" id="edge24_Node000002_Node000014" title=" " alt="" coords="1052,124,1014,131,975,144,938,161,906,185,887,207,879,230,871,287,865,316,865,327,871,341,890,362,913,379,940,392,967,401,965,406,937,397,910,384,886,366,866,343,860,329,859,315,866,286,874,228,883,205,903,181,936,156,973,139,1012,126,1051,119"/>
-<area shape="rect" id="Node000016" href="$test__conversions_8cpp.html" title=" " alt="" coords="904,294,1055,334"/>
-<area shape="poly" id="edge23_Node000002_Node000016" title=" " alt="" coords="1131,148,999,295,995,292,1127,145"/>
-<area shape="rect" id="Node000017" href="$NavMapDisplay_8cpp.html" title=" " alt="" coords="1493,286,1654,342"/>
-<area shape="poly" id="edge31_Node000002_Node000017" title=" " alt="" coords="1263,134,1321,153,1378,180,1396,194,1408,208,1419,222,1435,236,1475,262,1515,283,1513,288,1472,266,1432,240,1415,225,1404,211,1393,198,1375,185,1319,158,1261,139"/>
-<area shape="rect" id="Node000018" href="$NavMapDisplay_8hpp.html" title=" " alt="" coords="1640,183,1822,238"/>
-<area shape="poly" id="edge25_Node000002_Node000018" title=" " alt="" coords="1262,125,1435,147,1629,180,1641,182,1639,188,1628,185,1434,152,1262,130"/>
-<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="1226,247,1226,293,1220,293,1220,247"/>
-<area shape="poly" id="edge15_Node000010_Node000012" title=" " alt="" coords="1283,237,1310,258,1331,285,1340,314,1331,343,1319,361,1304,376,1270,399,1267,395,1301,372,1315,357,1326,341,1334,314,1326,288,1306,261,1280,241"/>
-<area shape="poly" id="edge16_Node000010_Node000013" title=" " alt="" coords="1287,236,1322,257,1353,285,1372,312,1387,343,1403,396,1398,398,1382,345,1368,315,1349,288,1319,261,1285,240"/>
-<area shape="poly" id="edge18_Node000010_Node000014" title=" " alt="" coords="1177,242,1147,263,1120,288,1098,316,1079,346,1052,398,1048,396,1074,343,1093,313,1116,285,1144,259,1174,237"/>
-<area shape="poly" id="edge14_Node000010_Node000015" title=" " alt="" coords="1336,225,1494,250,1668,284,1696,291,1694,296,1667,289,1493,255,1335,230"/>
-<area shape="poly" id="edge17_Node000010_Node000016" title=" " alt="" coords="1163,239,1028,296,1025,291,1161,235"/>
-<area shape="poly" id="edge19_Node000010_Node000017" title=" " alt="" coords="1307,233,1494,287,1492,292,1305,238"/>
-<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="1226,350,1226,397,1220,397,1220,350"/>
-<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="1273,340,1371,395,1368,399,1270,345"/>
-<area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="1176,345,1078,399,1075,395,1174,340"/>
-<area shape="poly" id="edge30_Node000018_Node000017" title=" " alt="" coords="1678,249,1618,288,1615,283,1675,245"/>
-<area shape="rect" id="Node000019" href="$navmap__pose__tool_8hpp.html" title=" " alt="" coords="1866,286,2066,342"/>
-<area shape="poly" id="edge26_Node000018_Node000019" title=" " alt="" coords="1809,242,1904,283,1902,288,1807,247"/>
-<area shape="rect" id="Node000020" href="$navmap__goal__tool_8hpp.html" title=" " alt="" coords="1970,390,2165,446"/>
-<area shape="poly" id="edge27_Node000019_Node000020" title=" " alt="" coords="2006,351,2042,387,2038,391,2002,355"/>
-<area shape="rect" id="Node000022" href="$navmap__pose__tool_8cpp.html" title=" " alt="" coords="1784,390,1945,446"/>
-<area shape="poly" id="edge29_Node000019_Node000022" title=" " alt="" coords="1930,355,1894,391,1890,387,1926,351"/>
-<area shape="rect" id="Node000021" href="$navmap__goal__tool_8cpp.html" title=" " alt="" coords="1986,494,2148,549"/>
-<area shape="poly" id="edge28_Node000020_Node000021" title=" " alt="" coords="2070,461,2070,493,2064,493,2064,461"/>
+<area shape="rect" id="Node000001" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="1444,5,1631,46"/>
+<area shape="rect" id="Node000002" href="$NavMap_8hpp.html" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="1352,94,1532,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1506,59,1465,96,1462,92,1503,55"/>
+<area shape="rect" id="Node000020" href="$test__geometry_8cpp.html" title=" " alt="" coords="1556,94,1714,135"/>
+<area shape="poly" id="edge29_Node000001_Node000020" title=" " alt="" coords="1573,54,1615,92,1611,96,1569,58"/>
+<area shape="rect" id="Node000003" href="$NavMap_8cpp.html" title=" " alt="" coords="5,190,177,231"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1336,121,748,143,425,162,292,173,190,185,157,192,156,187,189,180,291,168,425,156,747,138,1336,116"/>
+<area shape="rect" id="Node000004" href="$test__locate__grid_8cpp.html" title=" " alt="" coords="201,190,360,231"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1336,117,1153,119,913,129,643,149,506,165,373,185,342,192,341,187,372,180,506,160,643,144,913,123,1153,114,1336,112"/>
+<area shape="rect" id="Node000005" href="$test__navmap_8cpp.html" title=" " alt="" coords="384,190,542,231"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="1336,119,1183,124,987,135,771,154,555,185,525,192,524,187,555,180,771,149,987,129,1182,119,1336,114"/>
+<area shape="rect" id="Node000006" href="$test__navmap__assign_8cpp.html" title=" " alt="" coords="566,190,725,231"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="1336,122,1064,141,901,160,738,185,708,192,707,187,737,180,900,154,1063,136,1336,117"/>
+<area shape="rect" id="Node000007" href="$test__navmap__easy_8cpp.html" title=" " alt="" coords="749,190,908,231"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="1336,127,1142,149,1031,165,921,185,892,192,891,187,920,180,1030,160,1141,144,1336,122"/>
+<area shape="rect" id="Node000008" href="$test__navmap__uniform__and__closest_8cpp.html" title=" " alt="" coords="932,190,1157,231"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="1344,141,1128,192,1127,187,1343,136"/>
+<area shape="rect" id="Node000009" href="$test__raycast__many_8cpp.html" title=" " alt="" coords="1181,190,1340,231"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="1392,145,1300,192,1297,187,1389,140"/>
+<area shape="rect" id="Node000010" href="$conversions_8hpp.html" title="Conversions between the core NavMap representation and ROS messages." alt="" coords="1726,190,1920,231"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="1537,136,1744,187,1743,192,1536,142"/>
+<area shape="rect" id="Node000012" href="$navmap__io_8cpp.html" title=" " alt="" coords="1225,294,1389,334"/>
+<area shape="poly" id="edge20_Node000002_Node000012" title=" " alt="" coords="1422,149,1323,295,1318,292,1418,146"/>
+<area shape="rect" id="Node000013" href="$slam__server__app_8cpp.html" title=" " alt="" coords="1414,294,1560,334"/>
+<area shape="poly" id="edge21_Node000002_Node000013" title=" " alt="" coords="1530,137,1581,158,1602,169,1614,181,1622,196,1625,210,1615,240,1601,258,1585,273,1547,296,1544,291,1581,269,1597,254,1610,237,1619,210,1617,198,1610,184,1598,173,1579,162,1528,142"/>
+<area shape="rect" id="Node000014" href="$test__conversions_8cpp.html" title=" " alt="" coords="1947,294,2099,334"/>
+<area shape="poly" id="edge22_Node000002_Node000014" title=" " alt="" coords="1547,132,1641,139,1752,145,1857,156,1901,166,1934,180,1964,205,1988,235,2018,292,2013,295,1983,238,1960,209,1931,185,1899,171,1856,161,1752,150,1641,144,1547,137"/>
+<area shape="rect" id="Node000015" href="$test__navmap__io_8cpp.html" title=" " alt="" coords="1585,294,1736,334"/>
+<area shape="poly" id="edge23_Node000002_Node000015" title=" " alt="" coords="1540,137,1599,157,1623,169,1638,181,1655,208,1663,239,1665,293,1660,294,1658,240,1650,210,1634,184,1620,173,1597,162,1538,142"/>
+<area shape="rect" id="Node000016" href="$NavMapDisplay_8cpp.html" title=" " alt="" coords="2122,286,2284,342"/>
+<area shape="poly" id="edge27_Node000002_Node000016" title=" " alt="" coords="1547,132,1670,142,1767,144,1862,151,1916,162,1979,180,2033,202,2085,229,2169,284,2166,288,2082,234,2031,207,1977,185,1915,167,1861,157,1767,149,1670,148,1547,138"/>
+<area shape="rect" id="Node000017" href="$navmap__io_8hpp.html" title="Save/Load utilities for NavMap to/from disk using ROS 2 CDR serialization." alt="" coords="1413,190,1601,231"/>
+<area shape="poly" id="edge16_Node000002_Node000017" title=" " alt="" coords="1466,146,1496,188,1491,191,1462,149"/>
+<area shape="rect" id="Node000018" href="$NavMapDisplay_8hpp.html" title=" " alt="" coords="2112,183,2294,238"/>
+<area shape="poly" id="edge24_Node000002_Node000018" title=" " alt="" coords="1548,132,1702,148,1823,153,1943,161,2094,180,2112,183,2111,189,2093,185,1942,166,1822,159,1701,153,1547,138"/>
+<area shape="rect" id="Node000019" href="$navmap__pose__tool_8cpp.html" title=" " alt="" coords="2308,286,2469,342"/>
+<area shape="poly" id="edge28_Node000002_Node000019" title=" " alt="" coords="1547,132,1712,138,1950,144,2177,156,2259,167,2307,180,2334,202,2355,230,2382,285,2377,287,2351,233,2330,206,2304,185,2258,172,2176,162,1950,150,1712,143,1547,137"/>
+<area shape="rect" id="Node000011" href="$conversions_8cpp.html" title=" " alt="" coords="1760,294,1924,334"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="1832,246,1841,293,1835,294,1827,247"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="1711,231,1564,256,1402,289,1375,296,1373,291,1401,284,1563,251,1710,226"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="1743,238,1573,289,1551,296,1549,291,1572,284,1742,233"/>
+<area shape="poly" id="edge13_Node000010_Node000014" title=" " alt="" coords="1876,236,1985,291,1983,296,1874,241"/>
+<area shape="poly" id="edge14_Node000010_Node000015" title=" " alt="" coords="1780,242,1693,296,1690,291,1777,237"/>
+<area shape="poly" id="edge15_Node000010_Node000016" title=" " alt="" coords="1917,233,2112,284,2122,287,2121,292,2110,289,1915,238"/>
+<area shape="poly" id="edge17_Node000017_Node000012" title=" " alt="" coords="1456,241,1347,296,1345,291,1454,236"/>
+<area shape="poly" id="edge18_Node000017_Node000013" title=" " alt="" coords="1503,247,1493,294,1488,293,1498,246"/>
+<area shape="poly" id="edge19_Node000017_Node000015" title=" " alt="" coords="1551,237,1632,291,1629,296,1548,242"/>
+<area shape="poly" id="edge25_Node000018_Node000016" title=" " alt="" coords="2206,254,2206,286,2200,286,2200,254"/>
+<area shape="poly" id="edge26_Node000018_Node000019" title=" " alt="" coords="2267,244,2340,283,2337,288,2264,248"/>
 </map>

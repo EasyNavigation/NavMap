@@ -96,8 +96,7 @@ $(function(){ initResizable(false); });
 <div class="contents">
 <div class="textblock"><code>#include &lt;QObject&gt;</code><br />
 <code>#include &quot;geometry_msgs/msg/pose_stamped.hpp&quot;</code><br />
-<code>#include &quot;rclcpp/node.hpp&quot;</code><br />
-<code>#include &quot;rclcpp/qos.hpp&quot;</code><br />
+<code>#include &quot;rclcpp/rclcpp.hpp&quot;</code><br />
 <code>#include &quot;<a class="el" href="navmap__pose__tool_8hpp_source.html">navmap_rviz_plugin/navmap_pose_tool.hpp</a>&quot;</code><br />
 <code>#include &quot;rviz_default_plugins/visibility_control.hpp&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -105,108 +104,36 @@ Include dependency graph for navmap_goal_tool.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="navmap__goal__tool_8hpp__incl.png" border="0" usemap="#anavmap__rviz__plugin_2include_2navmap__rviz__plugin_2navmap__goal__tool_8hpp" alt=""/></div>
 <map name="anavmap__rviz__plugin_2include_2navmap__rviz__plugin_2navmap__goal__tool_8hpp" id="anavmap__rviz__plugin_2include_2navmap__rviz__plugin_2navmap__goal__tool_8hpp">
-<area shape="rect" title=" " alt="" coords="2817,5,3012,61"/>
-<area shape="rect" title=" " alt="" coords="5,294,75,320"/>
-<area shape="poly" title=" " alt="" coords="2817,38,2534,43,2124,55,1645,76,1399,92,1158,112,978,130,839,148,522,200,302,236,207,256,87,289,82,291,80,286,86,284,206,250,301,230,521,195,838,142,977,124,1157,106,1399,87,1645,71,2123,49,2534,37,2817,33"/>
-<area shape="rect" title=" " alt="" coords="3010,109,3184,150"/>
-<area shape="poly" title=" " alt="" coords="2969,59,3047,99,3044,104,2966,64"/>
-<area shape="rect" title=" " alt="" coords="3209,116,3322,142"/>
-<area shape="poly" title=" " alt="" coords="3013,58,3197,106,3207,109,3206,114,3195,112,3012,63"/>
-<area shape="rect" title=" " alt="" coords="99,294,205,320"/>
-<area shape="poly" title=" " alt="" coords="2817,39,2403,55,2103,71,1760,95,1387,127,996,170,602,223,407,254,217,289,204,292,202,287,215,284,406,249,601,218,996,164,1387,122,1760,90,2103,66,2402,50,2817,34"/>
-<area shape="rect" href="navmap__pose__tool_8hpp.html" title=" " alt="" coords="2778,109,2936,150"/>
-<area shape="poly" title=" " alt="" coords="2900,63,2879,97,2875,95,2896,60"/>
-<area shape="rect" title=" " alt="" coords="3721,198,3863,238"/>
-<area shape="poly" title=" " alt="" coords="2928,60,2956,107,2976,130,3000,147,3028,160,3061,170,3141,183,3235,189,3337,191,3540,189,3631,190,3706,195,3706,200,3630,195,3540,195,3337,197,3235,195,3141,188,3060,175,3026,165,2997,152,2972,133,2952,110,2924,63"/>
-<area shape="rect" title=" " alt="" coords="2610,375,2678,401"/>
-<area shape="poly" title=" " alt="" coords="2826,152,2798,173,2773,199,2753,233,2744,263,2735,293,2716,329,2696,350,2676,368,2672,364,2693,346,2711,325,2730,291,2739,261,2748,231,2769,196,2795,169,2823,148"/>
-<area shape="rect" title=" " alt="" coords="2277,375,2331,401"/>
-<area shape="poly" title=" " alt="" coords="2819,152,2782,174,2744,200,2709,235,2686,268,2661,300,2620,329,2548,359,2473,377,2403,386,2346,389,2346,384,2403,381,2472,372,2547,354,2617,325,2657,296,2681,265,2705,232,2741,196,2779,169,2817,148"/>
-<area shape="rect" title=" " alt="" coords="2782,205,2834,231"/>
-<area shape="poly" title=" " alt="" coords="2848,152,2824,193,2820,191,2844,149"/>
-<area shape="rect" title=" " alt="" coords="2858,205,2955,231"/>
-<area shape="poly" title=" " alt="" coords="2871,149,2895,191,2890,193,2866,152"/>
-<area shape="rect" title=" " alt="" coords="2980,205,3049,231"/>
-<area shape="poly" title=" " alt="" coords="2894,148,2981,195,2978,200,2892,153"/>
-<area shape="rect" title=" " alt="" coords="3073,205,3271,231"/>
-<area shape="poly" title=" " alt="" coords="2930,148,3114,198,3112,203,2928,153"/>
-<area shape="rect" title=" " alt="" coords="3296,205,3526,231"/>
-<area shape="poly" title=" " alt="" coords="2937,144,2955,147,3119,172,3283,195,3315,200,3314,205,3282,200,3118,178,2954,152,2936,149"/>
-<area shape="rect" title=" " alt="" coords="3550,205,3698,231"/>
-<area shape="poly" title=" " alt="" coords="2937,144,2955,147,3118,164,3246,170,3374,176,3538,195,3560,199,3559,204,3537,200,3374,182,3246,175,3118,169,2954,152,2936,150"/>
-<area shape="rect" title=" " alt="" coords="1318,198,1472,238"/>
-<area shape="poly" title=" " alt="" coords="2778,133,2558,134,2240,142,1869,163,1677,179,1488,200,1487,195,1677,174,1869,157,2240,137,2557,129,2778,127"/>
-<area shape="poly" title=" " alt="" coords="2937,144,2955,147,3068,159,3164,166,3329,169,3495,173,3592,181,3706,195,3706,200,3592,186,3495,179,3329,174,3164,171,3067,165,2954,152,2936,150"/>
-<area shape="rect" href="NavMapDisplay_8hpp.html" title=" " alt="" coords="1496,198,1637,238"/>
-<area shape="poly" title=" " alt="" coords="2778,139,1653,214,1653,208,2777,133"/>
-<area shape="poly" title=" " alt="" coords="1496,239,1484,241,1348,252,1178,256,784,256,581,256,390,260,222,270,149,278,87,289,80,291,79,286,86,284,149,273,221,265,390,254,581,251,784,250,1178,251,1348,247,1484,236,1496,234"/>
-<area shape="poly" title=" " alt="" coords="1496,239,1484,241,1292,261,1128,267,984,265,849,258,714,253,570,253,408,264,216,289,202,292,201,287,216,284,407,258,570,248,714,248,849,253,984,259,1128,262,1292,255,1484,236,1496,234"/>
-<area shape="poly" title=" " alt="" coords="1637,216,1875,218,2184,227,2334,235,2465,247,2565,263,2599,273,2620,284,2634,300,2642,320,2648,359,2643,360,2637,321,2629,303,2617,288,2597,278,2564,268,2465,252,2334,240,2184,232,1875,223,1637,222"/>
-<area shape="poly" title=" " alt="" coords="1637,216,1718,219,1816,229,1921,250,1973,265,2023,284,2038,294,2049,304,2059,315,2073,325,2122,345,2164,354,2207,361,2263,372,2262,377,2207,366,2163,359,2121,350,2071,329,2055,319,2045,308,2035,298,2020,289,1971,270,1920,255,1816,235,1718,224,1637,221"/>
-<area shape="rect" title=" " alt="" coords="2192,375,2253,401"/>
-<area shape="poly" title=" " alt="" coords="1638,230,1714,251,1793,284,1809,295,1819,306,1829,316,1844,325,1890,342,1931,353,2005,360,2081,361,2126,365,2178,372,2177,378,2125,370,2081,367,2004,365,1930,358,1889,347,1842,329,1826,320,1815,309,1805,299,1791,289,1713,257,1637,236"/>
-<area shape="rect" title=" " alt="" coords="1088,375,1198,401"/>
-<area shape="poly" title=" " alt="" coords="1561,240,1535,286,1516,310,1492,329,1455,349,1422,362,1391,369,1360,371,1295,371,1213,377,1213,372,1295,366,1360,366,1390,363,1421,357,1453,345,1489,325,1512,306,1531,283,1556,238"/>
-<area shape="rect" title=" " alt="" coords="1222,375,1279,401"/>
-<area shape="poly" title=" " alt="" coords="1569,239,1562,284,1552,308,1537,329,1508,351,1480,364,1453,370,1426,372,1367,371,1333,372,1295,377,1294,372,1333,367,1367,365,1426,367,1452,365,1478,359,1505,346,1533,325,1548,306,1557,283,1564,238"/>
-<area shape="rect" title=" " alt="" coords="1855,294,2009,320"/>
-<area shape="poly" title=" " alt="" coords="1638,233,1866,287,1865,292,1636,239"/>
-<area shape="rect" title=" " alt="" coords="2084,286,2239,327"/>
-<area shape="poly" title=" " alt="" coords="1638,225,1831,249,2066,284,2069,284,2068,290,2065,289,1830,254,1637,230"/>
-<area shape="rect" title=" " alt="" coords="2263,286,2422,327"/>
-<area shape="poly" title=" " alt="" coords="1638,221,1902,242,2072,260,2248,283,2247,289,2072,266,1901,248,1637,226"/>
-<area shape="rect" title=" " alt="" coords="2447,286,2606,327"/>
-<area shape="poly" title=" " alt="" coords="1637,219,1976,238,2201,256,2432,283,2431,289,2200,262,1975,243,1637,224"/>
-<area shape="rect" title=" " alt="" coords="228,286,388,327"/>
-<area shape="poly" title=" " alt="" coords="1496,239,1484,241,1321,259,1183,267,1060,269,945,267,830,265,707,266,567,272,403,289,403,283,567,267,707,260,830,260,945,262,1060,264,1182,262,1321,254,1484,236,1496,234"/>
-<area shape="rect" title=" " alt="" coords="411,286,576,327"/>
-<area shape="poly" title=" " alt="" coords="1496,239,1484,241,1350,257,1235,265,1039,267,842,268,726,275,591,289,590,283,726,270,842,263,1039,262,1235,259,1349,251,1484,236,1496,234"/>
-<area shape="rect" title=" " alt="" coords="599,286,758,327"/>
-<area shape="poly" title=" " alt="" coords="1496,239,1484,241,1378,254,1287,262,1131,266,974,270,882,277,774,289,774,283,882,271,974,265,1131,261,1287,257,1377,249,1484,236,1496,234"/>
-<area shape="rect" title=" " alt="" coords="783,286,942,327"/>
-<area shape="poly" title=" " alt="" coords="1496,239,1484,241,1338,259,1223,266,1106,272,958,289,957,283,1106,267,1222,261,1338,254,1484,236,1496,234"/>
-<area shape="rect" title=" " alt="" coords="966,286,1108,327"/>
-<area shape="poly" title=" " alt="" coords="1496,239,1484,241,1385,256,1305,265,1226,273,1124,288,1123,283,1225,268,1305,260,1384,251,1484,236,1495,233"/>
-<area shape="rect" title=" " alt="" coords="1132,286,1289,327"/>
-<area shape="poly" title=" " alt="" coords="1497,239,1305,285,1304,280,1495,234"/>
-<area shape="rect" title=" " alt="" coords="1313,286,1479,327"/>
-<area shape="poly" title=" " alt="" coords="1529,241,1449,281,1447,277,1527,236"/>
-<area shape="rect" href="NavMap_8hpp.html" title="Core container and data structures for EasyNav navigable meshes." alt="" coords="1604,294,1780,320"/>
-<area shape="poly" title=" " alt="" coords="1597,237,1664,283,1661,287,1594,241"/>
-<area shape="poly" title=" " alt="" coords="1781,317,1843,324,2278,361,2595,381,2595,386,2278,366,1842,330,1780,323"/>
-<area shape="poly" title=" " alt="" coords="1781,317,1843,324,1960,336,2052,343,2145,352,2262,372,2262,377,2144,357,2052,348,1959,341,1842,330,1780,322"/>
-<area shape="poly" title=" " alt="" coords="1757,317,1799,324,1904,338,1987,346,2071,355,2178,372,2177,377,2070,360,1986,351,1903,343,1798,330,1756,323"/>
-<area shape="poly" title=" " alt="" coords="1604,322,1213,377,1213,372,1603,317"/>
-<area shape="poly" title=" " alt="" coords="1625,323,1586,330,1441,351,1295,377,1294,372,1440,346,1585,324,1624,317"/>
-<area shape="rect" title=" " alt="" coords="1563,375,1629,401"/>
-<area shape="poly" title=" " alt="" coords="1679,322,1624,367,1621,363,1676,318"/>
-<area shape="rect" title=" " alt="" coords="1618,449,1667,474"/>
-<area shape="poly" title=" " alt="" coords="1691,321,1654,435,1649,433,1686,319"/>
-<area shape="rect" title=" " alt="" coords="1691,449,1744,474"/>
-<area shape="poly" title=" " alt="" coords="1697,320,1716,433,1710,434,1691,320"/>
-<area shape="rect" title=" " alt="" coords="2115,375,2168,401"/>
-<area shape="poly" title=" " alt="" coords="1760,317,1799,324,1948,347,2097,372,2100,373,2099,378,2095,378,1947,352,1798,330,1759,323"/>
-<area shape="rect" title=" " alt="" coords="1767,449,1825,474"/>
-<area shape="poly" title=" " alt="" coords="1702,318,1782,434,1777,437,1698,321"/>
-<area shape="rect" title=" " alt="" coords="1303,375,1353,401"/>
-<area shape="poly" title=" " alt="" coords="1629,323,1368,377,1367,372,1628,318"/>
-<area shape="rect" title=" " alt="" coords="1377,375,1458,401"/>
-<area shape="poly" title=" " alt="" coords="1650,323,1474,373,1472,368,1649,318"/>
-<area shape="rect" title=" " alt="" coords="1482,375,1539,401"/>
-<area shape="poly" title=" " alt="" coords="1665,323,1553,371,1551,366,1663,318"/>
-<area shape="rect" title=" " alt="" coords="1986,449,2060,474"/>
-<area shape="poly" title=" " alt="" coords="1757,318,1909,348,1972,363,2003,373,2013,386,2020,402,2026,433,2020,434,2015,403,2009,389,2000,377,1971,368,1908,353,1756,323"/>
-<area shape="rect" title=" " alt="" coords="2084,449,2169,474"/>
-<area shape="poly" title=" " alt="" coords="1758,318,1924,349,2029,373,2074,402,2108,435,2105,439,2070,406,2027,377,1923,355,1757,323"/>
-<area shape="rect" href="Geometry_8hpp.html" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="1806,375,1989,401"/>
-<area shape="poly" title=" " alt="" coords="1725,318,1853,367,1851,372,1723,323"/>
-<area shape="poly" title=" " alt="" coords="1851,404,1683,450,1682,445,1850,399"/>
-<area shape="poly" title=" " alt="" coords="1868,404,1759,447,1757,442,1866,399"/>
-<area shape="poly" title=" " alt="" coords="1882,403,1827,441,1824,437,1879,399"/>
-<area shape="poly" title=" " alt="" coords="1920,399,1990,438,1987,443,1917,404"/>
-<area shape="poly" title=" " alt="" coords="1937,399,2074,441,2073,446,1935,404"/>
-<area shape="rect" title=" " alt="" coords="1849,449,1962,474"/>
-<area shape="poly" title=" " alt="" coords="1901,401,1905,433,1900,434,1896,401"/>
+<area shape="rect" title=" " alt="" coords="303,5,498,61"/>
+<area shape="rect" title=" " alt="" coords="50,116,119,142"/>
+<area shape="poly" title=" " alt="" coords="303,61,132,112,127,113,125,108,130,106,302,56"/>
+<area shape="rect" title=" " alt="" coords="142,109,317,150"/>
+<area shape="poly" title=" " alt="" coords="352,64,279,104,277,99,350,59"/>
+<area shape="rect" title=" " alt="" coords="341,116,460,142"/>
+<area shape="poly" title=" " alt="" coords="403,62,403,101,398,101,398,62"/>
+<area shape="rect" href="navmap__pose__tool_8hpp.html" title=" " alt="" coords="484,109,642,150"/>
+<area shape="poly" title=" " alt="" coords="449,59,517,99,515,103,446,64"/>
+<area shape="rect" title=" " alt="" coords="1291,198,1432,238"/>
+<area shape="poly" title=" " alt="" coords="499,49,838,109,1276,194,1275,200,837,115,498,54"/>
+<area shape="rect" title=" " alt="" coords="5,205,73,231"/>
+<area shape="poly" title=" " alt="" coords="484,150,473,152,363,166,277,170,192,178,85,200,79,202,78,197,84,195,191,173,277,165,363,160,472,147,483,145"/>
+<area shape="rect" title=" " alt="" coords="96,205,150,231"/>
+<area shape="poly" title=" " alt="" coords="484,150,473,152,385,164,316,170,248,179,162,200,159,201,158,196,161,195,247,173,315,165,384,159,472,147,483,145"/>
+<area shape="rect" title=" " alt="" coords="173,205,225,231"/>
+<area shape="poly" title=" " alt="" coords="484,150,473,152,353,171,302,181,237,200,235,201,233,196,235,195,300,176,352,166,472,147,483,145"/>
+<area shape="rect" title=" " alt="" coords="249,205,346,231"/>
+<area shape="poly" title=" " alt="" coords="504,153,350,202,348,197,502,148"/>
+<area shape="rect" title=" " alt="" coords="371,205,440,231"/>
+<area shape="poly" title=" " alt="" coords="529,153,442,200,440,195,526,148"/>
+<area shape="rect" title=" " alt="" coords="464,205,662,231"/>
+<area shape="poly" title=" " alt="" coords="566,150,566,190,560,190,560,150"/>
+<area shape="rect" title=" " alt="" coords="686,205,917,231"/>
+<area shape="poly" title=" " alt="" coords="618,148,755,197,753,202,616,153"/>
+<area shape="rect" title=" " alt="" coords="941,205,1089,231"/>
+<area shape="poly" title=" " alt="" coords="643,142,929,195,947,199,946,204,928,200,642,147"/>
+<area shape="rect" title=" " alt="" coords="1112,198,1267,238"/>
+<area shape="poly" title=" " alt="" coords="643,136,845,159,1098,195,1097,200,844,164,642,141"/>
+<area shape="poly" title=" " alt="" coords="643,132,919,152,1095,170,1276,195,1275,200,1094,175,918,157,642,137"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
