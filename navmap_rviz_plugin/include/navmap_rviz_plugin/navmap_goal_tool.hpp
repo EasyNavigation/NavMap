@@ -20,8 +20,7 @@
 #include <QObject>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "rclcpp/node.hpp"
-#include "rclcpp/qos.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "navmap_rviz_plugin/navmap_pose_tool.hpp"
 #include "rviz_default_plugins/visibility_control.hpp"

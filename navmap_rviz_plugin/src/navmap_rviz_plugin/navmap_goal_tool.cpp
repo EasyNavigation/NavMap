@@ -21,7 +21,6 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 
 #include "rviz_common/display_context.hpp"
-#include "rviz_common/logging.hpp"
 #include "rviz_common/properties/string_property.hpp"
 #include "rviz_common/properties/qos_profile_property.hpp"
 

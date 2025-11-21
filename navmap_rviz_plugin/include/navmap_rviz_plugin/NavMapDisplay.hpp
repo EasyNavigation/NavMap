@@ -18,10 +18,8 @@
 #define NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
 
 #include <cstdint>
-#include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include <QObject>
 

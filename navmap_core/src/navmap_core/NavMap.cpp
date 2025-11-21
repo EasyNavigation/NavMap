@@ -15,6 +15,7 @@
 
 
 #include "navmap_core/NavMap.hpp"
+#include <stack>
 #include <algorithm>
 #include <functional>
 #include <cmath>

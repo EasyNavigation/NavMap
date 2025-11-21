@@ -32,9 +32,6 @@
 #include "rviz_rendering/viewport_projection_finder.hpp"
 #include "rviz_default_plugins/visibility_control.hpp"
 
-#include "navmap_rviz_plugin/NavMapDisplay.hpp"
-
-
 namespace rviz_rendering
 {
 class Arrow;

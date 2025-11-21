@@ -45,10 +45,8 @@
 #include <string>
 #include <array>
 #include <limits>
-#include <stack>
 #include <cmath>
 #include <cstdint>
-#include <span>
 #include <type_traits>
 #include <deque>
 #include <algorithm>

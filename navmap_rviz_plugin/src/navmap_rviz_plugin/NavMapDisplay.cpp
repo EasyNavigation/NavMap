@@ -14,39 +14,22 @@
 // limitations under the License.
 
 
-#include "navmap_rviz_plugin/NavMapDisplay.hpp"
+#include <cmath>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-#include <OgreManualObject.h>
 #include <OgreEntity.h>
 #include <OgreMesh.h>
 #include <OgreMeshManager.h>
-#include <OgreHardwareVertexBuffer.h>
-#include <OgreHardwareBufferManager.h>
 #include <OgreMaterialManager.h>
 #include <OgreSubMesh.h>
-#include <OgreMaterial.h>
 #include <OgreTechnique.h>
 #include <OgrePass.h>
-#include <OgreVertexIndexData.h>
-#include <OgreRoot.h>
-
-#include <rclcpp/exceptions.hpp>
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/frame_manager_iface.hpp>
-#include <rviz_common/logging.hpp>
-#include <rviz_common/uniform_string_stream.hpp>
-#include <rviz_common/validate_floats.hpp>
 
 #include "navmap_core/NavMap.hpp"
 #include "navmap_ros/conversions.hpp"
 
-
-#include <QCoreApplication>
-#include <cmath>
-#include <sstream>
-
+#include "navmap_rviz_plugin/NavMapDisplay.hpp"
 namespace
 {
 

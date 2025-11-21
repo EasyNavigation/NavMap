@@ -33,10 +33,14 @@
 #include "rviz_rendering/render_window.hpp"
 
 #include "rviz_common/logging.hpp"
+#include "rviz_common/display_context.hpp"
 #include "rviz_common/render_panel.hpp"
 #include "rviz_common/viewport_mouse_event.hpp"
 #include "rviz_common/view_manager.hpp"
 #include "rviz_common/view_controller.hpp"
+
+#include "navmap_core/NavMap.hpp"
+#include "navmap_rviz_plugin/NavMapDisplay.hpp"
 
 namespace navmap_rviz_plugin
 {
