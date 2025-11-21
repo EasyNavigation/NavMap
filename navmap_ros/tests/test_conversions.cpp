@@ -17,7 +17,6 @@
 #include <nav_msgs/msg/occupancy_grid.hpp>
 
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
-#include "navmap_ros_interfaces/msg/nav_map.hpp"
 
 #include "navmap_ros/conversions.hpp"
 #include "navmap_core/NavMap.hpp"

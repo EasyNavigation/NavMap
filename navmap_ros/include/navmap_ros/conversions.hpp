@@ -37,8 +37,6 @@
  */
 
 #include <string>
-#include <memory>
-#include <vector>
 #include <Eigen/Core>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>

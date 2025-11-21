@@ -25,21 +25,17 @@
 #include <numeric>
 
 #include "geometry_msgs/msg/pose.hpp"
-#include <std_msgs/msg/header.hpp>
+#include "std_msgs/msg/header.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 
-#include "navmap_core/Geometry.hpp"
-
 #include "pcl_conversions/pcl_conversions.h"
-#include "pcl/point_types_conversion.h"
+#include "pcl/common/point_tests.h"
 
-#include "pcl/common/transforms.h"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
-#include "pcl/PointIndices.h"
 #include "pcl/kdtree/kdtree_flann.h"
 
 namespace navmap_ros
