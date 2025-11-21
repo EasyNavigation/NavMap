@@ -25,39 +25,6 @@
 namespace navmap
 {
 
-/** @cond INTERNAL */
-namespace navmap
-{namespace detail
-{
-inline std::uint64_t fnv1a64_bytes(
-  const void * data, std::size_t n,
-  std::uint64_t seed = 1469598103934665603ULL)
-{
-  const auto * p = static_cast<const std::uint8_t *>(data);
-  std::uint64_t h = seed;
-  for (std::size_t i = 0; i < n; ++i) {
-    h ^= p[i]; h *= 1099511628211ULL;
-  }
-  return h;
-}
-}}  // namespaces
-/** @endcond */
-
-template<typename T>
-std::uint64_t LayerView<T>::content_hash() const
-{
-  if (!hash_dirty_) {return hash_cache_;}
-  const std::size_t n = data_.size();
-  std::uint64_t h = navmap::detail::fnv1a64_bytes(&n, sizeof(n));
-  if (n) {
-    static_assert(std::is_trivially_copyable<T>::value,
-        "LayerView<T> requires trivially copyable T.");
-    h = navmap::detail::fnv1a64_bytes(data_.data(), n * sizeof(T), h);
-  }
-  hash_cache_ = h;
-  hash_dirty_ = false;
-  return hash_cache_;
-}
 
 namespace
 {
@@ -472,7 +439,7 @@ bool NavMap::raycast(
 {
   bool any = false;
   float best_t = std::numeric_limits<float>::infinity();
-  Vec3 best_p;
+  Vec3 best_p = Vec3::Zero();
   NavCelId best_cid = 0;
 
   for (const auto & s : surfaces) {
