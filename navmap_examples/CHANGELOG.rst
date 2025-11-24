@@ -2,8 +2,8 @@
 Changelog for package navmap_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2025-11-24)
+------------------
 * Cleanup unused headers
 * Merge branch 'jazzy' into rolling
 * Contributors: Francisco Martín Rico, Francisco Miguel Moreno
