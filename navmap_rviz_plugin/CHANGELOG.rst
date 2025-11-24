@@ -2,8 +2,8 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2025-11-24)
+------------------
 * Cleanup unused headers
 * NavMap Goal Pose
 * Occupancy works

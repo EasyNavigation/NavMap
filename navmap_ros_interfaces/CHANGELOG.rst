@@ -2,8 +2,8 @@
 Changelog for package navmap_ros_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2025-11-24)
+------------------
 * Merge branch 'jazzy' into rolling
 * Contributors: Francisco Martín Rico
 

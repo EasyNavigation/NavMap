@@ -2,8 +2,8 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2025-11-24)
+------------------
 * Cleanup unused headers
 * Occupancy works
 * Add occupancy grid constants
