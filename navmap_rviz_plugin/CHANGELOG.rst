@@ -2,6 +2,15 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Cleanup unused headers
+* NavMap Goal Pose
+* Occupancy works
+* FREE_SPACE as white
+* Merge branch 'jazzy' into rolling
+* Contributors: Francisco Martín Rico, Francisco Miguel Moreno
+
 0.2.5 (2025-10-17)
 ------------------
 
