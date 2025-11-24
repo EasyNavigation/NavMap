@@ -2,6 +2,20 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Cleanup unused headers
+* Occupancy works
+* Add occupancy grid constants
+* Fix surface creation from points
+* Remove unused field
+* Remove some comments
+* Final working version
+* Acelerated respecting floors
+* Working slow with many points
+* Initial working version
+* Contributors: Francisco Martín Rico, Francisco Miguel Moreno
+
 0.2.5 (2025-10-17)
 ------------------
 * Fix pcl_conversions build
