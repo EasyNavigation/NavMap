@@ -39,7 +39,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   ${std_srvs_TARGETS}
   ${PCL_LIBRARIES}
 )
-
 add_executable(slam_server_app
   src/slam_server_app.cpp
 )

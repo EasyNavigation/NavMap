@@ -18,10 +18,8 @@
 #define NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
 
 #include <cstdint>
-#include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include <QObject>
 
@@ -39,6 +37,8 @@
 
 #include <navmap_ros_interfaces/msg/nav_map.hpp>
 #include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
+
+#include "navmap_core/NavMap.hpp"
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef __GNUC__
@@ -73,6 +73,8 @@ class HardwareVertexBuffer;
 
 namespace navmap_rviz_plugin
 {
+
+inline navmap::NavMap received_navmap;
 
 class NAVMAP_RVIZ_PLUGIN_PUBLIC NavMapDisplay
   : public rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>

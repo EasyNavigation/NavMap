@@ -3,7 +3,7 @@
 
 <package format="3">
   <name>navmap_rviz_plugin</name>
-  <version>0.2.3</version>
+  <version>0.2.5</version>
   <description>RViz2 display plugin for NavMap surfaces and layers.</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
 
@@ -17,6 +17,8 @@
   <depend>rviz_rendering</depend>
   <depend>rviz_default_plugins</depend>
   <depend>navmap_ros_interfaces</depend>
+  <depend>navmap_ros</depend>
+  <depend>navmap_core</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>

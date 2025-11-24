@@ -37,8 +37,6 @@
  */
 
 #include <string>
-#include <memory>
-#include <vector>
 #include <Eigen/Core>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -56,6 +54,26 @@
  */
 namespace navmap_ros
 {
+
+/**
+ * @name Costmap value semantics
+ * @brief Standardized occupancy/cost values used when projecting NavMap layers
+ *        onto a 2D grid (compatible with `costmap_2d` conventions).
+ *
+ * These constants follow the same meaning as in `costmap_2d`:
+ *  - `NO_INFORMATION` (255): Unknown or unobserved area.
+ *  - `LETHAL_OBSTACLE` (254): Non-traversable obstacle.
+ *  - `INSCRIBED_INFLATED_OBSTACLE` (253): Inside the robot’s inscribed radius.
+ *  - `MAX_NON_OBSTACLE` (252): Highest cost still considered traversable.
+ *  - `FREE_SPACE` (0): Known free space.
+ * @{
+ */
+constexpr uint8_t NO_INFORMATION = 255;
+constexpr uint8_t LETHAL_OBSTACLE = 254;
+constexpr uint8_t INSCRIBED_INFLATED_OBSTACLE = 253;
+constexpr uint8_t MAX_NON_OBSTACLE = 252;
+constexpr uint8_t FREE_SPACE = 0;
+/** @} */  // end of Costmap value semantics group
 
 // --------- NavMap <-> ROS message ---------
 
@@ -184,9 +202,6 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm);
  */
 struct BuildParams
 {
-  /** @brief Seed position (world frame) used by region growing or initial search heuristics. */
-  Eigen::Vector3f seed = {0.0, 0.0, 0.0};
-
   /** @brief Target in-plane sampling resolution (meters) used by voxelization or gridding. */
   float resolution = 1.0;
 
@@ -213,6 +228,9 @@ struct BuildParams
 
   /** @brief Minimum interior angle (degrees) to avoid sliver triangles. */
   float min_angle_deg = 20.0f;   // minimum interior angle (deg) to avoid sliver triangles
+
+  /** @brief Maximun surfaces to keep, ordenred by size. */
+  int max_surfaces = 0;  // 0 ó <0 => no limits. >0 => Keep only N larger
 };
 
 /**

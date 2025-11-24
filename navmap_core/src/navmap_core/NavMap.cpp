@@ -15,6 +15,7 @@
 
 
 #include "navmap_core/NavMap.hpp"
+#include <stack>
 #include <algorithm>
 #include <functional>
 #include <cmath>
@@ -25,39 +26,6 @@
 namespace navmap
 {
 
-/** @cond INTERNAL */
-namespace navmap
-{namespace detail
-{
-inline std::uint64_t fnv1a64_bytes(
-  const void * data, std::size_t n,
-  std::uint64_t seed = 1469598103934665603ULL)
-{
-  const auto * p = static_cast<const std::uint8_t *>(data);
-  std::uint64_t h = seed;
-  for (std::size_t i = 0; i < n; ++i) {
-    h ^= p[i]; h *= 1099511628211ULL;
-  }
-  return h;
-}
-}}  // namespaces
-/** @endcond */
-
-template<typename T>
-std::uint64_t LayerView<T>::content_hash() const
-{
-  if (!hash_dirty_) {return hash_cache_;}
-  const std::size_t n = data_.size();
-  std::uint64_t h = navmap::detail::fnv1a64_bytes(&n, sizeof(n));
-  if (n) {
-    static_assert(std::is_trivially_copyable<T>::value,
-        "LayerView<T> requires trivially copyable T.");
-    h = navmap::detail::fnv1a64_bytes(data_.data(), n * sizeof(T), h);
-  }
-  hash_cache_ = h;
-  hash_dirty_ = false;
-  return hash_cache_;
-}
 
 namespace
 {
@@ -472,7 +440,7 @@ bool NavMap::raycast(
 {
   bool any = false;
   float best_t = std::numeric_limits<float>::infinity();
-  Vec3 best_p;
+  Vec3 best_p = Vec3::Zero();
   NavCelId best_cid = 0;
 
   for (const auto & s : surfaces) {
@@ -579,7 +547,7 @@ bool NavMap::locate_by_walking(
   Vec3 * hit_pt,
   float planar_eps) const
 {
-  const int kMaxSteps = 64;
+  const int kMaxSteps = 16;
   NavCelId cid = start_cid;
 
   for (int step = 0; step < kMaxSteps; ++step) {
@@ -632,25 +600,70 @@ bool NavMap::locate_navcel_core(
   Vec3 * hit_pt,
   const LocateOpts & opts) const
 {
-  // 1) Try walking if there is a valid hint.
+  // 0) Fast path: directly test the hinted triangle, if any.
   if (opts.hint_cid.has_value()) {
-    if (locate_by_walking(opts.hint_cid.value(),
-                          p_world,
-                          cid,
-                          bary,
-                          hit_pt,
-                          opts.planar_eps))
-    {
-      for (size_t s = 0; s < surfaces.size(); ++s) {
-        const auto & surf = surfaces[s];
-        if (std::find(surf.navcels.begin(), surf.navcels.end(), cid) !=
-          surf.navcels.end())
+    const NavCelId hint = *opts.hint_cid;
+    if (hint < navcels.size()) {
+      const auto & c = navcels[hint];
+      const Vec3 a = positions.at(c.v[0]);
+      const Vec3 b = positions.at(c.v[1]);
+      const Vec3 d = positions.at(c.v[2]);
+      const Vec3 & n = c.normal;
+
+      const float dist = n.dot(p_world - a);
+      const Vec3 q = p_world - dist * n;
+
+      Vec3 bary_hint;
+      if (point_in_triangle_bary(q, a, b, d, bary_hint, opts.planar_eps) &&
+        std::fabs(dist) <= opts.height_eps)
+      {
+        cid = hint;
+        bary = bary_hint;
+        if (hit_pt) {
+          *hit_pt = q;
+        }
+
+        // Find the surface that owns this navcel.
+        for (size_t s = 0; s < surfaces.size(); ++s) {
+          const auto & surf = surfaces[s];
+          if (std::find(surf.navcels.begin(), surf.navcels.end(), cid) != surf.navcels.end()) {
+            surface_idx = s;
+            return true;
+          }
+        }
+        // If no surface owns the hinted navcel, fall through to the generic search.
+      }
+    }
+  }
+
+  // 1) Try walking if there is a valid hint and we are not far from its plane.
+  if (opts.hint_cid.has_value()) {
+    const NavCelId start = *opts.hint_cid;
+    if (start < navcels.size()) {
+      const auto & c0 = navcels[start];
+      const Vec3 a0 = positions.at(c0.v[0]);
+      const Vec3 & n0 = c0.normal;
+      const float dist0 = n0.dot(p_world - a0);
+
+      // Do not walk if the query point is clearly off the hinted plane.
+      if (std::fabs(dist0) <= opts.height_eps) {
+        if (locate_by_walking(start,
+                              p_world,
+                              cid,
+                              bary,
+                              hit_pt,
+                              opts.planar_eps))
         {
-          surface_idx = s;
-          return true;
+          for (size_t s = 0; s < surfaces.size(); ++s) {
+            const auto & surf = surfaces[s];
+            if (std::find(surf.navcels.begin(), surf.navcels.end(), cid) != surf.navcels.end()) {
+              surface_idx = s;
+              return true;
+            }
+          }
+          // Fall through if surface not found.
         }
       }
-      // Fall through if surface not found.
     }
   }
 
