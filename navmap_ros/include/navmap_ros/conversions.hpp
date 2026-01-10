@@ -159,7 +159,7 @@ navmap_ros_interfaces::msg::NavMapLayer to_msg(
  *
  * @param[in] msg Input NavMapLayer message.
  * @param[in,out] nm  Destination NavMap (must already have navcels sized correctly).
- * @param[in] header Header to assign to the resulting message.
+ * @param[out] header Header extracted from the message.
  *
  * @details
  *  - The function verifies that the length of the populated data array matches
@@ -187,7 +187,7 @@ void from_msg(
  *        using a regular triangular surface with shared vertices.
  *
  * @param[in] grid Input ROS OccupancyGrid (row-major, width×height, resolution and origin).
- * @param[in] header Header to assign to the resulting message.
+ * @param[out] header Header to assign to the resulting message.
  * @return A core `navmap::NavMap` with:
  *   - Vertices: `(W+1) * (H+1)` laid on the grid plane, with `Z = grid.info.origin.position.z`.
  *   - Triangles: `2 * W * H` (two per cell), using diagonal pattern = 0.
