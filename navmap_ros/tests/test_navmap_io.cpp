@@ -23,6 +23,8 @@
 #include <unistd.h>
 #include <unordered_map>
 
+#include "std_msgs/msg/header.hpp"
+
 #include "navmap_core/NavMap.hpp"
 #include "navmap_ros/conversions.hpp"
 #include "navmap_ros/navmap_io.hpp"
@@ -290,7 +292,9 @@ TEST(NavMapIoCore, RoundtripViaCoreAndMsgCompare)
   msg.layers = {u8, f32};
 
 // msg -> core
-navmap::NavMap core = navmap_ros::from_msg(msg);
+std_msgs::msg::Header h_in;
+navmap::NavMap core = navmap_ros::from_msg(msg, h_in);
+EXPECT_EQ(h_in.frame_id, msg.header.frame_id);
 
 // save(core) -> load(core)
 std::string path = (std::filesystem::temp_directory_path() /
@@ -302,8 +306,10 @@ navmap::NavMap core_loaded;
 ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.message();
 
 // core -> msg
-auto msg_from_core = navmap_ros::to_msg(core);
-auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded);
+std_msgs::msg::Header h_out;
+h_out.frame_id = msg.header.frame_id;
+auto msg_from_core = navmap_ros::to_msg(core, h_out);
+auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded, h_out);
 
 // Semantic comparison (order and FP tolerant)
 ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);

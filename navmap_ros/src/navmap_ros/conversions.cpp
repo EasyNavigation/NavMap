@@ -67,9 +67,10 @@ static inline navmap::NavCelId tri_index_for_cell(uint32_t i, uint32_t j, uint32
 
 // ----------------- NavMap <-> ROS message -----------------
 
-NavMap to_msg(const navmap::NavMap & nm)
+NavMap to_msg(const navmap::NavMap & nm, const std_msgs::msg::Header & header)
 {
   NavMap out;
+  out.header = header;
 
   // positions
   out.positions_x.assign(nm.positions.x.begin(), nm.positions.x.end());
@@ -135,8 +136,14 @@ NavMap to_msg(const navmap::NavMap & nm)
   return out;
 }
 
-navmap::NavMap from_msg(const NavMap & msg)
+NavMap to_msg(const navmap::NavMap & nm)
 {
+  return to_msg(nm, std_msgs::msg::Header());
+}
+
+navmap::NavMap from_msg(const NavMap & msg, std_msgs::msg::Header & header)
+{
+  header = msg.header;
   navmap::NavMap nm;
 
   // positions
@@ -203,11 +210,19 @@ navmap::NavMap from_msg(const NavMap & msg)
   return nm;
 }
 
+navmap::NavMap from_msg(const NavMap & msg)
+{
+  std_msgs::msg::Header unused;
+  return from_msg(msg, unused);
+}
+
 navmap_ros_interfaces::msg::NavMapLayer to_msg(
   const navmap::NavMap & nm,
-  const std::string & layer_name)
+  const std::string & layer_name,
+  const std_msgs::msg::Header & header)
 {
   navmap_ros_interfaces::msg::NavMapLayer msg;
+  msg.header = header;
   msg.name = layer_name;
 
   auto base = nm.layers.get(layer_name);
@@ -241,10 +256,19 @@ navmap_ros_interfaces::msg::NavMapLayer to_msg(
   return msg;
 }
 
+navmap_ros_interfaces::msg::NavMapLayer to_msg(
+  const navmap::NavMap & nm,
+  const std::string & layer_name)
+{
+  return to_msg(nm, layer_name, std_msgs::msg::Header());
+}
+
 void from_msg(
   const navmap_ros_interfaces::msg::NavMapLayer & msg,
-  navmap::NavMap & nm)
+  navmap::NavMap & nm,
+  std_msgs::msg::Header & header)
 {
+  header = msg.header;
   switch (msg.type) {
     case navmap_ros_interfaces::msg::NavMapLayer::U8: {
         auto dst = nm.add_layer<uint8_t>(msg.name, /*desc*/"", /*unit*/"", uint8_t{});
@@ -276,10 +300,21 @@ void from_msg(
   }
 }
 
+void from_msg(
+  const navmap_ros_interfaces::msg::NavMapLayer & msg,
+  navmap::NavMap & nm)
+{
+  std_msgs::msg::Header unused;
+  from_msg(msg, nm, unused);
+}
+
 // ----------------- OccupancyGrid <-> NavMap -----------------
 
-navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid)
+navmap::NavMap from_occupancy_grid(
+  const nav_msgs::msg::OccupancyGrid & grid,
+  std_msgs::msg::Header & header)
 {
+  header = grid.header;
   navmap::NavMap nm;
 
   const uint32_t W = grid.info.width;
@@ -349,10 +384,21 @@ navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid)
   return nm;
 }
 
-nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
+navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid)
+{
+  std_msgs::msg::Header unused;
+  return from_occupancy_grid(grid, unused);
+}
+
+nav_msgs::msg::OccupancyGrid to_occupancy_grid(
+  const navmap::NavMap & nm,
+  const std_msgs::msg::Header & header)
 {
   nav_msgs::msg::OccupancyGrid g;
-  g.header.frame_id = (nm.surfaces.empty() ? std::string() : nm.surfaces[0].frame_id);
+  g.header = header;
+  if (g.header.frame_id.empty() && !nm.surfaces.empty()) {
+    g.header.frame_id = nm.surfaces[0].frame_id;
+  }
 
   auto base = nm.layers.get("occupancy");
   if (!base || base->type() != navmap::LayerType::U8) {
@@ -447,6 +493,13 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
     }
   }
   return g;
+}
+
+nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
+{
+  std_msgs::msg::Header h;
+  h.frame_id = (nm.surfaces.empty() ? std::string() : nm.surfaces[0].frame_id);
+  return to_occupancy_grid(nm, h);
 }
 
 bool build_navmap_from_mesh(

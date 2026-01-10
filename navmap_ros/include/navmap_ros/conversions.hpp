@@ -41,6 +41,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include "std_msgs/msg/header.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
@@ -81,6 +82,7 @@ constexpr uint8_t FREE_SPACE = 0;
  * @brief Convert a core `navmap::NavMap` into its compact ROS transport message.
  *
  * @param[in] nm Core NavMap to be serialized into a ROS message.
+ * @param[in] header Header to assign to the resulting message.
  * @return A `navmap_ros_interfaces::msg::NavMap` containing geometry (vertices, triangles),
  *         surfaces metadata and user-defined layers.
  *
@@ -91,12 +93,20 @@ constexpr uint8_t FREE_SPACE = 0;
  * @note This function does not perform IO; it only builds the message in-memory.
  */
 navmap_ros_interfaces::msg::NavMap to_msg(
-  const navmap::NavMap & nm);
+  const navmap::NavMap & nm, const std_msgs::msg::Header & header);
+
+/**
+ * @brief Backward-compatible overload (no header provided).
+ *
+ * The returned message header will be default-constructed.
+ */
+navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap & nm);
 
 /**
  * @brief Reconstruct a core `navmap::NavMap` from the ROS transport message.
  *
  * @param[in] msg Input `navmap_ros_interfaces::msg::NavMap` message.
+ * @param[out] header Header extracted from the message.
  * @return A core `navmap::NavMap` equivalent to the content of @p msg.
  *
  * @details
@@ -105,6 +115,13 @@ navmap_ros_interfaces::msg::NavMap to_msg(
  *
  * @throw std::runtime_error If the message describes inconsistent geometry or layer sizes.
  */
+navmap::NavMap from_msg(
+  const navmap_ros_interfaces::msg::NavMap & msg,
+  std_msgs::msg::Header & header);
+
+/**
+ * @brief Backward-compatible overload (ignores message header).
+ */
 navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap & msg);
 
 /**
@@ -112,6 +129,7 @@ navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap & msg);
  *
  * @param[in] nm     Input NavMap.
  * @param[in] layer  Name of the layer to export.
+ * @param[in] header Header to assign to the resulting message.
  * @return A NavMapLayer message containing the layer values and metadata.
  *
  * @details
@@ -120,6 +138,14 @@ navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap & msg);
  *  - The function performs a type-safe extraction (U8/F32/F64).
  *
  * @throw std::runtime_error If the layer does not exist or has an unsupported type.
+ */
+navmap_ros_interfaces::msg::NavMapLayer to_msg(
+  const navmap::NavMap & nm,
+  const std::string & layer,
+  const std_msgs::msg::Header & header);
+
+/**
+ * @brief Backward-compatible overload (no header provided).
  */
 navmap_ros_interfaces::msg::NavMapLayer to_msg(
   const navmap::NavMap & nm,
@@ -133,6 +159,7 @@ navmap_ros_interfaces::msg::NavMapLayer to_msg(
  *
  * @param[in] msg Input NavMapLayer message.
  * @param[in,out] nm  Destination NavMap (must already have navcels sized correctly).
+ * @param[in] header Header to assign to the resulting message.
  *
  * @details
  *  - The function verifies that the length of the populated data array matches
@@ -140,6 +167,14 @@ navmap_ros_interfaces::msg::NavMapLayer to_msg(
  *  - Exactly one of the arrays `data_u8`, `data_f32`, or `data_f64` must be set.
  *
  * @throw std::runtime_error If sizes are inconsistent or the message is ill-formed.
+ */
+void from_msg(
+  const navmap_ros_interfaces::msg::NavMapLayer & msg,
+  navmap::NavMap & nm,
+  std_msgs::msg::Header & header);
+
+/**
+ * @brief Backward-compatible overload (ignores message header).
  */
 void from_msg(
   const navmap_ros_interfaces::msg::NavMapLayer & msg,
@@ -152,6 +187,7 @@ void from_msg(
  *        using a regular triangular surface with shared vertices.
  *
  * @param[in] grid Input ROS OccupancyGrid (row-major, width×height, resolution and origin).
+ * @param[in] header Header to assign to the resulting message.
  * @return A core `navmap::NavMap` with:
  *   - Vertices: `(W+1) * (H+1)` laid on the grid plane, with `Z = grid.info.origin.position.z`.
  *   - Triangles: `2 * W * H` (two per cell), using diagonal pattern = 0.
@@ -166,6 +202,13 @@ void from_msg(
  *
  * @note The grid origin pose may contain a rotation. The vertex Z is taken from the origin Z;
  *       handling of non-zero yaw/roll/pitch (if any) is implementation-defined in the builder.
+ */
+navmap::NavMap from_occupancy_grid(
+  const nav_msgs::msg::OccupancyGrid & grid,
+  std_msgs::msg::Header & header);
+
+/**
+ * @brief Backward-compatible overload (ignores grid header).
  */
 navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid);
 
@@ -191,6 +234,13 @@ navmap::NavMap from_occupancy_grid(const nav_msgs::msg::OccupancyGrid & grid);
  *
  * @warning If the map does not carry grid metadata or the `"occupancy"` layer is missing,
  *          the result may be incomplete or implementation-defined.
+ */
+nav_msgs::msg::OccupancyGrid to_occupancy_grid(
+  const navmap::NavMap & nm,
+  const std_msgs::msg::Header & header);
+
+/**
+ * @brief Backward-compatible overload.
  */
 nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm);
 

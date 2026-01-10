@@ -17,6 +17,7 @@
 #include <nav_msgs/msg/occupancy_grid.hpp>
 
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
+#include "std_msgs/msg/header.hpp"
 
 #include "navmap_ros/conversions.hpp"
 #include "navmap_core/NavMap.hpp"
@@ -124,8 +125,17 @@ static inline navmap::NavCelId tri_index_for_cell(uint32_t i, uint32_t j, uint32
 TEST(NavMap_FullConversions, RoundTrip_All)
 {
   navmap::NavMap a; build_square_with_layers(a);
-  auto msg = navmap_ros::to_msg(a);
-  navmap::NavMap b = navmap_ros::from_msg(msg);
+  std_msgs::msg::Header h;
+  h.frame_id = "map";
+  h.stamp.sec = 123;
+  h.stamp.nanosec = 456;
+  auto msg = navmap_ros::to_msg(a, h);
+  std_msgs::msg::Header h2;
+  navmap::NavMap b = navmap_ros::from_msg(msg, h2);
+
+  EXPECT_EQ(h2.frame_id, h.frame_id);
+  EXPECT_EQ(h2.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(h2.stamp.nanosec, h.stamp.nanosec);
 
   ASSERT_EQ(a.positions.size(), b.positions.size());
   for (size_t i = 0; i < a.positions.size(); ++i) {
@@ -170,8 +180,16 @@ TEST(NavMap_FullConversions, RoundTrip_All)
 TEST(NavMap_FullConversions, EmptyMap_RoundTrip)
 {
   navmap::NavMap a;
-  auto msg = navmap_ros::to_msg(a);
-  navmap::NavMap b = navmap_ros::from_msg(msg);
+  std_msgs::msg::Header h;
+  h.frame_id = "map";
+  h.stamp.sec = 1;
+  h.stamp.nanosec = 2;
+  auto msg = navmap_ros::to_msg(a, h);
+  std_msgs::msg::Header h2;
+  navmap::NavMap b = navmap_ros::from_msg(msg, h2);
+  EXPECT_EQ(h2.frame_id, h.frame_id);
+  EXPECT_EQ(h2.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(h2.stamp.nanosec, h.stamp.nanosec);
   EXPECT_EQ(b.positions.size(), 0u);
   EXPECT_EQ(b.navcels.size(), 0u);
   EXPECT_EQ(b.surfaces.size(), 0u);
@@ -184,7 +202,14 @@ TEST(NavMap_LayerConversions, U8_RoundTrip)
   auto occ = nm.add_layer<uint8_t>("occupancy", "occ", "", uint8_t(0));
   occ->data()[0] = 10u; occ->data()[1] = 250u;
 
-  auto msg = navmap_ros::to_msg(nm, "occupancy");
+  std_msgs::msg::Header h;
+  h.frame_id = "map";
+  h.stamp.sec = 10;
+  h.stamp.nanosec = 20;
+  auto msg = navmap_ros::to_msg(nm, "occupancy", h);
+  EXPECT_EQ(msg.header.frame_id, h.frame_id);
+  EXPECT_EQ(msg.header.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(msg.header.stamp.nanosec, h.stamp.nanosec);
   EXPECT_EQ(msg.name, "occupancy");
   EXPECT_EQ(msg.type, 0u);  // 0=U8
   ASSERT_EQ(msg.data_u8.size(), 2u);
@@ -192,7 +217,11 @@ TEST(NavMap_LayerConversions, U8_RoundTrip)
   EXPECT_EQ(msg.data_u8[1], 250u);
 
   navmap::NavMap nm2; make_flat_square(nm2);
-  navmap_ros::from_msg(msg, nm2);
+  std_msgs::msg::Header h2;
+  navmap_ros::from_msg(msg, nm2, h2);
+  EXPECT_EQ(h2.frame_id, h.frame_id);
+  EXPECT_EQ(h2.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(h2.stamp.nanosec, h.stamp.nanosec);
   ASSERT_TRUE(nm2.has_layer("occupancy"));
   EXPECT_NEAR(nm2.layer_get<double>("occupancy", 0), 10.0, 1e-6);
   EXPECT_NEAR(nm2.layer_get<double>("occupancy", 1), 250.0, 1e-6);
@@ -204,14 +233,25 @@ TEST(NavMap_LayerConversions, F32_RoundTrip)
   auto cost = nm.add_layer<float>("cost", "cost", "", 0.0f);
   cost->data()[0] = 1.25f; cost->data()[1] = 9.5f;
 
-  auto msg = navmap_ros::to_msg(nm, "cost");
+  std_msgs::msg::Header h;
+  h.frame_id = "map";
+  h.stamp.sec = 11;
+  h.stamp.nanosec = 22;
+  auto msg = navmap_ros::to_msg(nm, "cost", h);
+  EXPECT_EQ(msg.header.frame_id, h.frame_id);
+  EXPECT_EQ(msg.header.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(msg.header.stamp.nanosec, h.stamp.nanosec);
   EXPECT_EQ(msg.type, 1u);  // 1=F32
   ASSERT_EQ(msg.data_f32.size(), 2u);
   EXPECT_NEAR(msg.data_f32[0], 1.25f, 1e-6);
   EXPECT_NEAR(msg.data_f32[1], 9.5f, 1e-6);
 
   navmap::NavMap nm2; make_flat_square(nm2);
-  navmap_ros::from_msg(msg, nm2);
+  std_msgs::msg::Header h2;
+  navmap_ros::from_msg(msg, nm2, h2);
+  EXPECT_EQ(h2.frame_id, h.frame_id);
+  EXPECT_EQ(h2.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(h2.stamp.nanosec, h.stamp.nanosec);
   ASSERT_TRUE(nm2.has_layer("cost"));
   EXPECT_NEAR(nm2.layer_get<double>("cost", 0), 1.25, 1e-6);
   EXPECT_NEAR(nm2.layer_get<double>("cost", 1), 9.5, 1e-6);
@@ -224,14 +264,25 @@ TEST(NavMap_LayerConversions, F64_RoundTrip)
   elev->data()[0] = 12.345;
   elev->data()[1] = -2.5;
 
-  auto msg = navmap_ros::to_msg(nm, "elevation");
+  std_msgs::msg::Header h;
+  h.frame_id = "map";
+  h.stamp.sec = 12;
+  h.stamp.nanosec = 24;
+  auto msg = navmap_ros::to_msg(nm, "elevation", h);
+  EXPECT_EQ(msg.header.frame_id, h.frame_id);
+  EXPECT_EQ(msg.header.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(msg.header.stamp.nanosec, h.stamp.nanosec);
   EXPECT_EQ(msg.type, 2u);  // 2=F64
   ASSERT_EQ(msg.data_f64.size(), 2u);
   EXPECT_NEAR(msg.data_f64[0], 12.345, 1e-9);
   EXPECT_NEAR(msg.data_f64[1], -2.5, 1e-9);
 
   navmap::NavMap nm2; make_flat_square(nm2);
-  navmap_ros::from_msg(msg, nm2);
+  std_msgs::msg::Header h2;
+  navmap_ros::from_msg(msg, nm2, h2);
+  EXPECT_EQ(h2.frame_id, h.frame_id);
+  EXPECT_EQ(h2.stamp.sec, h.stamp.sec);
+  EXPECT_EQ(h2.stamp.nanosec, h.stamp.nanosec);
   ASSERT_TRUE(nm2.has_layer("elevation"));
   EXPECT_NEAR(nm2.layer_get<double>("elevation", 0), 12.345, 1e-9);
   EXPECT_NEAR(nm2.layer_get<double>("elevation", 1), -2.5, 1e-9);
@@ -247,9 +298,23 @@ TEST(TestConversions, RoundTrip_ExactEquality_4m_0p1)
 {
   const int W = 40, H = 40;
   auto g = make_grid_4m_0p1();
+  g.header.stamp.sec = 111;
+  g.header.stamp.nanosec = 222;
 
-  auto nm = from_occupancy_grid(g);
-  auto gout = to_occupancy_grid(nm);
+  std_msgs::msg::Header h_in;
+  auto nm = from_occupancy_grid(g, h_in);
+  EXPECT_EQ(h_in.frame_id, g.header.frame_id);
+  EXPECT_EQ(h_in.stamp.sec, g.header.stamp.sec);
+  EXPECT_EQ(h_in.stamp.nanosec, g.header.stamp.nanosec);
+
+  std_msgs::msg::Header h_out;
+  h_out.frame_id = "map";
+  h_out.stamp.sec = 333;
+  h_out.stamp.nanosec = 444;
+  auto gout = to_occupancy_grid(nm, h_out);
+  EXPECT_EQ(gout.header.frame_id, h_out.frame_id);
+  EXPECT_EQ(gout.header.stamp.sec, h_out.stamp.sec);
+  EXPECT_EQ(gout.header.stamp.nanosec, h_out.stamp.nanosec);
 
   ASSERT_EQ(gout.info.width, g.info.width);
   ASSERT_EQ(gout.info.height, g.info.height);
@@ -293,7 +358,8 @@ TEST(TestConversions, TriangleIndicesFollowPattern0)
 {
   const int W = 40;
   auto g = make_grid_4m_0p1();
-  auto nm = from_occupancy_grid(g);
+  std_msgs::msg::Header unused;
+  auto nm = from_occupancy_grid(g, unused);
 
   // Pick a cell and verify its triangles reference the expected 4 vertices.
   auto v_id = [W](uint32_t i, uint32_t j) -> navmap::PointId {
