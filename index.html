@@ -280,13 +280,13 @@ Dependencies</h2>
 <div class="line"><span class="preprocessor">#include &lt;navmap_ros_interfaces/msg/nav_map.hpp&gt;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Convert to ROS message</span></div>
-<div class="line">navmap_ros_interfaces::msg::NavMap msg = <a class="code hl_function" href="namespacenavmap__ros.html#aba26a033fbd9456e2368c8f49f62779e">navmap_ros::to_msg</a>(nm);</div>
+<div class="line">navmap_ros_interfaces::msg::NavMap msg = <a class="code hl_function" href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549">navmap_ros::to_msg</a>(nm);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Convert back to core structure</span></div>
-<div class="line"><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> nm2 = <a class="code hl_function" href="namespacenavmap__ros.html#ac70f12eb1f059a42b6993cb612720ea0">navmap_ros::from_msg</a>(msg);</div>
+<div class="line"><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> nm2 = <a class="code hl_function" href="namespacenavmap__ros.html#a303bf3630b9cdc3b17180af1a76210cb">navmap_ros::from_msg</a>(msg);</div>
 <div class="ttc" id="aconversions_8hpp_html"><div class="ttname"><a href="conversions_8hpp.html">conversions.hpp</a></div><div class="ttdoc">Conversions between the core NavMap representation and ROS messages.</div></div>
-<div class="ttc" id="anamespacenavmap__ros_html_aba26a033fbd9456e2368c8f49f62779e"><div class="ttname"><a href="namespacenavmap__ros.html#aba26a033fbd9456e2368c8f49f62779e">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:70</div></div>
-<div class="ttc" id="anamespacenavmap__ros_html_ac70f12eb1f059a42b6993cb612720ea0"><div class="ttname"><a href="namespacenavmap__ros.html#ac70f12eb1f059a42b6993cb612720ea0">navmap_ros::from_msg</a></div><div class="ttdeci">navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap &amp;msg)</div><div class="ttdoc">Reconstruct a core navmap::NavMap from the ROS transport message.</div></div>
+<div class="ttc" id="anamespacenavmap__ros_html_a303bf3630b9cdc3b17180af1a76210cb"><div class="ttname"><a href="namespacenavmap__ros.html#a303bf3630b9cdc3b17180af1a76210cb">navmap_ros::from_msg</a></div><div class="ttdeci">navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap &amp;msg, std_msgs::msg::Header &amp;header)</div><div class="ttdoc">Reconstruct a core navmap::NavMap from the ROS transport message.</div></div>
+<div class="ttc" id="anamespacenavmap__ros_html_a498034a43d57cc22889b0b80b600c549"><div class="ttname"><a href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm, const std_msgs::msg::Header &amp;header)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:70</div></div>
 </div><!-- fragment --><hr  />
 <h1><a class="anchor" id="autotoc_md28"></a>
 9. Save and load from disk</h1>
