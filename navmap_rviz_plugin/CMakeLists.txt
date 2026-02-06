@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(navmap_rviz_plugin)
 
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rviz_common REQUIRED)
@@ -12,19 +18,40 @@ find_package(navmap_ros_interfaces REQUIRED)
 find_package(navmap_ros REQUIRED)
 find_package(navmap_core REQUIRED)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
+
+set(QT_LIBRARIES
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::Gui
+)
+
+set(NAVMAP_MOC_SRCS
+  include/navmap_rviz_plugin/NavMapDisplay.hpp
+  include/navmap_rviz_plugin/navmap_goal_tool.hpp
+  include/navmap_rviz_plugin/navmap_pose_tool.hpp
+)
+
+if (${QT_VERSION_MAJOR} GREATER "5")
+  qt_standard_project_setup()
+  qt_wrap_cpp(NAVMAP_MOC_SRCS
+  include/navmap_rviz_plugin/NavMapDisplay.hpp
+  include/navmap_rviz_plugin/navmap_goal_tool.hpp
+  include/navmap_rviz_plugin/navmap_pose_tool.hpp
+)
+endif()
 
 add_library(${PROJECT_NAME} SHARED
   src/navmap_rviz_plugin/NavMapDisplay.cpp
   src/navmap_rviz_plugin/navmap_goal_tool.cpp
   src/navmap_rviz_plugin/navmap_pose_tool.cpp
-  include/navmap_rviz_plugin/NavMapDisplay.hpp
-  include/navmap_rviz_plugin/navmap_goal_tool.hpp
-  include/navmap_rviz_plugin/navmap_pose_tool.hpp
+  ${NAVMAP_MOC_SRCS}
 )
 target_link_libraries(navmap_rviz_plugin PUBLIC
   ${navmap_ros_interfaces_TARGETS}
+  ${QT_QTCORE_LIBRARY}
+  ${QT_QTGUI_LIBRARY}
+  Qt${QT_VERSION_MAJOR}::Widgets
   navmap_ros::navmap_ros
   navmap_core::navmap_core
   pluginlib::pluginlib
@@ -67,6 +94,7 @@ endif()
 ament_export_libraries(${PROJECT_NAME})
 ament_export_targets(export_${PROJECT_NAME})
 ament_export_dependencies(
+  Qt6
   rclcpp
   pluginlib
   rviz_common
