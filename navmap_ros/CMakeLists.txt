@@ -28,16 +28,18 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include>
   ${PCL_INCLUDE_DIRS}
 )
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  pcl_conversions::pcl_conversions
+  ${PCL_LIBRARIES}
+)
 target_link_libraries(${PROJECT_NAME} PUBLIC
   rclcpp::rclcpp
   navmap_core::navmap_core
-  pcl_conversions::pcl_conversions
   ${navmap_ros_interfaces_TARGETS}
   ${geometry_msgs_TARGETS}
   ${nav_msgs_TARGETS}
   ${sensor_msgs_TARGETS}
   ${std_srvs_TARGETS}
-  ${PCL_LIBRARIES}
 )
 add_executable(slam_server_app
   src/slam_server_app.cpp
@@ -76,6 +78,7 @@ ament_export_dependencies(
   rclcpp
   navmap_core
   navmap_ros_interfaces
+  nav_msgs
   geometry_msgs
   sensor_msgs
   std_srvs
