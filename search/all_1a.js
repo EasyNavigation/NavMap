@@ -25,9 +25,7 @@ var searchData=
   ['trihasher_22',['TriHasher',['../structnavmap__ros_1_1TriHasher.html',1,'navmap_ros']]],
   ['trikey_23',['TriKey',['../structnavmap__ros_1_1TriKey.html',1,'navmap_ros']]],
   ['try_5fadd_5ftriangle_24',['try_add_triangle',['../namespacenavmap__ros.html#ad27d5737db6b45f6d50f445c5cdeabda',1,'navmap_ros']]],
-  ['tt_25',['7. Marking areas (&lt;tt&gt;set_area&lt;/tt&gt;)',['../index.html#autotoc_md24',1,'']]],
-  ['tt_20set_5farea_20tt_26',['7. Marking areas (&lt;tt&gt;set_area&lt;/tt&gt;)',['../index.html#autotoc_md24',1,'']]],
-  ['two_20triangles_27',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
-  ['type_28',['type',['../structnavmap_1_1LayerViewBase.html#a2e553f27ec27fbcea615e60e818fa3d7',1,'navmap::LayerViewBase::type()'],['../structnavmap_1_1LayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'navmap::LayerView::type()'],['../structLayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'LayerView::type()']]],
-  ['type_5f_29',['type_',['../structnavmap_1_1LayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'navmap::LayerView::type_'],['../structLayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'LayerView::type_']]]
+  ['two_20triangles_25',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md12',1,'']]],
+  ['type_26',['type',['../structnavmap_1_1LayerViewBase.html#a2e553f27ec27fbcea615e60e818fa3d7',1,'navmap::LayerViewBase::type()'],['../structnavmap_1_1LayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'navmap::LayerView::type()'],['../structLayerView.html#a73201966aa8d0a76cc56a942351544c8',1,'LayerView::type()']]],
+  ['type_5f_27',['type_',['../structnavmap_1_1LayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'navmap::LayerView::type_'],['../structLayerView.html#a6f33e13dd35f25a5a59890c83311ee80',1,'LayerView::type_']]]
 ];

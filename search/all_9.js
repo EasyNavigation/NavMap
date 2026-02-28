@@ -23,7 +23,7 @@ var searchData=
   ['angle_5f_20',['angle_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#ae6d47010b3c28c7b40ed7ceb68a82c33',1,'navmap_rviz_plugin::NavMapPoseTool']]],
   ['api_21',['API',['../index.html#autotoc_md10',1,'🚀 Usage (C++ API)'],['../index.html#autotoc_md30',1,'10. Classic low-level API']]],
   ['area_22',['area',['../structnavmap_1_1NavCel.html#a97ab43f6fd28920a42d987c8fec4afec',1,'navmap::NavCel']]],
-  ['areas_20tt_20set_5farea_20tt_23',['7. Marking areas (&lt;tt&gt;set_area&lt;/tt&gt;)',['../index.html#autotoc_md24',1,'']]],
+  ['areas_20set_5farea_23',['7. Marking areas (&lt;span class=&quot;tt&quot;&gt;set_area&lt;/span&gt;)',['../index.html#autotoc_md24',1,'']]],
   ['areashape_24',['AreaShape',['../namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7',1,'navmap']]],
   ['arrow_5f_25',['arrow_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a30f537e9ce5ad3e0704dfb3f5cc32519',1,'navmap_rviz_plugin::NavMapPoseTool']]],
   ['arrow_5fposition_5f_26',['arrow_position_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a14e452b1685622fdd9338b773d4edc32',1,'navmap_rviz_plugin::NavMapPoseTool']]],

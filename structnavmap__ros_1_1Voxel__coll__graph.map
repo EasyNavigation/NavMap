@@ -1,5 +1,5 @@
 <map id="Voxel" name="Voxel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,124,59,150"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,59,168"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="13,5,51,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="35,47,35,123,29,123,29,47"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="35,46,35,142,29,142,29,46"/>
 </map>

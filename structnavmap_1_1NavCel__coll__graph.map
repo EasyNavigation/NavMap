@@ -1,9 +1,9 @@
 <map id="NavCel" name="NavCel">
-<area shape="rect" id="Node000001" title="Navigation cell (triangle) with geometry and adjacency." alt="" coords="138,124,202,150"/>
+<area shape="rect" id="Node000001" title="Navigation cell (triangle) with geometry and adjacency." alt="" coords="143,143,207,168"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,5,73,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="44,46,51,73,66,98,82,110,100,120,138,130,136,135,98,125,79,115,62,102,46,75,39,47"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="134,5,205,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,47,172,123,167,123,167,47"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="228,5,274,31"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="247,47,236,74,220,102,193,125,189,121,216,98,231,72,242,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="42,46,48,83,56,101,67,117,83,130,103,140,143,149,142,155,101,145,80,135,63,120,51,104,43,84,37,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="140,5,210,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,46,178,142,172,142,172,46"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="234,5,279,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="256,47,247,84,229,120,216,134,201,144,198,140,213,130,225,117,242,82,251,46"/>
 </map>

@@ -10,7 +10,7 @@ var indexSectionsWithContent =
   7: "als",
   8: "cfopru",
   9: "n",
-  10: "n"
+  10: "123456789abcdefgilmnoprstuvw⚙✨📂📜📦🙏🚀🤝🧪"
 };
 
 var indexSectionNames =

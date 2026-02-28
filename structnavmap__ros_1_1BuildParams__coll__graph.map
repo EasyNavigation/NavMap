@@ -1,9 +1,9 @@
 <map id="BuildParams" name="BuildParams">
-<area shape="rect" id="Node000001" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="102,184,197,210"/>
+<area shape="rect" id="Node000001" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="110,224,205,250"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="28,46,31,102,40,132,55,158,76,175,102,186,100,191,74,180,51,162,35,134,26,103,23,46"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="130,5,169,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,47,152,184,147,184,147,47"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="239,5,284,31"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="265,47,260,103,250,134,234,162,218,176,199,186,196,181,215,172,230,158,245,132,255,102,260,47"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="26,46,24,80,26,121,35,162,55,198,80,217,110,228,109,233,78,222,51,202,30,164,20,121,19,80,21,46"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="138,5,177,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,46,160,224,155,224,155,46"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="255,5,300,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="283,47,285,81,282,122,271,164,250,202,230,219,207,229,204,224,227,214,246,198,266,162,276,121,279,81,278,47"/>
 </map>

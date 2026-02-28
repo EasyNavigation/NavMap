@@ -1,11 +1,11 @@
 <map id="NavMap::LocateOpts" name="NavMap::LocateOpts">
-<area shape="rect" id="Node000001" title="Options for the locate functions." alt="" coords="214,109,358,135"/>
+<area shape="rect" id="Node000001" title="Options for the locate functions." alt="" coords="215,122,359,148"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,5,148,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,38,138,61,176,83,239,106,237,111,174,87,136,66,102,43"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,40,131,69,169,96,199,109,229,119,228,124,197,114,166,101,127,74,96,44"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="171,5,294,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,46,232,66,238,84,248,96,262,106,258,111,245,100,233,86,227,67,226,47"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="318,5,363,31"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="332,46,312,86,297,110,292,108,308,84,327,44"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="414,5,459,31"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="428,47,416,68,398,87,375,101,351,111,349,106,373,96,395,83,412,65,424,44"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,46,229,72,236,97,246,110,260,120,257,124,243,114,231,100,224,73,224,46"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="319,5,364,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="337,47,315,100,299,123,295,120,310,97,332,45"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="420,5,466,31"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="440,47,428,75,409,100,386,115,360,126,358,121,383,111,405,96,424,72,435,45"/>
 </map>

@@ -4,7 +4,7 @@ var searchData=
   ['mapping_1',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md44',1,'']]],
   ['mark_5fdirty_2',['mark_dirty',['../structnavmap_1_1LayerViewBase.html#aa759e012e6f9fe55ea43968e16ba51a8',1,'navmap::LayerViewBase']]],
   ['mark_5fvertex_5fupdated_3',['mark_vertex_updated',['../classnavmap_1_1NavMap.html#aa72881f1ddcdc3c30ce010982d642a7e',1,'navmap::NavMap::mark_vertex_updated()'],['../classNavMap.html#aa72881f1ddcdc3c30ce010982d642a7e',1,'NavMap::mark_vertex_updated()']]],
-  ['marking_20areas_20tt_20set_5farea_20tt_4',['7. Marking areas (&lt;tt&gt;set_area&lt;/tt&gt;)',['../index.html#autotoc_md24',1,'']]],
+  ['marking_20areas_20set_5farea_4',['7. Marking areas (&lt;span class=&quot;tt&quot;&gt;set_area&lt;/span&gt;)',['../index.html#autotoc_md24',1,'']]],
   ['max_5',['max',['../structnavmap_1_1AABB.html#a06dabf68c338d68a93feca98a29b5a6c',1,'navmap::AABB']]],
   ['max_5fdz_6',['max_dz',['../structnavmap__ros_1_1BuildParams.html#a8c2901c184925044a9bd4e62b6b0a79b',1,'navmap_ros::BuildParams']]],
   ['max_5fedge_5flen_7',['max_edge_len',['../structnavmap__ros_1_1BuildParams.html#ad13e370af216e1188c1268b74472f57f',1,'navmap_ros::BuildParams']]],

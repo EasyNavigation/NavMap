@@ -1,15 +1,15 @@
 <map id="Surface" name="Surface">
-<area shape="rect" id="Node000001" title="A connected set of NavCels in a common reference frame." alt="" coords="236,198,302,223"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,109,59,135"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,140,139,171,237,199,235,204,137,176,67,145"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="83,109,216,135"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,142,218,171,252,195,249,199,214,176,175,146"/>
-<area shape="rect" id="Node000004" href="$structnavmap_1_1AABB.html" title="Axis&#45;aligned bounding box." alt="" coords="241,109,298,135"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="272,150,272,197,267,197,267,150"/>
+<area shape="rect" id="Node000001" title="A connected set of NavCels in a common reference frame." alt="" coords="236,219,302,245"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,122,59,148"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="60,156,89,175,122,193,181,212,236,223,235,229,180,217,120,197,86,180,57,160"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="83,122,216,148"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,157,213,193,248,216,246,221,209,197,169,161"/>
+<area shape="rect" id="Node000004" href="$structnavmap_1_1AABB.html" title="Axis&#45;aligned bounding box." alt="" coords="241,122,298,148"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="272,163,272,218,267,218,267,163"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="234,5,304,31"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="272,47,272,109,267,109,267,47"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="323,109,416,135"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="346,147,285,199,281,195,342,143"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="440,109,630,135"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="494,144,407,176,304,204,302,199,406,171,492,139"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="272,47,272,122,267,122,267,47"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="323,122,416,148"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="349,161,312,197,285,221,282,217,309,193,345,157"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="440,122,630,148"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="503,158,464,179,421,198,359,216,303,228,302,222,358,211,419,192,462,174,501,154"/>
 </map>

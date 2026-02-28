@@ -1,17 +1,17 @@
 <map id="NavMap" name="NavMap">
-<area shape="rect" id="Node000001" title="Main container for navigable surfaces, geometry, and layers." alt="" coords="470,162,540,187"/>
-<area shape="rect" id="Node000002" href="$structnavmap_1_1Positions.html" title="Structure&#45;of&#45;arrays for storing 3D vertex positions." alt="" coords="223,38,298,63"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="314,53,380,68,415,81,448,99,479,129,499,159,494,162,474,132,444,103,413,86,379,73,313,58"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="5,38,109,63"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="124,48,223,48,223,53,124,53"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="172,87,350,112"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="362,114,447,139,485,159,483,163,445,143,361,119"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="174,136,348,162"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="364,157,470,168,469,173,363,162"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="173,186,349,211"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="364,198,446,191,469,185,470,190,446,196,365,203"/>
-<area shape="rect" id="Node000007" href="$classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per&#45;NavCel)." alt="" coords="211,235,311,260"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="326,243,385,235,445,218,470,203,490,185,493,189,473,207,447,222,386,241,327,249"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="166,285,356,325"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="370,289,409,276,444,256,462,241,477,222,496,186,501,189,481,225,466,244,448,261,411,281,372,294"/>
+<area shape="rect" id="Node000001" title="Main container for navigable surfaces, geometry, and layers." alt="" coords="480,190,550,215"/>
+<area shape="rect" id="Node000002" href="$structnavmap_1_1Positions.html" title="Structure&#45;of&#45;arrays for storing 3D vertex positions." alt="" coords="228,56,304,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="320,67,388,78,424,90,458,108,477,126,493,148,512,188,507,190,488,151,473,130,454,112,422,95,387,83,319,72"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,56,109,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="124,66,228,66,228,72,124,72"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="177,110,354,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="370,133,414,143,457,159,481,172,501,187,498,191,478,176,455,163,413,148,369,138"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="179,163,353,188"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="369,184,480,196,479,201,368,189"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="178,216,354,242"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="369,230,413,227,455,221,483,213,485,218,457,227,413,233,369,235"/>
+<area shape="rect" id="Node000007" href="$classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per&#45;NavCel)." alt="" coords="216,270,316,295"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="331,282,393,277,425,269,455,258,483,237,503,214,507,217,486,241,457,262,426,274,394,282,332,288"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="171,319,361,360"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="376,336,417,325,454,306,475,285,491,261,508,215,513,217,495,263,479,289,458,310,419,330,377,341"/>
 </map>

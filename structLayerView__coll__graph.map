@@ -1,15 +1,15 @@
 <map id="LayerView&lt; T &gt;" name="LayerView&lt; T &gt;">
-<area shape="rect" id="Node000001" title="Typed layer view storing one T value per NavCel." alt="" coords="174,183,287,208"/>
-<area shape="rect" id="Node000002" href="$structnavmap_1_1LayerViewBase.html" title="Non&#45;templated base for runtime layer handling." alt="" coords="21,94,134,120"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,125,210,180,208,184,110,130"/>
+<area shape="rect" id="Node000001" title="Typed layer view storing one T value per NavCel." alt="" coords="177,199,290,224"/>
+<area shape="rect" id="Node000002" href="$structnavmap_1_1LayerViewBase.html" title="Non&#45;templated base for runtime layer handling." alt="" coords="24,102,136,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,134,215,196,212,200,111,138"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="27,46,32,69,42,81,55,91,52,96,38,85,27,71,22,47"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="94,5,162,31"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="116,46,101,71,87,95,82,92,96,69,111,43"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="157,94,211,120"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="197,133,210,157,225,181,220,184,205,160,193,135"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="235,94,322,120"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="267,135,240,184,235,181,262,132"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="346,94,427,120"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="354,130,299,161,255,184,252,180,296,156,352,125"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="27,47,28,62,32,77,42,89,56,99,53,104,39,93,28,79,22,63,21,47"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="100,5,167,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="124,46,106,79,91,103,86,100,102,77,119,44"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="160,102,213,128"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="195,142,207,173,224,197,220,200,203,176,190,144"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="238,102,325,128"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="271,143,254,176,242,200,237,197,250,173,266,141"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="349,102,430,128"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="364,140,311,177,264,201,261,196,308,172,361,136"/>
 </map>
