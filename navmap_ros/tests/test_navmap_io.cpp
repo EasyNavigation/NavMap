@@ -61,7 +61,7 @@ void fill_basic_header(navmap_ros_interfaces::msg::NavMap & msg, const std::stri
 // --- helpers: semantic comparison for messages ---
 
 template<typename T>
-static void ExpectVecEq(const std::vector<T> & a, const std::vector<T> & b, const char * what)
+static void ExpectVecEq(const T & a, const T & b, const char * what)
 {
   ASSERT_EQ(a.size(), b.size()) << what << " size mismatch";
   for (size_t i = 0; i < a.size(); ++i) {
