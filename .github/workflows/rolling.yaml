@@ -9,9 +9,9 @@ on:
       - rolling
 jobs:
   build-and-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container:
-      image: ubuntu:noble
+      image: ubuntu:resolute
     steps:
       - uses: actions/checkout@v4
         with:
