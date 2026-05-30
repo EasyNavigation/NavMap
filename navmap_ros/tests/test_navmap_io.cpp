@@ -60,8 +60,8 @@ void fill_basic_header(navmap_ros_interfaces::msg::NavMap & msg, const std::stri
 
 // --- helpers: semantic comparison for messages ---
 
-template<typename T>
-static void ExpectVecEq(const std::vector<T> & a, const std::vector<T> & b, const char * what)
+template<typename ContainerA, typename ContainerB>
+static void ExpectVecEq(const ContainerA & a, const ContainerB & b, const char * what)
 {
   ASSERT_EQ(a.size(), b.size()) << what << " size mismatch";
   for (size_t i = 0; i < a.size(); ++i) {
@@ -69,9 +69,8 @@ static void ExpectVecEq(const std::vector<T> & a, const std::vector<T> & b, cons
   }
 }
 
-static void ExpectVecFloatEq(
-  const std::vector<float> & a, const std::vector<float> & b,
-  const char * what)
+template<typename ContainerA, typename ContainerB>
+static void ExpectVecFloatEq(const ContainerA & a, const ContainerB & b, const char * what)
 {
   ASSERT_EQ(a.size(), b.size()) << what << " size mismatch";
   for (size_t i = 0; i < a.size(); ++i) {
@@ -79,8 +78,9 @@ static void ExpectVecFloatEq(
   }
 }
 
+template<typename ContainerA, typename ContainerB>
 static void ExpectVecNear64(
-  const std::vector<double> & a, const std::vector<double> & b,
+  const ContainerA & a, const ContainerB & b,
   const char * what, double eps = 1e-12)
 {
   ASSERT_EQ(a.size(), b.size()) << what << " size mismatch";
