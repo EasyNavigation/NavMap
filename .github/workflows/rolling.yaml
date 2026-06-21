@@ -11,15 +11,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-26.04
     container:
-      image: ubuntu:resolute
+      image: ghcr.io/ros-tooling/setup-ros-docker/setup-ros-docker-ubuntu-resolute-ros-rolling-ros-base:master
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: rolling
-      - name: Setup ROS 2
-        uses: ros-tooling/setup-ros@0.7.15
       - name: build and test
-        uses: ros-tooling/action-ros-ci@0.4.5
+        uses: ros-tooling/action-ros-ci@0.4.8
         with:
           package-name: navmap_core navmap_ros navmap_ros_interfaces navmap_rviz_plugin
           target-ros2-distro: rolling
