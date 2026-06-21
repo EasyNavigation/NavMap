@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - rolling
+  schedule:
+      - cron: '0 0 * * 6'
+  workflow_dispatch:
 jobs:
   build-and-test:
     runs-on: ubuntu-26.04
