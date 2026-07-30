@@ -2,6 +2,9 @@
 Changelog for package navmap_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.5.0 (2026-07-25)
 ------------------
 * Merge branch 'jazzy' into rolling

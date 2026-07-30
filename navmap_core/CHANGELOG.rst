@@ -2,13 +2,15 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.5.0 (2026-07-25)
 ------------------
 * Update version
 * Speedup the navcel location
 * Cleanup unused headers
 * Fix potential linker error and warning
-* Merge branch 'jazzy' into rolling
 * Contributors: Francisco Martín Rico, Francisco Miguel Moreno
 
 0.4.0 (2025-11-24)
