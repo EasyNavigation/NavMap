@@ -25,21 +25,17 @@
 #include <numeric>
 
 #include "geometry_msgs/msg/pose.hpp"
-#include <std_msgs/msg/header.hpp>
+#include "std_msgs/msg/header.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 
-#include "navmap_core/Geometry.hpp"
-
 #include "pcl_conversions/pcl_conversions.h"
-#include "pcl/point_types_conversion.h"
+#include "pcl/common/point_tests.h"
 
-#include "pcl/common/transforms.h"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
-#include "pcl/PointIndices.h"
 #include "pcl/kdtree/kdtree_flann.h"
 
 namespace navmap_ros
@@ -53,15 +49,15 @@ using navmap_ros_interfaces::msg::NavMapSurface;
 
 static inline uint8_t occ_to_u8(int8_t v)
 {
-  if (v < 0) {return 255u;}
-  if (v >= 100) {return 254u;}
-  return static_cast<uint8_t>(std::lround((v / 100.0) * 254.0));
+  if (v < 0) {return NO_INFORMATION;}
+  if (v >= 100) {return LETHAL_OBSTACLE;}
+  return static_cast<uint8_t>(std::lround((v / 100.0) * static_cast<double>(LETHAL_OBSTACLE)));
 }
 
 static inline int8_t u8_to_occ(uint8_t u)
 {
-  if (u == 255u) {return -1;}
-  return static_cast<int8_t>(std::lround((u / 254.0) * 100.0));
+  if (u == NO_INFORMATION) {return -1;}
+  return static_cast<int8_t>(std::lround((u / static_cast<double>(LETHAL_OBSTACLE)) * 100.0));
 }
 
 static inline navmap::NavCelId tri_index_for_cell(uint32_t i, uint32_t j, uint32_t W)

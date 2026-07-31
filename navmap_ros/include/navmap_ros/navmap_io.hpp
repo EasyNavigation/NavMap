@@ -41,7 +41,6 @@
 #include <system_error>
 
 #include "navmap_core/NavMap.hpp"
-#include "navmap_ros/conversions.hpp"
 
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 

@@ -15,7 +15,6 @@
 
 #include <gtest/gtest.h>
 #include <Eigen/Core>
-#include <limits>
 #include "navmap_core/NavMap.hpp"
 
 using namespace navmap;

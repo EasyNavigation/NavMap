@@ -17,19 +17,13 @@
 #include <iostream>
 #include <vector>
 #include <cstdint>
-#include <limits>
-#include <algorithm>
 #include <Eigen/Core>
 
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
 using navmap::NavCelId;
-using navmap::Surface;
-using navmap::LayerView;
-using navmap::LayerType;
 using Eigen::Vector3f;
-using std::cout; using std::cerr; using std::endl;
 
 // 08_copy_and_assign: muestra operator= optimizado (igual geometría) y completo (distinta)
 static void fill_one_tri_map(navmap::NavMap & m)

@@ -15,21 +15,15 @@
 
 
 #include <iostream>
-#include <vector>
 #include <cstdint>
-#include <limits>
-#include <algorithm>
 #include <Eigen/Core>
 
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
 using navmap::NavCelId;
-using navmap::Surface;
-using navmap::LayerView;
-using navmap::LayerType;
 using Eigen::Vector3f;
-using std::cout; using std::cerr; using std::endl;
+using std::cout; using std::endl;
 
 // 06_area_marking: set_area CIRCULAR y RECTANGULAR sobre una malla 1x1 de 2 tris
 #include <cmath>

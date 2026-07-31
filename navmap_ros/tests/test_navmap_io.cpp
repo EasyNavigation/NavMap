@@ -18,7 +18,6 @@
 #include <rclcpp/serialized_message.hpp>
 
 #include <filesystem>
-#include <fstream>
 #include <vector>
 #include <string>
 #include <unistd.h>
@@ -92,7 +91,7 @@ static void ExpectNavMapMsgEqualSemantic(
   const navmap_ros_interfaces::msg::NavMap & A,
   const navmap_ros_interfaces::msg::NavMap & B)
 {
-  // Header: frame must match; stamp puede variar → lo ignoramos
+  // Header: frame must match; stamp may change -> we ignore it
   EXPECT_EQ(A.header.frame_id, B.header.frame_id);
 
   // Geometry
@@ -306,7 +305,7 @@ ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.messag
 auto msg_from_core = navmap_ros::to_msg(core);
 auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded);
 
-// Comparación semántica (tolerante a orden y FP)
+// Semantic comparison (order and FP tolerant)
 ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);
 
 std::filesystem::remove(path);

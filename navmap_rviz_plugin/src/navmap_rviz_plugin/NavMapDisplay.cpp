@@ -14,35 +14,22 @@
 // limitations under the License.
 
 
-#include "navmap_rviz_plugin/NavMapDisplay.hpp"
+#include <cmath>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-#include <OgreManualObject.h>
 #include <OgreEntity.h>
 #include <OgreMesh.h>
 #include <OgreMeshManager.h>
-#include <OgreHardwareVertexBuffer.h>
-#include <OgreHardwareBufferManager.h>
 #include <OgreMaterialManager.h>
 #include <OgreSubMesh.h>
-#include <OgreMaterial.h>
 #include <OgreTechnique.h>
 #include <OgrePass.h>
-#include <OgreVertexIndexData.h>
-#include <OgreRoot.h>
 
-#include <rclcpp/exceptions.hpp>
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/frame_manager_iface.hpp>
-#include <rviz_common/logging.hpp>
-#include <rviz_common/uniform_string_stream.hpp>
-#include <rviz_common/validate_floats.hpp>
+#include "navmap_core/NavMap.hpp"
+#include "navmap_ros/conversions.hpp"
 
-#include <QCoreApplication>
-#include <cmath>
-#include <sstream>
-
+#include "navmap_rviz_plugin/NavMapDisplay.hpp"
 namespace
 {
 
@@ -76,8 +63,8 @@ inline Ogre::ColourValue colorFromRainbow(float value, float max_value, float al
 
 inline Ogre::ColourValue colorFromU8(uint8_t v, float alpha)
 {
-  if (v == 0) {return Ogre::ColourValue(0.5f, 0.5f, 0.5f, alpha);}
-  if (v == 255) {return Ogre::ColourValue(0.0f, 0.39f, 0.0f, alpha);}
+  if (v == 0) {return Ogre::ColourValue(1.0f, 1.0f, 1.0f, alpha);}
+  if (v == 255) {return Ogre::ColourValue(0.25f, 0.25f, 0.25f, alpha);}
   if (v == 254) {return Ogre::ColourValue(0.0f, 0.0f, 0.0f, alpha);}
   float occ = static_cast<float>(v) / 253.0f;
   float c = 1.0f - occ;
@@ -223,6 +210,7 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
   root_node_->setOrientation(orientation);
 
   last_msg_ = std::make_shared<NavMapMsg>(*msg);
+  received_navmap = navmap_ros::from_msg(*last_msg_);
 
   ++navmap_msg_count_;
   last_navmap_stamp_ = rviz_ros_node_.lock()->get_raw_node()->now();
