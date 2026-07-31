@@ -1,7 +1,17 @@
 cmake_minimum_required(VERSION 3.10)
 project(navmap_rviz_plugin)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+set(CMAKE_AUTOMOC ON)
+
+find_package(Qt6 QUIET COMPONENTS Widgets)
+if(Qt6_FOUND)
+  set(QT_DEPENDENCY Qt6)
+  set(QT_WIDGETS_TARGET Qt6::Widgets)
+else()
+  find_package(Qt5 REQUIRED COMPONENTS Widgets)
+  set(QT_DEPENDENCY Qt5)
+  set(QT_WIDGETS_TARGET Qt5::Widgets)
+endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -14,20 +24,14 @@ find_package(navmap_ros_interfaces REQUIRED)
 find_package(navmap_ros REQUIRED)
 find_package(navmap_core REQUIRED)
 
-qt_wrap_cpp(NAVMAP_MOC_SRCS
-    include/navmap_rviz_plugin/NavMapDisplay.hpp
-    include/navmap_rviz_plugin/navmap_goal_tool.hpp
-)
-
 add_library(${PROJECT_NAME} SHARED
   src/navmap_rviz_plugin/NavMapDisplay.cpp
   src/navmap_rviz_plugin/navmap_goal_tool.cpp
   src/navmap_rviz_plugin/navmap_pose_tool.cpp
-  ${NAVMAP_MOC_SRCS}
 )
 target_link_libraries(navmap_rviz_plugin PUBLIC
   ${navmap_ros_interfaces_TARGETS}
-  Qt6::Widgets
+  ${QT_WIDGETS_TARGET}
   navmap_ros::navmap_ros
   navmap_core::navmap_core
   pluginlib::pluginlib
@@ -70,7 +74,7 @@ endif()
 ament_export_libraries(${PROJECT_NAME})
 ament_export_targets(export_${PROJECT_NAME})
 ament_export_dependencies(
-  Qt6
+  ${QT_DEPENDENCY}
   rclcpp
   pluginlib
   rviz_common
@@ -78,6 +82,6 @@ ament_export_dependencies(
   rviz_default_plugins
   navmap_ros_interfaces
   geometry_msgs
-  std_msg
+    std_msgs
 )
 ament_package()
