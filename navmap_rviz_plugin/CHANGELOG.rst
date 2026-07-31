@@ -2,7 +2,17 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.3.0 (2025-11-24)
+0.5.0 (2026-07-25)
+------------------
+* Fully commit to Qt6 only and cleanup CMake
+* Set Qt6 references and moc to proper plugin export
+* PCL private linkage: avoid Qt5/6 conflicts
+* NavMap Goal Pose
+* FREE_SPACE as white
+* Merge branch 'jazzy' into rolling
+* Contributors: Francisco Martín Rico, Francisco Miguel Moreno, estherag
+
+0.4.0 (2025-11-24)
 ------------------
 * Cleanup unused headers
 * NavMap Goal Pose
