@@ -18,10 +18,8 @@
 #define NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
 
 #include <cstdint>
-#include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include <QObject>
 
@@ -40,6 +38,8 @@
 #include <navmap_ros_interfaces/msg/nav_map.hpp>
 #include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
 
+#include "navmap_core/NavMap.hpp"
+
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef __GNUC__
     #define NAVMAP_RVIZ_PLUGIN_EXPORT __attribute__ ((dllexport))
@@ -56,9 +56,9 @@
   #define NAVMAP_RVIZ_PLUGIN_PUBLIC_TYPE NAVMAP_RVIZ_PLUGIN_PUBLIC
   #define NAVMAP_RVIZ_PLUGIN_LOCAL
 #else
-  #define NAVMAP_RVIZ_PLUGIN_PUBLIC __attribute__ ((visibility ("default")))
+  #define NAVMAP_RVIZ_PLUGIN_PUBLIC __attribute__ ((visibility("default")))
   #define NAVMAP_RVIZ_PLUGIN_PUBLIC_TYPE
-  #define NAVMAP_RVIZ_PLUGIN_LOCAL  __attribute__ ((visibility ("hidden")))
+  #define NAVMAP_RVIZ_PLUGIN_LOCAL  __attribute__ ((visibility("hidden")))
 #endif
 
 // Forward declarations to avoid hard coupling here
@@ -73,6 +73,8 @@ class HardwareVertexBuffer;
 
 namespace navmap_rviz_plugin
 {
+
+inline navmap::NavMap received_navmap;
 
 class NAVMAP_RVIZ_PLUGIN_PUBLIC NavMapDisplay
   : public rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>
@@ -144,8 +146,8 @@ private:
   // ---- Status counters ----
   std::uint64_t navmap_msg_count_{0};
   std::uint64_t layer_update_count_{0};
-  rclcpp::Time   last_navmap_stamp_;
-  rclcpp::Time   last_layer_stamp_;
+  rclcpp::Time last_navmap_stamp_;
+  rclcpp::Time last_layer_stamp_;
 
   // ---- Data state ----
   NavMapMsg::SharedPtr last_msg_;

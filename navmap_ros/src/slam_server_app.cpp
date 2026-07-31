@@ -32,7 +32,8 @@ public:
   SLAMServerNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
   : Node("slam_server_node", options)
   {
-    navmap_pub_ = create_publisher<navmap_ros_interfaces::msg::NavMap>("navmap",
+    navmap_pub_ = create_publisher<navmap_ros_interfaces::msg::NavMap>(
+      "navmap",
       rclcpp::QoS(1).transient_local().reliable());
 
     incoming_occ_map_sub_ = create_subscription<nav_msgs::msg::OccupancyGrid>(
@@ -64,17 +65,18 @@ public:
         navmap_pub_->publish(navmap_msg_);
       });
 
-    savemap_srv_ = create_service<std_srvs::srv::Trigger>("savemap",
-        [this](
-          const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
-          std::shared_ptr<std_srvs::srv::Trigger::Response> response)
-        {
-          (void)request;
-          (void)response;
-          RCLCPP_INFO(get_logger(), "Saving NavMap from /tmp/map.navmap");
+    savemap_srv_ = create_service<std_srvs::srv::Trigger>(
+      "savemap",
+      [this](
+        const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+        std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+      {
+        (void)request;
+        (void)response;
+        RCLCPP_INFO(get_logger(), "Saving NavMap from /tmp/map.navmap");
 
-          navmap_ros::io::save_to_file(navmap_, "/tmp/map.navmap");
-    });
+        navmap_ros::io::save_to_file(navmap_, "/tmp/map.navmap");
+      });
   }
 
 private:

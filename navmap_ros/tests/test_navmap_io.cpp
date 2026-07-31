@@ -18,11 +18,12 @@
 #include <rclcpp/serialized_message.hpp>
 
 #include <filesystem>
-#include <fstream>
 #include <vector>
 #include <string>
 #include <unistd.h>
 #include <unordered_map>
+
+#include "std_msgs/msg/header.hpp"
 
 #include "navmap_core/NavMap.hpp"
 #include "navmap_ros/conversions.hpp"
@@ -60,7 +61,7 @@ void fill_basic_header(navmap_ros_interfaces::msg::NavMap & msg, const std::stri
 // --- helpers: semantic comparison for messages ---
 
 template<typename T>
-static void ExpectVecEq(const std::vector<T> & a, const std::vector<T> & b, const char * what)
+static void ExpectVecEq(const T & a, const T & b, const char * what)
 {
   ASSERT_EQ(a.size(), b.size()) << what << " size mismatch";
   for (size_t i = 0; i < a.size(); ++i) {
@@ -92,7 +93,7 @@ static void ExpectNavMapMsgEqualSemantic(
   const navmap_ros_interfaces::msg::NavMap & A,
   const navmap_ros_interfaces::msg::NavMap & B)
 {
-  // Header: frame must match; stamp puede variar → lo ignoramos
+  // Header: frame must match; stamp may change -> we ignore it
   EXPECT_EQ(A.header.frame_id, B.header.frame_id);
 
   // Geometry
@@ -291,24 +292,28 @@ TEST(NavMapIoCore, RoundtripViaCoreAndMsgCompare)
   msg.layers = {u8, f32};
 
 // msg -> core
-navmap::NavMap core = navmap_ros::from_msg(msg);
+std_msgs::msg::Header h_in;
+navmap::NavMap core = navmap_ros::from_msg(msg, h_in);
+EXPECT_EQ(h_in.frame_id, msg.header.frame_id);
 
 // save(core) -> load(core)
-std::string path = (std::filesystem::temp_directory_path() /
+  std::string path = (std::filesystem::temp_directory_path() /
     ("core_roundtrip_" + std::to_string(::getpid()) + ".navmap")).string();
-std::error_code ec;
-ASSERT_TRUE(navmap_ros::io::save_to_file(core, path, {}, &ec)) << ec.message();
+  std::error_code ec;
+  ASSERT_TRUE(navmap_ros::io::save_to_file(core, path, {}, &ec)) << ec.message();
 
-navmap::NavMap core_loaded;
-ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.message();
+  navmap::NavMap core_loaded;
+  ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.message();
 
 // core -> msg
-auto msg_from_core = navmap_ros::to_msg(core);
-auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded);
+std_msgs::msg::Header h_out;
+h_out.frame_id = msg.header.frame_id;
+auto msg_from_core = navmap_ros::to_msg(core, h_out);
+auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded, h_out);
 
-// Comparación semántica (tolerante a orden y FP)
-ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);
+// Semantic comparison (order and FP tolerant)
+  ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);
 
-std::filesystem::remove(path);
+  std::filesystem::remove(path);
   std::filesystem::remove(path);
 }

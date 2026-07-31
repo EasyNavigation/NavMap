@@ -16,20 +16,14 @@
 
 #include <iostream>
 #include <vector>
-#include <cstdint>
-#include <limits>
-#include <algorithm>
 #include <Eigen/Core>
 
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
 using navmap::NavCelId;
-using navmap::Surface;
-using navmap::LayerView;
-using navmap::LayerType;
 using Eigen::Vector3f;
-using std::cout; using std::cerr; using std::endl;
+using std::cout; using std::endl;
 
 // 05_neighbors_and_centroids
 static void make_flat_square(NavMap & nm)
@@ -55,7 +49,7 @@ int main()
   auto neigh = nm.navcel_neighbors(c0);
   cout << "centroid0=(" << cc0.x() << "," << cc0.y() << "," << cc0.z() << ")" << endl;
   cout << "centroid1=(" << cc1.x() << "," << cc1.y() << "," << cc1.z() << ")" << endl;
-  cout << "neighbors of c0:"; for(auto n:neigh) {
+  cout << "neighbors of c0:"; for (auto n:neigh) {
     cout << " " << n;
   }
   cout << endl;
