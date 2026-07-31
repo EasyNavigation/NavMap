@@ -218,13 +218,13 @@ struct BuildParams
   float neighbor_radius = 2.0f;  // search radius
 
   /** @brief Alternative to radius: number of nearest neighbors (k-NN). */
-  int   k_neighbors = 20;        // k-NN alternative to radius
+  int k_neighbors = 20;          // k-NN alternative to radius
 
   /** @brief Minimum triangle area (square meters) to reject degenerate faces. */
   float min_area = 1e-6f;        // minimum triangle area to avoid degenerates
 
   /** @brief If true, use radius-based neighborhoods; otherwise use k-NN. */
-  bool  use_radius = true;
+  bool use_radius = true;
 
   /** @brief Minimum interior angle (degrees) to avoid sliver triangles. */
   float min_angle_deg = 20.0f;   // minimum interior angle (deg) to avoid sliver triangles
@@ -256,7 +256,7 @@ struct BuildParams
  * @throw std::runtime_error If meshing fails due to inconsistent parameters or empty input.
  */
 navmap::NavMap from_points(
-  const  pcl::PointCloud<pcl::PointXYZ> & input_points,
+  const pcl::PointCloud<pcl::PointXYZ> & input_points,
   navmap_ros_interfaces::msg::NavMap & out_msg,
   BuildParams params);
 

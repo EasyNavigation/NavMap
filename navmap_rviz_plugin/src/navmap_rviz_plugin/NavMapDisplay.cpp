@@ -40,7 +40,7 @@ inline void hsv2rgb(float H, float S, float V, float & R, float & G, float & B)
   const float m = V - C;
 
   float r1 = 0.f, g1 = 0.f, b1 = 0.f;
-  if      (H < 60.f) {r1 = C; g1 = X; b1 = 0.f;} else if (H < 120.f) {
+  if (H < 60.f) {r1 = C; g1 = X; b1 = 0.f;} else if (H < 120.f) {
     r1 = X; g1 = C; b1 = 0.f;
   } else if (H < 180.f) {r1 = 0.f; g1 = C; b1 = X;} else if (H < 240.f) {
     r1 = 0.f; g1 = X; b1 = C;
@@ -199,10 +199,11 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
   geometry_msgs::msg::Pose identity;
 
   if (!context_->getFrameManager()->transform(
-        msg->header, identity, position, orientation))
+      msg->header, identity, position, orientation))
   {
-    setStatus(rviz_common::properties::StatusProperty::Error,
-              "TF", "Unable to transform " + QString::fromStdString(msg->header.frame_id));
+    setStatus(
+      rviz_common::properties::StatusProperty::Error,
+      "TF", "Unable to transform " + QString::fromStdString(msg->header.frame_id));
     return;
   }
 
@@ -268,24 +269,27 @@ void NavMapDisplay::subscribeToLayerTopic()
         s << "Some layer messages were lost. New lost: "
           << info.total_count_change << " | Total lost: "
           << info.total_count;
-        setStatus(rviz_common::properties::StatusProperty::Warn, "Layer Update Topic",
+        setStatus(
+          rviz_common::properties::StatusProperty::Warn, "Layer Update Topic",
           s.str().c_str());
       };
 
     layer_subscription_ =
       node->create_subscription<NavMapLayerMsg>(
-        layer_topic_property_->getTopicStd(),
-        layer_profile_,
+      layer_topic_property_->getTopicStd(),
+      layer_profile_,
       [this](NavMapLayerMsg::ConstSharedPtr msg) {incomingLayer(msg);},
-        sub_opts);
+      sub_opts);
 
     layer_subscription_start_time_ = node->now();
     setStatus(rviz_common::properties::StatusProperty::Ok, "Layer Update Topic", "OK");
   } catch (const rclcpp::exceptions::InvalidTopicNameError & e) {
-    setStatus(rviz_common::properties::StatusProperty::Error,
+    setStatus(
+      rviz_common::properties::StatusProperty::Error,
       "Layer Update Topic", QString("Invalid topic: ") + e.what());
   } catch (const std::exception & e) {
-    setStatus(rviz_common::properties::StatusProperty::Error,
+    setStatus(
+      rviz_common::properties::StatusProperty::Error,
       "Layer Update Topic", QString("Failed to subscribe: ") + e.what());
   }
 }
@@ -319,13 +323,15 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
   const int non_empty = (n_u8 ? 1 : 0) + (n_f32 ? 1 : 0) + (n_f64 ? 1 : 0);
 
   if (non_empty != 1) {
-    setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
+    setStatus(
+      rviz_common::properties::StatusProperty::Error, "Layer Update",
       "Exactly one of data_u8 / data_f32 / data_f64 must be non-empty.");
     return;
   }
   const size_t eff_len = n_u8 ? n_u8 : (n_f32 ? n_f32 : n_f64);
   if (eff_len != n_tris) {
-    setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
+    setStatus(
+      rviz_common::properties::StatusProperty::Error, "Layer Update",
       QString("Layer size (%1) does not match number of triangles (%2)")
       .arg(eff_len).arg(n_tris));
     return;
@@ -350,8 +356,9 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
     .arg(QString::fromStdString(msg->name))
     .arg(type_str)
     .arg(qulonglong(len));
-  setStatus(rviz_common::properties::StatusProperty::Ok,
-            "Layer Update Topic", line);
+  setStatus(
+    rviz_common::properties::StatusProperty::Ok,
+    "Layer Update Topic", line);
 
   if (currentSelectedLayer_() == msg->name) {
     updateColorSchemeOptions_();
@@ -551,13 +558,13 @@ void NavMapDisplay::ensureMeshBuilt_()
 
   // Create the dynamic colour buffer (one 32-bit colour per vertex)
   const Ogre::VertexElementType col_type = Ogre::VET_COLOUR_ARGB; // we'll pack ARGB
-  decl->addElement(COLOR_SRC, /*offset=*/0, col_type, Ogre::VES_DIFFUSE);
+  decl->addElement(COLOR_SRC, /*offset=*/ 0, col_type, Ogre::VES_DIFFUSE);
 
   Ogre::HardwareVertexBufferSharedPtr colour_vbuf =
     Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
-      Ogre::VertexElement::getTypeSize(col_type), // should be 4
-      vertex_count,
-      Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+    Ogre::VertexElement::getTypeSize(col_type),   // should be 4
+    vertex_count,
+    Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
   bind->setBinding(COLOR_SRC, colour_vbuf);
 
@@ -658,7 +665,7 @@ void NavMapDisplay::updateColorsOnly_()
   uint32_t * p = reinterpret_cast<uint32_t *>(base);
 
   auto packARGB = [&](const Ogre::ColourValue & c) -> uint32_t {
-    // Pack into ARGB to match VET_COLOUR_ARGB used at creation
+      // Pack into ARGB to match VET_COLOUR_ARGB used at creation
       return Ogre::VertexElement::convertColourValue(c, Ogre::VET_COLOUR_ARGB);
     };
 
@@ -696,7 +703,7 @@ void NavMapDisplay::updateColorsOnly_()
       for (size_t t = 0; t < V0.size(); ++t) {
         const Ogre::ColourValue col = use_rainbow ?
           colorFromRainbow(selected_layer->data_f32[t], max_val, alpha) :
-          colorFromHeat   (selected_layer->data_f32[t], max_val, alpha);
+          colorFromHeat(selected_layer->data_f32[t], max_val, alpha);
         const uint32_t packed = packARGB(col);
         *p++ = packed; *p++ = packed; *p++ = packed;
       }
@@ -705,7 +712,7 @@ void NavMapDisplay::updateColorsOnly_()
         const float v = static_cast<float>(selected_layer->data_f64[t]);
         const Ogre::ColourValue col = use_rainbow ?
           colorFromRainbow(v, max_val, alpha) :
-          colorFromHeat   (v, max_val, alpha);
+          colorFromHeat(v, max_val, alpha);
         const uint32_t packed = packARGB(col);
         *p++ = packed; *p++ = packed; *p++ = packed;
       }

@@ -290,24 +290,24 @@ TEST(NavMapIoCore, RoundtripViaCoreAndMsgCompare)
   msg.layers = {u8, f32};
 
 // msg -> core
-navmap::NavMap core = navmap_ros::from_msg(msg);
+  navmap::NavMap core = navmap_ros::from_msg(msg);
 
 // save(core) -> load(core)
-std::string path = (std::filesystem::temp_directory_path() /
+  std::string path = (std::filesystem::temp_directory_path() /
     ("core_roundtrip_" + std::to_string(::getpid()) + ".navmap")).string();
-std::error_code ec;
-ASSERT_TRUE(navmap_ros::io::save_to_file(core, path, {}, &ec)) << ec.message();
+  std::error_code ec;
+  ASSERT_TRUE(navmap_ros::io::save_to_file(core, path, {}, &ec)) << ec.message();
 
-navmap::NavMap core_loaded;
-ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.message();
+  navmap::NavMap core_loaded;
+  ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.message();
 
 // core -> msg
-auto msg_from_core = navmap_ros::to_msg(core);
-auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded);
+  auto msg_from_core = navmap_ros::to_msg(core);
+  auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded);
 
 // Semantic comparison (order and FP tolerant)
-ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);
+  ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);
 
-std::filesystem::remove(path);
+  std::filesystem::remove(path);
   std::filesystem::remove(path);
 }

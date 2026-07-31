@@ -167,8 +167,9 @@ navmap::NavMap from_msg(const NavMap & msg)
   nm.surfaces.resize(msg.surfaces.size());
   for (size_t i = 0; i < msg.surfaces.size(); ++i) {
     nm.surfaces[i].frame_id = msg.surfaces[i].frame_id;
-    nm.surfaces[i].navcels.assign(msg.surfaces[i].navcels.begin(),
-                                  msg.surfaces[i].navcels.end());
+    nm.surfaces[i].navcels.assign(
+      msg.surfaces[i].navcels.begin(),
+      msg.surfaces[i].navcels.end());
   }
 
   // Fallback: create a single surface if none provided and triangles exist.
@@ -247,7 +248,7 @@ void from_msg(
 {
   switch (msg.type) {
     case navmap_ros_interfaces::msg::NavMapLayer::U8: {
-        auto dst = nm.add_layer<uint8_t>(msg.name, /*desc*/"", /*unit*/"", uint8_t{});
+        auto dst = nm.add_layer<uint8_t>(msg.name, /*desc*/ "", /*unit*/ "", uint8_t{});
         if (dst->data().size() != msg.data_u8.size()) {
           dst->data().resize(msg.data_u8.size());
         }
@@ -255,7 +256,7 @@ void from_msg(
         break;
       }
     case navmap_ros_interfaces::msg::NavMapLayer::F32: {
-        auto dst = nm.add_layer<float>(msg.name, /*desc*/"", /*unit*/"", 0.0f);
+        auto dst = nm.add_layer<float>(msg.name, /*desc*/ "", /*unit*/ "", 0.0f);
         if (dst->data().size() != msg.data_f32.size()) {
           dst->data().resize(msg.data_f32.size());
         }
@@ -263,7 +264,7 @@ void from_msg(
         break;
       }
     case navmap_ros_interfaces::msg::NavMapLayer::F64: {
-        auto dst = nm.add_layer<double>(msg.name, /*desc*/"", /*unit*/"", 0.0);
+        auto dst = nm.add_layer<double>(msg.name, /*desc*/ "", /*unit*/ "", 0.0);
         if (dst->data().size() != msg.data_f64.size()) {
           dst->data().resize(msg.data_f64.size());
         }
@@ -271,8 +272,9 @@ void from_msg(
         break;
       }
     default:
-      throw std::runtime_error("from_msg(NavMapLayer): unsupported type value " +
-        std::to_string(msg.type));
+      throw std::runtime_error(
+              "from_msg(NavMapLayer): unsupported type value " +
+              std::to_string(msg.type));
   }
 }
 
@@ -436,8 +438,9 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm)
       Eigen::Vector3f closest;
       float sq = 0.0f;
 
-      if (nm.closest_navcel({cx, cy, static_cast<float>(g.info.origin.position.z)},
-                              sidx, cid, closest, sq))
+      if (nm.closest_navcel(
+          {cx, cy, static_cast<float>(g.info.origin.position.z)},
+          sidx, cid, closest, sq))
       {
         const uint8_t u8 = (*occ)[cid];
         g.data[idx_cell(i, j)] = u8_to_occ(u8);
@@ -583,7 +586,7 @@ struct TriHasher
   std::size_t operator()(const TriKey & t) const noexcept
   {
     std::size_t h = 1469598103934665603ull;
-    auto mix = [&](int k){
+    auto mix = [&](int k) {
         h ^= static_cast<std::size_t>(k) + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
       };
     mix(t.a); mix(t.b); mix(t.c);
@@ -696,15 +699,16 @@ downsample_voxelize_topZ_layered(
     auto & idxs = kv.second;
     if (idxs.empty()) {continue;}
 
-    std::sort(idxs.begin(), idxs.end(),
-      [&](int a, int b){return input_points[a].z < input_points[b].z;});
+    std::sort(
+      idxs.begin(), idxs.end(),
+      [&](int a, int b) {return input_points[a].z < input_points[b].z;});
 
     double sum_x = 0.0, sum_y = 0.0;
-    float  z_max = -std::numeric_limits<float>::infinity();
-    int    count = 0;
-    float  last_z = input_points[idxs.front()].z;
+    float z_max = -std::numeric_limits<float>::infinity();
+    int count = 0;
+    float last_z = input_points[idxs.front()].z;
 
-    auto flush_cluster = [&](){
+    auto flush_cluster = [&]() {
         if (count <= 0) {return;}
         const float cx = static_cast<float>(sum_x / count);
         const float cy = static_cast<float>(sum_y / count);
@@ -817,9 +821,10 @@ static void keep_top_surfaces_by_size(navmap_ros_interfaces::msg::NavMap & msg, 
   std::vector<size_t> ids(msg.surfaces.size());
   std::iota(ids.begin(), ids.end(), 0);
 
-  std::sort(ids.begin(), ids.end(), [&](size_t a, size_t b){
+  std::sort(
+    ids.begin(), ids.end(), [&](size_t a, size_t b) {
       return msg.surfaces[a].navcels.size() > msg.surfaces[b].navcels.size();
-  });
+    });
 
   std::vector<navmap_ros_interfaces::msg::NavMapSurface> kept;
   kept.reserve(static_cast<size_t>(max_surfaces));
@@ -927,8 +932,9 @@ static void rebuild_surfaces_by_connectivity(navmap_ros_interfaces::msg::NavMap 
   for (auto & kv : comp) {
     comps.push_back(std::move(kv.second));
   }
-  std::sort(comps.begin(), comps.end(),
-    [](const auto & A, const auto & B){return A.size() > B.size();});
+  std::sort(
+    comps.begin(), comps.end(),
+    [](const auto & A, const auto & B) {return A.size() > B.size();});
 
   const std::string fid = msg.header.frame_id;
   std::vector<navmap_ros_interfaces::msg::NavMapSurface> out;
@@ -979,8 +985,9 @@ navmap::NavMap from_points(
   // Seeds in ascending Z
   std::vector<int> order(N);
   std::iota(order.begin(), order.end(), 0);
-  std::sort(order.begin(), order.end(),
-    [&](int a, int b){return cloud[a].z < cloud[b].z;});
+  std::sort(
+    order.begin(), order.end(),
+    [&](int a, int b) {return cloud[a].z < cloud[b].z;});
 
   // Global state
   std::unordered_set<TriKey, TriHasher> tri_set_global;
@@ -1007,11 +1014,11 @@ navmap::NavMap from_points(
       }
     };
 
-  auto dist3f = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B){
+  auto dist3f = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B) {
       const float dx = A.x - B.x, dy = A.y - B.y, dz = A.z - B.z;
       return std::sqrt(dx * dx + dy * dy + dz * dz);
     };
-  auto distXY = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B){
+  auto distXY = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B) {
       const float dx = A.x - B.x, dy = A.y - B.y; return std::sqrt(dx * dx + dy * dy);
     };
 
@@ -1088,18 +1095,22 @@ navmap::NavMap from_points(
 
     // Quick filters
     if (P.max_edge_len > 0.0f) {
-      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
-        [&](int j){
-          const auto & Q = cloud[j]; if (!pcl::isFinite(Q)) {
-            return true;
-          }
-          return dist3f(cloud[seed_idx], Q) > P.max_edge_len;
-                                                                                                                                       }),
+      neigh_seed.erase(
+        std::remove_if(
+          neigh_seed.begin(), neigh_seed.end(),
+          [&](int j) {
+            const auto & Q = cloud[j]; if (!pcl::isFinite(Q)) {
+              return true;
+            }
+            return dist3f(cloud[seed_idx], Q) > P.max_edge_len;
+          }),
         neigh_seed.end());
     }
     {
-      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
-        [&](int j){return std::fabs(cloud[j].z - cloud[seed_idx].z) > z_window_seed;}),
+      neigh_seed.erase(
+        std::remove_if(
+          neigh_seed.begin(), neigh_seed.end(),
+          [&](int j) {return std::fabs(cloud[j].z - cloud[seed_idx].z) > z_window_seed;}),
         neigh_seed.end());
     }
 
@@ -1111,11 +1122,12 @@ navmap::NavMap from_points(
     // Angular sort in XY
     {
       const auto & Cc = cloud[seed_idx];
-      std::sort(neigh_seed.begin(), neigh_seed.end(), [&](int a, int b){
+      std::sort(
+        neigh_seed.begin(), neigh_seed.end(), [&](int a, int b) {
           const float ax = cloud[a].x - Cc.x, ay = cloud[a].y - Cc.y;
           const float bx = cloud[b].x - Cc.x, by = cloud[b].y - Cc.y;
           return std::atan2(ay, ax) < std::atan2(by, bx);
-      });
+        });
     }
 
     const size_t tri_off = triangles.size();
@@ -1151,7 +1163,8 @@ navmap::NavMap from_points(
       const int k = neigh_seed.front();
       bool dup = false;
       if (precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {
-        if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global,
+        if (try_add_triangle(
+            seed_idx, j, k, cloud, P, tri_set_global, edge_set_global,
             triangles))
         {
           ++comp_fan_accept;

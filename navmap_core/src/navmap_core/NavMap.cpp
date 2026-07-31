@@ -648,12 +648,13 @@ bool NavMap::locate_navcel_core(
 
       // Do not walk if the query point is clearly off the hinted plane.
       if (std::fabs(dist0) <= opts.height_eps) {
-        if (locate_by_walking(start,
-                              p_world,
-                              cid,
-                              bary,
-                              hit_pt,
-                              opts.planar_eps))
+        if (locate_by_walking(
+            start,
+            p_world,
+            cid,
+            bary,
+            hit_pt,
+            opts.planar_eps))
         {
           for (size_t s = 0; s < surfaces.size(); ++s) {
             const auto & surf = surfaces[s];

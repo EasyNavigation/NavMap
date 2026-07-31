@@ -21,7 +21,8 @@
 
 using std::placeholders::_1;
 
-class GridToNavMapNode : public rclcpp::Node {
+class GridToNavMapNode : public rclcpp::Node
+{
 public:
   GridToNavMapNode()
   : Node("navmap_from_occgrid")
@@ -36,7 +37,7 @@ private:
     navmap::NavMap nm = navmap_ros::from_occupancy_grid(*msg);
 
     size_t sidx{}; navmap::NavCelId cid{}; Eigen::Vector3f bary, hit;
-    if(nm.locate_navcel(Eigen::Vector3f(0.5f, 0.5f, 0.5f), sidx, cid, bary, &hit)) {
+    if (nm.locate_navcel(Eigen::Vector3f(0.5f, 0.5f, 0.5f), sidx, cid, bary, &hit)) {
       RCLCPP_INFO(this->get_logger(), "hit on surface %zu cell %u", sidx, (unsigned)cid);
     }
   }

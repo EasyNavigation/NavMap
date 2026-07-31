@@ -44,11 +44,12 @@ int main()
   nm.layer_set<float>("cost", c0, 5.5f);
 
   auto names = nm.list_layers();
-  cout << "Layers:"; for(auto & n:names) {
+  cout << "Layers:"; for (auto & n:names) {
     cout << " " << n;
   }
   cout << endl;
-  cout << "occ=" << (int)nm.layer_get<uint8_t>("occ", c0,
+  cout << "occ=" << (int)nm.layer_get<uint8_t>(
+    "occ", c0,
     0) << ", cost=" << nm.layer_get<double>("cost", c0, -1.0) << endl;
   return 0;
 }

@@ -19,13 +19,15 @@
 #include "navmap_core/NavMap.hpp"
 #include "navmap_ros/conversions.hpp"
 
-class NavMapToGridNode : public rclcpp::Node {
+class NavMapToGridNode : public rclcpp::Node
+{
 public:
   NavMapToGridNode()
   : Node("navmap_to_occgrid")
   {
     pub_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("navmap_grid", 10);
-    timer_ = this->create_wall_timer(std::chrono::seconds(1),
+    timer_ = this->create_wall_timer(
+      std::chrono::seconds(1),
       std::bind(&NavMapToGridNode::tick, this));
   }
 
@@ -34,7 +36,7 @@ private:
   {
     static bool init = false;
     static navmap::NavMap nm;
-    if(!init) {
+    if (!init) {
       auto v0 = nm.add_vertex({0, 0, 0});
       auto v1 = nm.add_vertex({1, 0, 0});
       auto v2 = nm.add_vertex({1, 1, 0});

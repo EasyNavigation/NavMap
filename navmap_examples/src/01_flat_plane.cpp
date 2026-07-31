@@ -50,7 +50,7 @@ int main()
   NavMap nm; make_flat_square(nm);
 
   auto occ = nm.layers.add_or_get<uint8_t>("occupancy", nm.navcels.size(), LayerType::U8);
-  if(!occ) {cerr << "Cannot create 'occupancy'\n"; return 1;}
+  if (!occ) {cerr << "Cannot create 'occupancy'\n"; return 1;}
   (*occ)[0] = 0; (*occ)[1] = 254;
 
   Vector3f p(0.75f, 0.75f, 0.4f);
@@ -58,7 +58,7 @@ int main()
   bool ok = nm.locate_navcel(p, sidx, cid, bary, &hit);
   cout << "locate=" << ok << " sidx=" << sidx << " cid=" << cid << " hit=(" << hit.x() << "," <<
     hit.y() << "," << hit.z() << ")\n";
-  if(ok) {
+  if (ok) {
     cout << "occ at cid: " << (int)nm.navcel_value<uint8_t>(cid, *occ) << endl;
   }
   return 0;

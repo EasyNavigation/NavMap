@@ -221,8 +221,9 @@ std::uint64_t LayerView<T>::content_hash() const
   const std::size_t n = data_.size();
   std::uint64_t h = navmap::detail::fnv1a64_bytes(&n, sizeof(n));
   if (n) {
-    static_assert(std::is_trivially_copyable<T>::value,
-        "LayerView<T> requires trivially copyable T.");
+    static_assert(
+      std::is_trivially_copyable<T>::value,
+      "LayerView<T> requires trivially copyable T.");
     h = navmap::detail::fnv1a64_bytes(data_.data(), n * sizeof(T), h);
   }
   hash_cache_ = h;
