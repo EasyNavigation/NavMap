@@ -1,39 +1,44 @@
 cmake_minimum_required(VERSION 3.10)
 project(navmap_rviz_plugin)
 
-# 1) Qt y AUTOMOC
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 set(CMAKE_AUTOMOC ON)
-add_definitions(-DQT_NO_KEYWORDS)
+
+find_package(Qt6 QUIET COMPONENTS Widgets)
+if(Qt6_FOUND)
+  set(QT_DEPENDENCY Qt6)
+  set(QT_WIDGETS_TARGET Qt6::Widgets)
+else()
+  find_package(Qt5 REQUIRED COMPONENTS Widgets)
+  set(QT_DEPENDENCY Qt5)
+  set(QT_WIDGETS_TARGET Qt5::Widgets)
+endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_rendering REQUIRED)
+find_package(rviz_default_plugins REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rosidl_default_runtime REQUIRED)
 find_package(navmap_ros_interfaces REQUIRED)
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-qt5_wrap_cpp(NAVMAP_MOC_SRCS
-  include/navmap_rviz_plugin/NavMapDisplay.hpp
-)
+find_package(navmap_ros REQUIRED)
+find_package(navmap_core REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  src/NavMapDisplay.cpp
-  include/navmap_rviz_plugin/NavMapDisplay.hpp
-  ${NAVMAP_MOC_SRCS}
+  src/navmap_rviz_plugin/NavMapDisplay.cpp
+  src/navmap_rviz_plugin/navmap_goal_tool.cpp
+  src/navmap_rviz_plugin/navmap_pose_tool.cpp
 )
 target_link_libraries(navmap_rviz_plugin PUBLIC
   ${navmap_ros_interfaces_TARGETS}
+  ${QT_WIDGETS_TARGET}
+  navmap_ros::navmap_ros
+  navmap_core::navmap_core
   pluginlib::pluginlib
   rclcpp::rclcpp
   rviz_common::rviz_common
   rviz_rendering::rviz_rendering
-  Qt5::Core
-  Qt5::Widgets
+  rviz_default_plugins::rviz_default_plugins
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -50,6 +55,11 @@ install(TARGETS
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
+install(
+  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/icons"
+  DESTINATION "share/${PROJECT_NAME}"
+)
+
 install(FILES resource/navmap_rviz_plugin_description.xml
   DESTINATION share/${PROJECT_NAME}
 )
@@ -64,14 +74,14 @@ endif()
 ament_export_libraries(${PROJECT_NAME})
 ament_export_targets(export_${PROJECT_NAME})
 ament_export_dependencies(
+  ${QT_DEPENDENCY}
   rclcpp
   pluginlib
   rviz_common
   rviz_rendering
   rviz_default_plugins
-  Qt5
   navmap_ros_interfaces
   geometry_msgs
-  std_msg
+    std_msgs
 )
 ament_package()

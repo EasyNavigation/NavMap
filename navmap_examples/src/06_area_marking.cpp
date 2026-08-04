@@ -15,21 +15,15 @@
 
 
 #include <iostream>
-#include <vector>
 #include <cstdint>
-#include <limits>
-#include <algorithm>
 #include <Eigen/Core>
 
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
 using navmap::NavCelId;
-using navmap::Surface;
-using navmap::LayerView;
-using navmap::LayerType;
 using Eigen::Vector3f;
-using std::cout; using std::cerr; using std::endl;
+using std::cout; using std::endl;
 
 // 06_area_marking: set_area CIRCULAR y RECTANGULAR sobre una malla 1x1 de 2 tris
 #include <cmath>
@@ -50,14 +44,17 @@ int main()
   nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
 
   // Circular in the center radius 0.3 → marks both centroids
-  bool ok1 = nm.set_area<uint8_t>(Vector3f(0.5f, 0.5f, 10.0f), (uint8_t)254,
-                                  "obstacles", navmap::AreaShape::CIRCULAR, 0.3f);
+  bool ok1 = nm.set_area<uint8_t>(
+    Vector3f(0.5f, 0.5f, 10.0f), (uint8_t)254,
+    "obstacles", navmap::AreaShape::CIRCULAR, 0.3f);
   // Rectangular near (0.8,0.2) side 0.35 → mark one
-  bool ok2 = nm.set_area<uint8_t>(Vector3f(0.80f, 0.20f, -5.0f), (uint8_t)200,
-                                  "obstacles", navmap::AreaShape::RECTANGULAR, 0.35f);
+  bool ok2 = nm.set_area<uint8_t>(
+    Vector3f(0.80f, 0.20f, -5.0f), (uint8_t)200,
+    "obstacles", navmap::AreaShape::RECTANGULAR, 0.35f);
 
   cout << "set_area circle=" << ok1 << " rect=" << ok2 << endl;
-  cout << "c0=" << (int)nm.layer_get<uint8_t>("obstacles", c0,
-  0) << " c1=" << (int)nm.layer_get<uint8_t>("obstacles", c1, 0) << endl;
+  cout << "c0=" << (int)nm.layer_get<uint8_t>(
+    "obstacles", c0,
+    0) << " c1=" << (int)nm.layer_get<uint8_t>("obstacles", c1, 0) << endl;
   return 0;
 }

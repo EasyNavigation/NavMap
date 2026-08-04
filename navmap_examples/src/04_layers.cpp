@@ -15,21 +15,15 @@
 
 
 #include <iostream>
-#include <vector>
 #include <cstdint>
-#include <limits>
-#include <algorithm>
 #include <Eigen/Core>
 
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
 using navmap::NavCelId;
-using navmap::Surface;
-using navmap::LayerView;
-using navmap::LayerType;
 using Eigen::Vector3f;
-using std::cout; using std::cerr; using std::endl;
+using std::cout; using std::endl;
 
 // 04_layers: add/list/set/get
 int main()
@@ -50,11 +44,12 @@ int main()
   nm.layer_set<float>("cost", c0, 5.5f);
 
   auto names = nm.list_layers();
-  cout << "Layers:"; for(auto & n:names) {
+  cout << "Layers:"; for (auto & n:names) {
     cout << " " << n;
   }
   cout << endl;
-  cout << "occ=" << (int)nm.layer_get<uint8_t>("occ", c0,
+  cout << "occ=" << (int)nm.layer_get<uint8_t>(
+    "occ", c0,
     0) << ", cost=" << nm.layer_get<double>("cost", c0, -1.0) << endl;
   return 0;
 }

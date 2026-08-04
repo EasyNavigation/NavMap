@@ -27,9 +27,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   ${PCL_INCLUDE_DIRS}
-  ${pcl_conversions_INCLUDE_DIRS}
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC
+
+target_link_libraries(${PROJECT_NAME}
   rclcpp::rclcpp
   navmap_core::navmap_core
   ${navmap_ros_interfaces_TARGETS}
@@ -38,7 +38,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   ${sensor_msgs_TARGETS}
   ${std_srvs_TARGETS}
   ${PCL_LIBRARIES}
-  ${pcl_conversions_LIBRARIES}
 )
 add_executable(slam_server_app
   src/slam_server_app.cpp
@@ -70,6 +69,10 @@ if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
 
+ament_target_dependencies(${PROJECT_NAME}
+  pcl_conversions
+)
+
 ament_export_include_directories("include/${PROJECT_NAME}")
 ament_export_libraries(${PROJECT_NAME})
 ament_export_targets(export_${PROJECT_NAME})
@@ -77,10 +80,10 @@ ament_export_dependencies(
   rclcpp
   navmap_core
   navmap_ros_interfaces
+  nav_msgs
   geometry_msgs
   sensor_msgs
   std_srvs
-  PCL
   pcl_conversions
 )
 ament_package()
