@@ -33,6 +33,11 @@
 namespace
 {
 
+// Shared between repopulateLayerEnum_() (offers it in the "Layer" dropdown)
+// and updateColorsOnly_() (recognizes it once selected) -- kept as a single
+// constant so the two can't drift apart.
+const char * const kVertexColorLayerName = "Color (vertex RGBA)";
+
 inline void hsv2rgb(float H, float S, float V, float & R, float & G, float & B)
 {
   const float C = V * S;
@@ -390,6 +395,13 @@ void NavMapDisplay::repopulateLayerEnum_()
     for (const auto & L : last_msg_->layers) {
       layer_property_->addOption(QString::fromStdString(L.name));
     }
+    if (last_msg_->has_vertex_rgba &&
+      last_msg_->colors_r.size() == last_msg_->positions_x.size() &&
+      last_msg_->colors_g.size() == last_msg_->positions_x.size() &&
+      last_msg_->colors_b.size() == last_msg_->positions_x.size())
+    {
+      layer_property_->addOption(kVertexColorLayerName);
+    }
   }
   if (!prev.empty()) {
     layer_property_->setString(prev.c_str());
@@ -605,7 +617,7 @@ void NavMapDisplay::updateColorsOnly_()
   auto it = layers_by_name_.find(sel);
   if (it != layers_by_name_.end()) {
     selected_layer = it->second;
-  } else if (sel == "Color (vertex RGBA)") {
+  } else if (sel == kVertexColorLayerName) {
     vertex_color_mode = last_msg_->has_vertex_rgba &&
       last_msg_->colors_r.size() == last_msg_->positions_x.size() &&
       last_msg_->colors_g.size() == last_msg_->positions_x.size() &&
