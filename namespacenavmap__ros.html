@@ -134,6 +134,7 @@ Typedefs</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a0a05354967c19acb4e9cb8675a0c251d" id="r_a0a05354967c19acb4e9cb8675a0c251d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a0a05354967c19acb4e9cb8675a0c251d">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt)</td></tr>
 <tr class="memitem:a1415897f31aa289e68d9a1a6f216ce59" id="r_a1415897f31aa289e68d9a1a6f216ce59"><td class="memItemLeft">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a1415897f31aa289e68d9a1a6f216ce59">downsample_voxelize_topZ_layered</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, float resolution, float dz_merge)</td></tr>
+<tr class="memitem:ab45a2264fff18e80f39046cbd88f5911" id="r_ab45a2264fff18e80f39046cbd88f5911"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ab45a2264fff18e80f39046cbd88f5911">effective_max_edge_len</a> (const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P)</td></tr>
 <tr class="memitem:a9835bd4485202df104ab38cb5cdc1ed8" id="r_a9835bd4485202df104ab38cb5cdc1ed8"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a9835bd4485202df104ab38cb5cdc1ed8">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg)</td></tr>
 <tr class="memitem:aa9519c921a7499b39e2cbe21304b2b64" id="r_aa9519c921a7499b39e2cbe21304b2b64"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa9519c921a7499b39e2cbe21304b2b64">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg, std_msgs::msg::Header &amp;header)</td></tr>
 <tr class="memitem:ac70f12eb1f059a42b6993cb612720ea0" id="r_ac70f12eb1f059a42b6993cb612720ea0"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac70f12eb1f059a42b6993cb612720ea0">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
@@ -152,6 +153,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:af1d0f450cee491ef385215a317c6876a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a ROS <span class="tt">sensor_msgs::msg::PointCloud2</span>.  <br /></td></tr>
 <tr class="memitem:a731ad13a79c7d061fba796add4aea852" id="r_a731ad13a79c7d061fba796add4aea852"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a731ad13a79c7d061fba796add4aea852">from_points</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
 <tr class="memdesc:a731ad13a79c7d061fba796add4aea852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a PCL point cloud.  <br /></td></tr>
+<tr class="memitem:ad865ae66bd00fdd94fac6609b436cf02" id="r_ad865ae66bd00fdd94fac6609b436cf02"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ad865ae66bd00fdd94fac6609b436cf02">from_regular_grid</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;grid_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
+<tr class="memdesc:ad865ae66bd00fdd94fac6609b436cf02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud.  <br /></td></tr>
 <tr class="memitem:aba26a033fbd9456e2368c8f49f62779e" id="r_aba26a033fbd9456e2368c8f49f62779e"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMap&#160;</td><td class="memItemRight"><a class="el" href="#aba26a033fbd9456e2368c8f49f62779e">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:aba26a033fbd9456e2368c8f49f62779e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload (no header provided).  <br /></td></tr>
 <tr class="memitem:aa68b7b4a46e881dc9304c50a73e69d7d" id="r_aa68b7b4a46e881dc9304c50a73e69d7d"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMapLayer&#160;</td><td class="memItemRight"><a class="el" href="#aa68b7b4a46e881dc9304c50a73e69d7d">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std::string &amp;layer)</td></tr>
@@ -259,6 +262,23 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>dz_merge</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab45a2264fff18e80f39046cbd88f5911" name="ab45a2264fff18e80f39046cbd88f5911"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab45a2264fff18e80f39046cbd88f5911">&#9670;&#160;</a></span>effective_max_edge_len()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float effective_max_edge_len </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>P</em></span></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -592,6 +612,44 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ad865ae66bd00fdd94fac6609b436cf02" name="ad865ae66bd00fdd94fac6609b436cf02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad865ae66bd00fdd94fac6609b436cf02">&#9670;&#160;</a></span>from_regular_grid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> from_regular_grid </td>
+          <td>(</td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>grid_points</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">navmap_ros_interfaces::msg::NavMap &amp;</td>          <td class="paramname"><span class="paramname"><em>out_msg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td>          <td class="paramname"><span class="paramname"><em>params</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud. </p>
+<p>Unlike <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap surface from a PCL point cloud.">navmap_ros::from_points</a> &ndash; which discovers connectivity by neighbor search over an otherwise-unstructured point set, a heuristic that needs either a generous <code class="param">params.neighbor_radius</code> (at real cost in redundant, overlapping triangles) or leaves gaps on an evenly-sampled surface even when every cell is individually navigable &ndash; this overload takes a cloud whose grid connectivity is <em>already known</em> (row-major, <span class="tt">cloud.width</span> x <span class="tt">cloud.height</span>, exactly as PCL's own "organized point cloud" convention) and builds the two triangles per grid cell directly from the (i, j) indices, the same deterministic scheme <a class="el" href="#afffebef87c724021d5e855c6bebfaff7" title="Build a navmap::NavMap from a nav_msgs::msg::OccupancyGrid using a regular triangular surface with sh...">navmap_ros::from_occupancy_grid</a> already uses. No neighbor search, no possibility of a meshing-artifact gap: the only triangles skipped are ones that fail the slope filter (<code class="param">params.max_slope_deg</code>) or reference a non-finite vertex, i.e. every remaining hole is a real "not navigable here" gap, not a search-radius artifact.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">grid_points</td><td>Organized point set (<span class="tt">cloud.height</span> must be &gt; 1); row j, column i is at index <span class="tt">j * cloud.width + i</span>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">params</td><td>Only <code class="param">params.max_slope_deg</code> and <code class="param">params.max_surfaces</code> apply here; the neighbor-search/edge-length/angle fields are meaningless without a search step and are ignored. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span>; empty if <code class="param">grid_points</code> is not organized (<span class="tt">height &lt;= 1</span>) or is smaller than 2x2. </dd></dl>
 
 </div>
 </div>
