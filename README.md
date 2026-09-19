@@ -6,6 +6,8 @@
 [![jazzy](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml/badge.svg?branch=jazzy)](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml)
 [![humble](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml/badge.svg?branch=humble)](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml)
 
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/bea2ce1e-c35d-471e-9ebc-3fb60a344635" />
+
 [![NavMap SLAM](https://img.youtube.com/vi/t5p6c2HO7UA/0.jpg)](https://www.youtube.com/watch?v=t5p6c2HO7UA)
 
 NavMap is an open-source C++ and ROS 2 library for representing **navigable surfaces** for mobile robot navigation and localization.
