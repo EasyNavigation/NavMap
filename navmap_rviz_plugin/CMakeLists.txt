@@ -77,7 +77,9 @@ ament_export_dependencies(
   rviz_rendering
   rviz_default_plugins
   navmap_ros_interfaces
+  navmap_ros
+  navmap_core
   geometry_msgs
-  std_msg
+  std_msgs
 )
 ament_package()

@@ -21,6 +21,7 @@ ament_python_install_package(${PROJECT_NAME})
 
 install(PROGRAMS
   scripts/navmap_gis_tool
+  scripts/navmap_resample
   DESTINATION lib/${PROJECT_NAME}
 )
 

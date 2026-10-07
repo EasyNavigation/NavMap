@@ -186,6 +186,7 @@ def test_fetch_tile_path_cache_hit_never_creates_a_session(tmp_path, monkeypatch
     session_calls = []
 
     class _NeverCallProvider:
+
         def get(self):
             session_calls.append(1)
             raise AssertionError('session should not be requested on a cache hit')
@@ -205,6 +206,7 @@ def test_fetch_tile_path_cache_miss_uses_session_token_in_url(tmp_path, monkeypa
     session = GoogleSession(token='sess-tok', expiry_epoch_s=time.time() + 3600)
 
     class _FixedProvider:
+
         def get(self):
             return session
 
