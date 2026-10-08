@@ -27,37 +27,37 @@ static void save_json(const navmap::NavMap & nm, const std::string & path)
   json j;
   j["x"] = nm.positions.x; j["y"] = nm.positions.y; j["z"] = nm.positions.z;
   j["tris"] = json::array();
-  for(const auto & c: nm.navcels) {
+  for (const auto & c: nm.navcels) {
     j["tris"].push_back({c.v[0], c.v[1], c.v[2]});
   }
   // Solo capa "occupancy" si existe
   auto occ_any = nm.layers.get("occupancy");
-  if(occ_any) {
+  if (occ_any) {
     auto occ = std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(occ_any);
-    if(occ) {j["occupancy"] = occ->data();}
+    if (occ) {j["occupancy"] = occ->data();}
   }
   std::ofstream ofs(path); ofs << j.dump(2);
 }
 
 static bool load_json(navmap::NavMap & nm, const std::string & path)
 {
-  std::ifstream ifs(path); if(!ifs) {return false;}
+  std::ifstream ifs(path); if (!ifs) {return false;}
   json j; ifs >> j;
   nm.positions.x = j["x"].get<std::vector<float>>();
   nm.positions.y = j["y"].get<std::vector<float>>();
   nm.positions.z = j["z"].get<std::vector<float>>();
   nm.navcels.resize(j["tris"].size());
-  for(size_t i = 0; i < nm.navcels.size(); ++i) {
+  for (size_t i = 0; i < nm.navcels.size(); ++i) {
     auto t = j["tris"][i];
     nm.navcels[i].v[0] = t[0]; nm.navcels[i].v[1] = t[1]; nm.navcels[i].v[2] = t[2];
   }
   nm.surfaces.clear();
   auto s = nm.create_surface("map");
-  for(size_t i = 0; i < nm.navcels.size(); ++i) {
+  for (size_t i = 0; i < nm.navcels.size(); ++i) {
     nm.add_navcel_to_surface(s, (navmap::NavCelId)i);
   }
   nm.rebuild_geometry_accels();
-  if(j.contains("occupancy")) {
+  if (j.contains("occupancy")) {
     auto occ = nm.add_layer<uint8_t>("occupancy", "occ", "%", 0);
     auto & v = occ->mutable_data();
     v = j["occupancy"].get<std::vector<uint8_t>>();
@@ -65,7 +65,8 @@ static bool load_json(navmap::NavMap & nm, const std::string & path)
   return true;
 }
 
-class SaveLoadNode : public rclcpp::Node {
+class SaveLoadNode : public rclcpp::Node
+{
 public:
   SaveLoadNode()
   : Node("navmap_save_load")
@@ -86,8 +87,9 @@ public:
 
     navmap::NavMap re;
     (void)load_json(re, "/tmp/navmap.json");
-    RCLCPP_INFO(get_logger(), "Loaded back: vertices=%zu tris=%zu",
-                re.positions.size(), re.navcels.size());
+    RCLCPP_INFO(
+      get_logger(), "Loaded back: vertices=%zu tris=%zu",
+      re.positions.size(), re.navcels.size());
   }
 };
 
