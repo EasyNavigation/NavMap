@@ -49,7 +49,7 @@ int main()
   auto neigh = nm.navcel_neighbors(c0);
   cout << "centroid0=(" << cc0.x() << "," << cc0.y() << "," << cc0.z() << ")" << endl;
   cout << "centroid1=(" << cc1.x() << "," << cc1.y() << "," << cc1.z() << ")" << endl;
-  cout << "neighbors of c0:"; for(auto n:neigh) {
+  cout << "neighbors of c0:"; for (auto n:neigh) {
     cout << " " << n;
   }
   cout << endl;
