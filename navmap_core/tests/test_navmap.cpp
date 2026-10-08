@@ -376,6 +376,6 @@ TEST(NavMap_Layers, HashInvalidationOnElementWrite)
     if (occ->data()[i] != obs->data()[i]) {
       ++diffs;
     }
-}
+  }
   EXPECT_GE(diffs, 2u);
 }

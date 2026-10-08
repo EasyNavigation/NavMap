@@ -221,8 +221,9 @@ std::uint64_t LayerView<T>::content_hash() const
   const std::size_t n = data_.size();
   std::uint64_t h = navmap::detail::fnv1a64_bytes(&n, sizeof(n));
   if (n) {
-    static_assert(std::is_trivially_copyable<T>::value,
-        "LayerView<T> requires trivially copyable T.");
+    static_assert(
+      std::is_trivially_copyable<T>::value,
+      "LayerView<T> requires trivially copyable T.");
     h = navmap::detail::fnv1a64_bytes(data_.data(), n * sizeof(T), h);
   }
   hash_cache_ = h;
@@ -237,7 +238,8 @@ std::uint64_t LayerView<T>::content_hash() const
  * All layers in the registry are expected to have a size equal to the number of
  * NavCels in the owning ::navmap::NavMap.
  */
-class LayerRegistry {
+class LayerRegistry
+{
 public:
   /**
    * \brief Add a new typed layer or return an existing one with the same name.
@@ -462,7 +464,8 @@ enum class AreaShape { CIRCULAR, RECTANGULAR };
  *  - Create layers via \ref LayerRegistry::add_or_get() sized to navcels.size().
  *  - Query with \ref locate_navcel(), \ref raycast(), or \ref closest_navcel().
  */
-class NavMap {
+class NavMap
+{
 public:
   Positions positions;                 ///< Vertex positions (SoA)
   std::optional<Colors> colors;        ///< Optional per-vertex colors
@@ -1105,12 +1108,12 @@ private:
   // Geometry fingerprint cache (lazy recompute)
   void ensure_geometry_fingerprint_() const;
   static std::uint64_t hash_geometry_bytes_(
-    const float *x, std::size_t nx,
-    const float *y, std::size_t ny,
-    const float *z, std::size_t nz,
-    const std::uint32_t *v0, std::size_t nv0,
-    const std::uint32_t *v1, std::size_t nv1,
-    const std::uint32_t *v2, std::size_t nv2);
+    const float * x, std::size_t nx,
+    const float * y, std::size_t ny,
+    const float * z, std::size_t nz,
+    const std::uint32_t * v0, std::size_t nv0,
+    const std::uint32_t * v1, std::size_t nv1,
+    const std::uint32_t * v2, std::size_t nv2);
 
   mutable bool geometry_dirty_{true};
   mutable std::uint64_t geometry_fp_{0};
