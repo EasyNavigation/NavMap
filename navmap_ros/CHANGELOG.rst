@@ -2,6 +2,14 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Tools to generate a simulated world and its NavMap from satellite imagery
+* Builds on Humble, Jazzy, Kilted, Lyrical and Rolling: pcl_conversions linked through its variables (its target only exists since Kilted)
+* Removed unused counters (compiler warnings)
+* Conda packages with pixi (pixi-build-ros)
+* Contributors: Francisco Martín Rico
+
 0.5.0 (2026-07-25)
 ------------------
 * Fix test compilation error with rosidl::Buffer

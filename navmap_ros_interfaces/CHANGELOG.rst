@@ -2,6 +2,11 @@
 Changelog for package navmap_ros_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Conda packages with pixi (pixi-build-ros)
+* Contributors: Francisco Martín Rico
+
 0.5.0 (2026-07-25)
 ------------------
 * Merge branch 'jazzy' into rolling
