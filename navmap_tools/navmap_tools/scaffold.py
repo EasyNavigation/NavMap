@@ -1,6 +1,5 @@
 # Copyright 2026 Intelligent Robotics Lab
 #
-# This file is part of the project Easy Navigation (EasyNav in short)
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -323,7 +322,6 @@ _WORLD_SDF = """<?xml version="1.0"?>
 
 _LAUNCH_PY = '''# Copyright 2026 Intelligent Robotics Lab
 #
-# This file is part of the project Easy Navigation (EasyNav in short)
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
