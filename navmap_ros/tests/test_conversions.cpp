@@ -13,8 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cmath>
+#include <functional>
+#include <limits>
+
 #include <gtest/gtest.h>
 #include <nav_msgs/msg/occupancy_grid.hpp>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "std_msgs/msg/header.hpp"
@@ -24,6 +30,7 @@
 
 using navmap_ros::from_occupancy_grid;
 using navmap_ros::to_occupancy_grid;
+using navmap_ros::from_regular_grid;
 
 
 static void build_square_with_layers(navmap::NavMap & nm)
@@ -382,4 +389,171 @@ TEST(TestConversions, TriangleIndicesFollowPattern0)
   EXPECT_EQ(b.v[0], v_id(ci + 0, cj + 0));
   EXPECT_EQ(b.v[1], v_id(ci + 1, cj + 1));
   EXPECT_EQ(b.v[2], v_id(ci + 0, cj + 1));
+}
+
+// ----------------- from_regular_grid -----------------
+//
+// Deterministic grid mesher (no neighbor search): every cell of an
+// organized (width x height, row-major) point cloud produces exactly two
+// triangles unless one of its vertices is non-finite or the cell's slope
+// exceeds max_slope_deg -- see easynav_gis_tool.md for why from_points'
+// neighbor-search heuristic could leave gaps on an evenly-sampled, fully
+// navigable grid and why this deterministic path was added instead.
+
+static pcl::PointCloud<pcl::PointXYZ> make_organized_grid(
+  int W, int H, double spacing,
+  const std::function<float(int, int)> & z_fn = [](int, int) {return 0.0f;})
+{
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  cloud.width = static_cast<uint32_t>(W);
+  cloud.height = static_cast<uint32_t>(H);
+  cloud.is_dense = false;
+  cloud.points.resize(static_cast<size_t>(W) * H);
+  for (int j = 0; j < H; ++j) {
+    for (int i = 0; i < W; ++i) {
+      cloud.points[j * W + i] = pcl::PointXYZ(
+        static_cast<float>(i * spacing), static_cast<float>(j * spacing), z_fn(i, j));
+    }
+  }
+  return cloud;
+}
+
+TEST(FromRegularGrid, FlatGridProducesFullCoverageNoOverlap)
+{
+  const int W = 10, H = 10;
+  auto cloud = make_organized_grid(W, H, 1.0);
+
+  navmap_ros::BuildParams p;
+  p.max_slope_deg = 30.0f;
+  navmap_ros_interfaces::msg::NavMap out_msg;
+  auto nm = from_regular_grid(cloud, out_msg, p);
+
+  EXPECT_EQ(nm.navcels.size(), static_cast<size_t>(2 * (W - 1) * (H - 1)));
+  EXPECT_EQ(nm.positions.x.size(), static_cast<size_t>(W * H));
+  ASSERT_EQ(nm.surfaces.size(), 1u);
+  EXPECT_EQ(nm.surfaces[0].navcels.size(), nm.navcels.size());
+}
+
+TEST(FromRegularGrid, MatchesFromOccupancyGridWindingPattern)
+{
+  const int W = 5, H = 5;
+  auto cloud = make_organized_grid(W, H, 1.0);
+  navmap_ros::BuildParams p;
+  p.max_slope_deg = 30.0f;
+  navmap_ros_interfaces::msg::NavMap out_msg;
+  auto nm = from_regular_grid(cloud, out_msg, p);
+
+  auto v_id = [W](uint32_t i, uint32_t j) {return j * W + i;};
+  const uint32_t ci = 2, cj = 1;
+  const uint32_t cell = cj * (W - 1) + ci;
+  const auto & a = nm.navcels[2 * cell];
+  const auto & b = nm.navcels[2 * cell + 1];
+
+  EXPECT_EQ(a.v[0], v_id(ci + 0, cj + 0));
+  EXPECT_EQ(a.v[1], v_id(ci + 1, cj + 0));
+  EXPECT_EQ(a.v[2], v_id(ci + 1, cj + 1));
+
+  EXPECT_EQ(b.v[0], v_id(ci + 0, cj + 0));
+  EXPECT_EQ(b.v[1], v_id(ci + 1, cj + 1));
+  EXPECT_EQ(b.v[2], v_id(ci + 0, cj + 1));
+}
+
+TEST(FromRegularGrid, GentleSlopeUnderLimitStaysFullyCovered)
+{
+  const int W = 10, H = 10;
+  // A uniform ramp: 10 deg slope over the whole grid, well under 30 deg.
+  const float slope_rad = 10.0f * static_cast<float>(M_PI) / 180.0f;
+  auto cloud = make_organized_grid(
+    W, H, 1.0, [&](int i, int) {return i * std::tan(slope_rad);});
+
+  navmap_ros::BuildParams p;
+  p.max_slope_deg = 30.0f;
+  navmap_ros_interfaces::msg::NavMap out_msg;
+  auto nm = from_regular_grid(cloud, out_msg, p);
+
+  EXPECT_EQ(nm.navcels.size(), static_cast<size_t>(2 * (W - 1) * (H - 1)));
+  ASSERT_EQ(nm.surfaces.size(), 1u);
+}
+
+TEST(FromRegularGrid, TooSteepCellsAreSkippedNotTheWholeGrid)
+{
+  const int W = 10, H = 10;
+  // A step in the middle column: any cell touching column 5 is a near-vertical
+  // wall (well above 30 deg), everything else is flat.
+  auto cloud = make_organized_grid(
+    W, H, 1.0, [](int i, int) {return i >= 5 ? 5.0f : 0.0f;});
+
+  navmap_ros::BuildParams p;
+  p.max_slope_deg = 30.0f;
+  navmap_ros_interfaces::msg::NavMap out_msg;
+  auto nm = from_regular_grid(cloud, out_msg, p);
+
+  // Flat region left of the step (columns 0..4) and right of it (columns
+  // 5..9) each mesh fully; only the column-4/5 boundary cells (touching the
+  // cliff) are rejected by the slope filter.
+  const size_t expected_flat_tris = static_cast<size_t>(2) * 4 * (H - 1) * 2;
+  EXPECT_EQ(nm.navcels.size(), expected_flat_tris);
+  // Split into (at least) two disconnected navigable islands by the cliff.
+  EXPECT_GE(nm.surfaces.size(), 2u);
+}
+
+TEST(FromRegularGrid, NonFiniteVertexOnlySkipsItsOwnTriangles)
+{
+  const int W = 5, H = 5;
+  auto cloud = make_organized_grid(W, H, 1.0);
+  const uint32_t nan_idx = 2 * W + 2;  // vertex (i=2, j=2)
+  cloud.points[nan_idx].z = std::numeric_limits<float>::quiet_NaN();
+
+  navmap_ros::BuildParams p;
+  p.max_slope_deg = 30.0f;
+  navmap_ros_interfaces::msg::NavMap out_msg;
+  auto nm = from_regular_grid(cloud, out_msg, p);
+
+  // Of the 4 cells touching vertex (2,2), it is a shared "diagonal" corner
+  // (id00/id11, present in both of that cell's triangles) for 2 of them and
+  // an "off-diagonal" corner (id10/id01, present in only one triangle) for
+  // the other 2 -- 2+2+1+1 = 6 triangles lost, not a flat "4 cells x 2".
+  const size_t expected = static_cast<size_t>(2 * (W - 1) * (H - 1) - 6);
+  EXPECT_EQ(nm.navcels.size(), expected);
+
+  // No surviving triangle references the NaN vertex at all.
+  for (const auto & c : nm.navcels) {
+    EXPECT_NE(c.v[0], nan_idx);
+    EXPECT_NE(c.v[1], nan_idx);
+    EXPECT_NE(c.v[2], nan_idx);
+  }
+
+  // A cell far from the NaN vertex still meshes normally (2 triangles).
+  auto v_id = [W](uint32_t i, uint32_t j) {return j * W + i;};
+  int cell00_tris = 0;
+  for (const auto & c : nm.navcels) {
+    const bool touches_cell00 =
+      (c.v[0] == v_id(0, 0) || c.v[1] == v_id(0, 0) || c.v[2] == v_id(0, 0)) &&
+      (c.v[0] == v_id(1, 1) || c.v[1] == v_id(1, 1) || c.v[2] == v_id(1, 1));
+    if (touches_cell00) {++cell00_tris;}
+  }
+  EXPECT_EQ(cell00_tris, 2);
+}
+
+TEST(FromRegularGrid, UnorganizedCloudReturnsEmpty)
+{
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  cloud.width = 25; cloud.height = 1;
+  cloud.points.resize(25, pcl::PointXYZ(0.f, 0.f, 0.f));
+
+  navmap_ros::BuildParams p;
+  navmap_ros_interfaces::msg::NavMap out_msg;
+  auto nm = from_regular_grid(cloud, out_msg, p);
+
+  EXPECT_TRUE(nm.navcels.empty());
+  EXPECT_TRUE(nm.positions.x.empty());
+}
+
+TEST(FromRegularGrid, TooSmallGridReturnsEmpty)
+{
+  auto cloud = make_organized_grid(1, 5, 1.0);
+  navmap_ros::BuildParams p;
+  navmap_ros_interfaces::msg::NavMap out_msg;
+  auto nm = from_regular_grid(cloud, out_msg, p);
+  EXPECT_TRUE(nm.navcels.empty());
 }

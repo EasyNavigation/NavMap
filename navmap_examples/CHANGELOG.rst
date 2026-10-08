@@ -2,6 +2,11 @@
 Changelog for package navmap_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.0 (2026-10-08)
+------------------
+* Conda packages with pixi (pixi-build-ros)
+* Contributors: Francisco Martín Rico
+
 0.5.0 (2026-07-25)
 ------------------
 * Merge branch 'jazzy' into rolling

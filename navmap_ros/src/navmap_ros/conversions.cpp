@@ -174,9 +174,8 @@ navmap::NavMap from_msg(const NavMap & msg, std_msgs::msg::Header & header)
   nm.surfaces.resize(msg.surfaces.size());
   for (size_t i = 0; i < msg.surfaces.size(); ++i) {
     nm.surfaces[i].frame_id = msg.surfaces[i].frame_id;
-    nm.surfaces[i].navcels.assign(
-      msg.surfaces[i].navcels.begin(),
-      msg.surfaces[i].navcels.end());
+    nm.surfaces[i].navcels.assign(msg.surfaces[i].navcels.begin(),
+                                  msg.surfaces[i].navcels.end());
   }
 
   // Fallback: create a single surface if none provided and triangles exist.
@@ -272,7 +271,7 @@ void from_msg(
   header = msg.header;
   switch (msg.type) {
     case navmap_ros_interfaces::msg::NavMapLayer::U8: {
-        auto dst = nm.add_layer<uint8_t>(msg.name, /*desc*/ "", /*unit*/ "", uint8_t{});
+        auto dst = nm.add_layer<uint8_t>(msg.name, /*desc*/"", /*unit*/"", uint8_t{});
         if (dst->data().size() != msg.data_u8.size()) {
           dst->data().resize(msg.data_u8.size());
         }
@@ -280,7 +279,7 @@ void from_msg(
         break;
       }
     case navmap_ros_interfaces::msg::NavMapLayer::F32: {
-        auto dst = nm.add_layer<float>(msg.name, /*desc*/ "", /*unit*/ "", 0.0f);
+        auto dst = nm.add_layer<float>(msg.name, /*desc*/"", /*unit*/"", 0.0f);
         if (dst->data().size() != msg.data_f32.size()) {
           dst->data().resize(msg.data_f32.size());
         }
@@ -288,7 +287,7 @@ void from_msg(
         break;
       }
     case navmap_ros_interfaces::msg::NavMapLayer::F64: {
-        auto dst = nm.add_layer<double>(msg.name, /*desc*/ "", /*unit*/ "", 0.0);
+        auto dst = nm.add_layer<double>(msg.name, /*desc*/"", /*unit*/"", 0.0);
         if (dst->data().size() != msg.data_f64.size()) {
           dst->data().resize(msg.data_f64.size());
         }
@@ -296,9 +295,8 @@ void from_msg(
         break;
       }
     default:
-      throw std::runtime_error(
-              "from_msg(NavMapLayer): unsupported type value " +
-              std::to_string(msg.type));
+      throw std::runtime_error("from_msg(NavMapLayer): unsupported type value " +
+        std::to_string(msg.type));
   }
 }
 
@@ -484,9 +482,8 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(
       Eigen::Vector3f closest;
       float sq = 0.0f;
 
-      if (nm.closest_navcel(
-          {cx, cy, static_cast<float>(g.info.origin.position.z)},
-          sidx, cid, closest, sq))
+      if (nm.closest_navcel({cx, cy, static_cast<float>(g.info.origin.position.z)},
+                              sidx, cid, closest, sq))
       {
         const uint8_t u8 = (*occ)[cid];
         g.data[idx_cell(i, j)] = u8_to_occ(u8);
@@ -639,7 +636,7 @@ struct TriHasher
   std::size_t operator()(const TriKey & t) const noexcept
   {
     std::size_t h = 1469598103934665603ull;
-    auto mix = [&](int k) {
+    auto mix = [&](int k){
         h ^= static_cast<std::size_t>(k) + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
       };
     mix(t.a); mix(t.b); mix(t.c);
@@ -752,16 +749,15 @@ downsample_voxelize_topZ_layered(
     auto & idxs = kv.second;
     if (idxs.empty()) {continue;}
 
-    std::sort(
-      idxs.begin(), idxs.end(),
-      [&](int a, int b) {return input_points[a].z < input_points[b].z;});
+    std::sort(idxs.begin(), idxs.end(),
+      [&](int a, int b){return input_points[a].z < input_points[b].z;});
 
     double sum_x = 0.0, sum_y = 0.0;
-    float z_max = -std::numeric_limits<float>::infinity();
-    int count = 0;
-    float last_z = input_points[idxs.front()].z;
+    float  z_max = -std::numeric_limits<float>::infinity();
+    int    count = 0;
+    float  last_z = input_points[idxs.front()].z;
 
-    auto flush_cluster = [&]() {
+    auto flush_cluster = [&](){
         if (count <= 0) {return;}
         const float cx = static_cast<float>(sum_x / count);
         const float cy = static_cast<float>(sum_y / count);
@@ -797,6 +793,29 @@ downsample_voxelize_topZ_layered(
 // Includes: max edge length, max |Δz|, XY neighbor radius, min area,
 // min internal angle, and slope limit via n·z.
 
+// max_edge_len is meant as a broad sanity cap on 3D edge length, separate
+// from neighbor_radius (the search radius used to find candidate points)
+// and max_dz (the per-edge vertical cap). When max_edge_len is set close to
+// neighbor_radius -- as in BuildParams' own defaults, both 2.0 m -- it stops
+// being a broad cap and starts spuriously rejecting valid edges: the
+// candidate search is a 3D sphere of radius neighbor_radius, so any real
+// terrain roughness (a few cm of Z noise, far under max_slope_deg/max_dz)
+// shifts which points land near that sphere's boundary and can nudge a
+// perfectly legitimate edge's 3D length a hair past max_edge_len, leaving a
+// hole exactly where the terrain is *not* too steep to be navigable. The
+// true worst-case length of an edge that already satisfies both the XY
+// search radius and the vertical max_dz cap is the hypotenuse of the two,
+// so max_edge_len should never be tighter than that combination -- this
+// widens it to match whenever the caller's value would otherwise clip
+// geometrically valid edges. See easynav_gis_tool.md for the reproduction.
+inline float effective_max_edge_len(const BuildParams & P)
+{
+  if (P.max_edge_len <= 0.0f || P.neighbor_radius <= 0.0f) {return P.max_edge_len;}
+  const float floor = std::sqrt(
+    P.neighbor_radius * P.neighbor_radius + P.max_dz * P.max_dz);
+  return std::max(P.max_edge_len, floor);
+}
+
 inline bool try_add_triangle(
   int i, int j, int k,
   const pcl::PointCloud<pcl::PointXYZ> & cloud,
@@ -817,8 +836,9 @@ inline bool try_add_triangle(
   auto dAB = dist3(A, B);
   auto dBC = dist3(B, C);
   auto dCA = dist3(C, A);
-  if (P.max_edge_len > 0.0f &&
-    (dAB > P.max_edge_len || dBC > P.max_edge_len || dCA > P.max_edge_len)) {return false;}
+  const float max_edge_len = effective_max_edge_len(P);
+  if (max_edge_len > 0.0f &&
+    (dAB > max_edge_len || dBC > max_edge_len || dCA > max_edge_len)) {return false;}
 
   // Max |Δz| per edge
   if (P.max_dz > 0.0f) {
@@ -874,10 +894,9 @@ static void keep_top_surfaces_by_size(navmap_ros_interfaces::msg::NavMap & msg, 
   std::vector<size_t> ids(msg.surfaces.size());
   std::iota(ids.begin(), ids.end(), 0);
 
-  std::sort(
-    ids.begin(), ids.end(), [&](size_t a, size_t b) {
+  std::sort(ids.begin(), ids.end(), [&](size_t a, size_t b){
       return msg.surfaces[a].navcels.size() > msg.surfaces[b].navcels.size();
-    });
+  });
 
   std::vector<navmap_ros_interfaces::msg::NavMapSurface> kept;
   kept.reserve(static_cast<size_t>(max_surfaces));
@@ -985,9 +1004,8 @@ static void rebuild_surfaces_by_connectivity(navmap_ros_interfaces::msg::NavMap 
   for (auto & kv : comp) {
     comps.push_back(std::move(kv.second));
   }
-  std::sort(
-    comps.begin(), comps.end(),
-    [](const auto & A, const auto & B) {return A.size() > B.size();});
+  std::sort(comps.begin(), comps.end(),
+    [](const auto & A, const auto & B){return A.size() > B.size();});
 
   const std::string fid = msg.header.frame_id;
   std::vector<navmap_ros_interfaces::msg::NavMapSurface> out;
@@ -1038,9 +1056,8 @@ navmap::NavMap from_points(
   // Seeds in ascending Z
   std::vector<int> order(N);
   std::iota(order.begin(), order.end(), 0);
-  std::sort(
-    order.begin(), order.end(),
-    [&](int a, int b) {return cloud[a].z < cloud[b].z;});
+  std::sort(order.begin(), order.end(),
+    [&](int a, int b){return cloud[a].z < cloud[b].z;});
 
   // Global state
   std::unordered_set<TriKey, TriHasher> tri_set_global;
@@ -1067,17 +1084,18 @@ navmap::NavMap from_points(
       }
     };
 
-  auto dist3f = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B) {
+  auto dist3f = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B){
       const float dx = A.x - B.x, dy = A.y - B.y, dz = A.z - B.z;
       return std::sqrt(dx * dx + dy * dy + dz * dz);
     };
-  auto distXY = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B) {
+  auto distXY = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B){
       const float dx = A.x - B.x, dy = A.y - B.y; return std::sqrt(dx * dx + dy * dy);
     };
 
   enum class Phase { FAN, BFS };
   struct RejectCounts { size_t edge_len = 0, dz = 0, xy = 0, dup = 0, geom = 0, zwin_seed = 0,
       zwin_bfs = 0; };
+  const float eff_max_edge_len = effective_max_edge_len(P);
   auto precheck = [&](int i, int j, int k, Phase phase, RejectCounts & rej, bool & dup_out)->bool {
       TriKey tk = make_tri(i, j, k);
       if (tri_set_global.find(tk) != tri_set_global.end()) {
@@ -1087,9 +1105,9 @@ navmap::NavMap from_points(
 
       const auto & A = cloud[i], & B = cloud[j], & C = cloud[k];
 
-      if (P.max_edge_len > 0.0f) {
+      if (eff_max_edge_len > 0.0f) {
         const float lAB = dist3f(A, B), lBC = dist3f(B, C), lCA = dist3f(C, A);
-        if (lAB > P.max_edge_len || lBC > P.max_edge_len || lCA > P.max_edge_len) {
+        if (lAB > eff_max_edge_len || lBC > eff_max_edge_len || lCA > eff_max_edge_len) {
           rej.edge_len++; return false;
         }
       }
@@ -1147,23 +1165,19 @@ navmap::NavMap from_points(
     }
 
     // Quick filters
-    if (P.max_edge_len > 0.0f) {
-      neigh_seed.erase(
-        std::remove_if(
-          neigh_seed.begin(), neigh_seed.end(),
-          [&](int j) {
-            const auto & Q = cloud[j]; if (!pcl::isFinite(Q)) {
-              return true;
-            }
-            return dist3f(cloud[seed_idx], Q) > P.max_edge_len;
-          }),
+    if (eff_max_edge_len > 0.0f) {
+      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
+        [&](int j){
+          const auto & Q = cloud[j]; if (!pcl::isFinite(Q)) {
+            return true;
+          }
+          return dist3f(cloud[seed_idx], Q) > eff_max_edge_len;
+        }),
         neigh_seed.end());
     }
     {
-      neigh_seed.erase(
-        std::remove_if(
-          neigh_seed.begin(), neigh_seed.end(),
-          [&](int j) {return std::fabs(cloud[j].z - cloud[seed_idx].z) > z_window_seed;}),
+      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
+        [&](int j){return std::fabs(cloud[j].z - cloud[seed_idx].z) > z_window_seed;}),
         neigh_seed.end());
     }
 
@@ -1175,19 +1189,16 @@ navmap::NavMap from_points(
     // Angular sort in XY
     {
       const auto & Cc = cloud[seed_idx];
-      std::sort(
-        neigh_seed.begin(), neigh_seed.end(), [&](int a, int b) {
+      std::sort(neigh_seed.begin(), neigh_seed.end(), [&](int a, int b){
           const float ax = cloud[a].x - Cc.x, ay = cloud[a].y - Cc.y;
           const float bx = cloud[b].x - Cc.x, by = cloud[b].y - Cc.y;
           return std::atan2(ay, ax) < std::atan2(by, bx);
-        });
+      });
     }
 
     const size_t tri_off = triangles.size();
 
     RejectCounts comp_rej{};
-    size_t comp_fan_accept = 0;
-    size_t comp_bfs_accept = 0;
 
     // Initial fan
     for (size_t t = 0; t + 1 < neigh_seed.size(); ++t) {
@@ -1197,8 +1208,6 @@ navmap::NavMap from_points(
       if (!precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {continue;}
 
       if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global, triangles)) {
-        ++comp_fan_accept;
-
         // Update counts and frontier
         const EdgeKey e0 = make_edge(seed_idx, j);
         const EdgeKey e1 = make_edge(j, k);
@@ -1216,11 +1225,9 @@ navmap::NavMap from_points(
       const int k = neigh_seed.front();
       bool dup = false;
       if (precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {
-        if (try_add_triangle(
-            seed_idx, j, k, cloud, P, tri_set_global, edge_set_global,
+        if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global,
             triangles))
         {
-          ++comp_fan_accept;
           const EdgeKey e0 = make_edge(seed_idx, j);
           const EdgeKey e1 = make_edge(j, k);
           const EdgeKey e2 = make_edge(k, seed_idx);
@@ -1263,39 +1270,47 @@ navmap::NavMap from_points(
 
       const float z_mid = 0.5f * (cloud[e.a].z + cloud[e.b].z);
 
-      // Neighbors of e.a (filtered by radius and Z window vs e.b)
-      std::vector<int> neigh_a;
+      // Candidate completion points: union of the neighbors of *both*
+      // e.a and e.b, not just e.a. Searching only from e.a misses any
+      // point that is close to e.b but just outside radius of e.a -- which
+      // happens routinely once the edge itself is close to
+      // neighbor_radius long (the common case for a diagonal grid edge),
+      // and was a real source of unexplained holes on otherwise-navigable
+      // terrain: it forced neighbor_radius to be inflated well past the
+      // true point spacing just to paper over this asymmetry. Geometric
+      // validity of the resulting triangle is still fully enforced below
+      // by precheck()/try_add_triangle(), so widening the candidate pool
+      // here does not admit any edge/angle/slope violation. See
+      // easynav_gis_tool.md.
+      std::vector<int> neigh_candidates;
       {
-        std::vector<int> inds; std::vector<float> dists;
-        if (P.neighbor_radius > 0.0f) {
-          if (kdtree.radiusSearch(cloud[e.a], P.neighbor_radius, inds, dists) > 0) {
-            for (int id : inds) {
-              if (id != e.a) {
-                neigh_a.push_back(id);
+        std::unordered_set<int> seen;
+        auto collect = [&](const pcl::PointXYZ & from) {
+            std::vector<int> inds; std::vector<float> dists;
+            if (P.neighbor_radius > 0.0f) {
+              if (kdtree.radiusSearch(from, P.neighbor_radius, inds, dists) > 0) {
+                for (int id : inds) {
+                  if (id != e.a && id != e.b && seen.insert(id).second) {
+                    neigh_candidates.push_back(id);
+                  }
+                }
+              }
+            } else {
+              const int K = std::max(8, P.k_neighbors);
+              if (kdtree.nearestKSearch(from, K, inds, dists) > 0) {
+                for (int id : inds) {
+                  if (id != e.a && id != e.b && seen.insert(id).second) {
+                    neigh_candidates.push_back(id);
+                  }
+                }
               }
             }
-          }
-        } else {
-          const int K = std::max(8, P.k_neighbors);
-          if (kdtree.nearestKSearch(cloud[e.a], K, inds, dists) > 0) {
-            for (int id : inds) {
-              if (id != e.a) {
-                neigh_a.push_back(id);
-              }
-            }
-          }
-        }
+          };
+        collect(cloud[e.a]);
+        collect(cloud[e.b]);
       }
 
-      for (int c : neigh_a) {
-        if (c == e.a || c == e.b) {continue;}
-
-        if (P.neighbor_radius > 0.0f) {
-          const float dx = cloud[c].x - cloud[e.b].x;
-          const float dy = cloud[c].y - cloud[e.b].y;
-          if ((dx * dx + dy * dy) > P.neighbor_radius * P.neighbor_radius) {continue;}
-        }
-
+      for (int c : neigh_candidates) {
         const float z_half = std::max(P.max_dz, 0.35f);
         const float dz = cloud[c].z - z_mid;
         if (std::fabs(dz) > z_half) {++global_rej.zwin_bfs; continue;}
@@ -1304,8 +1319,6 @@ navmap::NavMap from_points(
         if (!precheck(e.a, e.b, c, Phase::BFS, comp_rej, dup)) {continue;}
 
         if (try_add_triangle(e.a, e.b, c, cloud, P, tri_set_global, edge_set_global, triangles)) {
-          ++comp_bfs_accept;
-
           const EdgeKey eab = make_edge(e.a, e.b);
           const EdgeKey eac = make_edge(e.a, c);
           const EdgeKey ecb = make_edge(c, e.b);
@@ -1361,6 +1374,98 @@ navmap::NavMap from_points(
     s.navcels.resize(oc.second);
     for (size_t k = 0; k < oc.second; ++k) {
       s.navcels[k] = static_cast<uint32_t>(oc.first + k);
+    }
+    msg_tmp.surfaces.push_back(std::move(s));
+  }
+
+  rebuild_surfaces_by_connectivity(msg_tmp);
+  keep_top_surfaces_by_size(msg_tmp, P.max_surfaces);
+
+  out_msg = std::move(msg_tmp);
+  return from_msg(out_msg);
+}
+
+// ----------------- Regular-grid builder (deterministic, gap-free) -----------------
+
+navmap::NavMap from_regular_grid(
+  const pcl::PointCloud<pcl::PointXYZ> & grid_points,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  BuildParams P)
+{
+  out_msg = navmap_ros_interfaces::msg::NavMap();
+
+  const uint32_t W = grid_points.width;
+  const uint32_t H = grid_points.height;
+  if (H <= 1 || W < 2 || H < 2 || grid_points.size() != static_cast<size_t>(W) * H) {
+    return navmap::NavMap();
+  }
+
+  auto v_id = [W](uint32_t i, uint32_t j) {return static_cast<int>(j * W + i);};
+  const float cos_max_slope =
+    std::cos(P.max_slope_deg * static_cast<float>(M_PI) / 180.0f);
+
+  std::vector<Triangle> triangles;
+  triangles.reserve(static_cast<size_t>(2) * (W - 1) * (H - 1));
+
+  // One grid cell -> up to two triangles, split along the same diagonal
+  // from_occupancy_grid uses. No neighbor search: connectivity is already
+  // fully known from the grid indices, so the only reason to skip a
+  // triangle is a non-finite vertex or a real slope violation -- never a
+  // search-radius/angle heuristic, so this cannot leave a meshing-artifact
+  // hole on an otherwise-navigable, evenly-sampled surface.
+  auto try_cell_triangle = [&](int i0, int i1, int i2) {
+      const auto & A = grid_points[i0];
+      const auto & B = grid_points[i1];
+      const auto & C = grid_points[i2];
+      if (!pcl::isFinite(A) || !pcl::isFinite(B) || !pcl::isFinite(C)) {return;}
+
+      Eigen::Vector3f a(A.x, A.y, A.z), b(B.x, B.y, B.z), c(C.x, C.y, C.z);
+      Eigen::Vector3f n = (b - a).cross(c - a);
+      const float nn = n.norm();
+      if (nn < 1e-9f) {return;}
+      n /= nn;
+      if (n.dot(Eigen::Vector3f::UnitZ()) < cos_max_slope) {return;}
+
+      // Canonical orientation (normal facing +Z), matching try_add_triangle.
+      if (n.dot(Eigen::Vector3f::UnitZ()) < 0.0f) {
+        triangles.emplace_back(i0, i2, i1);
+      } else {
+        triangles.emplace_back(i0, i1, i2);
+      }
+    };
+
+  for (uint32_t j = 0; j + 1 < H; ++j) {
+    for (uint32_t i = 0; i + 1 < W; ++i) {
+      const int id00 = v_id(i, j);
+      const int id10 = v_id(i + 1, j);
+      const int id11 = v_id(i + 1, j + 1);
+      const int id01 = v_id(i, j + 1);
+      try_cell_triangle(id00, id10, id11);
+      try_cell_triangle(id00, id11, id01);
+    }
+  }
+
+  if (triangles.empty()) {
+    return navmap::NavMap();
+  }
+
+  const std::string frame_id = "map";
+  navmap_ros_interfaces::msg::NavMap msg_tmp;
+  navmap::NavMap core;
+  if (!build_navmap_from_mesh(grid_points, triangles, frame_id, msg_tmp, &core)) {
+    return navmap::NavMap();
+  }
+
+  // Single surface covering every accepted triangle; rebuild_surfaces_by_
+  // connectivity then splits it by real adjacency, so terrain separated by
+  // a too-steep band ends up as distinct surfaces, same as from_points.
+  msg_tmp.surfaces.clear();
+  {
+    navmap_ros_interfaces::msg::NavMapSurface s;
+    s.frame_id = frame_id;
+    s.navcels.resize(triangles.size());
+    for (size_t k = 0; k < triangles.size(); ++k) {
+      s.navcels[k] = static_cast<uint32_t>(k);
     }
     msg_tmp.surfaces.push_back(std::move(s));
   }

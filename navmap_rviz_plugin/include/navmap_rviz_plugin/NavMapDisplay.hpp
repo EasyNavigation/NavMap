@@ -23,6 +23,9 @@
 
 #include <QObject>
 
+#include <OgreHardwareVertexBuffer.h>
+#include <OgreMesh.h>
+
 #include <rclcpp/qos.hpp>
 #include <rclcpp/subscription.hpp>
 
@@ -56,9 +59,9 @@
   #define NAVMAP_RVIZ_PLUGIN_PUBLIC_TYPE NAVMAP_RVIZ_PLUGIN_PUBLIC
   #define NAVMAP_RVIZ_PLUGIN_LOCAL
 #else
-  #define NAVMAP_RVIZ_PLUGIN_PUBLIC __attribute__ ((visibility("default")))
+  #define NAVMAP_RVIZ_PLUGIN_PUBLIC __attribute__ ((visibility ("default")))
   #define NAVMAP_RVIZ_PLUGIN_PUBLIC_TYPE
-  #define NAVMAP_RVIZ_PLUGIN_LOCAL  __attribute__ ((visibility("hidden")))
+  #define NAVMAP_RVIZ_PLUGIN_LOCAL  __attribute__ ((visibility ("hidden")))
 #endif
 
 // Forward declarations to avoid hard coupling here
@@ -146,8 +149,8 @@ private:
   // ---- Status counters ----
   std::uint64_t navmap_msg_count_{0};
   std::uint64_t layer_update_count_{0};
-  rclcpp::Time last_navmap_stamp_;
-  rclcpp::Time last_layer_stamp_;
+  rclcpp::Time   last_navmap_stamp_;
+  rclcpp::Time   last_layer_stamp_;
 
   // ---- Data state ----
   NavMapMsg::SharedPtr last_msg_;

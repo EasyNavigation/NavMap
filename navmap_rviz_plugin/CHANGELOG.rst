@@ -2,6 +2,13 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.0 (2026-10-08)
+------------------
+* Builds with the same Qt as rviz (Qt5 up to Kilted, Qt6 from Lyrical), taken from rviz_common
+* Ogre headers included explicitly
+* Conda packages with pixi (pixi-build-ros)
+* Contributors: Francisco Martín Rico
+
 0.5.0 (2026-07-25)
 ------------------
 * Fully commit to Qt6 only and cleanup CMake
