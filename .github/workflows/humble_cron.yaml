@@ -5,19 +5,15 @@ on:
       - cron: '0 0 * * 6'     
 jobs:
   build-and-test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-22.04]
-      fail-fast: false
+    runs-on: ubuntu-22.04
+    container:
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v4
         with:
           ref: humble
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.7.15
-        with:
-          required-ros-distributions: humble
       - name: build and test
         uses: ros-tooling/action-ros-ci@0.4.5
         with:

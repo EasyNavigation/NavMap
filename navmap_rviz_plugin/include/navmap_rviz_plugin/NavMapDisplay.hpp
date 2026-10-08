@@ -23,6 +23,9 @@
 
 #include <QObject>
 
+#include <OgreHardwareVertexBuffer.h>
+#include <OgreMesh.h>
+
 #include <rclcpp/qos.hpp>
 #include <rclcpp/subscription.hpp>
 

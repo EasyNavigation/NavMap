@@ -1,14 +1,23 @@
 # NavMap
 [![Doxygen Deployment](https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml/badge.svg)](https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml)
 [![rolling](https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml/badge.svg?branch=rolling)](https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml)
+[![lyrical](https://github.com/EasyNavigation/NavMap/actions/workflows/lyrical.yaml/badge.svg?branch=lyrical)](https://github.com/EasyNavigation/NavMap/actions/workflows/lyrical.yaml)
 [![kilted](https://github.com/EasyNavigation/NavMap/actions/workflows/kilted.yaml/badge.svg?branch=kilted)](https://github.com/EasyNavigation/NavMap/actions/workflows/kilted.yaml)
 [![jazzy](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml/badge.svg?branch=jazzy)](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml)
 [![humble](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml/badge.svg?branch=humble)](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml)
+
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/bea2ce1e-c35d-471e-9ebc-3fb60a344635" />
 
 [![NavMap SLAM](https://img.youtube.com/vi/t5p6c2HO7UA/0.jpg)](https://www.youtube.com/watch?v=t5p6c2HO7UA)
 
 NavMap is an open-source C++ and ROS 2 library for representing **navigable surfaces** for mobile robot navigation and localization.
 Unlike classic grid-based maps, NavMap stores the environment as **triangular meshes** (NavCels), enabling efficient queries and multi-surface environments (e.g., multi-floor buildings).
+
+--- 
+
+<img width="240" height="47" alt="MICIU+Cofinanciado+AEI" src="https://github.com/user-attachments/assets/fedfcf13-6af6-43d7-8290-fe22da4e1db0" />
+<img width="240" height="50" alt="eu_funded_en" src="https://github.com/user-attachments/assets/b11da974-9201-4f79-902e-c9c20e8aa7a4" />
+Funded by the European Union through the Horizon Europe programme under Grant Agreement No. 101070254 (CoreSense), and by MICIU/AEI/10.13039/501100011033 and ERDF/EU under grants PERMAP PID2024-161761OB-C21 and PLANNAV PID2024-161761OB-C22 (AURORAS).
 
 ---
 

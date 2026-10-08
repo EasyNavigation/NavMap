@@ -3,7 +3,7 @@
 
 <package format="3">
   <name>navmap_rviz_plugin</name>
-  <version>0.4.0</version>
+  <version>0.6.0</version>
   <description>RViz2 display plugin for NavMap surfaces and layers.</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
 
@@ -11,18 +11,21 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclcpp</depend>
-  <depend>pluginlib</depend>
-  <depend>rviz_common</depend>
-  <depend>rviz_rendering</depend>
-  <depend>rviz_default_plugins</depend>
-  <depend>navmap_ros_interfaces</depend>
-  <depend>navmap_ros</depend>
-  <depend>navmap_core</depend>
+  <depend>eigen</depend>
   <depend>geometry_msgs</depend>
-  <depend>std_msgs</depend>
+  <depend>navmap_core</depend>
+  <depend>navmap_ros</depend>
+  <depend>navmap_ros_interfaces</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp</depend>
+  <depend>rviz_common</depend>
+  <depend>rviz_default_plugins</depend>
+  <depend>rviz_rendering</depend>
   <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
   <depend>visualization_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
