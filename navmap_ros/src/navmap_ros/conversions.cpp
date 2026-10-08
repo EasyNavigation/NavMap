@@ -1199,8 +1199,6 @@ navmap::NavMap from_points(
     const size_t tri_off = triangles.size();
 
     RejectCounts comp_rej{};
-    size_t comp_fan_accept = 0;
-    size_t comp_bfs_accept = 0;
 
     // Initial fan
     for (size_t t = 0; t + 1 < neigh_seed.size(); ++t) {
@@ -1210,8 +1208,6 @@ navmap::NavMap from_points(
       if (!precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {continue;}
 
       if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global, triangles)) {
-        ++comp_fan_accept;
-
         // Update counts and frontier
         const EdgeKey e0 = make_edge(seed_idx, j);
         const EdgeKey e1 = make_edge(j, k);
@@ -1232,7 +1228,6 @@ navmap::NavMap from_points(
         if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global,
             triangles))
         {
-          ++comp_fan_accept;
           const EdgeKey e0 = make_edge(seed_idx, j);
           const EdgeKey e1 = make_edge(j, k);
           const EdgeKey e2 = make_edge(k, seed_idx);
@@ -1324,8 +1319,6 @@ navmap::NavMap from_points(
         if (!precheck(e.a, e.b, c, Phase::BFS, comp_rej, dup)) {continue;}
 
         if (try_add_triangle(e.a, e.b, c, cloud, P, tri_set_global, edge_set_global, triangles)) {
-          ++comp_bfs_accept;
-
           const EdgeKey eab = make_edge(e.a, e.b);
           const EdgeKey eac = make_edge(e.a, c);
           const EdgeKey ecb = make_edge(c, e.b);
