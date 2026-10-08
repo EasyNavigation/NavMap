@@ -26,8 +26,19 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
+)
+# SYSTEM: PCL headers trigger -Wpedantic (anonymous structs)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
   ${PCL_INCLUDE_DIRS}
+)
+# pcl_conversions exports a CMake target only since 2.8 (Kilted); older ones, variables
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
   ${pcl_conversions_INCLUDE_DIRS}
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ${pcl_conversions_TARGETS}
+  ${pcl_conversions_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
   rclcpp::rclcpp
@@ -37,8 +48,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   ${nav_msgs_TARGETS}
   ${sensor_msgs_TARGETS}
   ${std_srvs_TARGETS}
-  ${PCL_LIBRARIES}
-  ${pcl_conversions_LIBRARIES}
 )
 add_executable(slam_server_app
   src/slam_server_app.cpp
@@ -77,10 +86,10 @@ ament_export_dependencies(
   rclcpp
   navmap_core
   navmap_ros_interfaces
+  nav_msgs
   geometry_msgs
   sensor_msgs
   std_srvs
   PCL
-  pcl_conversions
 )
 ament_package()

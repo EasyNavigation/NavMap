@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(navmap_rviz_plugin)
 
-# 1) Qt y AUTOMOC
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
-# add_definitions(-DQT_NO_KEYWORDS)
-
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rviz_common REQUIRED)
@@ -20,26 +12,30 @@ find_package(navmap_ros_interfaces REQUIRED)
 find_package(navmap_ros REQUIRED)
 find_package(navmap_core REQUIRED)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Same Qt as rviz (Qt5 up to Kilted, Qt6 from Lyrical): mixing both breaks loading the plugin.
+# Ask rviz_common: other deps (e.g. VTK via PCL) may bring the other Qt along
+get_target_property(rviz_common_libs rviz_common::rviz_common INTERFACE_LINK_LIBRARIES)
+if("${rviz_common_libs}" MATCHES "Qt6::")
+  set(qt_major 6)
+else()
+  set(qt_major 5)
+endif()
+find_package(Qt${qt_major} REQUIRED COMPONENTS Widgets)
 
-qt5_wrap_cpp(NAVMAP_MOC_SRCS
-  include/navmap_rviz_plugin/NavMapDisplay.hpp
-  include/navmap_rviz_plugin/navmap_goal_tool.hpp
-  include/navmap_rviz_plugin/navmap_pose_tool.hpp
+qt_wrap_cpp(NAVMAP_MOC_SRCS
+    include/navmap_rviz_plugin/NavMapDisplay.hpp
+    include/navmap_rviz_plugin/navmap_goal_tool.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED
   src/navmap_rviz_plugin/NavMapDisplay.cpp
   src/navmap_rviz_plugin/navmap_goal_tool.cpp
   src/navmap_rviz_plugin/navmap_pose_tool.cpp
-  include/navmap_rviz_plugin/NavMapDisplay.hpp
-  include/navmap_rviz_plugin/navmap_goal_tool.hpp
-  include/navmap_rviz_plugin/navmap_pose_tool.hpp
   ${NAVMAP_MOC_SRCS}
 )
 target_link_libraries(navmap_rviz_plugin PUBLIC
   ${navmap_ros_interfaces_TARGETS}
+  Qt${qt_major}::Widgets
   navmap_ros::navmap_ros
   navmap_core::navmap_core
   pluginlib::pluginlib
@@ -47,8 +43,6 @@ target_link_libraries(navmap_rviz_plugin PUBLIC
   rviz_common::rviz_common
   rviz_rendering::rviz_rendering
   rviz_default_plugins::rviz_default_plugins
-  Qt5::Core
-  Qt5::Widgets
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -84,14 +78,16 @@ endif()
 ament_export_libraries(${PROJECT_NAME})
 ament_export_targets(export_${PROJECT_NAME})
 ament_export_dependencies(
+  Qt${qt_major}
   rclcpp
   pluginlib
   rviz_common
   rviz_rendering
   rviz_default_plugins
-  Qt5
   navmap_ros_interfaces
+  navmap_ros
+  navmap_core
   geometry_msgs
-  std_msg
+  std_msgs
 )
 ament_package()
