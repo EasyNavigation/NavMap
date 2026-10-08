@@ -26,10 +26,18 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
+)
+# SYSTEM: PCL headers trigger -Wpedantic (anonymous structs)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
   ${PCL_INCLUDE_DIRS}
 )
+# pcl_conversions exports a CMake target only since 2.8 (Kilted); older ones, variables
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
+  ${pcl_conversions_INCLUDE_DIRS}
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-  pcl_conversions::pcl_conversions
+  ${pcl_conversions_TARGETS}
+  ${pcl_conversions_LIBRARIES}
   ${PCL_LIBRARIES}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -83,6 +91,5 @@ ament_export_dependencies(
   sensor_msgs
   std_srvs
   PCL
-  pcl_conversions
 )
 ament_package()

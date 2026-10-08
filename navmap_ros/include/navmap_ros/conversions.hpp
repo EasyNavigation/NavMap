@@ -331,6 +331,38 @@ navmap::NavMap from_pointcloud2(
   navmap_ros_interfaces::msg::NavMap & out_msg,
   BuildParams params);
 
+/**
+ * @brief Build a NavMap surface from an *organized* (grid-shaped) PCL point cloud.
+ *
+ * Unlike ::navmap_ros::from_points -- which discovers connectivity by neighbor
+ * search over an otherwise-unstructured point set, a heuristic that needs
+ * either a generous @p params.neighbor_radius (at real cost in redundant,
+ * overlapping triangles) or leaves gaps on an evenly-sampled surface even
+ * when every cell is individually navigable -- this overload takes a cloud
+ * whose grid connectivity is *already known* (row-major, `cloud.width` x
+ * `cloud.height`, exactly as PCL's own "organized point cloud" convention)
+ * and builds the two triangles per grid cell directly from the (i, j)
+ * indices, the same deterministic scheme ::navmap_ros::from_occupancy_grid
+ * already uses. No neighbor search, no possibility of a meshing-artifact
+ * gap: the only triangles skipped are ones that fail the slope filter
+ * (@p params.max_slope_deg) or reference a non-finite vertex, i.e. every
+ * remaining hole is a real "not navigable here" gap, not a search-radius
+ * artifact.
+ *
+ * @param[in] grid_points Organized point set (`cloud.height` must be > 1);
+ *                         row j, column i is at index `j * cloud.width + i`.
+ * @param[out] out_msg     Output transport message mirroring the created NavMap.
+ * @param[in] params       Only @p params.max_slope_deg and @p params.max_surfaces
+ *                         apply here; the neighbor-search/edge-length/angle fields
+ *                         are meaningless without a search step and are ignored.
+ * @return The constructed `navmap::NavMap`; empty if @p grid_points is not
+ *         organized (`height <= 1`) or is smaller than 2x2.
+ */
+navmap::NavMap from_regular_grid(
+  const pcl::PointCloud<pcl::PointXYZ> & grid_points,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  BuildParams params);
+
 }  // namespace navmap_ros
 
 #endif  // NAVMAP_ROS__CONVERSIONS_HPP_

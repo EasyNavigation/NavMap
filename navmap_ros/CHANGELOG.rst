@@ -2,8 +2,13 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.5.1 (2026-07-30)
+0.6.0 (2026-10-08)
 ------------------
+* Tools to generate a simulated world and its NavMap from satellite imagery
+* Builds on Humble, Jazzy, Kilted, Lyrical and Rolling: pcl_conversions linked through its variables (its target only exists since Kilted)
+* Removed unused counters (compiler warnings)
+* Conda packages with pixi (pixi-build-ros)
+* Contributors: Francisco Martín Rico
 
 0.5.0 (2026-07-25)
 ------------------
@@ -11,6 +16,7 @@ Changelog for package navmap_ros
 * PCL private linkage: avoid Qt5/6 conflicts
 * Fix doc in header
 * Add headers in conversions
+* Cleanup unused headers
 * Add occupancy grid constants
 * Acelerated respecting floors
 * Working slow with many points

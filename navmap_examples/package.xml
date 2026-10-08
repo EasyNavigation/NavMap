@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>navmap_examples</name>
-  <version>0.5.1</version>
+  <version>0.6.0</version>
   <description>Examples related to navmap_core y navmap_ros.</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
 
@@ -10,15 +10,19 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclcpp</depend>
+  <depend>eigen</depend>
   <depend>nav_msgs</depend>
   <depend>navmap_core</depend>
   <depend>navmap_ros</depend>
   <depend>navmap_ros_interfaces</depend>
+  <depend>nlohmann-json-dev</depend>
+  <depend>rclcpp</depend>
 
+  <exec_depend>launch_ros</exec_depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
-  <test_depend>ament_cmake_gtest</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -2,8 +2,10 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.5.1 (2026-07-30)
+0.6.0 (2026-10-08)
 ------------------
+* Conda packages with pixi (pixi-build-ros)
+* Contributors: Francisco Martín Rico
 
 0.5.0 (2026-07-25)
 ------------------
@@ -11,6 +13,7 @@ Changelog for package navmap_core
 * Speedup the navcel location
 * Cleanup unused headers
 * Fix potential linker error and warning
+* Merge branch 'jazzy' into rolling
 * Contributors: Francisco Martín Rico, Francisco Miguel Moreno
 
 0.4.0 (2025-11-24)
