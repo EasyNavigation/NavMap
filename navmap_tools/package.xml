@@ -27,7 +27,6 @@
   <exec_depend>python3-platformdirs</exec_depend>
   <exec_depend>python3-pyproj</exec_depend>
   <exec_depend>python3-requests</exec_depend>
-  <exec_depend>python3-tifffile</exec_depend>
   <exec_depend>rclpy</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>

@@ -27,6 +27,8 @@ from navmap_tools.geo.projection import BBox
 
 import numpy as np
 
+from PIL import Image, TiffImagePlugin, TiffTags, UnidentifiedImageError
+
 import pytest
 
 
@@ -158,3 +160,114 @@ def test_load_dem_grid_skips_ocean_tiles_but_keeps_land(monkeypatch):
     grid = load_dem_grid(BBox(west=0.1, south=0.1, east=1.9, north=0.9), cache=None)
     # Two 1x1-degree tile columns (lon 0 ocean, lon 1 land) mosaicked together.
     assert grid.elevation.shape == (2, 4)
+
+
+# ---------------------------------------------------------------------------
+# _read_tile_array (real GeoTIFF files written with Pillow)
+# ---------------------------------------------------------------------------
+
+_PREDICTOR_TAG = 317
+_FLOATING_POINT_PREDICTOR = 3
+
+
+def _write_geotiff(path, arr, scale, tiepoint, **save_args):
+    ifd = TiffImagePlugin.ImageFileDirectory_v2()
+    if scale is not None:
+        ifd[dem_mod._MODEL_PIXEL_SCALE_TAG] = scale
+        ifd.tagtype[dem_mod._MODEL_PIXEL_SCALE_TAG] = TiffTags.DOUBLE
+    if tiepoint is not None:
+        ifd[dem_mod._MODEL_TIEPOINT_TAG] = tiepoint
+        ifd.tagtype[dem_mod._MODEL_TIEPOINT_TAG] = TiffTags.DOUBLE
+    if 'predictor' in save_args:
+        ifd[_PREDICTOR_TAG] = save_args.pop('predictor')
+    Image.fromarray(arr).save(path, tiffinfo=ifd, **save_args)
+    return path
+
+
+def _elevations(rows=48, cols=64):
+    # Covers negative (below sea level) and fractional values
+    return (np.arange(rows * cols, dtype=np.float32).reshape(rows, cols) * 0.25 - 100.0)
+
+
+def test_read_tile_array_returns_values_and_georeference(tmp_path):
+    arr = _elevations()
+    path = _write_geotiff(
+        tmp_path / 'dem.tif', arr, (0.5, 0.25, 0.0), (0.0, 0.0, 0.0, -4.0, 41.0, 0.0))
+
+    out, ox, oy, sx, sy = dem_mod._read_tile_array(path)
+
+    assert out.dtype == np.float32
+    assert out.shape == (48, 64)
+    np.testing.assert_array_equal(out, arr)
+    assert (ox, oy) == (-4.0, 41.0)
+    assert (sx, sy) == (0.5, 0.25)
+
+
+def test_read_tile_array_decodes_copernicus_encoding(tmp_path):
+    # Copernicus GLO-30 tiles: float32, DEFLATE, floating-point predictor
+    arr = _elevations()
+    path = _write_geotiff(
+        tmp_path / 'dem.tif', arr, (1 / 3600, 1 / 3600, 0.0),
+        (0.0, 0.0, 0.0, -4.0, 41.0, 0.0),
+        compression='tiff_adobe_deflate', predictor=_FLOATING_POINT_PREDICTOR)
+    with Image.open(path) as written:
+        assert written.tag_v2.get(_PREDICTOR_TAG) == _FLOATING_POINT_PREDICTOR
+
+    out, ox, oy, sx, sy = dem_mod._read_tile_array(path)
+
+    np.testing.assert_array_equal(out, arr)
+    assert (ox, oy) == (-4.0, 41.0)
+    assert sx == pytest.approx(1 / 3600)
+    assert sy == pytest.approx(1 / 3600)
+
+
+def test_read_tile_array_converts_integer_elevations_to_float(tmp_path):
+    arr = np.array([[-5, 1200], [300, 4000]], dtype=np.int16)
+    path = _write_geotiff(
+        tmp_path / 'dem.tif', arr, (1.0, 1.0, 0.0), (0.0, 0.0, 0.0, 0.0, 1.0, 0.0))
+
+    out, _, _, _, _ = dem_mod._read_tile_array(path)
+
+    assert out.dtype == np.float32
+    np.testing.assert_array_equal(out, arr.astype(np.float32))
+
+
+@pytest.mark.parametrize(
+    'scale,tiepoint',
+    [
+        (None, (0.0, 0.0, 0.0, -4.0, 41.0, 0.0)),
+        ((0.5, 0.5, 0.0), None),
+        (None, None),
+    ],
+)
+def test_read_tile_array_rejects_tiff_without_georeference(tmp_path, scale, tiepoint):
+    path = _write_geotiff(tmp_path / 'plain.tif', _elevations(4, 4), scale, tiepoint)
+    with pytest.raises(ValueError, match='not a GeoTIFF'):
+        dem_mod._read_tile_array(path)
+
+
+def test_read_tile_array_rejects_non_tiff_file(tmp_path):
+    path = tmp_path / 'error.tif'
+    path.write_text('<Error><Code>AccessDenied</Code></Error>')
+    with pytest.raises(UnidentifiedImageError):
+        dem_mod._read_tile_array(path)
+
+
+def test_load_dem_grid_reads_real_tiles_from_disk(tmp_path, monkeypatch):
+    # One 2x2 tile covering lon [0, 1], lat [0, 1], no mocked reader
+    arr = np.array([[10.0, 20.0], [30.0, 40.0]], dtype=np.float32)
+    path = _write_geotiff(
+        tmp_path / 'tile.tif', arr, (0.5, 0.5, 0.0), (0.0, 0.0, 0.0, 0.0, 1.0, 0.0),
+        compression='tiff_adobe_deflate', predictor=_FLOATING_POINT_PREDICTOR)
+
+    def fake_fetch(lat_floor, lon_floor, cache, force=False):
+        return path
+
+    monkeypatch.setattr(dem_mod, 'fetch_tile_path', fake_fetch)
+    grid = load_dem_grid(BBox(west=0.1, south=0.1, east=0.4, north=0.4), cache=None)
+
+    np.testing.assert_array_equal(grid.elevation, arr)
+    assert grid.west == pytest.approx(0.0)
+    assert grid.north == pytest.approx(1.0)
+    assert grid.pixel_size_lon == pytest.approx(0.5)
+    assert grid.pixel_size_lat == pytest.approx(0.5)

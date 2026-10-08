@@ -30,8 +30,7 @@ import math
 from typing import Tuple
 
 import numpy as np
-
-import tifffile
+from PIL import Image
 
 from .cache import DiskCache
 from .net import get_to_file
@@ -39,6 +38,10 @@ from .projection import BBox
 
 _BUCKET_URL = 'https://copernicus-dem-30m.s3.amazonaws.com'
 _TIMEOUT_S = 120
+
+# GeoTIFF tags (OGC GeoTIFF 1.1)
+_MODEL_PIXEL_SCALE_TAG = 33550
+_MODEL_TIEPOINT_TAG = 33922
 
 
 def tile_key(lat_floor: int, lon_floor: int) -> str:
@@ -99,11 +102,15 @@ class DemGrid:
 
 
 def _read_tile_array(path) -> Tuple[np.ndarray, float, float, float, float]:
-    tif = tifffile.TiffFile(str(path))
-    meta = tif.geotiff_metadata
-    arr = tif.pages[0].asarray().astype(np.float32)
-    sx, sy, _ = meta['ModelPixelScale']
-    _, _, _, ox, oy, _ = meta['ModelTiepoint']
+    # Pillow decodes via libtiff, which handles Copernicus' floating-point predictor
+    with Image.open(path) as tif:
+        arr = np.asarray(tif, dtype=np.float32)
+        scale = tif.tag_v2.get(_MODEL_PIXEL_SCALE_TAG)
+        tiepoint = tif.tag_v2.get(_MODEL_TIEPOINT_TAG)
+    if scale is None or tiepoint is None:
+        raise ValueError(f'{path} is not a GeoTIFF (no pixel scale / tiepoint tags)')
+    sx, sy = float(scale[0]), float(scale[1])
+    ox, oy = float(tiepoint[3]), float(tiepoint[4])
     return arr, ox, oy, sx, sy
 
 
