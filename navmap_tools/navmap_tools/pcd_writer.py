@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """
-ASCII PCD (x y z) writer, plus a parallel per-point RGB sidecar.
+ASCII PCD (x y z) writer and reader, plus a parallel per-point RGB sidecar.
 
 The PCD itself matches the header shape of maps/*.pcd in
 src/urjc-excavation-world (VERSION 0.7, FIELDS x y z, TYPE F F F, DATA ascii)
@@ -77,6 +77,24 @@ def write_pcd_xyz(path, points, width=None, height=None) -> int:
         for x, y, z in pts:
             f.write(f'{x:.6f} {y:.6f} {z:.6f}\n')
     return n
+
+
+def read_pcd_xyz(path) -> np.ndarray:
+    """
+    Read an ASCII PCD file (as written by `write_pcd_xyz`) into an (N, 3) float array.
+
+    Only the first three values of each data line are read (x y z); a binary PCD raises
+    ValueError.
+    """
+    with open(Path(path)) as f:
+        lines = f.read().split('\n')
+    data = next((i for i, line in enumerate(lines) if line.startswith('DATA')), None)
+    if data is None:
+        raise ValueError(f'{path}: not a PCD file (no DATA line)')
+    if lines[data].split()[1:2] != ['ascii']:
+        raise ValueError(f'{path}: only ASCII PCD files are supported ({lines[data]})')
+    rows = [line.split()[:3] for line in lines[data + 1:] if line.strip()]
+    return np.array(rows, dtype=np.float64).reshape(-1, 3)
 
 
 def write_colors_csv(path, colors) -> int:
