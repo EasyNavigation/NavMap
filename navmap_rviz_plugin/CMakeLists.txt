@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(navmap_rviz_plugin)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
-
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rviz_common REQUIRED)
@@ -13,6 +11,16 @@ find_package(rosidl_default_runtime REQUIRED)
 find_package(navmap_ros_interfaces REQUIRED)
 find_package(navmap_ros REQUIRED)
 find_package(navmap_core REQUIRED)
+
+# Same Qt as rviz (Qt5 up to Kilted, Qt6 from Lyrical): mixing both breaks loading the plugin.
+# Ask rviz_common: other deps (e.g. VTK via PCL) may bring the other Qt along
+get_target_property(rviz_common_libs rviz_common::rviz_common INTERFACE_LINK_LIBRARIES)
+if("${rviz_common_libs}" MATCHES "Qt6::")
+  set(qt_major 6)
+else()
+  set(qt_major 5)
+endif()
+find_package(Qt${qt_major} REQUIRED COMPONENTS Widgets)
 
 qt_wrap_cpp(NAVMAP_MOC_SRCS
     include/navmap_rviz_plugin/NavMapDisplay.hpp
@@ -27,7 +35,7 @@ add_library(${PROJECT_NAME} SHARED
 )
 target_link_libraries(navmap_rviz_plugin PUBLIC
   ${navmap_ros_interfaces_TARGETS}
-  Qt6::Widgets
+  Qt${qt_major}::Widgets
   navmap_ros::navmap_ros
   navmap_core::navmap_core
   pluginlib::pluginlib
@@ -70,7 +78,7 @@ endif()
 ament_export_libraries(${PROJECT_NAME})
 ament_export_targets(export_${PROJECT_NAME})
 ament_export_dependencies(
-  Qt6
+  Qt${qt_major}
   rclcpp
   pluginlib
   rviz_common
