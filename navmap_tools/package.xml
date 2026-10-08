@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>navmap_tools</name>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
   <description>
     Tools and utilities for building and testing NavMaps: a GIS-to-NavMap/Gazebo
     generator (given a GPS center and a size in meters), a PointCloud-to-NavMap

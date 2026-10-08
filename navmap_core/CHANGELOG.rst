@@ -2,8 +2,8 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.0 (2026-10-08)
+------------------
 * Conda packages with pixi (pixi-build-ros)
 * Contributors: Francisco Martín Rico
 

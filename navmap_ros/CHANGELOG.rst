@@ -2,8 +2,8 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.0 (2026-10-08)
+------------------
 * Tools to generate a simulated world and its NavMap from satellite imagery
 * Builds on Humble, Jazzy, Kilted, Lyrical and Rolling: pcl_conversions linked through its variables (its target only exists since Kilted)
 * Removed unused counters (compiler warnings)
