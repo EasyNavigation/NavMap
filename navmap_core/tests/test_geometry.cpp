@@ -17,7 +17,11 @@
 #include <Eigen/Core>
 #include "navmap_core/Geometry.hpp"
 
-using namespace navmap;
+using navmap::AABB;
+using navmap::Vec3;
+using navmap::ray_triangle_intersect;
+using navmap::triangle_area;
+using navmap::triangle_normal;
 
 static constexpr float kEps = 1e-6f;
 

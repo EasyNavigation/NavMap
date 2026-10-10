@@ -20,25 +20,21 @@
 #include <string>
 #include <utility>
 
-#include <OgrePlane.h>
-#include <OgreRay.h>
-#include <OgreSceneNode.h>
-#include <OgreViewport.h>
-#include <OgreCamera.h>
-
-#include <Eigen/Core>
-
+#include "OgrePlane.h"
+#include "OgreRay.h"
+#include "OgreSceneNode.h"
+#include "OgreViewport.h"
+#include "OgreCamera.h"
+#include "Eigen/Core"
 #include "rviz_rendering/geometry.hpp"
 #include "rviz_rendering/objects/arrow.hpp"
 #include "rviz_rendering/render_window.hpp"
-
 #include "rviz_common/logging.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/render_panel.hpp"
 #include "rviz_common/viewport_mouse_event.hpp"
 #include "rviz_common/view_manager.hpp"
 #include "rviz_common/view_controller.hpp"
-
 #include "navmap_core/NavMap.hpp"
 #include "navmap_rviz_plugin/NavMapDisplay.hpp"
 

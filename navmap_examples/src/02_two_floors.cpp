@@ -16,8 +16,8 @@
 
 #include <iostream>
 #include <vector>
-#include <Eigen/Core>
 
+#include "Eigen/Core"
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;

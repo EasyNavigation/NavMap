@@ -83,7 +83,7 @@ inline Ogre::ColourValue colorFromHeat(float value, float max_value, float alpha
   return Ogre::ColourValue(t, 1.0f - t, 0.0f, alpha);
 }
 
-} // namespace
+}  // namespace
 
 namespace navmap_rviz_plugin
 {
@@ -547,7 +547,7 @@ void NavMapDisplay::ensureMeshBuilt_()
 #else
     // Fallback: rebuild declaration without VES_DIFFUSE
     Ogre::VertexDeclaration * newDecl = context_->getSceneManager()->createVertexDeclaration();
-    for (unsigned short s = 0; s < decl->getElementCount(); ++s) {
+    for (uint16_t s = 0; s < decl->getElementCount(); ++s) {
       const Ogre::VertexElement & e = decl->getElement(s);
       if (e.getSemantic() == Ogre::VES_DIFFUSE) {continue;}
       newDecl->addElement(e.getSource(), e.getOffset(), e.getType(), e.getSemantic(), e.getIndex());
@@ -558,16 +558,16 @@ void NavMapDisplay::ensureMeshBuilt_()
   }
 
   // Choose a free binding source for colours (avoid clashing with positions/normals)
-  unsigned short COLOR_SRC = 1;
+  uint16_t COLOR_SRC = 1;
   while (bind->isBufferBound(COLOR_SRC)) {++COLOR_SRC;}
 
   // Create the dynamic colour buffer (one 32-bit colour per vertex)
-  const Ogre::VertexElementType col_type = Ogre::VET_COLOUR_ARGB; // we'll pack ARGB
+  const Ogre::VertexElementType col_type = Ogre::VET_COLOUR_ARGB;  // we'll pack ARGB
   decl->addElement(COLOR_SRC, /*offset=*/0, col_type, Ogre::VES_DIFFUSE);
 
   Ogre::HardwareVertexBufferSharedPtr colour_vbuf =
     Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
-      Ogre::VertexElement::getTypeSize(col_type), // should be 4
+      Ogre::VertexElement::getTypeSize(col_type),  // should be 4
       vertex_count,
       Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
@@ -627,24 +627,19 @@ void NavMapDisplay::updateColorsOnly_()
   float max_val = 0.0f;
   bool is_u8 = false;
   if (selected_layer) {
-    if (selected_layer->type == NavMapLayerMsg::U8 &&
-      selected_layer->data_u8.size() == V0.size())
-    {
+    const auto & L = *selected_layer;
+    if (L.type == NavMapLayerMsg::U8 && L.data_u8.size() == V0.size()) {
       is_u8 = true;
-    } else if (selected_layer->type == NavMapLayerMsg::F32 &&
-      selected_layer->data_f32.size() == V0.size())
-    {
-      for (float v : selected_layer->data_f32) {
+    } else if (L.type == NavMapLayerMsg::F32 && L.data_f32.size() == V0.size()) {
+      for (float v : L.data_f32) {
         max_val = std::max(max_val, v);
       }
-    } else if (selected_layer->type == NavMapLayerMsg::F64 &&
-      selected_layer->data_f64.size() == V0.size())
-    {
-      for (double v : selected_layer->data_f64) {
+    } else if (L.type == NavMapLayerMsg::F64 && L.data_f64.size() == V0.size()) {
+      for (double v : L.data_f64) {
         max_val = std::max(max_val, static_cast<float>(v));
       }
     } else {
-      selected_layer = nullptr; // fallback to neutral grey
+      selected_layer = nullptr;  // fallback to neutral grey
     }
   }
 
@@ -712,7 +707,7 @@ void NavMapDisplay::updateColorsOnly_()
         const uint32_t packed = packARGB(col);
         *p++ = packed; *p++ = packed; *p++ = packed;
       }
-    } else { // F64
+    } else {  // F64
       for (size_t t = 0; t < V0.size(); ++t) {
         const float v = static_cast<float>(selected_layer->data_f64[t]);
         const Ogre::ColourValue col = use_rainbow ?

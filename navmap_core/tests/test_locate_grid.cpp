@@ -16,7 +16,9 @@
 #include <gtest/gtest.h>
 #include "navmap_core/NavMap.hpp"
 
-using namespace navmap;
+using navmap::NavCelId;
+using navmap::NavMap;
+using navmap::Surface;
 
 TEST(NavMap_LocateGrid, MultiFloorsChoosesClosestByDz)
 {
@@ -46,6 +48,6 @@ TEST(NavMap_LocateGrid, MultiFloorsChoosesClosestByDz)
   size_t sidx; NavCelId cid; Eigen::Vector3f bary; Eigen::Vector3f hit;
   bool ok = nm.locate_navcel(p, sidx, cid, bary, &hit);
   ASSERT_TRUE(ok);
-  EXPECT_EQ(sidx, 1u); // should pick upper floor
+  EXPECT_EQ(sidx, 1u);  // should pick upper floor
   EXPECT_NEAR(hit.z(), 3.0f, 1e-6);
 }

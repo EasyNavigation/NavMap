@@ -14,20 +14,18 @@
 // limitations under the License.
 
 
+#include <unistd.h>
+
 #include <fstream>
 #include <vector>
 #include <cstring>
-#include <unistd.h>
 #include <cerrno>
 
 #include "navmap_ros/navmap_io.hpp"
-
 #include "navmap_core/NavMap.hpp"
 #include "navmap_ros/conversions.hpp"
-
-
-#include <rclcpp/serialized_message.hpp>
-#include <rclcpp/serialization.hpp>
+#include "rclcpp/serialized_message.hpp"
+#include "rclcpp/serialization.hpp"
 
 namespace navmap_ros::io
 {
@@ -43,7 +41,7 @@ inline void set_error(std::error_code * ec, int ev = EIO)
   if (ec) {*ec = std::error_code(ev, std::generic_category());}
 }
 
-} // namespace
+}  // namespace
 
 bool save_msg_to_file(
   const navmap_ros_interfaces::msg::NavMap & msg,
@@ -161,4 +159,4 @@ bool load_from_file(
   return true;
 }
 
-} // namespace navmap_ros::io
+}  // namespace navmap_ros::io

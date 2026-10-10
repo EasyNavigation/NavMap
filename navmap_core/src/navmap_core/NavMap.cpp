@@ -42,7 +42,7 @@ inline std::uint64_t fnv1a64(
   }
   return h;
 }
-} // namespace
+}  // namespace
 
 NavMap::NavMap()
 {
@@ -696,7 +696,7 @@ bool NavMap::locate_navcel_core(
       const Vec3 c = positions.at(tri.v[2]);
       Vec3 bary_tmp;
       if (!point_in_triangle_bary(h.p, a, b, c, bary_tmp, opts.planar_eps)) {
-        continue; // numerical guard
+        continue;  // numerical guard
       }
       if (dz < best_dz) {
         best_dz = dz;
