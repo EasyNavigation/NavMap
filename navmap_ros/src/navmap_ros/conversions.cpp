@@ -568,7 +568,7 @@ bool build_navmap_from_mesh(
 
     navmap_ros_interfaces::msg::NavMapLayer layer;
     layer.name = "elevation";
-    layer.type = 1; // F32
+    layer.type = 1;  // F32
     layer.data_f32 = std::move(elev);
     out_msg.layers.push_back(std::move(layer));
   }
@@ -1133,9 +1133,9 @@ navmap::NavMap from_points(
   // Z windows around the expanding boundary (keeps ramps but avoids jumps)
   const float z_window_seed = std::max(P.max_dz, 0.35f);
 
-  std::vector<std::pair<size_t, size_t>> surf_tri_ranges; // [offset, count]
+  std::vector<std::pair<size_t, size_t>> surf_tri_ranges;  // [offset, count]
 
-  RejectCounts global_rej{}; // still used to track precheck stats (no logging)
+  RejectCounts global_rej{};  // still used to track precheck stats (no logging)
 
   for (int seed_idx : order) {
     if (used_vertex[seed_idx]) {continue;}
@@ -1490,4 +1490,4 @@ navmap::NavMap from_pointcloud2(
   return from_points(input_points, out_msg, params);
 }
 
-} // namespace navmap_ros
+}  // namespace navmap_ros

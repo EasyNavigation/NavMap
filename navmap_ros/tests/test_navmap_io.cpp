@@ -13,18 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
-#include <rclcpp/serialization.hpp>
-#include <rclcpp/serialized_message.hpp>
+#include <unistd.h>
 
 #include <filesystem>
 #include <vector>
 #include <string>
-#include <unistd.h>
 #include <unordered_map>
 
+#include "gtest/gtest.h"
+#include "rclcpp/serialization.hpp"
+#include "rclcpp/serialized_message.hpp"
 #include "std_msgs/msg/header.hpp"
-
 #include "navmap_core/NavMap.hpp"
 #include "navmap_ros/conversions.hpp"
 #include "navmap_ros/navmap_io.hpp"
@@ -56,7 +55,7 @@ void fill_basic_header(navmap_ros_interfaces::msg::NavMap & msg, const std::stri
   // leave stamp default
 }
 
-} // namespace
+}  // namespace
 
 // --- helpers: semantic comparison for messages ---
 
@@ -136,13 +135,13 @@ static void ExpectNavMapMsgEqualSemantic(
     EXPECT_EQ(La->type, Lb->type) << "layer type mismatch for " << name;
 
     switch (La->type) {
-      case 0: // u8
+      case 0:  // u8
         ExpectVecEq(La->data_u8, Lb->data_u8, (name + ".data_u8").c_str());
         break;
-      case 1: // f32
+      case 1:  // f32
         ExpectVecFloatEq(La->data_f32, Lb->data_f32, (name + ".data_f32").c_str());
         break;
-      case 2: // f64
+      case 2:  // f64
         ExpectVecNear64(La->data_f64, Lb->data_f64, (name + ".data_f64").c_str());
         break;
       default:
@@ -194,7 +193,7 @@ TEST(NavMapIoMsg, SingleTriangleWithU8AndVertexRGBA)
   // U8 layer with one value
   navmap_ros_interfaces::msg::NavMapLayer layer_u8;
   layer_u8.name = "occupancy_like";
-  layer_u8.type = 0; // u8
+  layer_u8.type = 0;  // u8
   layer_u8.data_u8 = {42};
   msg.layers.push_back(layer_u8);
 
@@ -291,29 +290,28 @@ TEST(NavMapIoCore, RoundtripViaCoreAndMsgCompare)
   f32.name = "cost"; f32.type = 1; f32.data_f32 = {0.1f, 0.5f, 1.0f};
   msg.layers = {u8, f32};
 
-// msg -> core
-std_msgs::msg::Header h_in;
-navmap::NavMap core = navmap_ros::from_msg(msg, h_in);
-EXPECT_EQ(h_in.frame_id, msg.header.frame_id);
+  // msg -> core
+  std_msgs::msg::Header h_in;
+  navmap::NavMap core = navmap_ros::from_msg(msg, h_in);
+  EXPECT_EQ(h_in.frame_id, msg.header.frame_id);
 
-// save(core) -> load(core)
-std::string path = (std::filesystem::temp_directory_path() /
+  // save(core) -> load(core)
+  std::string path = (std::filesystem::temp_directory_path() /
     ("core_roundtrip_" + std::to_string(::getpid()) + ".navmap")).string();
-std::error_code ec;
-ASSERT_TRUE(navmap_ros::io::save_to_file(core, path, {}, &ec)) << ec.message();
+  std::error_code ec;
+  ASSERT_TRUE(navmap_ros::io::save_to_file(core, path, {}, &ec)) << ec.message();
 
-navmap::NavMap core_loaded;
-ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.message();
+  navmap::NavMap core_loaded;
+  ASSERT_TRUE(navmap_ros::io::load_from_file(path, core_loaded, &ec)) << ec.message();
 
-// core -> msg
-std_msgs::msg::Header h_out;
-h_out.frame_id = msg.header.frame_id;
-auto msg_from_core = navmap_ros::to_msg(core, h_out);
-auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded, h_out);
+  // core -> msg
+  std_msgs::msg::Header h_out;
+  h_out.frame_id = msg.header.frame_id;
+  auto msg_from_core = navmap_ros::to_msg(core, h_out);
+  auto msg_from_core_loaded = navmap_ros::to_msg(core_loaded, h_out);
 
-// Semantic comparison (order and FP tolerant)
-ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);
+  // Semantic comparison (order and FP tolerant)
+  ExpectNavMapMsgEqualSemantic(msg_from_core, msg_from_core_loaded);
 
-std::filesystem::remove(path);
   std::filesystem::remove(path);
 }

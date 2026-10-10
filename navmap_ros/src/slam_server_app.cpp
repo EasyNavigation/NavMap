@@ -29,7 +29,7 @@ class SLAMServerNode : public rclcpp::Node
 public:
   RCLCPP_SMART_PTR_DEFINITIONS(SLAMServerNode)
 
-  SLAMServerNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
+  explicit SLAMServerNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
   : Node("slam_server_node", options)
   {
     navmap_pub_ = create_publisher<navmap_ros_interfaces::msg::NavMap>("navmap",

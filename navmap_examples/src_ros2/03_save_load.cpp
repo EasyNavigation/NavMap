@@ -15,9 +15,10 @@
 
 
 // Guardar/cargar NavMap en JSON muy simple (demo) — geometría + una capa U8
-#include <rclcpp/rclcpp.hpp>
 #include <fstream>
-#include <nlohmann/json.hpp>
+
+#include "rclcpp/rclcpp.hpp"
+#include "nlohmann/json.hpp"
 #include "navmap_core/NavMap.hpp"
 
 using json = nlohmann::json;
@@ -27,7 +28,7 @@ static void save_json(const navmap::NavMap & nm, const std::string & path)
   json j;
   j["x"] = nm.positions.x; j["y"] = nm.positions.y; j["z"] = nm.positions.z;
   j["tris"] = json::array();
-  for (const auto & c: nm.navcels) {
+  for (const auto & c : nm.navcels) {
     j["tris"].push_back({c.v[0], c.v[1], c.v[2]});
   }
   // Solo capa "occupancy" si existe

@@ -27,10 +27,9 @@
 #include <string>
 #include <vector>
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/search/kdtree.h>
-
+#include "pcl/io/pcd_io.h"
+#include "pcl/point_types.h"
+#include "pcl/search/kdtree.h"
 #include "navmap_ros/conversions.hpp"
 #include "navmap_ros/navmap_io.hpp"
 

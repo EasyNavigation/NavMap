@@ -226,7 +226,7 @@ TEST(NavMap_EasyAPI, AddSurfaceMoveOverload)
   Surface s = nm.create_surface_obj("map");
   s.navcels.clear();
   std::size_t idx1 = nm.add_surface(s);           // by copy
-  std::size_t idx2 = nm.add_surface(std::move(s)); // by move
+  std::size_t idx2 = nm.add_surface(std::move(s));  // by move
   EXPECT_EQ(idx1, 0u);
   EXPECT_EQ(idx2, 1u);
   EXPECT_EQ(nm.surfaces.size(), 2u);
@@ -363,7 +363,7 @@ TEST(NavMap_SetArea, TypeMismatchReturnsFalseAndDoesNotModifyData)
 static void make_grid(NavMap & nm, int nx, int ny, float z = 0.0f)
 {
   // Build a [0,1]x[0,1] plane subdivided in nx*ny quads, 2 triangles per quad
-  nm.create_surface("map"); // index 0
+  nm.create_surface("map");  // index 0
   auto addv = [&](float x, float y) {
       return nm.add_vertex(Eigen::Vector3f(x, y, z));
     };

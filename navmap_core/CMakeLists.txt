@@ -38,8 +38,10 @@ install(TARGETS
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  set(ament_cmake_copyright_FOUND TRUE)
-  set(ament_cmake_cpplint_FOUND TRUE)
+  # Humble's ament_copyright does not recognize the license with the EasyNav line in the header
+  if("$ENV{ROS_DISTRO}" STREQUAL "humble")
+    list(APPEND AMENT_LINT_AUTO_EXCLUDE ament_cmake_copyright)
+  endif()
   ament_lint_auto_find_test_dependencies()
 
   find_package(ament_cmake_gtest REQUIRED)

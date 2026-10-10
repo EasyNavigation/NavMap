@@ -16,7 +16,9 @@
 #include <gtest/gtest.h>
 #include "navmap_core/NavMap.hpp"
 
-using namespace navmap;
+using navmap::NavMap;
+using navmap::Ray;
+using navmap::RayHit;
 
 TEST(NavMap_RaycastMany, FlatFloorBatchHits)
 {

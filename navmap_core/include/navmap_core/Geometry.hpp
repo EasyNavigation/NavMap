@@ -26,14 +26,15 @@
  *  - Closest point on triangle and point–triangle distance.
  */
 
-#ifndef NAVMAP_CORE__GEOMETRY_HPP
-#define NAVMAP_CORE__GEOMETRY_HPP
+#ifndef NAVMAP_CORE__GEOMETRY_HPP_
+#define NAVMAP_CORE__GEOMETRY_HPP_
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <limits>
 #include <cmath>
 #include <algorithm>
+#include <utility>
 
 namespace navmap
 {
@@ -376,4 +377,4 @@ inline float point_triangle_squared_distance(
 
 }  // namespace navmap
 
-#endif  // NAVMAP_CORE__GEOMETRY_HPP
+#endif  // NAVMAP_CORE__GEOMETRY_HPP_

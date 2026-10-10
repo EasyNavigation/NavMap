@@ -1,22 +1,17 @@
 // Copyright 2025 Intelligent Robotics Lab
 //
 // This file is part of the project Easy Navigation (EasyNav in short)
-// licensed under the GNU General Public License v3.0.
-// See <http://www.gnu.org/licenses/> for details.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// Easy Navigation program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3.0, or
-// (at your option) any later version.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <http://www.gnu.org/licenses/>.
-
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include <gtest/gtest.h>
 #include <cstdint>
@@ -25,7 +20,9 @@
 
 #include "navmap_core/NavMap.hpp"
 
-using namespace navmap;
+using navmap::LayerView;
+using navmap::NavMap;
+using navmap::layer_type_tag;
 
 namespace
 {
@@ -44,7 +41,7 @@ void fill_one_tri_map(NavMap & m)
     auto occ = m.layers.add_or_get<uint8_t>("occ", 1, layer_type_tag<uint8_t>());
     auto & v = occ->mutable_data();
     v.resize(1);
-    v[0] = 254; // occupied (black)
+    v[0] = 254;  // occupied (black)
     m.layer_meta["occ"].description = "occupancy";
     m.layer_meta["occ"].unit = "";
     m.layer_meta["occ"].per_cell = true;
@@ -69,7 +66,7 @@ void fill_one_tri_map_variant(NavMap & m)
 
   if (auto occ = std::dynamic_pointer_cast<LayerView<uint8_t>>(m.layers.get("occ"))) {
     auto & v = occ->mutable_data();
-    v[0] = 0; // free (white)
+    v[0] = 0;  // free (white)
   }
   if (auto cost = std::dynamic_pointer_cast<LayerView<float>>(m.layers.get("cost"))) {
     auto & v = cost->mutable_data();
@@ -88,12 +85,12 @@ void fill_one_tri_map_variant(NavMap & m)
   }
 }
 
-} // namespace
+}  // namespace
 
 TEST(NavMapAssign, CopiesOnlyLayersWhenGeometryEqualAndRemovesExtras)
 {
   NavMap src; fill_one_tri_map(src);
-  NavMap dst; fill_one_tri_map_variant(dst); // has extra layer and different values
+  NavMap dst; fill_one_tri_map_variant(dst);  // has extra layer and different values
 
   // Keep destination geometry pointers to verify geometry is not rebuilt
   const float * px = dst.positions.x.data();
@@ -206,7 +203,7 @@ TEST(NavMapAssign, HashSkipsCopyWhenLayerIdentical)
   auto occ_dst_after = std::dynamic_pointer_cast<LayerView<uint8_t>>(dst.layers.get("occ"));
   ASSERT_TRUE(occ_dst_after);
   const uint8_t * occ_ptr_after = occ_dst_after->data().data();
-  EXPECT_EQ(occ_ptr_before, occ_ptr_after); // same backing storage
+  EXPECT_EQ(occ_ptr_before, occ_ptr_after);  // same backing storage
 
   // Content must still be equal
   auto occ_src = std::dynamic_pointer_cast<LayerView<uint8_t>>(src.layers.get("occ"));

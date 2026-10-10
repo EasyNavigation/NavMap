@@ -14,33 +14,28 @@
 // limitations under the License.
 
 
-#ifndef NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
-#define NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
+#ifndef NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
+#define NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
 
 #include <cstdint>
 #include <string>
 #include <unordered_map>
 
-#include <QObject>
-
-#include <OgreHardwareVertexBuffer.h>
-#include <OgreMesh.h>
-
-#include <rclcpp/qos.hpp>
-#include <rclcpp/subscription.hpp>
-
-#include <rviz_common/message_filter_display.hpp>
-#include <rviz_common/properties/bool_property.hpp>
-#include <rviz_common/properties/enum_property.hpp>
-#include <rviz_common/properties/float_property.hpp>
-#include <rviz_common/properties/qos_profile_property.hpp>
-#include <rviz_common/properties/ros_topic_property.hpp>
-#include <rviz_common/properties/string_property.hpp>
-#include <rviz_common/display_context.hpp>
-
-#include <navmap_ros_interfaces/msg/nav_map.hpp>
-#include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
-
+#include "QObject"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreMesh.h"
+#include "rclcpp/qos.hpp"
+#include "rclcpp/subscription.hpp"
+#include "rviz_common/message_filter_display.hpp"
+#include "rviz_common/properties/bool_property.hpp"
+#include "rviz_common/properties/enum_property.hpp"
+#include "rviz_common/properties/float_property.hpp"
+#include "rviz_common/properties/qos_profile_property.hpp"
+#include "rviz_common/properties/ros_topic_property.hpp"
+#include "rviz_common/properties/string_property.hpp"
+#include "rviz_common/display_context.hpp"
+#include "navmap_ros_interfaces/msg/nav_map.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "navmap_core/NavMap.hpp"
 
 #if defined _WIN32 || defined __CYGWIN__
@@ -164,10 +159,10 @@ private:
   Ogre::Entity * entity_{nullptr};
   Ogre::SharedPtr<Ogre::Mesh> mesh_;  // Ogre::MeshPtr
   Ogre::HardwareVertexBufferSharedPtr colour_vbuf_;
-  unsigned short colour_vbuf_source_{0};   // which stream holds VES_DIFFUSE
+  uint16_t colour_vbuf_source_{0};   // which stream holds VES_DIFFUSE
   bool mesh_built_{false};
 };
 
 }  // namespace navmap_rviz_plugin
 
-#endif  // NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
+#endif  // NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
