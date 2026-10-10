@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['o_0',['o',['../structnavmap_1_1Ray.html#a39bf78a4874a184484ae2a12923ce16d',1,'navmap::Ray']]],
+  ['o_0',['o',['../structnavmap_1_1Ray.html#a39bf78a4874a184484ae2a12923ce16d',1,'navmap::Ray::o'],['../structRay.html#a39bf78a4874a184484ae2a12923ce16d',1,'Ray::o']]],
   ['occupancy_1',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['occupancy_20mapping_2',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md45',1,'']]],
   ['ogre_3',['Ogre',['../namespaceOgre.html',1,'']]],

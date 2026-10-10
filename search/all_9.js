@@ -8,7 +8,7 @@ var searchData=
   ['a_20minimal_20navmap_20single_20square_20floor_20with_20two_20triangles_5',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]],
   ['a_20per_20navcel_20layer_20cost_20or_20occupancy_6',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['a_20world_20position_7',['5. Sample a layer at a world position',['../index.html#autotoc_md21',1,'']]],
-  ['aabb_8',['AABB',['../structnavmap_1_1AABB.html',1,'navmap']]],
+  ['aabb_8',['AABB',['../structAABB.html',1,'AABB'],['../structnavmap_1_1AABB.html',1,'AABB']]],
   ['aabb_9',['aabb',['../structnavmap_1_1Surface.html#a95046b5339e3da4ec2390999706ff853',1,'navmap::Surface::aabb'],['../structSurface.html#a95046b5339e3da4ec2390999706ff853',1,'Surface::aabb']]],
   ['acknowledgements_10',['🙏 Acknowledgements',['../index.html#autotoc_md44',1,'']]],
   ['activate_11',['activate',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a845dfaf49190e87b0c29ed0bd5948c5b',1,'navmap_rviz_plugin::NavMapPoseTool']]],

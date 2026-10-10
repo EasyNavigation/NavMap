@@ -1,12 +1,12 @@
 var searchData=
 [
   ['r_0',['r',['../structnavmap_1_1Colors.html#a4ce64fddb5ca7dee7f92556ffddcb7c8',1,'navmap::Colors']]],
-  ['ray_1',['Ray',['../structnavmap_1_1Ray.html',1,'navmap']]],
-  ['ray_5ftriangle_5fintersect_2',['ray_triangle_intersect',['../namespacenavmap.html#a62d9baa8d9422826604fe3f1a86d9398',1,'navmap']]],
+  ['ray_1',['Ray',['../structnavmap_1_1Ray.html',1,'Ray'],['../structRay.html',1,'Ray']]],
+  ['ray_5ftriangle_5fintersect_2',['ray_triangle_intersect',['../namespacenavmap.html#a62d9baa8d9422826604fe3f1a86d9398',1,'navmap::ray_triangle_intersect()'],['../test__geometry_8cpp.html#a62d9baa8d9422826604fe3f1a86d9398',1,'ray_triangle_intersect():&#160;Geometry.hpp']]],
   ['raycast_3',['raycast',['../classnavmap_1_1NavMap.html#ae06d6240e61c1e07bb574d3ea40376e1',1,'navmap::NavMap::raycast()'],['../classNavMap.html#ae06d6240e61c1e07bb574d3ea40376e1',1,'NavMap::raycast()']]],
   ['raycast_5fmany_4',['raycast_many',['../classnavmap_1_1NavMap.html#a1a19ac67ff1cef1298b7f824d26ef786',1,'navmap::NavMap::raycast_many()'],['../classNavMap.html#a1a19ac67ff1cef1298b7f824d26ef786',1,'NavMap::raycast_many()']]],
   ['raycasting_5',['6. Raycasting',['../index.html#autotoc_md23',1,'']]],
-  ['rayhit_6',['RayHit',['../structnavmap_1_1RayHit.html',1,'navmap']]],
+  ['rayhit_6',['RayHit',['../structnavmap_1_1RayHit.html',1,'RayHit'],['../structRayHit.html',1,'RayHit']]],
   ['read_20a_20layer_20value_20for_20a_20given_20navcel_7',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md17',1,'']]],
   ['readme_2emd_8',['README.md',['../README_8md.html',1,'']]],
   ['rebuild_5fgeometry_5faccels_9',['rebuild_geometry_accels',['../classnavmap_1_1NavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'navmap::NavMap::rebuild_geometry_accels()'],['../classNavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'NavMap::rebuild_geometry_accels()']]],

@@ -105,29 +105,32 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 </div><!--header-->
 <div class="contents">
 
-<p>Low-level geometry utilities for <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> cells (triangles), AABB and basic queries such as ray-triangle intersection and closest-point.  
+<p>Low-level geometry utilities for <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> cells (triangles), <a class="el" href="structAABB.html" title="Axis-aligned bounding box.">AABB</a> and basic queries such as ray-triangle intersection and closest-point.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;Eigen/Core&gt;</code><br />
 <code>#include &lt;Eigen/Geometry&gt;</code><br />
 <code>#include &lt;limits&gt;</code><br />
 <code>#include &lt;cmath&gt;</code><br />
 <code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;utility&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for Geometry.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="Geometry_8hpp__incl.png" border="0" usemap="#anavmap__core_2include_2navmap__core_2Geometry_8hpp" loading="lazy" alt=""/></div>
 <map name="anavmap__core_2include_2navmap__core_2Geometry_8hpp" id="anavmap__core_2include_2navmap__core_2Geometry_8hpp">
-<area shape="rect" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="183,5,370,46"/>
+<area shape="rect" title="Low&#45;level geometry utilities for NavMap cells (triangles), AABB and basic queries such as ray&#45;triangl..." alt="" coords="222,5,409,46"/>
 <area shape="rect" title=" " alt="" coords="5,94,90,120"/>
-<area shape="poly" title=" " alt="" coords="220,49,98,91,96,86,219,44"/>
+<area shape="poly" title=" " alt="" coords="249,49,104,92,102,87,248,44"/>
 <area shape="rect" title=" " alt="" coords="114,94,227,120"/>
-<area shape="poly" title=" " alt="" coords="252,49,200,87,197,82,249,44"/>
+<area shape="poly" title=" " alt="" coords="280,49,207,89,204,84,278,44"/>
 <area shape="rect" title=" " alt="" coords="251,94,303,120"/>
-<area shape="poly" title=" " alt="" coords="280,46,280,78,274,78,274,46"/>
+<area shape="poly" title=" " alt="" coords="308,48,292,81,287,79,304,45"/>
 <area shape="rect" title=" " alt="" coords="327,94,384,120"/>
-<area shape="poly" title=" " alt="" coords="298,45,335,81,331,85,294,48"/>
+<area shape="poly" title=" " alt="" coords="328,45,345,79,340,81,323,48"/>
 <area shape="rect" title=" " alt="" coords="408,94,482,120"/>
-<area shape="poly" title=" " alt="" coords="320,44,406,85,404,89,318,49"/>
+<area shape="poly" title=" " alt="" coords="349,44,414,83,411,88,346,49"/>
+<area shape="rect" title=" " alt="" coords="506,94,557,120"/>
+<area shape="poly" title=" " alt="" coords="370,44,492,88,491,93,369,49"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -217,11 +220,11 @@ Functions</h2></td></tr>
 <tr class="memdesc:a60e8da02e5b45b0ffc00e6d31ec96afa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a unit normal of triangle ABC.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Low-level geometry utilities for <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> cells (triangles), AABB and basic queries such as ray-triangle intersection and closest-point. </p>
+<div class="textblock"><p>Low-level geometry utilities for <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> cells (triangles), <a class="el" href="structAABB.html" title="Axis-aligned bounding box.">AABB</a> and basic queries such as ray-triangle intersection and closest-point. </p>
 <p>This header is intentionally lightweight and header-only to enable aggressive inlining by the compiler. It provides:</p><ul>
 <li>Basic triangle primitives (area, normal).</li>
 <li>Robust Möller–Trumbore ray–triangle intersection.</li>
-<li>AABB with robust ray-box intersection and XY containment helpers.</li>
+<li><a class="el" href="structAABB.html" title="Axis-aligned bounding box.">AABB</a> with robust ray-box intersection and XY containment helpers.</li>
 <li>Closest point on triangle and point–triangle distance. </li>
 </ul>
 </div></div><!-- contents -->

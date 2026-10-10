@@ -214,7 +214,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a8f722995f4482cc0933e9d02af566af6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment.  <br /></td></tr>
 <tr class="memitem:ae06d6240e61c1e07bb574d3ea40376e1" id="r_ae06d6240e61c1e07bb574d3ea40376e1"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ae06d6240e61c1e07bb574d3ea40376e1">raycast</a> (const Eigen::Vector3f &amp;o, const Eigen::Vector3f &amp;d, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;hit_cid, float &amp;t, Eigen::Vector3f &amp;hit_pt) const</td></tr>
 <tr class="memdesc:ae06d6240e61c1e07bb574d3ea40376e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raycast against all surfaces to find the closest hit.  <br /></td></tr>
-<tr class="memitem:a1a19ac67ff1cef1298b7f824d26ef786" id="r_a1a19ac67ff1cef1298b7f824d26ef786"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a1a19ac67ff1cef1298b7f824d26ef786">raycast_many</a> (const std::vector&lt; <a class="el" href="structnavmap_1_1Ray.html">Ray</a> &gt; &amp;rays, std::vector&lt; <a class="el" href="structnavmap_1_1RayHit.html">RayHit</a> &gt; &amp;out, bool first_hit_only=true) const</td></tr>
+<tr class="memitem:a1a19ac67ff1cef1298b7f824d26ef786" id="r_a1a19ac67ff1cef1298b7f824d26ef786"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a1a19ac67ff1cef1298b7f824d26ef786">raycast_many</a> (const std::vector&lt; <a class="el" href="structRay.html">Ray</a> &gt; &amp;rays, std::vector&lt; <a class="el" href="structRayHit.html">RayHit</a> &gt; &amp;out, bool first_hit_only=true) const</td></tr>
 <tr class="memdesc:a1a19ac67ff1cef1298b7f824d26ef786"><td class="mdescLeft">&#160;</td><td class="mdescRight">Batched raycast.  <br /></td></tr>
 <tr class="memitem:aeb8444f2290bd34e7904f036ebf17ab1" id="r_aeb8444f2290bd34e7904f036ebf17ab1"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1">rebuild_geometry_accels</a> ()</td></tr>
 <tr class="memdesc:aeb8444f2290bd34e7904f036ebf17ab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recompute derived geometry and acceleration structures.  <br /></td></tr>
@@ -1305,12 +1305,12 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="memname">void raycast_many </td>
           <td>(</td>
-          <td class="paramtype">const std::vector&lt; <a class="el" href="structnavmap_1_1Ray.html">Ray</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>rays</em></span>, </td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structRay.html">Ray</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>rays</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="structnavmap_1_1RayHit.html">RayHit</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span>, </td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="structRayHit.html">RayHit</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

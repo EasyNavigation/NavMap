@@ -139,11 +139,11 @@ Collaboration diagram for LayerView&lt; T &gt;:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aec9cb5dc10183bdc496c97625a6721e9" id="r_aec9cb5dc10183bdc496c97625a6721e9"><td class="memItemLeft">std::vector&lt; T &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#aec9cb5dc10183bdc496c97625a6721e9">data</a> ()</td></tr>
 <tr class="memitem:a23f1e1f0d40be1fdc3a701bd824535bd" id="r_a23f1e1f0d40be1fdc3a701bd824535bd"><td class="memItemLeft">const std::vector&lt; T &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a23f1e1f0d40be1fdc3a701bd824535bd">data</a> () const</td></tr>
-<tr class="memitem:ae0eb6b8ec26a2ad3f1e5c3645d922056" id="r_ae0eb6b8ec26a2ad3f1e5c3645d922056"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#ae0eb6b8ec26a2ad3f1e5c3645d922056">LayerView</a> (std::string name, size_t nitems, LayerType t)</td></tr>
+<tr class="memitem:ae0eb6b8ec26a2ad3f1e5c3645d922056" id="r_ae0eb6b8ec26a2ad3f1e5c3645d922056"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#ae0eb6b8ec26a2ad3f1e5c3645d922056">LayerView</a> (std::string name, size_t nitems, <a class="el" href="namespacenavmap.html#a5917577db02be1f1e02673723942f472">LayerType</a> t)</td></tr>
 <tr class="memdesc:ae0eb6b8ec26a2ad3f1e5c3645d922056"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a typed view.  <br /></td></tr>
 <tr class="memitem:a8a0d2b7dfdad1504296ddb6685bd4b30" id="r_a8a0d2b7dfdad1504296ddb6685bd4b30"><td class="memItemLeft">const std::string &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a8a0d2b7dfdad1504296ddb6685bd4b30">name</a> () const override</td></tr>
 <tr class="memitem:ad7701a09a964eab360a8e51fa7ad2c16" id="r_ad7701a09a964eab360a8e51fa7ad2c16"><td class="memItemLeft">size_t&#160;</td><td class="memItemRight"><a class="el" href="#ad7701a09a964eab360a8e51fa7ad2c16">size</a> () const override</td></tr>
-<tr class="memitem:a73201966aa8d0a76cc56a942351544c8" id="r_a73201966aa8d0a76cc56a942351544c8"><td class="memItemLeft">LayerType&#160;</td><td class="memItemRight"><a class="el" href="#a73201966aa8d0a76cc56a942351544c8">type</a> () const override</td></tr>
+<tr class="memitem:a73201966aa8d0a76cc56a942351544c8" id="r_a73201966aa8d0a76cc56a942351544c8"><td class="memItemLeft"><a class="el" href="namespacenavmap.html#a5917577db02be1f1e02673723942f472">LayerType</a>&#160;</td><td class="memItemRight"><a class="el" href="#a73201966aa8d0a76cc56a942351544c8">type</a> () const override</td></tr>
 <tr id="pub-methods-0" class="groupHeader"><td colspan="2"><div class="groupHeader">Element access (indexed by NavCelId).</div></td></tr>
 <tr class="memitem:ab3d4ad35b3316b963d838b84bc9112b0" id="r_ab3d4ad35b3316b963d838b84bc9112b0"><td class="memItemLeft">T &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ab3d4ad35b3316b963d838b84bc9112b0">operator[]</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid)</td></tr>
 <tr class="memitem:a9057cb89a7fa4e42e4cd1d56374f444e" id="r_a9057cb89a7fa4e42e4cd1d56374f444e"><td class="memItemLeft">const T &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a9057cb89a7fa4e42e4cd1d56374f444e">operator[]</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
@@ -163,7 +163,7 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a50e48a2b8e3773b3ab9af0e5cccd87b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Values, one per NavCel.  <br /></td></tr>
 <tr class="memitem:a4d739cc5d335052eb9f5b2ca559b81d1" id="r_a4d739cc5d335052eb9f5b2ca559b81d1"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a4d739cc5d335052eb9f5b2ca559b81d1">name_</a></td></tr>
 <tr class="memdesc:a4d739cc5d335052eb9f5b2ca559b81d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer name (key in the registry).  <br /></td></tr>
-<tr class="memitem:a6f33e13dd35f25a5a59890c83311ee80" id="r_a6f33e13dd35f25a5a59890c83311ee80"><td class="memItemLeft">LayerType&#160;</td><td class="memItemRight"><a class="el" href="#a6f33e13dd35f25a5a59890c83311ee80">type_</a></td></tr>
+<tr class="memitem:a6f33e13dd35f25a5a59890c83311ee80" id="r_a6f33e13dd35f25a5a59890c83311ee80"><td class="memItemLeft"><a class="el" href="namespacenavmap.html#a5917577db02be1f1e02673723942f472">LayerType</a>&#160;</td><td class="memItemRight"><a class="el" href="#a6f33e13dd35f25a5a59890c83311ee80">type_</a></td></tr>
 <tr class="memdesc:a6f33e13dd35f25a5a59890c83311ee80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime type tag (must match <code class="param">T</code>).  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-inherited" class="groupheader"><a id="inherited" name="inherited"></a>
@@ -204,7 +204,7 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">LayerType</td>          <td class="paramname"><span class="paramname"><em>t</em></span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#a5917577db02be1f1e02673723942f472">LayerType</a></td>          <td class="paramname"><span class="paramname"><em>t</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -441,7 +441,7 @@ template&lt;typename T&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">LayerType type </td>
+          <td class="memname"><a class="el" href="namespacenavmap.html#a5917577db02be1f1e02673723942f472">LayerType</a> type </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td> const</td>
@@ -505,7 +505,7 @@ template&lt;typename T&gt; </div>
 template&lt;typename T&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">LayerType type_</td>
+          <td class="memname"><a class="el" href="namespacenavmap.html#a5917577db02be1f1e02673723942f472">LayerType</a> type_</td>
         </tr>
       </table>
 </div><div class="memdoc">

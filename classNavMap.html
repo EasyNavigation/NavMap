@@ -191,7 +191,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:abedfcaec1d185ca8f782650a65818c97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Locate the triangle under / near a world point.  <br /></td></tr>
 <tr class="memitem:a44e3a9389e8bd73f3b993a94c72b5a7b" id="r_a44e3a9389e8bd73f3b993a94c72b5a7b"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a44e3a9389e8bd73f3b993a94c72b5a7b">locate_navcel_core</a> (const Eigen::Vector3f &amp;p_world, std::size_t &amp;surface_idx, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;cid, Eigen::Vector3f &amp;bary, Eigen::Vector3f *hit_pt, const <a class="el" href="structNavMap_1_1LocateOpts.html">LocateOpts</a> &amp;opts) const</td></tr>
 <tr class="memdesc:a44e3a9389e8bd73f3b993a94c72b5a7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forward to the existing low-level locator (implemented in .cpp).  <br /></td></tr>
-<tr class="memitem:aa72881f1ddcdc3c30ce010982d642a7e" id="r_aa72881f1ddcdc3c30ce010982d642a7e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa72881f1ddcdc3c30ce010982d642a7e">mark_vertex_updated</a> (PointId)</td></tr>
+<tr class="memitem:aa72881f1ddcdc3c30ce010982d642a7e" id="r_aa72881f1ddcdc3c30ce010982d642a7e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa72881f1ddcdc3c30ce010982d642a7e">mark_vertex_updated</a> (<a class="el" href="test__navmap_8cpp.html#ab6033fb29a33510706c3211b18a41e12">PointId</a>)</td></tr>
 <tr class="memdesc:aa72881f1ddcdc3c30ce010982d642a7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark a vertex as updated (reserved for future cache invalidation).  <br /></td></tr>
 <tr class="memitem:a23220b7bea1310d9853ca902b3576633" id="r_a23220b7bea1310d9853ca902b3576633"><td class="memItemLeft">Eigen::Vector3f&#160;</td><td class="memItemRight"><a class="el" href="#a23220b7bea1310d9853ca902b3576633">navcel_centroid</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
 <tr class="memdesc:a23220b7bea1310d9853ca902b3576633"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triangle centroid (computed on the fly).  <br /></td></tr>
@@ -210,7 +210,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a8f722995f4482cc0933e9d02af566af6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment.  <br /></td></tr>
 <tr class="memitem:ae06d6240e61c1e07bb574d3ea40376e1" id="r_ae06d6240e61c1e07bb574d3ea40376e1"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ae06d6240e61c1e07bb574d3ea40376e1">raycast</a> (const Eigen::Vector3f &amp;o, const Eigen::Vector3f &amp;d, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;hit_cid, float &amp;t, Eigen::Vector3f &amp;hit_pt) const</td></tr>
 <tr class="memdesc:ae06d6240e61c1e07bb574d3ea40376e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raycast against all surfaces to find the closest hit.  <br /></td></tr>
-<tr class="memitem:a1a19ac67ff1cef1298b7f824d26ef786" id="r_a1a19ac67ff1cef1298b7f824d26ef786"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a1a19ac67ff1cef1298b7f824d26ef786">raycast_many</a> (const std::vector&lt; Ray &gt; &amp;rays, std::vector&lt; RayHit &gt; &amp;out, bool first_hit_only=true) const</td></tr>
+<tr class="memitem:a1a19ac67ff1cef1298b7f824d26ef786" id="r_a1a19ac67ff1cef1298b7f824d26ef786"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a1a19ac67ff1cef1298b7f824d26ef786">raycast_many</a> (const std::vector&lt; <a class="el" href="structRay.html">Ray</a> &gt; &amp;rays, std::vector&lt; <a class="el" href="structRayHit.html">RayHit</a> &gt; &amp;out, bool first_hit_only=true) const</td></tr>
 <tr class="memdesc:a1a19ac67ff1cef1298b7f824d26ef786"><td class="mdescLeft">&#160;</td><td class="mdescRight">Batched raycast.  <br /></td></tr>
 <tr class="memitem:aeb8444f2290bd34e7904f036ebf17ab1" id="r_aeb8444f2290bd34e7904f036ebf17ab1"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1">rebuild_geometry_accels</a> ()</td></tr>
 <tr class="memdesc:aeb8444f2290bd34e7904f036ebf17ab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recompute derived geometry and acceleration structures.  <br /></td></tr>
@@ -1102,7 +1102,7 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="memname">void mark_vertex_updated </td>
           <td>(</td>
-          <td class="paramtype">PointId</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="test__navmap_8cpp.html#ab6033fb29a33510706c3211b18a41e12">PointId</a></td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -1280,8 +1280,8 @@ template&lt;typename T&gt; </div>
 <p>Raycast against all surfaces to find the closest hit. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">o</td><td>Ray origin (world). </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">d</td><td>Ray direction (normalized). </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">o</td><td><a class="el" href="structRay.html" title="Simple ray (origin + direction).">Ray</a> origin (world). </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">d</td><td><a class="el" href="structRay.html" title="Simple ray (origin + direction).">Ray</a> direction (normalized). </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">hit_cid</td><td>NavCel id hit (valid if return is true). </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">t</td><td>Distance along ray (valid if return is true). </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">hit_pt</td><td>World-space intersection point. </td></tr>
@@ -1301,12 +1301,12 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="memname">void raycast_many </td>
           <td>(</td>
-          <td class="paramtype">const std::vector&lt; Ray &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>rays</em></span>, </td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structRay.html">Ray</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>rays</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; RayHit &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span>, </td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="structRayHit.html">RayHit</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1444,7 +1444,7 @@ template&lt;typename T&gt; </div>
 
 <p>Set a per-NavCel layer to a constant value over a 2D area. </p>
 <p>The center is the ground projection of <code class="param">p_world</code>. If the projected NavCel cannot be determined, returns false. Supports U8/F32/F64 layers.</p>
-<p>Efficiency: BFS from the seed NavCel with XY AABB pruning against the circumscribed square of the area. Inclusion test by triangle centroid.</p>
+<p>Efficiency: BFS from the seed NavCel with XY <a class="el" href="structAABB.html" title="Axis-aligned bounding box.">AABB</a> pruning against the circumscribed square of the area. Inclusion test by triangle centroid.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>uint8_t, float, or double </td></tr>

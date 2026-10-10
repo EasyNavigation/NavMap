@@ -1,12 +1,12 @@
 var searchData=
 [
-  ['p_0',['p',['../structnavmap_1_1RayHit.html#a3a96810042eedd9cd982bd320412688f',1,'navmap::RayHit']]],
+  ['p_0',['p',['../structnavmap_1_1RayHit.html#a3a96810042eedd9cd982bd320412688f',1,'navmap::RayHit::p'],['../structRayHit.html#a3a96810042eedd9cd982bd320412688f',1,'RayHit::p']]],
   ['package_1',['📦 Usage (Examples package)',['../index.html#autotoc_md33',1,'']]],
   ['per_20navcel_20layer_20cost_20or_20occupancy_2',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['per_5fcell_3',['per_cell',['../structnavmap_1_1LayerMeta.html#a613b72a6d524268b27910caec7645e16',1,'navmap::LayerMeta']]],
   ['planar_5feps_4',['planar_eps',['../structnavmap_1_1NavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'navmap::NavMap::LocateOpts::planar_eps'],['../structNavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'NavMap::LocateOpts::planar_eps']]],
   ['point_5ftriangle_5fsquared_5fdistance_5',['point_triangle_squared_distance',['../namespacenavmap.html#a1e63337f4523878b0a7c1cea68a23a26',1,'navmap']]],
-  ['pointid_6',['PointId',['../namespacenavmap.html#ab6033fb29a33510706c3211b18a41e12',1,'navmap']]],
+  ['pointid_6',['PointId',['../namespacenavmap.html#ab6033fb29a33510706c3211b18a41e12',1,'navmap::PointId'],['../test__navmap_8cpp.html#ab6033fb29a33510706c3211b18a41e12',1,'PointId:&#160;NavMap.hpp'],['../test__navmap__uniform__and__closest_8cpp.html#ab6033fb29a33510706c3211b18a41e12',1,'PointId:&#160;NavMap.hpp']]],
   ['position_7',['Position',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a5d74787dedbc4e11c1ab15bf487e61f8a0ca2444163688098d8e674e31fb11397',1,'navmap_rviz_plugin::NavMapPoseTool']]],
   ['position_8',['position',['../index.html#autotoc_md19',1,'4. Locate the NavCel corresponding to a 3D position'],['../index.html#autotoc_md21',1,'5. Sample a layer at a world position']]],
   ['positions_9',['Positions',['../structnavmap_1_1Positions.html',1,'navmap']]],
