@@ -16,6 +16,7 @@
 #include "navmap_ros/conversions.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cassert>
 #include <unordered_map>
@@ -23,6 +24,10 @@
 #include <queue>
 #include <limits>
 #include <numeric>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "geometry_msgs/msg/pose.hpp"
 #include "std_msgs/msg/header.hpp"
@@ -36,7 +41,6 @@
 
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
-#include "pcl/kdtree/kdtree_flann.h"
 
 namespace navmap_ros
 {
@@ -579,312 +583,89 @@ bool build_navmap_from_mesh(
   return true;
 }
 
-// ----------------- Surface from PC2 -----------------
-
 using Triangle = Eigen::Vector3i;
 
-static inline float sqr(float v) {return v * v;}
-static inline float dist3(const pcl::PointXYZ & a, const pcl::PointXYZ & b)
-{
-  return std::sqrt(sqr(a.x - b.x) + sqr(a.y - b.y) + sqr(a.z - b.z));
-}
-
-static inline float clamp01(float x)
-{
-  if (x < 0.0f) {return 0.0f;}
-  if (x > 1.0f) {return 1.0f;}
-  return x;
-}
-
-static inline float tri_area(
-  const Eigen::Vector3f & a,
-  const Eigen::Vector3f & b,
-  const Eigen::Vector3f & c)
-{
-  return 0.5f * ((b - a).cross(c - a)).norm();
-}
-
-// Keys to avoid duplicates (edges/triangles)
-struct EdgeKey
-{
-  int a, b;
-  bool operator==(const EdgeKey & o) const noexcept {return a == o.a && b == o.b;}
-};
-struct EdgeHasher
-{
-  std::size_t operator()(const EdgeKey & e) const noexcept
-  {
-    return (static_cast<std::size_t>(e.a) << 32) ^ static_cast<std::size_t>(e.b);
-  }
-};
-static inline EdgeKey make_edge(int i, int j)
-{
-  if (i < j) {return {i, j};}
-  return {j, i};
-}
-
-struct TriKey
-{
-  int a, b, c;
-  bool operator==(const TriKey & o) const noexcept
-  {
-    return a == o.a && b == o.b && c == o.c;
-  }
-};
-struct TriHasher
-{
-  std::size_t operator()(const TriKey & t) const noexcept
-  {
-    std::size_t h = 1469598103934665603ull;
-    auto mix = [&](int k){
-        h ^= static_cast<std::size_t>(k) + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
-      };
-    mix(t.a); mix(t.b); mix(t.c);
-    return h;
-  }
-};
-static inline TriKey make_tri(int i, int j, int k)
-{
-  int v[3] = {i, j, k};
-  std::sort(v, v + 3);
-  return {v[0], v[1], v[2]};
-}
-
-inline void triangle_angles_deg(
-  const Eigen::Vector3f & A,
-  const Eigen::Vector3f & B,
-  const Eigen::Vector3f & C,
-  float & angA, float & angB, float & angC)
-{
-  // side lengths opposite to vertices A/B/C
-  float a = (B - C).norm();
-  float b = (C - A).norm();
-  float c = (A - B).norm();
-
-  const float eps = 1e-12f;
-  a = std::max(a, eps);
-  b = std::max(b, eps);
-  c = std::max(c, eps);
-
-  auto angle_from = [](float opp, float x, float y) -> float {
-      float cosv = (x * x + y * y - opp * opp) / (2.0f * x * y);
-      cosv = std::min(1.0f, std::max(-1.0f, cosv));
-      return std::acos(cosv) * 180.0f / static_cast<float>(M_PI);
-    };
-
-  angA = angle_from(a, b, c);
-  angB = angle_from(b, c, a);
-  angC = angle_from(c, a, b);
-}
-
-// ----------------- Downsampling (only what is used) -----------------
-
-struct Voxel
-{
-  int x, y, z;
-  bool operator==(const Voxel & o) const noexcept
-  {
-    return x == o.x && y == o.y && z == o.z;
-  }
-};
-
-struct VoxelHash
-{
-  std::size_t operator()(const Voxel & v) const noexcept
-  {
-    std::size_t h = 1469598103934665603ull;
-    auto mix = [&](int k) {
-        std::size_t x = static_cast<std::size_t>(k);
-        h ^= x + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
-      };
-    mix(v.x); mix(v.y); mix(v.z);
-    return h;
-  }
-};
-
-// Layered “top-Z” downsampling: one point per XY voxel, using max Z per Z-cluster.
-pcl::PointCloud<pcl::PointXYZ>
-downsample_voxelize_topZ_layered(
-  const pcl::PointCloud<pcl::PointXYZ> & input_points,
-  float resolution,
-  float dz_merge)
-{
-  pcl::PointCloud<pcl::PointXYZ> output;
-  if (input_points.empty() || !(resolution > 0.0f)) {
-    output.width = 0; output.height = 1; output.is_dense = true;
-    return output;
-  }
-  if (!(dz_merge > 0.0f)) {dz_merge = 0.30f;}
-
-  struct VoxelXY { int x, y; };
-  struct HashXY
-  {
-    size_t operator()(const VoxelXY & v) const noexcept
-    {
-      return (static_cast<size_t>(v.x) * 73856093u) ^ (static_cast<size_t>(v.y) * 19349663u);
-    }
-  };
-  struct EqXY
-  {
-    bool operator()(const VoxelXY & a, const VoxelXY & b) const noexcept
-    {
-      return a.x == b.x && a.y == b.y;
-    }
-  };
-
-  std::unordered_map<VoxelXY, std::vector<int>, HashXY, EqXY> buckets;
-  buckets.reserve(input_points.size() / 4);
-
-  for (int i = 0; i < static_cast<int>(input_points.size()); ++i) {
-    const auto & pt = input_points[i];
-    if (!pcl::isFinite(pt)) {continue;}
-    const int vx = static_cast<int>(std::floor(pt.x / resolution));
-    const int vy = static_cast<int>(std::floor(pt.y / resolution));
-    buckets[{vx, vy}].push_back(i);
-  }
-
-  output.points.reserve(buckets.size());
-
-  for (auto & kv : buckets) {
-    auto & idxs = kv.second;
-    if (idxs.empty()) {continue;}
-
-    std::sort(idxs.begin(), idxs.end(),
-      [&](int a, int b){return input_points[a].z < input_points[b].z;});
-
-    double sum_x = 0.0, sum_y = 0.0;
-    float  z_max = -std::numeric_limits<float>::infinity();
-    int    count = 0;
-    float  last_z = input_points[idxs.front()].z;
-
-    auto flush_cluster = [&](){
-        if (count <= 0) {return;}
-        const float cx = static_cast<float>(sum_x / count);
-        const float cy = static_cast<float>(sum_y / count);
-        output.emplace_back(cx, cy, z_max);
-        sum_x = 0.0; sum_y = 0.0; z_max = -std::numeric_limits<float>::infinity(); count = 0;
-      };
-
-    for (int ii = 0; ii < static_cast<int>(idxs.size()); ++ii) {
-      const auto & p = input_points[idxs[ii]];
-      if (count == 0) {
-        sum_x = p.x; sum_y = p.y; z_max = p.z; count = 1; last_z = p.z;
-      } else {
-        const float dz = std::fabs(p.z - last_z);
-        if (dz <= dz_merge) {
-          sum_x += p.x; sum_y += p.y; z_max = std::max(z_max, p.z); ++count; last_z = p.z;
-        } else {
-          flush_cluster();
-          sum_x = p.x; sum_y = p.y; z_max = p.z; count = 1; last_z = p.z;
-        }
-      }
-    }
-    flush_cluster();
-  }
-
-  output.width = static_cast<uint32_t>(output.points.size());
-  output.height = 1;
-  output.is_dense = true;
-  return output;
-}
-
-// ----------------- Triangle acceptance filters -----------------
-//
-// Includes: max edge length, max |Δz|, XY neighbor radius, min area,
-// min internal angle, and slope limit via n·z.
-
-// max_edge_len is meant as a broad sanity cap on 3D edge length, separate
-// from neighbor_radius (the search radius used to find candidate points)
-// and max_dz (the per-edge vertical cap). When max_edge_len is set close to
-// neighbor_radius -- as in BuildParams' own defaults, both 2.0 m -- it stops
-// being a broad cap and starts spuriously rejecting valid edges: the
-// candidate search is a 3D sphere of radius neighbor_radius, so any real
-// terrain roughness (a few cm of Z noise, far under max_slope_deg/max_dz)
-// shifts which points land near that sphere's boundary and can nudge a
-// perfectly legitimate edge's 3D length a hair past max_edge_len, leaving a
-// hole exactly where the terrain is *not* too steep to be navigable. The
-// true worst-case length of an edge that already satisfies both the XY
-// search radius and the vertical max_dz cap is the hypotenuse of the two,
-// so max_edge_len should never be tighter than that combination -- this
-// widens it to match whenever the caller's value would otherwise clip
-// geometrically valid edges. See easynav_gis_tool.md for the reproduction.
-inline float effective_max_edge_len(const BuildParams & P)
-{
-  if (P.max_edge_len <= 0.0f || P.neighbor_radius <= 0.0f) {return P.max_edge_len;}
-  const float floor = std::sqrt(
-    P.neighbor_radius * P.neighbor_radius + P.max_dz * P.max_dz);
-  return std::max(P.max_edge_len, floor);
-}
-
-inline bool try_add_triangle(
-  int i, int j, int k,
-  const pcl::PointCloud<pcl::PointXYZ> & cloud,
-  const BuildParams & P,
-  std::unordered_set<TriKey, TriHasher> & tri_set,
-  std::unordered_set<EdgeKey, EdgeHasher> & edge_set,
-  std::vector<Triangle> & tris)
-{
-  TriKey tk = make_tri(i, j, k);
-  if (tri_set.find(tk) != tri_set.end()) {return false;}
-
-  const auto & A = cloud[i];
-  const auto & B = cloud[j];
-  const auto & C = cloud[k];
-  if (!pcl::isFinite(A) || !pcl::isFinite(B) || !pcl::isFinite(C)) {return false;}
-
-  // Max edge length (3D)
-  auto dAB = dist3(A, B);
-  auto dBC = dist3(B, C);
-  auto dCA = dist3(C, A);
-  const float max_edge_len = effective_max_edge_len(P);
-  if (max_edge_len > 0.0f &&
-    (dAB > max_edge_len || dBC > max_edge_len || dCA > max_edge_len)) {return false;}
-
-  // Max |Δz| per edge
-  if (P.max_dz > 0.0f) {
-    const float dzAB = std::fabs(A.z - B.z);
-    const float dzBC = std::fabs(B.z - C.z);
-    const float dzCA = std::fabs(C.z - A.z);
-    if (std::max({dzAB, dzBC, dzCA}) > P.max_dz) {return false;}
-  }
-
-  Eigen::Vector3f a(A.x, A.y, A.z);
-  Eigen::Vector3f b(B.x, B.y, B.z);
-  Eigen::Vector3f c(C.x, C.y, C.z);
-
-  // Min area
-  if (tri_area(a, b, c) < std::max(P.min_area, 1e-9f)) {return false;}
-
-  // Slope limit: n·z >= cos(max_slope)
-  const float cos_max_slope =
-    std::cos(P.max_slope_deg * static_cast<float>(M_PI) / 180.0f);
-  Eigen::Vector3f n = (b - a).cross(c - a);
-  const float nn = n.norm();
-  if (nn < 1e-9f) {return false;}
-  n /= nn;
-  if (n.dot(Eigen::Vector3f::UnitZ()) < cos_max_slope) {return false;}
-
-  // Min internal angle
-  float angA, angB, angC;
-  triangle_angles_deg(a, b, c, angA, angB, angC);
-  if (angA < P.min_angle_deg || angB < P.min_angle_deg || angC < P.min_angle_deg) {
-    return false;
-  }
-
-  // Canonical orientation (normal facing +Z)
-  if (n.dot(Eigen::Vector3f::UnitZ()) < 0.0f) {
-    std::swap(j, k);
-  }
-
-  tri_set.insert(tk);
-  edge_set.insert(make_edge(i, j));
-  edge_set.insert(make_edge(j, k));
-  edge_set.insert(make_edge(k, i));
-  tris.emplace_back(Triangle(i, j, k));
-  return true;
-}
-
 // ----------------- Keep only largest surfaces -----------------
+
+// Keeps only the triangles listed in some surface and the vertices they use.
+static void compact_to_surfaces(navmap_ros_interfaces::msg::NavMap & msg)
+{
+  const std::size_t ntris = msg.navcels_v0.size();
+  std::vector<uint32_t> tri_map(ntris, UINT32_MAX);
+  uint32_t nt = 0;
+  for (auto & s : msg.surfaces) {
+    for (auto & cid : s.navcels) {
+      if (cid >= ntris) {continue;}
+      if (tri_map[cid] == UINT32_MAX) {tri_map[cid] = nt++;}
+      cid = tri_map[cid];
+    }
+  }
+  if (nt == ntris) {return;}
+
+  const std::size_t nverts = msg.positions_x.size();
+  std::vector<uint32_t> vmap(nverts, UINT32_MAX);
+  uint32_t nv = 0;
+  std::vector<uint32_t> v0(nt), v1(nt), v2(nt);
+  auto remap_v = [&](uint32_t v) {
+      if (vmap[v] == UINT32_MAX) {vmap[v] = nv++;}
+      return vmap[v];
+    };
+  for (std::size_t t = 0; t < ntris; ++t) {
+    if (tri_map[t] == UINT32_MAX) {continue;}
+    v0[tri_map[t]] = remap_v(msg.navcels_v0[t]);
+    v1[tri_map[t]] = remap_v(msg.navcels_v1[t]);
+    v2[tri_map[t]] = remap_v(msg.navcels_v2[t]);
+  }
+  msg.navcels_v0.swap(v0);
+  msg.navcels_v1.swap(v1);
+  msg.navcels_v2.swap(v2);
+
+  auto compact = [](auto & data, const std::vector<uint32_t> & map, uint32_t n) {
+      if (data.size() != map.size()) {return;}
+      std::remove_reference_t<decltype(data)> out(n);
+      for (std::size_t k = 0; k < map.size(); ++k) {
+        if (map[k] != UINT32_MAX) {out[map[k]] = data[k];}
+      }
+      data.swap(out);
+    };
+  compact(msg.positions_x, vmap, nv);
+  compact(msg.positions_y, vmap, nv);
+  compact(msg.positions_z, vmap, nv);
+  if (msg.has_vertex_rgba) {
+    compact(msg.colors_r, vmap, nv);
+    compact(msg.colors_g, vmap, nv);
+    compact(msg.colors_b, vmap, nv);
+    compact(msg.colors_a, vmap, nv);
+  }
+  for (auto & layer : msg.layers) {
+    compact(layer.data_u8, tri_map, nt);
+    compact(layer.data_f32, tri_map, nt);
+    compact(layer.data_f64, tri_map, nt);
+  }
+}
+
+// Drops surfaces smaller than min_area (square meters) with their triangles and vertices.
+static void drop_small_surfaces(navmap_ros_interfaces::msg::NavMap & msg, float min_area)
+{
+  if (!(min_area > 0.0f)) {return;}
+  auto area_of = [&](uint32_t t) {
+      auto p = [&](uint32_t v) {
+          return Eigen::Vector3f(msg.positions_x[v], msg.positions_y[v], msg.positions_z[v]);
+        };
+      const Eigen::Vector3f a = p(msg.navcels_v0[t]);
+      return 0.5f * (p(msg.navcels_v1[t]) - a).cross(p(msg.navcels_v2[t]) - a).norm();
+    };
+  std::vector<navmap_ros_interfaces::msg::NavMapSurface> kept;
+  for (auto & s : msg.surfaces) {
+    float area = 0.0f;
+    for (uint32_t t : s.navcels) {
+      area += area_of(t);
+    }
+    if (area >= min_area) {kept.push_back(std::move(s));}
+  }
+  msg.surfaces.swap(kept);
+  compact_to_surfaces(msg);
+}
 
 static void keep_top_surfaces_by_size(navmap_ros_interfaces::msg::NavMap & msg, int max_surfaces)
 {
@@ -894,7 +675,7 @@ static void keep_top_surfaces_by_size(navmap_ros_interfaces::msg::NavMap & msg, 
   std::vector<size_t> ids(msg.surfaces.size());
   std::iota(ids.begin(), ids.end(), 0);
 
-  std::sort(ids.begin(), ids.end(), [&](size_t a, size_t b){
+  std::stable_sort(ids.begin(), ids.end(), [&](size_t a, size_t b){
       return msg.surfaces[a].navcels.size() > msg.surfaces[b].navcels.size();
   });
 
@@ -904,6 +685,7 @@ static void keep_top_surfaces_by_size(navmap_ros_interfaces::msg::NavMap & msg, 
     kept.push_back(std::move(msg.surfaces[ids[static_cast<size_t>(i)]]));
   }
   msg.surfaces.swap(kept);
+  compact_to_surfaces(msg);
 }
 
 // ----------------- Rebuild surfaces by triangle connectivity -----------------
@@ -1019,7 +801,126 @@ static void rebuild_surfaces_by_connectivity(navmap_ros_interfaces::msg::NavMap 
   msg.surfaces.swap(out);
 }
 
-// ----------------- Local Grow builder (renamed: from_points) -----------------
+// ----------------- Multi-level grid builder (from_points) -----------------
+
+namespace
+{
+
+// Height cluster of one XY cell: a vertex candidate of the multi-level grid.
+struct GridNode
+{
+  int32_t i, j;
+  float z;
+  uint32_t support;  // points behind the node; 0 if interpolated
+  float alt_z;       // height of a sparse upper face, if any (NaN otherwise)
+  float z_min;       // lowest point of the level (its lower face, if any)
+};
+
+struct BinnedPoint
+{
+  uint64_t key;
+  float z, x, y;  // x, y relative to the cell centre
+};
+
+float level_height_top(const BinnedPoint * pts, std::size_t n, float step);
+
+// Height of one level at its cell centre. The level may hold several faces closer than the
+// clearance (a slab seen from above and below): the support is its upper face, the top group
+// of points above a gap. A top group too small to trust on its own (a sparse face, or a spike)
+// is returned in alt_z, for the neighbours to decide.
+float level_height(const BinnedPoint * pts, std::size_t n, float step, float & alt_z)
+{
+  alt_z = std::numeric_limits<float>::quiet_NaN();
+  const float layer_gap = 0.5f * step;
+  for (std::size_t k = n - 1; k >= 1; --k) {
+    if (pts[k].z - pts[k - 1].z <= layer_gap) {continue;}
+    if (n - k >= std::max<std::size_t>(3, n / 10)) {
+      return level_height_top(pts + k, n - k, step);
+    }
+    if (std::isnan(alt_z)) {alt_z = pts[k + (n - k - 1) / 2].z;}  // median of the small group
+  }
+  return level_height_top(pts, n, step);
+}
+
+// Robust plane fit at the cell centre; a cluttered level keeps a high top (an obstacle).
+float level_height_top(const BinnedPoint * pts, std::size_t n, float step)
+{
+  if (n < 3) {
+    float z = 0.0f;
+    for (std::size_t k = 0; k < n; ++k) {
+      z += pts[k].z;
+    }
+    return z / static_cast<float>(n);
+  }
+  // Points come sorted by z: a vertical spread beyond a step that a plane cannot explain
+  // means clutter (wall, bush, furniture), so keep the 90th percentile as an obstacle top.
+  auto fit = [&](const std::vector<char> & use, Eigen::Vector3f & abc) {
+      Eigen::Matrix3f A = Eigen::Matrix3f::Zero();
+      Eigen::Vector3f b = Eigen::Vector3f::Zero();
+      for (std::size_t k = 0; k < n; ++k) {
+        if (!use[k]) {continue;}
+        const Eigen::Vector3f r(pts[k].x, pts[k].y, 1.0f);
+        A += r * r.transpose();
+        b += r * pts[k].z;
+      }
+      if (std::fabs(A.determinant()) < 1e-9f) {return false;}
+      abc = A.ldlt().solve(b);
+      return abc.allFinite();
+    };
+  const float top90 = pts[std::min(n - 1, (n * 9) / 10)].z;
+  std::vector<char> use(n, 1);
+  Eigen::Vector3f abc;
+  if (!fit(use, abc)) {
+    // Collinear in XY (thin wall, scan line): no plane; tall means clutter.
+    return pts[n - 1].z - pts[0].z > step ? top90 : pts[(n - 1) / 2].z;
+  }
+  // One trimming pass: drop residuals beyond 3 robust sigmas (spikes, outliers).
+  std::vector<float> res(n);
+  for (std::size_t k = 0; k < n; ++k) {
+    res[k] = pts[k].z - (abc[0] * pts[k].x + abc[1] * pts[k].y + abc[2]);
+  }
+  std::vector<float> absr(n);
+  for (std::size_t k = 0; k < n; ++k) {
+    absr[k] = std::fabs(res[k]);
+  }
+  std::nth_element(absr.begin(), absr.begin() + n / 2, absr.end());
+  const float thr = std::max(0.02f, 3.0f * 1.4826f * absr[n / 2]);
+  std::size_t kept = 0;
+  for (std::size_t k = 0; k < n; ++k) {
+    use[k] = std::fabs(res[k]) <= thr;
+    kept += use[k];
+  }
+  if (kept >= 3) {fit(use, abc);}
+
+  // Clutter test on the inliers' spread around the plane (10th to 90th percentile).
+  std::vector<float> in;
+  in.reserve(n);
+  for (std::size_t k = 0; k < n; ++k) {
+    if (use[k]) {in.push_back(pts[k].z - (abc[0] * pts[k].x + abc[1] * pts[k].y + abc[2]));}
+  }
+  std::sort(in.begin(), in.end());
+  const float spread = in[std::min(in.size() - 1, (in.size() * 9) / 10)] - in[in.size() / 10];
+  return spread > step ? top90 : abc[2];
+}
+
+inline uint64_t cell_key(int32_t i, int32_t j)
+{
+  return (static_cast<uint64_t>(static_cast<uint32_t>(i)) << 32) | static_cast<uint32_t>(j);
+}
+
+// 8-neighbourhood; kOpposite[d] is the direction back.
+constexpr int kDirs[8][2] = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+constexpr int kOpposite[8] = {4, 5, 6, 7, 0, 1, 2, 3};
+
+inline int dir_index(int dx, int dy)
+{
+  for (int d = 0; d < 8; ++d) {
+    if (kDirs[d][0] == dx && kDirs[d][1] == dy) {return d;}
+  }
+  return -1;
+}
+
+}  // namespace
 
 navmap::NavMap from_points(
   const pcl::PointCloud<pcl::PointXYZ> & input_points,
@@ -1027,359 +928,411 @@ navmap::NavMap from_points(
   BuildParams P)
 {
   out_msg = navmap_ros_interfaces::msg::NavMap();
-
-  if (input_points.size() < 3) {
+  const float res = P.resolution;
+  if (!(res > 0.0f) || input_points.size() < 3) {
     return navmap::NavMap();
   }
+  const float step = P.max_dz > 0.0f ? P.max_dz : 0.30f;
+  // Points closer than this in z are the same surface (thickness, sampling, clutter).
+  const float gap = std::max(step, P.min_clearance);
+  const float tan_slope = std::tan(P.max_slope_deg * static_cast<float>(M_PI) / 180.0f);
+  const float cos_slope = std::cos(P.max_slope_deg * static_cast<float>(M_PI) / 180.0f);
 
-  // Downsample that preserves floors: top-Z per Z-layer in each XY cell
-  pcl::PointCloud<pcl::PointXYZ> cloud;
-  if (P.resolution > 0.0f) {
-    const float dz_merge = (P.max_dz > 0.0f ? P.max_dz : 0.30f);
-    cloud = downsample_voxelize_topZ_layered(input_points, P.resolution, dz_merge);
-  } else {
-    cloud = input_points;
+  // 1) Bin finite points by XY cell, sorted by (cell, z).
+  float min_x = std::numeric_limits<float>::infinity();
+  float min_y = std::numeric_limits<float>::infinity();
+  for (const auto & p : input_points) {
+    if (pcl::isFinite(p)) {min_x = std::min(min_x, p.x); min_y = std::min(min_y, p.y);}
   }
-  if (cloud.size() < 3) {
+  if (!std::isfinite(min_x)) {
     return navmap::NavMap();
   }
+  // Half-cell origin shift: samples on a res-spaced lattice fall on cell centres, not borders.
+  min_x -= 0.5f * res;
+  min_y -= 0.5f * res;
+  std::vector<BinnedPoint> binned;
+  binned.reserve(input_points.size());
+  for (const auto & p : input_points) {
+    if (!pcl::isFinite(p)) {continue;}
+    const auto i = static_cast<int32_t>(std::floor((p.x - min_x) / res));
+    const auto j = static_cast<int32_t>(std::floor((p.y - min_y) / res));
+    binned.push_back(
+      {cell_key(i, j), p.z, p.x - (min_x + (i + 0.5f) * res), p.y - (min_y + (j + 0.5f) * res)});
+  }
+  std::sort(
+    binned.begin(), binned.end(), [](const BinnedPoint & a, const BinnedPoint & b) {
+      return a.key != b.key ? a.key < b.key : a.z < b.z;
+    });
 
-  // Neighborhood structure
-  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
-  kdtree.setInputCloud(cloud.makeShared());
-
-  const int N = static_cast<int>(cloud.size());
-  std::vector<char> used_vertex(N, 0);
-  std::vector<Eigen::Vector3i> triangles;
-  triangles.reserve(N * 2);
-
-  // Seeds in ascending Z
-  std::vector<int> order(N);
-  std::iota(order.begin(), order.end(), 0);
-  std::sort(order.begin(), order.end(),
-    [&](int a, int b){return cloud[a].z < cloud[b].z;});
-
-  // Global state
-  std::unordered_set<TriKey, TriHasher> tri_set_global;
-  std::unordered_set<EdgeKey, EdgeHasher> edge_set_global;
-  std::unordered_map<EdgeKey, uint16_t, EdgeHasher> edge_use_count;
-
-  auto inc_edge = [&](const EdgeKey & e) -> uint16_t {
-      auto it = edge_use_count.find(e);
-      if (it == edge_use_count.end()) {edge_use_count.emplace(e, 1); return 1;}
-      return ++(it->second);
-    };
-  auto edge_count = [&](const EdgeKey & e) -> uint16_t {
-      auto it = edge_use_count.find(e);
-      return (it == edge_use_count.end()) ? 0 : it->second;
-    };
-
-  std::queue<EdgeKey> frontier;
-  std::unordered_set<EdgeKey, EdgeHasher> in_frontier;
-  auto push_frontier_if_border = [&](const EdgeKey & e) {
-      if (edge_count(e) == 1) {
-        if (in_frontier.insert(e).second) {
-          frontier.emplace(e);
-        }
+  // 2) Split each cell into levels separated by more than the clearance gap.
+  std::vector<GridNode> nodes;
+  std::unordered_map<uint64_t, std::pair<uint32_t, uint32_t>> cells;  // key -> [first, count)
+  cells.reserve(binned.size() / 4 + 1);
+  for (std::size_t k = 0; k < binned.size(); ) {
+    const uint64_t key = binned[k].key;
+    const auto i = static_cast<int32_t>(key >> 32);
+    const auto j = static_cast<int32_t>(key & 0xffffffffu);
+    const auto first = static_cast<uint32_t>(nodes.size());
+    std::size_t level_begin = k;
+    for (++k; ; ++k) {
+      const bool cell_end = k == binned.size() || binned[k].key != key;
+      if (cell_end || binned[k].z - binned[k - 1].z > gap) {
+        const std::size_t n = k - level_begin;
+        float alt_z;
+        const float z = level_height(&binned[level_begin], n, step, alt_z);
+        nodes.push_back({i, j, z, static_cast<uint32_t>(n), alt_z, binned[level_begin].z});
+        level_begin = k;
       }
-    };
+      if (cell_end) {break;}
+    }
+    cells.emplace(key, std::make_pair(first, static_cast<uint32_t>(nodes.size()) - first));
+  }
 
-  auto dist3f = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B){
-      const float dx = A.x - B.x, dy = A.y - B.y, dz = A.z - B.z;
-      return std::sqrt(dx * dx + dy * dy + dz * dz);
-    };
-  auto distXY = [](const pcl::PointXYZ & A, const pcl::PointXYZ & B){
-      const float dx = A.x - B.x, dy = A.y - B.y; return std::sqrt(dx * dx + dy * dy);
-    };
-
-  enum class Phase { FAN, BFS };
-  struct RejectCounts { size_t edge_len = 0, dz = 0, xy = 0, dup = 0, geom = 0, zwin_seed = 0,
-      zwin_bfs = 0; };
-  const float eff_max_edge_len = effective_max_edge_len(P);
-  auto precheck = [&](int i, int j, int k, Phase phase, RejectCounts & rej, bool & dup_out)->bool {
-      TriKey tk = make_tri(i, j, k);
-      if (tri_set_global.find(tk) != tri_set_global.end()) {
-        rej.dup++; dup_out = true; return false;
-      }
-      dup_out = false;
-
-      const auto & A = cloud[i], & B = cloud[j], & C = cloud[k];
-
-      if (eff_max_edge_len > 0.0f) {
-        const float lAB = dist3f(A, B), lBC = dist3f(B, C), lCA = dist3f(C, A);
-        if (lAB > eff_max_edge_len || lBC > eff_max_edge_len || lCA > eff_max_edge_len) {
-          rej.edge_len++; return false;
-        }
-      }
-
-      if (P.max_dz > 0.0f) {
-        const float dzAB = std::fabs(A.z - B.z);
-        const float dzBC = std::fabs(B.z - C.z);
-        const float dzCA = std::fabs(C.z - A.z);
-        if (std::max({dzAB, dzBC, dzCA}) > P.max_dz) {rej.dz++; return false;}
-      }
-
-      if (P.neighbor_radius > 0.0f) {
-        const float r = P.neighbor_radius;
-        const float dABxy = distXY(A, B), dBCxy = distXY(B, C), dCAxy = distXY(C, A);
-        bool bad_xy = (phase == Phase::FAN) ? (dABxy > r || dCAxy > r) : (dABxy > r || dBCxy > r ||
-          dCAxy > r);
-        if (bad_xy) {rej.xy++; return false;}
-      }
-
-      return true;
-    };
-
-  // Z windows around the expanding boundary (keeps ramps but avoids jumps)
-  const float z_window_seed = std::max(P.max_dz, 0.35f);
-
-  std::vector<std::pair<size_t, size_t>> surf_tri_ranges;  // [offset, count]
-
-  RejectCounts global_rej{};  // still used to track precheck stats (no logging)
-
-  for (int seed_idx : order) {
-    if (used_vertex[seed_idx]) {continue;}
-
-    // Neighborhood of the seed
-    std::vector<int> neigh_seed;
-    {
-      std::vector<int> inds; std::vector<float> dists;
-      if (P.neighbor_radius > 0.0f) {
-        if (kdtree.radiusSearch(cloud[seed_idx], P.neighbor_radius, inds, dists) > 0) {
-          for (int id : inds) {
-            if (id != seed_idx) {
-              neigh_seed.push_back(id);
-            }
+  // 2a) Sparse upper faces. A slab seen mostly from below leaves cells whose upper face got
+  // few points (alt_z) or none, and their own height falls on the lower face.
+  {
+    const float tol = 0.5f * step;
+    auto neighbours_with = [&](const GridNode & nd, auto && pred) {
+        int votes = 0;
+        for (const auto & d : kDirs) {
+          const auto it = cells.find(cell_key(nd.i + d[0], nd.j + d[1]));
+          if (it == cells.end()) {continue;}
+          for (uint32_t m = it->second.first; m < it->second.first + it->second.second; ++m) {
+            if (pred(nodes[m])) {++votes; break;}
           }
         }
-      } else {
-        const int K = std::max(8, P.k_neighbors);
-        if (kdtree.nearestKSearch(cloud[seed_idx], K, inds, dists) > 0) {
-          for (int id : inds) {
-            if (id != seed_idx) {
-              neigh_seed.push_back(id);
-            }
+        return votes;
+      };
+    // Pass 1: a sparse upper face is the support when a neighbour stands on it (its main
+    // height) and two or more neighbours see it. Spikes over a floor never have a neighbour
+    // whose main height is theirs.
+    std::vector<std::pair<std::size_t, float>> lifted;
+    for (std::size_t n = 0; n < nodes.size(); ++n) {
+      const auto & nd = nodes[n];
+      if (std::isnan(nd.alt_z)) {continue;}
+      const int on_it = neighbours_with(
+        nd, [&](const GridNode & nb) {return std::fabs(nb.z - nd.alt_z) <= tol;});
+      const int seen = neighbours_with(
+        nd, [&](const GridNode & nb) {
+          return std::fabs(nb.z - nd.alt_z) <= tol ||
+                 (!std::isnan(nb.alt_z) && std::fabs(nb.alt_z - nd.alt_z) <= tol);
+        });
+      if (on_it >= 1 && seen >= 2) {lifted.emplace_back(n, nd.alt_z);}
+    }
+    for (const auto & [n, z] : lifted) {
+      nodes[n].z = z;
+    }
+
+    // Pass 2: a cell that only saw the lower face takes the upper face of the neighbours whose
+    // lower face is at its height. It needs a level below in its column (where the sensor
+    // was), so a pothole or a box never qualifies.
+    std::vector<std::pair<std::size_t, float>> inferred;
+    for (std::size_t n = 0; n < nodes.size(); ++n) {
+      const auto & nd = nodes[n];
+      bool level_below = false;
+      const auto & own = cells.at(cell_key(nd.i, nd.j));
+      for (uint32_t m = own.first; m < own.first + own.second; ++m) {
+        level_below = level_below || nodes[m].z < nd.z_min - gap;
+      }
+      if (!level_below) {continue;}
+      const int own_votes = neighbours_with(
+        nd, [&](const GridNode & nb) {return std::fabs(nb.z - nd.z) <= tol;});
+      std::vector<float> above;
+      for (const auto & d : kDirs) {
+        const auto it = cells.find(cell_key(nd.i + d[0], nd.j + d[1]));
+        if (it == cells.end()) {continue;}
+        for (uint32_t m = it->second.first; m < it->second.first + it->second.second; ++m) {
+          const auto & nb = nodes[m];
+          if (std::fabs(nb.z_min - nd.z) <= tol && nb.z > nd.z + tol && nb.z - nd.z <= gap) {
+            above.push_back(nb.z);
+            break;
           }
         }
       }
-    }
-
-    // Quick filters
-    if (eff_max_edge_len > 0.0f) {
-      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
-        [&](int j){
-          const auto & Q = cloud[j]; if (!pcl::isFinite(Q)) {
-            return true;
-          }
-          return dist3f(cloud[seed_idx], Q) > eff_max_edge_len;
-        }),
-        neigh_seed.end());
-    }
-    {
-      neigh_seed.erase(std::remove_if(neigh_seed.begin(), neigh_seed.end(),
-        [&](int j){return std::fabs(cloud[j].z - cloud[seed_idx].z) > z_window_seed;}),
-        neigh_seed.end());
-    }
-
-    if (neigh_seed.size() < 2) {
-      used_vertex[seed_idx] = 1;
-      continue;
-    }
-
-    // Angular sort in XY
-    {
-      const auto & Cc = cloud[seed_idx];
-      std::sort(neigh_seed.begin(), neigh_seed.end(), [&](int a, int b){
-          const float ax = cloud[a].x - Cc.x, ay = cloud[a].y - Cc.y;
-          const float bx = cloud[b].x - Cc.x, by = cloud[b].y - Cc.y;
-          return std::atan2(ay, ax) < std::atan2(by, bx);
-      });
-    }
-
-    const size_t tri_off = triangles.size();
-
-    RejectCounts comp_rej{};
-
-    // Initial fan
-    for (size_t t = 0; t + 1 < neigh_seed.size(); ++t) {
-      const int j = neigh_seed[t];
-      const int k = neigh_seed[t + 1];
-      bool dup = false;
-      if (!precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {continue;}
-
-      if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global, triangles)) {
-        // Update counts and frontier
-        const EdgeKey e0 = make_edge(seed_idx, j);
-        const EdgeKey e1 = make_edge(j, k);
-        const EdgeKey e2 = make_edge(k, seed_idx);
-        inc_edge(e0); inc_edge(e1); inc_edge(e2);
-        push_frontier_if_border(e0);
-        push_frontier_if_border(e1);
-        push_frontier_if_border(e2);
-      } else if (!dup) {
-        comp_rej.geom++;
+      if (above.size() >= 3 && static_cast<int>(above.size()) > own_votes) {
+        std::nth_element(above.begin(), above.begin() + above.size() / 2, above.end());
+        inferred.emplace_back(n, above[above.size() / 2]);
       }
     }
-    if (neigh_seed.size() >= 3) {
-      const int j = neigh_seed.back();
-      const int k = neigh_seed.front();
-      bool dup = false;
-      if (precheck(seed_idx, j, k, Phase::FAN, comp_rej, dup)) {
-        if (try_add_triangle(seed_idx, j, k, cloud, P, tri_set_global, edge_set_global,
-            triangles))
+    for (const auto & [n, z] : inferred) {
+      nodes[n].z = z;
+      nodes[n].support = 0;  // height inferred, not observed
+    }
+  }
+
+  // 2b) Fill small enclosed holes (cells without any point) from the levels around them.
+  const auto max_hole_cells = static_cast<std::size_t>(std::floor(P.max_hole_area / (res * res)));
+  if (max_hole_cells > 0) {
+    std::unordered_set<uint64_t> visited;
+    std::vector<std::pair<uint64_t, std::vector<float>>> filled;
+    std::vector<uint64_t> seeds;
+    for (const auto & kv : cells) {
+      const auto i = static_cast<int32_t>(kv.first >> 32);
+      const auto j = static_cast<int32_t>(kv.first & 0xffffffffu);
+      for (int d = 0; d < 8; d += 2) {
+        seeds.push_back(cell_key(i + kDirs[d][0], j + kDirs[d][1]));
+      }
+    }
+    std::sort(seeds.begin(), seeds.end());
+    for (const uint64_t seed : seeds) {
+      if (cells.count(seed) || visited.count(seed)) {continue;}
+      // Flood the empty region (4-connected); give up once it is larger than a hole.
+      std::vector<uint64_t> hole{seed}, stack{seed};
+      visited.insert(seed);
+      bool too_big = false;
+      while (!stack.empty() && !too_big) {
+        const uint64_t c = stack.back();
+        stack.pop_back();
+        const auto ci = static_cast<int32_t>(c >> 32);
+        const auto cj = static_cast<int32_t>(c & 0xffffffffu);
+        for (int d = 0; d < 8; d += 2) {
+          const uint64_t nk = cell_key(ci + kDirs[d][0], cj + kDirs[d][1]);
+          if (cells.count(nk) || visited.count(nk)) {continue;}
+          visited.insert(nk);
+          hole.push_back(nk);
+          stack.push_back(nk);
+          if (hole.size() > max_hole_cells) {too_big = true; break;}
+        }
+      }
+      if (too_big) {continue;}
+
+      // Border cells (8-neighbours with data) and their levels.
+      std::unordered_set<uint64_t> in_hole(hole.begin(), hole.end());
+      std::unordered_set<uint64_t> border;
+      for (const uint64_t c : hole) {
+        const auto ci = static_cast<int32_t>(c >> 32);
+        const auto cj = static_cast<int32_t>(c & 0xffffffffu);
+        for (const auto & dd : kDirs) {
+          const uint64_t nk = cell_key(ci + dd[0], cj + dd[1]);
+          if (!in_hole.count(nk) && cells.count(nk)) {border.insert(nk);}
+        }
+      }
+      std::vector<uint32_t> border_nodes;
+      for (const uint64_t b : border) {
+        const auto & r = cells.at(b);
+        for (uint32_t n = r.first; n < r.first + r.second; ++n) {
+          if (nodes[n].support > 0) {border_nodes.push_back(n);}
+        }
+      }
+      std::sort(
+        border_nodes.begin(), border_nodes.end(),
+        [&](uint32_t a, uint32_t b) {return nodes[a].z < nodes[b].z;});
+
+      std::vector<std::vector<float>> zs(hole.size());
+      for (std::size_t g = 0; g < border_nodes.size(); ) {
+        // One level: border nodes whose heights chain within the clearance gap.
+        std::size_t e = g + 1;
+        while (e < border_nodes.size() &&
+          nodes[border_nodes[e]].z - nodes[border_nodes[e - 1]].z <= gap)
         {
-          const EdgeKey e0 = make_edge(seed_idx, j);
-          const EdgeKey e1 = make_edge(j, k);
-          const EdgeKey e2 = make_edge(k, seed_idx);
-          inc_edge(e0); inc_edge(e1); inc_edge(e2);
-          push_frontier_if_border(e0);
-          push_frontier_if_border(e1);
-          push_frontier_if_border(e2);
-        } else if (!dup) {
-          comp_rej.geom++;
+          ++e;
         }
-      }
-    }
-
-    if (triangles.size() == tri_off) {
-      used_vertex[seed_idx] = 1;
-      global_rej.edge_len += comp_rej.edge_len;
-      global_rej.dz += comp_rej.dz;
-      global_rej.xy += comp_rej.xy;
-      global_rej.dup += comp_rej.dup;
-      global_rej.geom += comp_rej.geom;
-      global_rej.zwin_seed += comp_rej.zwin_seed;
-      global_rej.zwin_bfs += comp_rej.zwin_bfs;
-      continue;
-    }
-
-    // Mark vertices used by the new triangles
-    for (size_t u = tri_off; u < triangles.size(); ++u) {
-      used_vertex[triangles[u][0]] = 1;
-      used_vertex[triangles[u][1]] = 1;
-      used_vertex[triangles[u][2]] = 1;
-    }
-
-    // BFS expansion over border edges
-    while (!frontier.empty()) {
-      EdgeKey e = frontier.front(); frontier.pop();
-      in_frontier.erase(e);
-
-      // Expand only current border edges (count == 1)
-      if (edge_count(e) != 1) {continue;}
-
-      const float z_mid = 0.5f * (cloud[e.a].z + cloud[e.b].z);
-
-      // Candidate completion points: union of the neighbors of *both*
-      // e.a and e.b, not just e.a. Searching only from e.a misses any
-      // point that is close to e.b but just outside radius of e.a -- which
-      // happens routinely once the edge itself is close to
-      // neighbor_radius long (the common case for a diagonal grid edge),
-      // and was a real source of unexplained holes on otherwise-navigable
-      // terrain: it forced neighbor_radius to be inflated well past the
-      // true point spacing just to paper over this asymmetry. Geometric
-      // validity of the resulting triangle is still fully enforced below
-      // by precheck()/try_add_triangle(), so widening the candidate pool
-      // here does not admit any edge/angle/slope violation. See
-      // easynav_gis_tool.md.
-      std::vector<int> neigh_candidates;
-      {
-        std::unordered_set<int> seen;
-        auto collect = [&](const pcl::PointXYZ & from) {
-            std::vector<int> inds; std::vector<float> dists;
-            if (P.neighbor_radius > 0.0f) {
-              if (kdtree.radiusSearch(from, P.neighbor_radius, inds, dists) > 0) {
-                for (int id : inds) {
-                  if (id != e.a && id != e.b && seen.insert(id).second) {
-                    neigh_candidates.push_back(id);
-                  }
-                }
-              }
-            } else {
-              const int K = std::max(8, P.k_neighbors);
-              if (kdtree.nearestKSearch(from, K, inds, dists) > 0) {
-                for (int id : inds) {
-                  if (id != e.a && id != e.b && seen.insert(id).second) {
-                    neigh_candidates.push_back(id);
-                  }
-                }
-              }
+        std::unordered_set<uint64_t> level_cells;
+        for (std::size_t q = g; q < e; ++q) {
+          level_cells.insert(cell_key(nodes[border_nodes[q]].i, nodes[border_nodes[q]].j));
+        }
+        // Only levels present around most of the hole (not a single wall or ledge).
+        if (level_cells.size() * 4 >= border.size() * 3) {
+          for (std::size_t h = 0; h < hole.size(); ++h) {
+            const auto hi = static_cast<int32_t>(hole[h] >> 32);
+            const auto hj = static_cast<int32_t>(hole[h] & 0xffffffffu);
+            double wsum = 0.0, zsum = 0.0;
+            for (std::size_t q = g; q < e; ++q) {
+              const auto & nd = nodes[border_nodes[q]];
+              const double d2 = static_cast<double>(nd.i - hi) * (nd.i - hi) +
+                static_cast<double>(nd.j - hj) * (nd.j - hj);
+              wsum += 1.0 / d2;
+              zsum += nd.z / d2;
             }
-          };
-        collect(cloud[e.a]);
-        collect(cloud[e.b]);
-      }
-
-      for (int c : neigh_candidates) {
-        const float z_half = std::max(P.max_dz, 0.35f);
-        const float dz = cloud[c].z - z_mid;
-        if (std::fabs(dz) > z_half) {++global_rej.zwin_bfs; continue;}
-
-        bool dup = false;
-        if (!precheck(e.a, e.b, c, Phase::BFS, comp_rej, dup)) {continue;}
-
-        if (try_add_triangle(e.a, e.b, c, cloud, P, tri_set_global, edge_set_global, triangles)) {
-          const EdgeKey eab = make_edge(e.a, e.b);
-          const EdgeKey eac = make_edge(e.a, c);
-          const EdgeKey ecb = make_edge(c, e.b);
-
-          inc_edge(eab);
-          inc_edge(eac);
-          inc_edge(ecb);
-
-          push_frontier_if_border(eac);
-          push_frontier_if_border(ecb);
-
-          used_vertex[e.a] = used_vertex[e.b] = used_vertex[c] = 1;
-        } else if (!dup) {
-          comp_rej.geom++;
+            zs[h].push_back(static_cast<float>(zsum / wsum));
+          }
         }
+        g = e;
+      }
+      for (std::size_t h = 0; h < hole.size(); ++h) {
+        if (!zs[h].empty()) {filled.emplace_back(hole[h], std::move(zs[h]));}
       }
     }
-
-    // Component done
-    const size_t tri_cnt = triangles.size() - tri_off;
-    if (tri_cnt > 0) {
-      surf_tri_ranges.emplace_back(tri_off, tri_cnt);
+    for (auto & [key, levels] : filled) {
+      const auto first = static_cast<uint32_t>(nodes.size());
+      for (const float z : levels) {
+        nodes.push_back(
+          {static_cast<int32_t>(key >> 32), static_cast<int32_t>(key & 0xffffffffu), z, 0,
+            std::numeric_limits<float>::quiet_NaN(), z});
+      }
+      cells.emplace(key, std::make_pair(first, static_cast<uint32_t>(levels.size())));
     }
-
-    // Accumulate global counters (used only for internal accounting)
-    global_rej.edge_len += comp_rej.edge_len;
-    global_rej.dz += comp_rej.dz;
-    global_rej.xy += comp_rej.xy;
-    global_rej.dup += comp_rej.dup;
-    global_rej.geom += comp_rej.geom;
-    global_rej.zwin_seed += comp_rej.zwin_seed;
-    global_rej.zwin_bfs += comp_rej.zwin_bfs;
   }
 
-  if (triangles.empty()) {
+  // 3) Link nodes of neighbouring cells: closest height within step + slope, mutual.
+  auto partner_in = [&](const GridNode & a, int d) -> int64_t {
+      const auto it = cells.find(cell_key(a.i + kDirs[d][0], a.j + kDirs[d][1]));
+      if (it == cells.end()) {return -1;}
+      const float dist = res * ((kDirs[d][0] != 0 && kDirs[d][1] != 0) ? std::sqrt(2.0f) : 1.0f);
+      const float max_dz = step + tan_slope * dist;
+      int64_t best = -1;
+      float best_dz = std::numeric_limits<float>::infinity();
+      for (uint32_t n = it->second.first; n < it->second.first + it->second.second; ++n) {
+        const float dz = std::fabs(nodes[n].z - a.z);
+        if (dz <= max_dz && dz < best_dz) {best_dz = dz; best = n;}
+      }
+      return best;
+    };
+  std::vector<std::array<int64_t, 8>> link(nodes.size());
+  for (std::size_t n = 0; n < nodes.size(); ++n) {
+    for (int d = 0; d < 8; ++d) {
+      link[n][d] = partner_in(nodes[n], d);
+    }
+  }
+  for (std::size_t n = 0; n < nodes.size(); ++n) {
+    for (int d = 0; d < 8; ++d) {
+      const int64_t m = link[n][d];
+      if (m >= 0 && link[m][kOpposite[d]] != static_cast<int64_t>(n)) {link[n][d] = -1;}
+    }
+  }
+  auto linked = [&](int64_t a, int64_t b, int dx, int dy) {
+      return a >= 0 && b >= 0 && link[a][dir_index(dx, dy)] == b;
+    };
+
+  // 4) Triangulate each quad: per connected sheet, the triangles of one diagonal.
+  std::vector<uint64_t> quads;
+  quads.reserve(cells.size() * 4);
+  for (const auto & kv : cells) {
+    const auto i = static_cast<int32_t>(kv.first >> 32);
+    const auto j = static_cast<int32_t>(kv.first & 0xffffffffu);
+    for (int di = -1; di <= 0; ++di) {
+      for (int dj = -1; dj <= 0; ++dj) {
+        quads.push_back(cell_key(i + di, j + dj));
+      }
+    }
+  }
+  std::sort(quads.begin(), quads.end());
+  quads.erase(std::unique(quads.begin(), quads.end()), quads.end());
+
+  auto vtx = [&](int64_t n) {
+      return Eigen::Vector3f(
+        min_x + (nodes[n].i + 0.5f) * res, min_y + (nodes[n].j + 0.5f) * res, nodes[n].z);
+    };
+  auto good_triangle = [&](int64_t a, int64_t b, int64_t c) {
+      const Eigen::Vector3f n = (vtx(b) - vtx(a)).cross(vtx(c) - vtx(a));
+      const float nn = n.norm();
+      return 0.5f * nn >= P.min_area && nn > 0.0f && n.z() / nn >= cos_slope;
+    };
+
+  std::vector<std::array<int64_t, 3>> tris;
+  tris.reserve(nodes.size() * 2);
+  // Corners: 0=(i,j) 1=(i+1,j) 2=(i+1,j+1) 3=(i,j+1).
+  constexpr int kCorner[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+  for (const uint64_t q : quads) {
+    const auto qi = static_cast<int32_t>(q >> 32);
+    const auto qj = static_cast<int32_t>(q & 0xffffffffu);
+
+    std::vector<std::pair<int, int64_t>> members;  // (corner, node)
+    for (int c = 0; c < 4; ++c) {
+      const auto it = cells.find(cell_key(qi + kCorner[c][0], qj + kCorner[c][1]));
+      if (it == cells.end()) {continue;}
+      for (uint32_t n = it->second.first; n < it->second.first + it->second.second; ++n) {
+        members.emplace_back(c, n);
+      }
+    }
+    if (members.size() < 3) {continue;}
+
+    std::vector<char> seen(members.size(), 0);
+    for (std::size_t s = 0; s < members.size(); ++s) {
+      if (seen[s]) {continue;}
+      // Sheet: nodes of this quad connected through links.
+      std::array<int64_t, 4> corner{-1, -1, -1, -1};
+      bool ambiguous = false;
+      std::vector<std::size_t> stack{s};
+      seen[s] = 1;
+      while (!stack.empty()) {
+        const auto [c, n] = members[stack.back()];
+        stack.pop_back();
+        if (corner[c] >= 0 && corner[c] != n) {ambiguous = true;}
+        corner[c] = n;
+        for (std::size_t t = 0; t < members.size(); ++t) {
+          const auto [c2, n2] = members[t];
+          if (seen[t] || c2 == c) {continue;}
+          if (linked(n, n2, kCorner[c2][0] - kCorner[c][0], kCorner[c2][1] - kCorner[c][1])) {
+            seen[t] = 1;
+            stack.push_back(t);
+          }
+        }
+      }
+      if (ambiguous) {continue;}
+
+      const int64_t v00 = corner[0], v10 = corner[1], v11 = corner[2], v01 = corner[3];
+      auto ok = [&](int64_t a, int64_t b, int64_t c) {
+          if (a < 0 || b < 0 || c < 0) {return false;}
+          auto lk = [&](int64_t x, int64_t y) {
+              const auto & nx = nodes[x];
+              const auto & ny = nodes[y];
+              return linked(x, y, ny.i - nx.i, ny.j - nx.j);
+            };
+          return lk(a, b) && lk(b, c) && lk(c, a) && good_triangle(a, b, c);
+        };
+      const bool a1 = ok(v00, v10, v11), a2 = ok(v00, v11, v01);
+      const bool b1 = ok(v00, v10, v01), b2 = ok(v10, v11, v01);
+      const int na = a1 + a2, nb = b1 + b2;
+      bool use_a = na >= nb;
+      if (na == 2 && nb == 2) {
+        // Both diagonals possible: the one with the smaller height change.
+        use_a = std::fabs(nodes[v00].z - nodes[v11].z) <= std::fabs(nodes[v10].z - nodes[v01].z);
+      }
+      if (use_a) {
+        if (a1) {tris.push_back({v00, v10, v11});}
+        if (a2) {tris.push_back({v00, v11, v01});}
+      } else {
+        if (b1) {tris.push_back({v00, v10, v01});}
+        if (b2) {tris.push_back({v10, v11, v01});}
+      }
+    }
+  }
+  if (tris.empty()) {
     return navmap::NavMap();
   }
 
-  // Build NavMap + surfaces
+  // 5) Vertices: only nodes used by some triangle.
+  std::vector<int64_t> vid(nodes.size(), -1);
+  pcl::PointCloud<pcl::PointXYZ> verts;
+  std::vector<Triangle> triangles;
+  triangles.reserve(tris.size());
+  for (const auto & t : tris) {
+    Triangle out;
+    for (int k = 0; k < 3; ++k) {
+      if (vid[t[k]] < 0) {
+        vid[t[k]] = static_cast<int64_t>(verts.size());
+        const Eigen::Vector3f p = vtx(t[k]);
+        verts.push_back(pcl::PointXYZ(p.x(), p.y(), p.z()));
+      }
+      out[k] = static_cast<int>(vid[t[k]]);
+    }
+    triangles.push_back(out);
+  }
+
   const std::string frame_id = "map";
   navmap_ros_interfaces::msg::NavMap msg_tmp;
-  navmap::NavMap core;
-  if (!build_navmap_from_mesh(cloud, triangles, frame_id, msg_tmp, &core)) {
+  if (!build_navmap_from_mesh(verts, triangles, frame_id, msg_tmp, nullptr)) {
     return navmap::NavMap();
   }
-
-  // Build surfaces from component ranges
-  msg_tmp.surfaces.clear();
-  for (const auto & oc : surf_tri_ranges) {
-    if (oc.second == 0) {continue;}
-    navmap_ros_interfaces::msg::NavMapSurface s;
-    s.frame_id = frame_id;
-    s.navcels.resize(oc.second);
-    for (size_t k = 0; k < oc.second; ++k) {
-      s.navcels[k] = static_cast<uint32_t>(oc.first + k);
+  {
+    // Points behind each triangle (its weakest vertex); 0 = interpolated over a hole.
+    navmap_ros_interfaces::msg::NavMapLayer support;
+    support.name = "support";
+    support.type = navmap_ros_interfaces::msg::NavMapLayer::U8;
+    support.data_u8.reserve(tris.size());
+    for (const auto & t : tris) {
+      const uint32_t m = std::min({nodes[t[0]].support, nodes[t[1]].support, nodes[t[2]].support});
+      support.data_u8.push_back(static_cast<uint8_t>(std::min<uint32_t>(m, 255u)));
     }
-    msg_tmp.surfaces.push_back(std::move(s));
+    msg_tmp.layers.push_back(std::move(support));
   }
-
   rebuild_surfaces_by_connectivity(msg_tmp);
+  drop_small_surfaces(msg_tmp, P.min_surface_area);
   keep_top_surfaces_by_size(msg_tmp, P.max_surfaces);
+  if (msg_tmp.navcels_v0.empty()) {
+    return navmap::NavMap();
+  }
 
   out_msg = std::move(msg_tmp);
   return from_msg(out_msg);

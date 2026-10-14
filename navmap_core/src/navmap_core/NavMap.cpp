@@ -58,6 +58,7 @@ NavMap::NavMap(const NavMap & other)
   layers = other.layers;
   layer_meta = other.layer_meta;
   navcel_surface_ = other.navcel_surface_;
+  nonmanifold_edges_ = other.nonmanifold_edges_;
 
   geometry_dirty_ = true;
   geometry_fp_ = 0;
@@ -182,6 +183,7 @@ NavMap & NavMap::operator=(const NavMap & other)
   layers = other.layers;
   layer_meta = other.layer_meta;
   navcel_surface_ = other.navcel_surface_;
+  nonmanifold_edges_ = other.nonmanifold_edges_;
 
   geometry_dirty_ = true;
   return *this;
@@ -199,6 +201,7 @@ NavMap & NavMap::operator=(NavMap && other) noexcept
   layers = std::move(other.layers);
   layer_meta = std::move(other.layer_meta);
   navcel_surface_ = std::move(other.navcel_surface_);
+  nonmanifold_edges_ = other.nonmanifold_edges_;
 
   geometry_fp_ = other.geometry_fp_;
   geometry_dirty_ = other.geometry_dirty_;
@@ -230,42 +233,42 @@ static inline AABB triangle_aabb(
 
 void NavMap::build_adjacency()
 {
-  struct EdgeKey { PointId a; PointId b; };
-  struct EdgeHash
+  constexpr auto kNone = std::numeric_limits<NavCelId>::max();
+  struct EdgeUse
   {
-    size_t operator()(const EdgeKey & k) const
-    {
-      return static_cast<size_t>(k.a) * 73856093u ^
-             static_cast<size_t>(k.b) * 19349663u;
-    }
+    PointId a, b;
+    NavCelId cid;
+    uint8_t e;
   };
-  struct EdgeEq
-  {
-    bool operator()(const EdgeKey & x, const EdgeKey & y) const
-    {
-      return x.a == y.a && x.b == y.b;
-    }
-  };
-
-  std::unordered_map<EdgeKey, std::pair<NavCelId, int>, EdgeHash, EdgeEq> E;
+  std::vector<EdgeUse> uses;
+  uses.reserve(navcels.size() * 3);
   for (NavCelId cid = 0; cid < navcels.size(); ++cid) {
     auto & c = navcels[cid];
-    for (int e = 0; e < 3; ++e) {
+    for (uint8_t e = 0; e < 3; ++e) {
+      c.neighbor[e] = kNone;
       PointId a = c.v[e];
       PointId b = c.v[(e + 1) % 3];
       if (a > b) {std::swap(a, b);}
-      EdgeKey key{a, b};
-      auto it = E.find(key);
-      if (it == E.end()) {
-        E.emplace(key, std::make_pair(cid, e));
-      } else {
-        auto pair = it->second;
-        auto cid2 = pair.first;
-        auto e2 = pair.second;
-        navcels[cid].neighbor[e] = cid2;
-        navcels[cid2].neighbor[e2] = cid;
-      }
+      uses.push_back({a, b, cid, e});
     }
+  }
+  std::sort(
+    uses.begin(), uses.end(), [](const EdgeUse & x, const EdgeUse & y) {
+      return x.a != y.a ? x.a < y.a : x.b < y.b;
+    });
+
+  // Link only edges shared by exactly two cells; leave non-manifold edges open.
+  nonmanifold_edges_ = 0;
+  for (std::size_t k = 0; k < uses.size(); ) {
+    std::size_t end = k + 1;
+    while (end < uses.size() && uses[end].a == uses[k].a && uses[end].b == uses[k].b) {++end;}
+    if (end - k == 2) {
+      navcels[uses[k].cid].neighbor[uses[k].e] = uses[k + 1].cid;
+      navcels[uses[k + 1].cid].neighbor[uses[k + 1].e] = uses[k].cid;
+    } else if (end - k > 2) {
+      ++nonmanifold_edges_;
+    }
+    k = end;
   }
 }
 

@@ -244,10 +244,12 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(
 nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm);
 
 /**
- * @brief Parameters controlling NavMap construction from unorganized points.
+ * @brief Parameters controlling NavMap construction from point clouds.
  *
- * These parameters guide neighborhood search, local meshing, and basic geometric filtering
- * used by the point-cloud based builders.
+ * from_points() uses resolution, max_dz, max_slope_deg, min_area, min_clearance,
+ * max_surfaces, min_surface_area and max_hole_area. max_edge_len, neighbor_radius, k_neighbors,
+ * use_radius and min_angle_deg are kept for API compatibility and ignored.
+ * For voxelized clouds, use a resolution of at least twice the voxel size.
  */
 struct BuildParams
 {
@@ -278,32 +280,45 @@ struct BuildParams
   /** @brief Minimum interior angle (degrees) to avoid sliver triangles. */
   float min_angle_deg = 20.0f;   // minimum interior angle (deg) to avoid sliver triangles
 
-  /** @brief Maximun surfaces to keep, ordenred by size. */
-  int max_surfaces = 0;  // 0 ó <0 => no limits. >0 => Keep only N larger
+  /** @brief Vertical free space (meters) that separates two stacked surfaces in a cell. */
+  float min_clearance = 1.0f;
+
+  /** @brief Maximum number of surfaces to keep, largest first (0 = all). */
+  int max_surfaces = 0;
+
+  /** @brief Surfaces smaller than this area (square meters) are dropped (0 = keep all). */
+  float min_surface_area = 0.0f;
+
+  /** @brief Enclosed empty regions up to this area (square meters) are filled (0 = none). */
+  float max_hole_area = 1.0f;
 };
 
 /**
- * @brief Build a NavMap surface from a PCL point cloud.
+ * @brief Build a NavMap from an unorganized point cloud (multi-level grid triangulation).
  *
  * @param[in] input_points Point set in world coordinates (`pcl::PointXYZ`).
  * @param[out] out_msg     Output transport message mirroring the created NavMap.
  * @param[in] params       Meshing and filtering parameters (see ::BuildParams).
- * @return The constructed `navmap::NavMap`.
+ * @return The constructed `navmap::NavMap` (empty if nothing could be meshed).
  *
  * @details
- *  Typical steps implemented by this builder include:
- *  - Optional downsampling according to @p params.resolution.
- *  - Local neighborhood discovery using either radius (@p params.use_radius) or k-NN.
- *  - Edge and face filtering based on @p params.max_edge_len, @p params.min_area and
- *    @p params.min_angle_deg.
- *  - Optional slope gating using @p params.max_slope_deg with respect to the vertical axis.
- *  - Creation of a single surface with shared vertices and triangle indices.
- *  The function also fills @p out_msg with the compact ROS representation of the resulting map.
- *
- * @note Input is treated as an unorganized cloud. If normals or intensities are present,
- *       they are ignored by this overload.
- * @throw std::runtime_error If meshing fails due to inconsistent parameters or empty input.
- */
+ *  - Points are binned in XY cells of @p params.resolution. In each cell, points closer
+ *    than max(min_clearance, max_dz) in z form one level. Its height at the cell centre comes
+ *    from a robust plane fit of its upper face (points above a gap of max_dz / 2, e.g. a slab
+ *    seen from above and below); a face whose spread around the plane exceeds max_dz is
+ *    clutter and keeps a high top (an obstacle). Stacked floors give several vertices per cell.
+ *  - Enclosed empty regions up to max_hole_area are filled by interpolating the levels
+ *    present around most of their border.
+ *  - Vertices of neighbouring cells are linked to the closest level within
+ *    max_dz + tan(max_slope_deg) * distance, only when the choice is mutual.
+ *  - Each grid quad gets at most the two triangles of one diagonal per connected level,
+ *    so every edge has at most two triangles (manifold), and no triangle steeper than
+ *    max_slope_deg is created.
+ *  - Surfaces are the connected components; max_surfaces and min_surface_area drop the
+ *    smaller ones together with their triangles and vertices.
+ *  - Adds per-triangle layers "elevation" (mean vertex height) and "support" (points behind
+ *    the weakest vertex, up to 255; 0 = interpolated over a hole). Frame id is "map".
+  */
 navmap::NavMap from_points(
   const  pcl::PointCloud<pcl::PointXYZ> & input_points,
   navmap_ros_interfaces::msg::NavMap & out_msg,

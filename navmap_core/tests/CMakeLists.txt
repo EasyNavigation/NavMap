@@ -42,3 +42,8 @@ ament_add_gtest(test_navmap_properties test_navmap_properties.cpp)
 target_link_libraries(test_navmap_properties
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_adjacency test_adjacency.cpp)
+target_link_libraries(test_adjacency
+  ${PROJECT_NAME}
+)
