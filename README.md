@@ -6,7 +6,7 @@
 [![jazzy](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml/badge.svg?branch=jazzy)](https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml)
 [![humble](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml/badge.svg?branch=humble)](https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml)
 
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/bea2ce1e-c35d-471e-9ebc-3fb60a344635" />
+<img width="400" alt="navmap_logo_white" src="https://github.com/user-attachments/assets/470f45cc-3142-4c51-8375-2446d282d4de" />
 
 [![NavMap SLAM](https://img.youtube.com/vi/t5p6c2HO7UA/0.jpg)](https://www.youtube.com/watch?v=t5p6c2HO7UA)
 
