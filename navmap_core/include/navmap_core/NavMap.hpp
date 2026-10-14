@@ -699,6 +699,23 @@ public:
   /// \brief Return up to 3 neighbor cell ids (skips invalid entries).
   std::vector<NavCelId> navcel_neighbors(NavCelId cid) const;
 
+  /**
+   * \brief Distance (m, 3D) from each NavCel centroid to the nearest seed.
+   *
+   * Seeds are the centroids of \p seed_cells and, if \p from_boundary, the open edges of the
+   * mesh (edges without a neighbor: walls, drops, unmapped space). The nearest seed is
+   * propagated over adjacency and the distance is measured straight to it, so it never jumps
+   * between disconnected surfaces (e.g. stacked floors).
+   *
+   * \param seed_cells    Seed NavCels (out-of-range ids are ignored).
+   * \param from_boundary Also seed the open edges.
+   * \param max_distance  Stop beyond this distance; farther or unreachable cells get +inf.
+   * \return One distance per NavCel.
+   */
+  std::vector<float> distance_field(
+    const std::vector<NavCelId> & seed_cells, bool from_boundary,
+    float max_distance = std::numeric_limits<float>::infinity()) const;
+
   /// \brief Value returned by \ref surface_of() for a NavCel in no surface.
   static constexpr std::size_t kNoSurface = std::numeric_limits<std::size_t>::max();
 

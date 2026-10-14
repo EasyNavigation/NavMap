@@ -47,3 +47,8 @@ ament_add_gtest(test_adjacency test_adjacency.cpp)
 target_link_libraries(test_adjacency
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_distance_field test_distance_field.cpp)
+target_link_libraries(test_distance_field
+  ${PROJECT_NAME}
+)
