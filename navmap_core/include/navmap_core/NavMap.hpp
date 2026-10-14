@@ -695,6 +695,13 @@ public:
   /// \brief Return up to 3 neighbor cell ids (skips invalid entries).
   std::vector<NavCelId> navcel_neighbors(NavCelId cid) const;
 
+  /// \brief Value returned by \ref surface_of() for a NavCel in no surface.
+  static constexpr std::size_t kNoSurface = std::numeric_limits<std::size_t>::max();
+
+  /// \brief Index of the surface owning \p cid, or \ref kNoSurface.
+  /// \note O(1) after \ref rebuild_geometry_accels().
+  std::size_t surface_of(NavCelId cid) const;
+
   // ---- Layers (per-NavCel) convenience ----
 
   /**
@@ -1114,6 +1121,15 @@ private:
   mutable bool geometry_dirty_{true};
   mutable std::uint64_t geometry_fp_{0};
 
+  // Closest hit over all surfaces with t < t_max, nearest surfaces first.
+  bool closest_hit_(
+    const Eigen::Vector3f & o, const Eigen::Vector3f & d, float t_max,
+    RayHit & out) const;
+
+  // Owning surface per NavCel, built in rebuild_geometry_accels().
+  std::vector<std::uint32_t> navcel_surface_;
+  void build_navcel_surface_index_();
+
   // Builders and traversal helpers.
 
   /**
@@ -1130,6 +1146,7 @@ private:
    * \param[out] hit_cid  Triangle id on hit.
    * \param[out] t_out    Distance along ray.
    * \param[out] hit_pt   Intersection point (world).
+   * \param t_max     Only hits closer than this count (prunes the BVH).
    * \return true if any triangle was hit.
    */
   bool surface_raycast(
@@ -1138,7 +1155,8 @@ private:
     const Eigen::Vector3f & d,
     NavCelId & hit_cid,
     float & t_out,
-    Eigen::Vector3f & hit_pt) const;
+    Eigen::Vector3f & hit_pt,
+    float t_max = std::numeric_limits<float>::infinity()) const;
 
   /**
    * \brief Walk across neighbors starting from \p start_cid to locate \p p.

@@ -28,6 +28,13 @@ install(
   DESTINATION include/
 )
 
+option(NAVMAP_BUILD_BENCH "Build the navmap_core micro-benchmark" OFF)
+if(NAVMAP_BUILD_BENCH)
+  add_executable(navmap_bench bench/navmap_bench.cpp)
+  target_link_libraries(navmap_bench ${PROJECT_NAME})
+  install(TARGETS navmap_bench RUNTIME DESTINATION lib/${PROJECT_NAME})
+endif()
+
 install(TARGETS
   ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}
