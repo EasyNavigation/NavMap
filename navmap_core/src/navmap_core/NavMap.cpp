@@ -15,7 +15,8 @@
 
 
 #include "navmap_core/NavMap.hpp"
-#include <stack>
+#include <array>
+#include <vector>
 #include <algorithm>
 #include <functional>
 #include <cmath>
@@ -56,6 +57,7 @@ NavMap::NavMap(const NavMap & other)
   surfaces = other.surfaces;
   layers = other.layers;
   layer_meta = other.layer_meta;
+  navcel_surface_ = other.navcel_surface_;
 
   geometry_dirty_ = true;
   geometry_fp_ = 0;
@@ -179,6 +181,7 @@ NavMap & NavMap::operator=(const NavMap & other)
   surfaces = other.surfaces;
   layers = other.layers;
   layer_meta = other.layer_meta;
+  navcel_surface_ = other.navcel_surface_;
 
   geometry_dirty_ = true;
   return *this;
@@ -195,6 +198,7 @@ NavMap & NavMap::operator=(NavMap && other) noexcept
   surfaces = std::move(other.surfaces);
   layers = std::move(other.layers);
   layer_meta = std::move(other.layer_meta);
+  navcel_surface_ = std::move(other.navcel_surface_);
 
   geometry_fp_ = other.geometry_fp_;
   geometry_dirty_ = other.geometry_dirty_;
@@ -349,6 +353,67 @@ void NavMap::build_surface_bvh(Surface & s)
 }
 
 // -----------------------------------------------------------------------------
+// BVH traversal stack: fixed buffer, heap only if a degenerate tree overflows it
+// -----------------------------------------------------------------------------
+
+namespace
+{
+class NodeStack
+{
+public:
+  void push(int v)
+  {
+    if (n_ < static_cast<int>(buf_.size())) {buf_[n_++] = v;} else {spill_.push_back(v);}
+  }
+  int pop()
+  {
+    if (!spill_.empty()) {
+      const int v = spill_.back();
+      spill_.pop_back();
+      return v;
+    }
+    return buf_[--n_];
+  }
+  bool empty() const {return n_ == 0 && spill_.empty();}
+
+private:
+  std::array<int, 96> buf_;
+  int n_{0};
+  std::vector<int> spill_;
+};
+
+// Entry distance of the ray into the box, if it enters before t_max.
+inline bool ray_box_entry(
+  const AABB & box, const Vec3 & o, const Vec3 & d, float t_max,
+  float & t_in)
+{
+  float t0 = 0.0f, t1 = t_max;
+  for (int i = 0; i < 3; ++i) {
+    if (std::fabs(d[i]) < 1e-12f) {
+      if (o[i] < box.min[i] || o[i] > box.max[i]) {return false;}
+      continue;
+    }
+    const float inv = 1.0f / d[i];
+    float a = (box.min[i] - o[i]) * inv, b = (box.max[i] - o[i]) * inv;
+    if (a > b) {std::swap(a, b);}
+    t0 = std::max(t0, a);
+    t1 = std::min(t1, b);
+    if (!(t0 <= t1)) {return false;}  // also rejects NaN
+  }
+  t_in = t0;
+  return true;
+}
+
+inline float box_sq_dist(const AABB & box, const Vec3 & p)
+{
+  const float dx = std::max(std::max(box.min.x() - p.x(), 0.0f), p.x() - box.max.x());
+  const float dy = std::max(std::max(box.min.y() - p.y(), 0.0f), p.y() - box.max.y());
+  const float dz = std::max(std::max(box.min.z() - p.z(), 0.0f), p.z() - box.max.z());
+  return dx * dx + dy * dy + dz * dz;
+}
+}  // namespace
+
+// -----------------------------------------------------------------------------
 // Rebuild accelerations and geometry caches
 // -----------------------------------------------------------------------------
 
@@ -370,6 +435,7 @@ void NavMap::rebuild_geometry_accels()
   for (auto & s : surfaces) {
     build_surface_bvh(s);
   }
+  build_navcel_surface_index_();
 
   // NOTE: Layers are per-NavCel; if navcels size changed, caller may
   // choose to call layers.resize_all(navcels.size()) externally.
@@ -385,21 +451,20 @@ bool NavMap::surface_raycast(
   const Vec3 & d,
   NavCelId & hit_cid,
   float & t_out,
-  Vec3 & hit_pt) const
+  Vec3 & hit_pt,
+  float t_max) const
 {
   if (s.bvh.empty()) {
     return false;
   }
 
   bool hit = false;
-  float best_t = std::numeric_limits<float>::infinity();
-  std::stack<int> st;
+  float best_t = t_max;
+  NodeStack st;
   st.push(0);
 
   while (!st.empty()) {
-    int idx = st.top();
-    st.pop();
-    const BVHNode & n = s.bvh[idx];
+    const BVHNode & n = s.bvh[st.pop()];
     if (!n.box.intersects_ray(o, d, best_t)) {
       continue;
     }
@@ -439,29 +504,47 @@ bool NavMap::raycast(
   float & t,
   Vec3 & hit_pt) const
 {
-  bool any = false;
-  float best_t = std::numeric_limits<float>::infinity();
-  Vec3 best_p = Vec3::Zero();
-  NavCelId best_cid = 0;
+  RayHit h;
+  if (!closest_hit_(o, d, std::numeric_limits<float>::infinity(), h)) {
+    return false;
+  }
+  hit_cid = h.cid;
+  t = h.t;
+  hit_pt = h.p;
+  return true;
+}
 
-  for (const auto & s : surfaces) {
-    NavCelId cid;
-    float tt;
-    Vec3 p;
-    if (surface_raycast(s, o, d, cid, tt, p)) {
-      if (tt < best_t) {
-        best_t = tt;
-        best_p = p;
-        best_cid = cid;
-        any = true;
-      }
+bool NavMap::closest_hit_(const Vec3 & o, const Vec3 & d, float t_max, RayHit & out) const
+{
+  // Surfaces the ray enters before t_max, sorted by entry distance.
+  constexpr std::size_t kInline = 16;
+  std::array<std::pair<float, std::uint32_t>, kInline> inline_buf;
+  std::vector<std::pair<float, std::uint32_t>> heap_buf;
+  std::pair<float, std::uint32_t> * order = inline_buf.data();
+  if (surfaces.size() > kInline) {
+    heap_buf.resize(surfaces.size());
+    order = heap_buf.data();
+  }
+  std::size_t n = 0;
+  for (std::size_t s = 0; s < surfaces.size(); ++s) {
+    float t_in;
+    if (!surfaces[s].bvh.empty() && ray_box_entry(surfaces[s].aabb, o, d, t_max, t_in)) {
+      order[n++] = {t_in, static_cast<std::uint32_t>(s)};
     }
   }
+  std::sort(order, order + n);
 
-  if (any) {
-    hit_cid = best_cid;
-    t = best_t;
-    hit_pt = best_p;
+  bool any = false;
+  float best_t = t_max;
+  for (std::size_t k = 0; k < n && order[k].first < best_t; ++k) {
+    NavCelId cid;
+    float t;
+    Vec3 p;
+    if (surface_raycast(surfaces[order[k].second], o, d, cid, t, p, best_t) && t < best_t) {
+      best_t = t;
+      out = {true, order[k].second, cid, t, p};
+      any = true;
+    }
   }
   return any;
 }
@@ -476,35 +559,18 @@ void NavMap::raycast_many(
 
   for (size_t i = 0; i < rays.size(); ++i) {
     const auto & ray = rays[i];
-    bool any = false;
-    float best_t = std::numeric_limits<float>::infinity();
-    Eigen::Vector3f best_p(0, 0, 0);
-    NavCelId best_cid = 0;
-    size_t best_surf = 0;
-
+    if (!first_hit_only) {
+      closest_hit_(ray.o, ray.d, std::numeric_limits<float>::infinity(), out[i]);
+      continue;
+    }
     for (size_t s = 0; s < surfaces.size(); ++s) {
       NavCelId cid;
       float t;
       Eigen::Vector3f p;
       if (surface_raycast(surfaces[s], ray.o, ray.d, cid, t, p)) {
-        if (first_hit_only) {
-          out[i] = {true, s, cid, t, p};
-          any = true;
-          break;
-        } else {
-          if (t < best_t) {
-            best_t = t;
-            best_p = p;
-            best_cid = cid;
-            best_surf = s;
-            any = true;
-          }
-        }
+        out[i] = {true, s, cid, t, p};
+        break;
       }
-    }
-
-    if (!first_hit_only && any) {
-      out[i] = {true, best_surf, best_cid, best_t, best_p};
     }
   }
 }
@@ -512,6 +578,16 @@ void NavMap::raycast_many(
 // -----------------------------------------------------------------------------
 // Locate helpers
 // -----------------------------------------------------------------------------
+
+// Point of the plane (a, n) under/over p; along n if the plane is vertical.
+static inline Vec3 project_to_plane_vertically(const Vec3 & p, const Vec3 & a, const Vec3 & n)
+{
+  const float dist = n.dot(p - a);
+  if (std::fabs(n.z()) > 1e-6f) {
+    return Vec3(p.x(), p.y(), p.z() - dist / n.z());
+  }
+  return p - dist * n;
+}
 
 static inline bool point_in_triangle_bary(
   const Vec3 & p,
@@ -557,8 +633,7 @@ bool NavMap::locate_by_walking(
     Vec3 b = positions.at(c.v[1]);
     Vec3 d = positions.at(c.v[2]);
     Vec3 n = c.normal;
-    float dist = n.dot(p - a);
-    Vec3 q = p - dist * n;
+    Vec3 q = project_to_plane_vertically(p, a, n);
     if (hit_pt) {
       *hit_pt = q;
     }
@@ -578,7 +653,8 @@ bool NavMap::locate_by_walking(
       cid_out = cid;
       return true;
     }
-    NavCelId next = c.neighbor[neg_idx];
+    // bary[i] < 0: p is beyond the edge opposite vertex i, i.e. edge (i+1)%3.
+    NavCelId next = c.neighbor[(neg_idx + 1) % 3];
     if (next == std::numeric_limits<uint32_t>::max()) {
       cid_out = cid;
       return false;
@@ -612,7 +688,7 @@ bool NavMap::locate_navcel_core(
       const Vec3 & n = c.normal;
 
       const float dist = n.dot(p_world - a);
-      const Vec3 q = p_world - dist * n;
+      const Vec3 q = project_to_plane_vertically(p_world, a, n);
 
       Vec3 bary_hint;
       if (point_in_triangle_bary(q, a, b, d, bary_hint, opts.planar_eps) &&
@@ -624,13 +700,10 @@ bool NavMap::locate_navcel_core(
           *hit_pt = q;
         }
 
-        // Find the surface that owns this navcel.
-        for (size_t s = 0; s < surfaces.size(); ++s) {
-          const auto & surf = surfaces[s];
-          if (std::find(surf.navcels.begin(), surf.navcels.end(), cid) != surf.navcels.end()) {
-            surface_idx = s;
-            return true;
-          }
+        const std::size_t s = surface_of(cid);
+        if (s != kNoSurface) {
+          surface_idx = s;
+          return true;
         }
         // If no surface owns the hinted navcel, fall through to the generic search.
       }
@@ -647,21 +720,17 @@ bool NavMap::locate_navcel_core(
       const float dist0 = n0.dot(p_world - a0);
 
       // Do not walk if the query point is clearly off the hinted plane.
+      Vec3 q;
       if (std::fabs(dist0) <= opts.height_eps) {
-        if (locate_by_walking(
-            start,
-            p_world,
-            cid,
-            bary,
-            hit_pt,
-            opts.planar_eps))
+        // The walk may end on a cell far from p in height: re-check height_eps there.
+        if (locate_by_walking(start, p_world, cid, bary, &q, opts.planar_eps) &&
+          (p_world - q).norm() <= opts.height_eps)
         {
-          for (size_t s = 0; s < surfaces.size(); ++s) {
-            const auto & surf = surfaces[s];
-            if (std::find(surf.navcels.begin(), surf.navcels.end(), cid) != surf.navcels.end()) {
-              surface_idx = s;
-              return true;
-            }
+          if (hit_pt) {*hit_pt = q;}
+          const std::size_t s = surface_of(cid);
+          if (s != kNoSurface) {
+            surface_idx = s;
+            return true;
           }
           // Fall through if surface not found.
         }
@@ -669,54 +738,41 @@ bool NavMap::locate_navcel_core(
     }
   }
 
-  // 3) Vertical raycast fallback (choose by |dz| using BOTH directions)
+  // 3) Vertical rays down and up; keep the surface closest in z.
   {
-    // Shoot both rays: downward and upward
-    std::vector<Ray> rays;
-    rays.push_back({p_world, Vec3(0.0f, 0.0f, -1.0f)});
-    rays.push_back({p_world, Vec3(0.0f, 0.0f, 1.0f)});
+    // Start slightly past p so a surface through p itself is hit (t > 0).
+    constexpr float kRayLift = 1e-3f;
+    const float inf = std::numeric_limits<float>::infinity();
 
-    std::vector<RayHit> hits;
-    raycast_many(rays, hits, /*first_hit_only=*/ true);
+    auto valid_hit = [&](const RayHit & h, Vec3 & bary_out) {
+        const auto & tri = navcels[h.cid];
+        return point_in_triangle_bary(
+          h.p, positions.at(tri.v[0]), positions.at(tri.v[1]), positions.at(tri.v[2]),
+          bary_out, opts.planar_eps);
+      };
 
-    bool any = false;
-    float best_dz = std::numeric_limits<float>::infinity();
-    size_t best_surf = 0;
-    NavCelId best_cid = 0;
-    Vec3 best_hit(0.0f, 0.0f, 0.0f);
-    Vec3 best_bary(0.0f, 0.0f, 0.0f);
+    RayHit down, up;
+    Vec3 bary_down, bary_up;
+    const bool has_down =
+      closest_hit_(p_world + Vec3(0.0f, 0.0f, kRayLift), Vec3(0.0f, 0.0f, -1.0f), inf, down) &&
+      valid_hit(down, bary_down);
+    const float dz_down = has_down ? std::fabs(down.p.z() - p_world.z()) : inf;
 
-    for (const auto & h : hits) {
-      if (!h.hit) {continue;}
-      const float dz = std::fabs(h.p.z() - p_world.z());
-      // Compute barycentrics on the hit triangle to return consistent outputs
-      const auto & tri = navcels[h.cid];
-      const Vec3 a = positions.at(tri.v[0]);
-      const Vec3 b = positions.at(tri.v[1]);
-      const Vec3 c = positions.at(tri.v[2]);
-      Vec3 bary_tmp;
-      if (!point_in_triangle_bary(h.p, a, b, c, bary_tmp, opts.planar_eps)) {
-        continue;  // numerical guard
-      }
-      if (dz < best_dz) {
-        best_dz = dz;
-        best_surf = h.surface;
-        best_cid = h.cid;
-        best_hit = h.p;
-        best_bary = bary_tmp;
-        any = true;
-      }
-    }
+    // Upward ray only needs surfaces strictly closer than the one below.
+    const float up_max = has_down ? dz_down + kRayLift : inf;
+    const bool has_up =
+      closest_hit_(p_world - Vec3(0.0f, 0.0f, kRayLift), Vec3(0.0f, 0.0f, 1.0f), up_max, up) &&
+      valid_hit(up, bary_up) && std::fabs(up.p.z() - p_world.z()) < dz_down;
 
-    if (any) {
-      surface_idx = best_surf;
-      cid = best_cid;
-      bary = best_bary;
-      if (hit_pt) {*hit_pt = best_hit;}
+    if (has_down || has_up) {
+      const RayHit & best = has_up ? up : down;
+      surface_idx = best.surface;
+      cid = best.cid;
+      bary = has_up ? bary_up : bary_down;
+      if (hit_pt) {*hit_pt = best.p;}
       return true;
     }
   }
-
   return false;
 }
 
@@ -736,19 +792,12 @@ bool NavMap::surface_closest_navcel(
   }
 
   bool any = false;
-  std::stack<int> st;
+  NodeStack st;
   st.push(0);
 
   while (!st.empty()) {
-    int idx = st.top();
-    st.pop();
-    const BVHNode & n = s.bvh[idx];
-
-    float dx = std::max(std::max(n.box.min.x() - p.x(), 0.0f), p.x() - n.box.max.x());
-    float dy = std::max(std::max(n.box.min.y() - p.y(), 0.0f), p.y() - n.box.max.y());
-    float dz = std::max(std::max(n.box.min.z() - p.z(), 0.0f), p.z() - n.box.max.z());
-    float box_lb = dx * dx + dy * dy + dz * dz;
-    if (box_lb > best_sq) {
+    const BVHNode & n = s.bvh[st.pop()];
+    if (box_sq_dist(n.box, p) >= best_sq) {
       continue;
     }
 
@@ -768,6 +817,12 @@ bool NavMap::surface_closest_navcel(
           any = true;
         }
       }
+    } else if (n.left >= 0 && n.right >= 0) {
+      // Push the farther child first so the nearer one is visited first.
+      const bool left_near =
+        box_sq_dist(s.bvh[n.left].box, p) <= box_sq_dist(s.bvh[n.right].box, p);
+      st.push(left_near ? n.right : n.left);
+      st.push(left_near ? n.left : n.right);
     } else {
       if (n.left >= 0) {st.push(n.left);}
       if (n.right >= 0) {st.push(n.right);}
@@ -913,6 +968,38 @@ std::vector<NavCelId> NavMap::navcel_neighbors(NavCelId cid) const
   return out;
 }
 
+void NavMap::build_navcel_surface_index_()
+{
+  constexpr auto kUnset = std::numeric_limits<std::uint32_t>::max();
+  navcel_surface_.assign(navcels.size(), kUnset);
+  for (std::size_t s = 0; s < surfaces.size(); ++s) {
+    for (auto cid : surfaces[s].navcels) {
+      // First owner wins, as in the linear fallback.
+      if (cid < navcel_surface_.size() && navcel_surface_[cid] == kUnset) {
+        navcel_surface_[cid] = static_cast<std::uint32_t>(s);
+      }
+    }
+  }
+}
+
+std::size_t NavMap::surface_of(NavCelId cid) const
+{
+  if (cid >= navcels.size()) {return kNoSurface;}
+
+  // Stale index (geometry edited without a rebuild): linear fallback.
+  if (navcel_surface_.size() != navcels.size()) {
+    for (std::size_t s = 0; s < surfaces.size(); ++s) {
+      const auto & ids = surfaces[s].navcels;
+      if (std::find(ids.begin(), ids.end(), cid) != ids.end()) {return s;}
+    }
+    return kNoSurface;
+  }
+
+  const auto s = navcel_surface_[cid];
+  return (s == std::numeric_limits<std::uint32_t>::max() || s >= surfaces.size()) ?
+         kNoSurface : static_cast<std::size_t>(s);
+}
+
 bool NavMap::locate_navcel(
   const Eigen::Vector3f & p_world,
   std::size_t & surface_idx,
@@ -953,13 +1040,8 @@ bool NavMap::locate_navcel(
         c.hit = hit;
         c.dz = std::fabs(hit.z() - p_world.z());
 
-        for (std::size_t si = 0; si < surfaces.size(); ++si) {
-          const auto & s = surfaces[si];
-          if (std::find(s.navcels.begin(), s.navcels.end(), hit_cid) != s.navcels.end()) {
-            c.surf = si;
-            break;
-          }
-        }
+        const std::size_t si = surface_of(hit_cid);
+        c.surf = (si != kNoSurface) ? si : 0;
 
         const auto & tri = navcels[c.cid];
         const Eigen::Vector3f A = positions.at(tri.v[0]);

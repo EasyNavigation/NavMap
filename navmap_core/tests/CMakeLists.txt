@@ -32,3 +32,13 @@ ament_add_gtest(test_navmap_assign test_navmap_assign.cpp)
 target_link_libraries(test_navmap_assign
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_locate_multisurface test_locate_multisurface.cpp)
+target_link_libraries(test_locate_multisurface
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_navmap_properties test_navmap_properties.cpp)
+target_link_libraries(test_navmap_properties
+  ${PROJECT_NAME}
+)
