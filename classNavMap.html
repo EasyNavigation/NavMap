@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classNavMap-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">NavMap Class Reference</div></div>
 </div><!--header-->
@@ -110,21 +111,23 @@ Collaboration diagram for NavMap:</div>
 <div class="dyncontent">
 <div class="center"><img src="classNavMap__coll__graph.png" border="0" usemap="#aNavMap_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aNavMap_coll__map" id="aNavMap_coll__map">
-<area shape="rect" title="Main container for navigable surfaces, geometry, and layers." alt="" coords="480,190,550,215"/>
+<area shape="rect" title="Main container for navigable surfaces, geometry, and layers." alt="" coords="486,216,556,242"/>
 <area shape="rect" href="structnavmap_1_1Positions.html" title="Structure&#45;of&#45;arrays for storing 3D vertex positions." alt="" coords="228,56,304,82"/>
-<area shape="poly" title=" " alt="" coords="320,67,388,78,424,90,458,108,477,126,493,148,512,188,507,190,488,151,473,130,454,112,422,95,387,83,319,72"/>
+<area shape="poly" title=" " alt="" coords="319,64,354,65,392,71,429,83,464,103,488,129,504,160,520,215,515,216,499,162,483,132,460,107,427,88,390,76,353,71,319,69"/>
 <area shape="rect" title=" " alt="" coords="5,56,109,82"/>
 <area shape="poly" title=" " alt="" coords="124,66,228,66,228,72,124,72"/>
 <area shape="rect" title=" " alt="" coords="177,110,354,135"/>
-<area shape="poly" title=" " alt="" coords="370,133,414,143,457,159,481,172,501,187,498,191,478,176,455,163,413,148,369,138"/>
+<area shape="poly" title=" " alt="" coords="371,127,418,139,463,159,494,186,514,214,510,217,490,189,461,163,417,144,369,132"/>
 <area shape="rect" title=" " alt="" coords="179,163,353,188"/>
-<area shape="poly" title=" " alt="" coords="369,184,480,196,479,201,368,189"/>
+<area shape="poly" title=" " alt="" coords="369,184,463,202,492,213,491,218,461,208,368,189"/>
 <area shape="rect" title=" " alt="" coords="178,216,354,242"/>
-<area shape="poly" title=" " alt="" coords="369,230,413,227,455,221,483,213,485,218,457,227,413,233,369,235"/>
-<area shape="rect" href="classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per&#45;NavCel)." alt="" coords="216,270,316,295"/>
-<area shape="poly" title=" " alt="" coords="331,282,393,277,425,269,455,258,483,237,503,214,507,217,486,241,457,262,426,274,394,282,332,288"/>
-<area shape="rect" title=" " alt="" coords="171,319,361,360"/>
-<area shape="poly" title=" " alt="" coords="376,336,417,325,454,306,475,285,491,261,508,215,513,217,495,263,479,289,458,310,419,330,377,341"/>
+<area shape="poly" title=" " alt="" coords="369,226,486,226,486,232,369,232"/>
+<area shape="rect" href="classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per&#45;NavCel)." alt="" coords="216,267,316,292"/>
+<area shape="poly" title=" " alt="" coords="331,275,395,269,461,255,496,240,498,245,463,260,396,274,332,280"/>
+<area shape="rect" title=" " alt="" coords="171,317,361,357"/>
+<area shape="poly" title=" " alt="" coords="376,327,420,316,461,298,477,285,491,270,511,241,515,244,495,274,480,289,463,302,422,321,377,332"/>
+<area shape="rect" title=" " alt="" coords="238,382,294,407"/>
+<area shape="poly" title=" " alt="" coords="309,394,345,393,385,387,425,375,460,354,484,328,500,297,515,241,520,243,505,299,488,331,464,358,427,379,386,392,345,398,309,399"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -221,6 +224,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a88f5d6281e1d15b8443a3c69658b3e8c" id="r_a88f5d6281e1d15b8443a3c69658b3e8c"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a88f5d6281e1d15b8443a3c69658b3e8c template"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a88f5d6281e1d15b8443a3c69658b3e8c">set_area</a> (const Eigen::Vector3f &amp;p_world, T value, const std::string &amp;layer_name, AreaShape shape, float size)</td></tr>
 <tr class="memdesc:a88f5d6281e1d15b8443a3c69658b3e8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a per-NavCel layer to a constant value over a 2D area.  <br /></td></tr>
+<tr class="memitem:a4eb38dc5b8b24bddfb955a5728c116cb" id="r_a4eb38dc5b8b24bddfb955a5728c116cb"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a4eb38dc5b8b24bddfb955a5728c116cb">surface_of</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
+<tr class="memdesc:a4eb38dc5b8b24bddfb955a5728c116cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index of the surface owning <code class="param">cid</code>, or kNoSurface.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -236,6 +241,11 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:abf1f84c70542a19818af0ec43f2086cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vertex positions (SoA).  <br /></td></tr>
 <tr class="memitem:a95a6ee32fbf35d6fecc5a3ea2f1610f2" id="r_a95a6ee32fbf35d6fecc5a3ea2f1610f2"><td class="memItemLeft">std::vector&lt; <a class="el" href="structSurface.html">Surface</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a95a6ee32fbf35d6fecc5a3ea2f1610f2">surfaces</a></td></tr>
 <tr class="memdesc:a95a6ee32fbf35d6fecc5a3ea2f1610f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Surfaces (partitions of navcels).  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-static-attribs" class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:acf1c6db47205e68d8d10e759192270b0" id="r_acf1c6db47205e68d8d10e759192270b0"><td class="memItemLeft">static constexpr std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#acf1c6db47205e68d8d10e759192270b0">kNoSurface</a> = std::numeric_limits&lt;std::size_t&gt;::max()</td></tr>
+<tr class="memdesc:acf1c6db47205e68d8d10e759192270b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value returned by surface_of() for a NavCel in no surface.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Main container for navigable surfaces, geometry, and layers. </p>
@@ -1465,6 +1475,26 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
+<a id="a4eb38dc5b8b24bddfb955a5728c116cb" name="a4eb38dc5b8b24bddfb955a5728c116cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4eb38dc5b8b24bddfb955a5728c116cb">&#9670;&#160;</a></span>surface_of()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t surface_of </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>cid</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Index of the surface owning <code class="param">cid</code>, or kNoSurface. </p>
+<dl class="section note"><dt>Note</dt><dd>O(1) after rebuild_geometry_accels(). </dd></dl>
+
+</div>
+</div>
 <a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
 <a id="a460d4eef97e1513f37e555a93ff62c35" name="a460d4eef97e1513f37e555a93ff62c35"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a460d4eef97e1513f37e555a93ff62c35">&#9670;&#160;</a></span>colors</h2>
@@ -1479,6 +1509,30 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Optional per-vertex colors. </p>
+
+</div>
+</div>
+<a id="acf1c6db47205e68d8d10e759192270b0" name="acf1c6db47205e68d8d10e759192270b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf1c6db47205e68d8d10e759192270b0">&#9670;&#160;</a></span>kNoSurface</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t kNoSurface = std::numeric_limits&lt;std::size_t&gt;::max()</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Value returned by surface_of() for a NavCel in no surface. </p>
 
 </div>
 </div>

@@ -20,5 +20,6 @@ var searchData=
   ['structure_17',['📂 Repository structure',['../index.html#autotoc_md5',1,'']]],
   ['surface_18',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]],
   ['surface_19',['surface',['../structnavmap_1_1RayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'navmap::RayHit::surface'],['../structRayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'RayHit::surface']]],
-  ['surfaces_20',['surfaces',['../classnavmap_1_1NavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'navmap::NavMap::surfaces'],['../classNavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'NavMap::surfaces']]]
+  ['surface_5fof_20',['surface_of',['../classnavmap_1_1NavMap.html#a4eb38dc5b8b24bddfb955a5728c116cb',1,'navmap::NavMap::surface_of()'],['../classNavMap.html#a4eb38dc5b8b24bddfb955a5728c116cb',1,'NavMap::surface_of()']]],
+  ['surfaces_21',['surfaces',['../classnavmap_1_1NavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'navmap::NavMap::surfaces'],['../classNavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'NavMap::surfaces']]]
 ];
