@@ -6,5 +6,6 @@ var searchData=
   ['deactivate_3',['deactivate',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a3f11e97d344d3f181f8160c61a32a574',1,'navmap_rviz_plugin::NavMapPoseTool']]],
   ['dependencies_4',['Dependencies',['../index.html#autotoc_md9',1,'']]],
   ['description_5',['description',['../structnavmap_1_1LayerMeta.html#a2e1454f6988673f814408646edaeb320',1,'navmap::LayerMeta']]],
-  ['disk_6',['9. Save and load from disk',['../index.html#autotoc_md29',1,'']]]
+  ['disk_6',['9. Save and load from disk',['../index.html#autotoc_md29',1,'']]],
+  ['distance_5ffield_7',['distance_field',['../classnavmap_1_1NavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'navmap::NavMap::distance_field()'],['../classNavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'NavMap::distance_field()']]]
 ];

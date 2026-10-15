@@ -166,6 +166,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ac62eb8c6caa3e48dd52fc2c49c6ec5fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new empty <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> and append it to the map.  <br /></td></tr>
 <tr class="memitem:a0415f1927fed922e8c2d5a6d4257cbbe" id="r_a0415f1927fed922e8c2d5a6d4257cbbe"><td class="memItemLeft"><a class="el" href="structSurface.html">Surface</a>&#160;</td><td class="memItemRight"><a class="el" href="#a0415f1927fed922e8c2d5a6d4257cbbe">create_surface_obj</a> (const std::string &amp;frame_id) const</td></tr>
 <tr class="memdesc:a0415f1927fed922e8c2d5a6d4257cbbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a standalone <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> object (not yet added to the map).  <br /></td></tr>
+<tr class="memitem:aaeb9d22ccea3b8ae3e94fc85ac4fcc14" id="r_aaeb9d22ccea3b8ae3e94fc85ac4fcc14"><td class="memItemLeft">std::vector&lt; float &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aaeb9d22ccea3b8ae3e94fc85ac4fcc14">distance_field</a> (const std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt; &amp;seed_cells, bool from_boundary, float max_distance=std::numeric_limits&lt; float &gt;::infinity()) const</td></tr>
+<tr class="memdesc:aaeb9d22ccea3b8ae3e94fc85ac4fcc14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance (m, 3D) from each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> centroid to the nearest seed.  <br /></td></tr>
 <tr class="memitem:ab392f27bbb2bc9c3c4bfe1b43aa5d758" id="r_ab392f27bbb2bc9c3c4bfe1b43aa5d758"><td class="memItemLeft">std::optional&lt; <a class="el" href="structnavmap_1_1LayerMeta.html">LayerMeta</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ab392f27bbb2bc9c3c4bfe1b43aa5d758">get_layer_meta</a> (const std::string &amp;name) const</td></tr>
 <tr class="memdesc:ab392f27bbb2bc9c3c4bfe1b43aa5d758"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return metadata for a layer if present (implementation-defined).  <br /></td></tr>
 <tr class="memitem:a02fe28789e1ccec8efd955bee4f894d2" id="r_a02fe28789e1ccec8efd955bee4f894d2"><td class="memItemLeft">std::array&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a>, 3 &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a02fe28789e1ccec8efd955bee4f894d2">get_neighbors</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
@@ -649,6 +651,44 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> with no navcels, ready to be customized and then added. </dd></dl>
+
+</div>
+</div>
+<a id="aaeb9d22ccea3b8ae3e94fc85ac4fcc14" name="aaeb9d22ccea3b8ae3e94fc85ac4fcc14"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaeb9d22ccea3b8ae3e94fc85ac4fcc14">&#9670;&#160;</a></span>distance_field()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; float &gt; distance_field </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>seed_cells</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>from_boundary</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>max_distance</em></span><span class="paramdefsep"> = </span><span class="paramdefval">std::numeric_limits&lt;float&gt;::infinity()</span>&#160;) const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Distance (m, 3D) from each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> centroid to the nearest seed. </p>
+<p>Seeds are the centroids of <code class="param">seed_cells</code> and, if <code class="param">from_boundary</code>, the open edges of the mesh (edges without a neighbor: walls, drops, unmapped space). The nearest seed is propagated over adjacency and the distance is measured straight to it, so it never jumps between disconnected surfaces (e.g. stacked floors).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">seed_cells</td><td>Seed NavCels (out-of-range ids are ignored). </td></tr>
+    <tr><td class="paramname">from_boundary</td><td>Also seed the open edges. </td></tr>
+    <tr><td class="paramname">max_distance</td><td>Stop beyond this distance; farther or unreachable cells get +inf. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>One distance per <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a>. </dd></dl>
 
 </div>
 </div>
