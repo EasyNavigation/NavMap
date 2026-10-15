@@ -114,7 +114,7 @@ struct Colors
  *
  * The registry currently supports: 8-bit unsigned, 32-bit float, 64-bit double.
  */
-enum class LayerType : uint8_t { U8 = 0, F32 = 1, F64 = 2 };
+enum class LayerType : uint8_t { U8 = 0, F32 = 1, F64 = 2, I16 = 3 };
 
 /**
  * \brief Non-templated base for runtime layer handling.
@@ -340,6 +340,7 @@ struct LayerMeta
   std::string description;   ///< Human-readable description
   std::string unit;          ///< Physical unit (e.g., "m", "deg", "%")
   bool per_cell{true};       ///< true for per-NavCel layers (current behavior)
+  std::optional<double> unknown;  ///< Value meaning "not observed" (NaN allowed), if any
 };
 
 // -----------------------------------------------------------------------------
@@ -436,6 +437,7 @@ template<typename T> inline constexpr LayerType layer_type_tag();
 template<> inline constexpr LayerType layer_type_tag<uint8_t>() {return LayerType::U8;}
 template<> inline constexpr LayerType layer_type_tag<float>() {return LayerType::F32;}
 template<> inline constexpr LayerType layer_type_tag<double>() {return LayerType::F64;}
+template<> inline constexpr LayerType layer_type_tag<int16_t>() {return LayerType::I16;}
 
 /**
  * \brief Shape selector for area-writing APIs.
@@ -746,11 +748,16 @@ public:
     const std::string & unit = {},
     T default_value = T{})
   {
+    const bool existed = has_layer(name);
     auto v = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
-    if (v->data().size() != navcels.size()) {
+    if (!existed || v->data().size() != navcels.size()) {  // new layers start at default_value
       v->data().assign(navcels.size(), default_value);
+      v->mark_dirty();
     }
-    layer_meta[name] = LayerMeta{description, unit, true};
+    auto & meta = layer_meta[name];
+    meta.description = description;
+    meta.unit = unit;
+    meta.per_cell = true;
     return v;
   }
 
@@ -789,7 +796,7 @@ public:
    *
    * Si la capa no existe o \p cid está fuera de rango, devuelve \p def.
    *
-   * \tparam T uint8_t, float, or double
+   * \tparam T uint8_t, int16_t, float, or double
    * \param name Layer name
    * \param cid  Triangle id
    * \param def  Default value on failure
@@ -822,6 +829,10 @@ public:
         const auto & buf = vd->data();
         if (static_cast<size_t>(cid) >= buf.size()) {return def;}
         v = buf[cid];
+      } else if (auto vi = std::dynamic_pointer_cast<LayerView<int16_t>>(base)) {
+        const auto & buf = vi->data();
+        if (static_cast<size_t>(cid) >= buf.size()) {return def;}
+        v = static_cast<double>(buf[cid]);
       } else {
         return def;
       }
@@ -832,8 +843,8 @@ public:
     if constexpr (std::is_floating_point_v<T>) {
       return static_cast<T>(v);
     } else if constexpr (std::is_integral_v<T>) {
-      double lo = 0.0;
-      double hi = static_cast<double>(std::numeric_limits<T>::max());
+      const double lo = static_cast<double>(std::numeric_limits<T>::lowest());
+      const double hi = static_cast<double>(std::numeric_limits<T>::max());
       double vv = v < lo ? lo : (v > hi ? hi : v);
       return static_cast<T>(std::llround(vv));
     } else {
@@ -847,6 +858,15 @@ public:
    * \return Optional metadata if available.
    */
   std::optional<LayerMeta> get_layer_meta(const std::string & name) const;
+
+  /**
+   * \brief Declare the value of layer \p name that means "not observed" (NaN allowed).
+   *        Travels with the map (message and file) and is kept by add_layer().
+   */
+  void set_layer_unknown(const std::string & name, double value);
+
+  /// \brief Whether layer \p name holds its unknown value at \p cid (false if it has none).
+  bool is_unknown(const std::string & name, NavCelId cid) const;
 
   /**
    * \brief List all layer names currently stored.
@@ -965,7 +985,10 @@ public:
     if (dst->data().size() != navcels.size()) {
       dst->data().assign(navcels.size(), T{});
     }
-    layer_meta[name] = LayerMeta{description, unit, true};
+    auto & meta = layer_meta[name];
+    meta.description = description;
+    meta.unit = unit;
+    meta.per_cell = true;
 
     if (!has_layer(src_layer)) {
       return dst;
@@ -983,8 +1006,8 @@ public:
       if constexpr (std::is_floating_point_v<T>) {
         dst->data()[cid] = static_cast<T>(v);
       } else if constexpr (std::is_integral_v<T>) {
-        double lo = 0.0;
-        double hi = static_cast<double>(std::numeric_limits<T>::max());
+        const double lo = static_cast<double>(std::numeric_limits<T>::lowest());
+        const double hi = static_cast<double>(std::numeric_limits<T>::max());
         if (v < lo) {v = lo;}
         if (v > hi) {v = hi;}
         dst->data()[cid] = static_cast<T>(std::llround(v));
@@ -1019,7 +1042,7 @@ public:
    * Efficiency: BFS from the seed NavCel with XY AABB pruning against the
    * circumscribed square of the area. Inclusion test by triangle centroid.
    *
-   * \tparam T uint8_t, float, or double
+   * \tparam T uint8_t, int16_t, float, or double
    * \param p_world 3D point in world coordinates (projected to ground)
    * \param value Value to set in the layer
    * \param layer_name Target layer name

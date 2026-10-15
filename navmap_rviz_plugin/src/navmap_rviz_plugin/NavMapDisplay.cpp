@@ -14,6 +14,7 @@
 // limitations under the License.
 
 
+#include <algorithm>
 #include <cmath>
 
 #include <OgreSceneManager.h>
@@ -74,6 +75,18 @@ inline Ogre::ColourValue colorFromU8(uint8_t v, float alpha)
   float occ = static_cast<float>(v) / 253.0f;
   float c = 1.0f - occ;
   return Ogre::ColourValue(c, c, c, alpha);
+}
+
+// Occupancy log-odds (int16, 1/1000): grey 1 - p, as U8 occupancy (free light, occupied black).
+inline Ogre::ColourValue colorFromLogodds(int16_t v, float alpha)
+{
+  const float p = 1.0f / (1.0f + std::exp(-static_cast<float>(v) / 1000.0f));
+  return Ogre::ColourValue(1.0f - p, 1.0f - p, 1.0f - p, alpha);
+}
+
+inline bool isLogoddsLayer(const navmap_ros_interfaces::msg::NavMapLayer & L)
+{
+  return L.type == navmap_ros_interfaces::msg::NavMapLayer::I16 && L.unit == "1/1000 log-odds";
 }
 
 inline Ogre::ColourValue colorFromHeat(float value, float max_value, float alpha)
@@ -321,14 +334,15 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
   const size_t n_u8 = msg->data_u8.size();
   const size_t n_f32 = msg->data_f32.size();
   const size_t n_f64 = msg->data_f64.size();
-  const int non_empty = (n_u8 ? 1 : 0) + (n_f32 ? 1 : 0) + (n_f64 ? 1 : 0);
+  const size_t n_i16 = msg->data_i16.size();
+  const int non_empty = (n_u8 ? 1 : 0) + (n_f32 ? 1 : 0) + (n_f64 ? 1 : 0) + (n_i16 ? 1 : 0);
 
   if (non_empty != 1) {
     setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
-      "Exactly one of data_u8 / data_f32 / data_f64 must be non-empty.");
+      "Exactly one of data_u8 / data_f32 / data_f64 / data_i16 must be non-empty.");
     return;
   }
-  const size_t eff_len = n_u8 ? n_u8 : (n_f32 ? n_f32 : n_f64);
+  const size_t eff_len = n_u8 ? n_u8 : (n_f32 ? n_f32 : (n_f64 ? n_f64 : n_i16));
   if (eff_len != n_tris) {
     setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
       QString("Layer size (%1) does not match number of triangles (%2)")
@@ -344,11 +358,10 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
   const char * type_str =
     (msg->type == navmap_ros_interfaces::msg::NavMapLayer::U8) ? "U8" :
     (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F32) ? "F32" :
-    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F64) ? "F64" : "UNKNOWN";
+    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F64) ? "F64" :
+    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::I16) ? "I16" : "UNKNOWN";
 
-  const size_t len = !msg->data_u8.empty() ? msg->data_u8.size() :
-    !msg->data_f32.empty() ? msg->data_f32.size() :
-    msg->data_f64.size();
+  const size_t len = eff_len;
 
   QString line = QString("OK — updates: %1 | last: \"%2\" (%3, len=%4)")
     .arg(qulonglong(layer_update_count_))
@@ -624,12 +637,18 @@ void NavMapDisplay::updateColorsOnly_()
       last_msg_->colors_b.size() == last_msg_->positions_x.size();
   }
 
-  float max_val = 0.0f;
+  float max_val = 0.0f, min_val = 0.0f;
   bool is_u8 = false;
   if (selected_layer) {
     const auto & L = *selected_layer;
     if (L.type == NavMapLayerMsg::U8 && L.data_u8.size() == V0.size()) {
       is_u8 = true;
+    } else if (L.type == NavMapLayerMsg::I16 && L.data_i16.size() == V0.size()) {
+      if (!L.data_i16.empty()) {
+        const auto [lo, hi] = std::minmax_element(L.data_i16.begin(), L.data_i16.end());
+        min_val = *lo;
+        max_val = *hi;
+      }
     } else if (L.type == NavMapLayerMsg::F32 && L.data_f32.size() == V0.size()) {
       for (float v : L.data_f32) {
         max_val = std::max(max_val, v);
@@ -707,6 +726,17 @@ void NavMapDisplay::updateColorsOnly_()
         const uint32_t packed = packARGB(col);
         *p++ = packed; *p++ = packed; *p++ = packed;
       }
+    } else if (selected_layer->type == NavMapLayerMsg::I16) {
+      const bool logodds = isLogoddsLayer(*selected_layer);
+      for (size_t t = 0; t < V0.size(); ++t) {
+        const int16_t v = selected_layer->data_i16[t];
+        const float shifted = static_cast<float>(v) - min_val;  // the scales start at 0
+        const Ogre::ColourValue col = logodds ? colorFromLogodds(v, alpha) :
+          (use_rainbow ? colorFromRainbow(shifted, max_val - min_val, alpha) :
+          colorFromHeat(shifted, max_val - min_val, alpha));
+        const uint32_t packed = packARGB(col);
+        *p++ = packed; *p++ = packed; *p++ = packed;
+      }
     } else {  // F64
       for (size_t t = 0; t < V0.size(); ++t) {
         const float v = static_cast<float>(selected_layer->data_f64[t]);
@@ -715,6 +745,23 @@ void NavMapDisplay::updateColorsOnly_()
           colorFromHeat   (v, max_val, alpha);
         const uint32_t packed = packARGB(col);
         *p++ = packed; *p++ = packed; *p++ = packed;
+      }
+    }
+    // Cells holding the layer's unknown value: translucent grey (U8 keeps its own mapping)
+    if (!is_u8 && selected_layer->has_unknown) {
+      const double u = selected_layer->unknown_value;
+      const uint32_t grey = packARGB(Ogre::ColourValue(0.5f, 0.5f, 0.5f, 0.35f * alpha));
+      uint32_t * q = reinterpret_cast<uint32_t *>(base);
+      for (size_t t = 0; t < V0.size(); ++t, q += 3) {
+        double v = 0.0;
+        if (selected_layer->type == NavMapLayerMsg::I16) {
+          v = selected_layer->data_i16[t];
+        } else if (selected_layer->type == NavMapLayerMsg::F32) {
+          v = selected_layer->data_f32[t];
+        } else {
+          v = selected_layer->data_f64[t];
+        }
+        if ((std::isnan(u) && std::isnan(v)) || v == u) {q[0] = q[1] = q[2] = grey;}
       }
     }
   } else {
@@ -787,7 +834,7 @@ void NavMapDisplay::updateColorSchemeOptions_()
 
   if (it != layers_by_name_.end()) {
     const auto * L = it->second;
-    if (L->type == navmap_ros_interfaces::msg::NavMapLayer::U8) {
+    if (L->type == navmap_ros_interfaces::msg::NavMapLayer::U8 || isLogoddsLayer(*L)) {
       color_scheme_property_->addOption("Occupancy");
       color_scheme_property_->setString("Occupancy");
       color_scheme_property_->setDescription(

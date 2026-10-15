@@ -16,13 +16,14 @@
 
 import sys
 
-from navmap_ros_interfaces.msg import NavMapLayer, NavMapSurface
+from navmap_ros_interfaces.msg import NavMapLayer, NavMapLayerV1, NavMapSurface, NavMapV1
 from navmap_tools.resample import (
     build_navmap, FREE, grid_from_navmap, LETHAL, main, read_navmap, read_yaml_grid,
     resample_occupancy, UNKNOWN, write_navmap,
 )
 import numpy as np
 import pytest
+from rclpy.serialization import serialize_message
 
 
 def occ_layers(grid):
@@ -138,6 +139,64 @@ def test_other_layers_are_resampled_too(tmp_path, monkeypatch):
     assert out['marks'][1][0, 0] == 7                      # max
 
 
+def test_int16_layers_and_metadata_survive_a_resample(tmp_path, monkeypatch):
+    src, dst = tmp_path / 'in.navmap', tmp_path / 'out.navmap'
+    msg = build_navmap(occ_layers(np.zeros((2, 2))), (0, 0, 0), 0.1, 'map')
+    lo = NavMapLayer()
+    lo.name, lo.type = 'logodds', NavMapLayer.I16
+    lo.description, lo.unit = 'occupancy log-odds', '1/1000 log-odds'
+    lo.has_unknown, lo.unknown_value = True, 0.0
+    lo.data_i16 = [-400, -400, 800, 800, 0, 0, 0, 0]  # cells (0,0), (1,0) known; row 1 unknown
+    msg.layers.append(lo)
+    write_navmap(msg, str(src))
+    run_main(monkeypatch, src, dst, 0.2)
+    out = read_navmap(str(dst))
+    layer = next(lr for lr in out.layers if lr.name == 'logodds')
+    assert layer.type == NavMapLayer.I16
+    assert (layer.description, layer.unit) == ('occupancy log-odds', '1/1000 log-odds')
+    assert layer.has_unknown and layer.unknown_value == 0.0
+    assert list(layer.data_i16) == [200, 200]  # mean of the known cells only
+
+
+def write_v1(msg, path, header=True):
+    """Write a file of format version 1, from the frozen v1 message."""
+    old = NavMapV1()
+    for field in ('header', 'positions_x', 'positions_y', 'positions_z', 'has_vertex_rgba',
+                  'navcels_v0', 'navcels_v1', 'navcels_v2', 'surfaces'):
+        setattr(old, field, getattr(msg, field))
+    for lr in msg.layers:
+        lo = NavMapLayerV1()
+        lo.name, lo.type, lo.data_u8 = lr.name, lr.type, lr.data_u8
+        old.layers.append(lo)
+    payload = serialize_message(old)
+    with open(path, 'wb') as f:
+        if header:
+            f.write(b'NAVMAP\x00\x00' + (1).to_bytes(4, 'little') +
+                    len(payload).to_bytes(8, 'little'))
+        f.write(payload)
+
+
+@pytest.mark.parametrize('header', [True, False])
+def test_an_old_version_file_is_read_through_a_migration(tmp_path, capsys, header):
+    g = np.array([[0, 254], [255, 50]], np.uint8)
+    path = tmp_path / 'old.navmap'
+    write_v1(build_navmap(occ_layers(g), (0, 0, 0), 0.5, 'map'), str(path), header)
+    layers, _, res, _ = grid_from_navmap(read_navmap(str(path)))
+    assert layers['occupancy'][1].tolist() == g.tolist()
+    assert res == pytest.approx(0.5)
+    assert 'deprecated' in capsys.readouterr().err
+
+
+def test_a_newer_version_file_is_rejected(tmp_path):
+    path = tmp_path / 'm.navmap'
+    write_navmap(build_navmap(occ_layers([[0]]), (0, 0, 0), 1.0, 'map'), str(path))
+    data = bytearray(path.read_bytes())
+    data[8:12] = (3).to_bytes(4, 'little')
+    path.write_bytes(bytes(data))
+    with pytest.raises(SystemExit):
+        read_navmap(str(path))
+
+
 # ------------------------------- Command ----------------------------------
 
 def write_yaml_map(tmp_path, pixels):
@@ -169,6 +228,8 @@ def test_a_yaml_map_is_resampled_to_a_navmap(tmp_path, monkeypatch):
     assert res == pytest.approx(0.1)
     assert origin[:2] == pytest.approx((-1.0, -2.0))
     assert layers['occupancy'][1].tolist() == [[FREE, FREE], [LETHAL, FREE]]
+    occ = next(lr for lr in read_navmap(str(out)).layers if lr.name == 'occupancy')
+    assert occ.has_unknown and occ.unknown_value == UNKNOWN  # declared, as from_occupancy_grid
 
 
 @pytest.mark.parametrize('resolution', [0.07, 0.03, 0.125])

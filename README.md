@@ -28,6 +28,7 @@ Funded by the European Union through the Horizon Europe programme under Grant Ag
 - **Locate API**: find the NavCel under/around a 3D position using BVH acceleration and raycasting.
 - **Raytracing**: Möller–Trumbore intersection with a simple BVH for efficiency.
 - **Multi-surface support**: naturally supports multiple disconnected surfaces (e.g., separate floors).
+- **Unknown values and probabilistic occupancy**: each layer can declare the value that means "not observed"; `Occupancy.hpp` keeps log-odds occupancy (OctoMap's clamped update) in an int16 layer, with free / occupied / unknown states.
 - **Iterators** over NavCels (`navmap_core/Iterators.hpp`): box, disc, ring, polygon, distance order and segment walk; regions grow over the surface, so they never jump to another floor.
 
 ---
@@ -256,6 +257,25 @@ Also `for_each_in_aabb` (every surface, via the BVH), `for_each_in_ring` and `fo
 
 ---
 
+## 7c. Unknown values and log-odds occupancy (`Occupancy.hpp`)
+
+```cpp
+#include <navmap_core/Occupancy.hpp>
+
+nm.add_layer<float>("elevation", "terrain height", "m", 0.0f);
+nm.set_layer_unknown("elevation", std::numeric_limits<double>::quiet_NaN());  // NaN = not surveyed
+bool unseen = nm.is_unknown("elevation", cid);
+
+navmap::OccupancyLayer occ(nm);   // int16 layer "occupancy_logodds", all unknown
+occ.miss(crossed_cid);            // a ray crossed it
+occ.hit(end_cid);                 // a ray ended on it
+if (occ.state(cid) == navmap::OccupancyState::OCCUPIED) {/* ... */}
+```
+
+The unknown value, description and unit of each layer travel in the message and in the file. Which NavCels a ray hits or crosses is up to the algorithm using it (see `for_each_on_segment`). `ros2 launch navmap_examples unknown_occupancy.launch.py` shows both in RViz2 (build with `-DBUILD_ROS_EXAMPLES=ON`).
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:
@@ -288,6 +308,8 @@ navmap::NavMap nm3 = navmap_ros::loadMapFromYaml("/tmp/navmap.yaml");
 ```
 
 ---
+
+> **File format.** `.navmap` files are version 2 (layer metadata and int16 layers). Version 1 files, and files without header, still load: they are migrated with a deprecation warning and rewritten in place when the location is writable.
 
 ## 10. Classic low-level API
 

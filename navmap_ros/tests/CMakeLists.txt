@@ -15,3 +15,8 @@ target_link_libraries(test_from_points
   ${pcl_conversions_TARGETS}
   ${pcl_conversions_LIBRARIES}
 )
+
+ament_add_gtest(test_layer_metadata_and_migration test_layer_metadata_and_migration.cpp)
+target_link_libraries(test_layer_metadata_and_migration
+  ${PROJECT_NAME}
+)

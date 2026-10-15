@@ -16,6 +16,7 @@
 
 #include <unistd.h>
 
+#include <cstdio>
 #include <fstream>
 #include <vector>
 #include <cstring>
@@ -26,15 +27,18 @@
 #include "navmap_ros/conversions.hpp"
 #include "rclcpp/serialized_message.hpp"
 #include "rclcpp/serialization.hpp"
+#include "rclcpp/logging.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_v1.hpp"
 
 namespace navmap_ros::io
 {
 
 namespace
 {
-// Magic header "NAVMAP\0" (7 chars + NUL), version uint32_t = 1, payload_size uint64_t (LE)
+// Magic header "NAVMAP\0" (7 chars + NUL), version uint32_t, payload_size uint64_t (LE).
+// Version 1 (also files without header) is migrated on load.
 static constexpr char kMagic[8] = {'N', 'A', 'V', 'M', 'A', 'P', '\0', '\0'};
-static constexpr uint32_t kVersion = 1;
+static constexpr uint32_t kVersion = 2;  // 2: layer metadata (unknown, description, unit) and int16 layers
 
 inline void set_error(std::error_code * ec, int ev = EIO)
 {
@@ -82,12 +86,57 @@ bool save_msg_to_file(
   }
 }
 
+namespace
+{
+
+// Version 1 (no layer metadata, no int16 layers) -> current message.
+navmap_ros_interfaces::msg::NavMap migrate_v1(const navmap_ros_interfaces::msg::NavMapV1 & old)
+{
+  navmap_ros_interfaces::msg::NavMap m;
+  m.header = old.header;
+  m.positions_x = old.positions_x;
+  m.positions_y = old.positions_y;
+  m.positions_z = old.positions_z;
+  m.has_vertex_rgba = old.has_vertex_rgba;
+  m.colors_r = old.colors_r;
+  m.colors_g = old.colors_g;
+  m.colors_b = old.colors_b;
+  m.colors_a = old.colors_a;
+  m.navcels_v0 = old.navcels_v0;
+  m.navcels_v1 = old.navcels_v1;
+  m.navcels_v2 = old.navcels_v2;
+  m.surfaces = old.surfaces;
+  for (const auto & l : old.layers) {
+    navmap_ros_interfaces::msg::NavMapLayer n;
+    n.header = l.header;
+    n.name = l.name;
+    n.type = l.type;
+    n.data_u8 = l.data_u8;
+    n.data_f32 = l.data_f32;
+    n.data_f64 = l.data_f64;
+    m.layers.push_back(std::move(n));
+  }
+  return m;
+}
+
+template<typename MsgT>
+void deserialize(const std::vector<uint8_t> & buffer, MsgT & out)
+{
+  rclcpp::SerializedMessage serialized(buffer.size());
+  auto & rcl_ser = serialized.get_rcl_serialized_message();
+  std::memcpy(rcl_ser.buffer, buffer.data(), buffer.size());
+  rcl_ser.buffer_length = buffer.size();
+  rclcpp::Serialization<MsgT> ser;
+  ser.deserialize_message(&serialized, &out);
+}
+
+}  // namespace
+
 bool load_msg_from_file(
   const std::string & path,
   navmap_ros_interfaces::msg::NavMap & out_msg,
   std::error_code * ec)
 {
-  using MsgT = navmap_ros_interfaces::msg::NavMap;
   try {
     std::ifstream ifs(path, std::ios::binary);
     if (!ifs) {set_error(ec, ENOENT); return false;}
@@ -97,13 +146,14 @@ bool load_msg_from_file(
     ifs.read(magic, sizeof(magic));
     if (!ifs) {set_error(ec); return false;}
 
-    uint32_t version = 0;
+    // Files without header are the oldest format: version 1
+    uint32_t version = 1;
     uint64_t payload_size = 0;
     bool has_header = std::memcmp(magic, kMagic, sizeof(kMagic)) == 0;
     if (has_header) {
       ifs.read(reinterpret_cast<char *>(&version), sizeof(version));
       ifs.read(reinterpret_cast<char *>(&payload_size), sizeof(payload_size));
-      if (!ifs || version != kVersion) {set_error(ec); return false;}
+      if (!ifs || version < 1 || version > kVersion) {set_error(ec); return false;}
     } else {
       // No header: treat whole file as payload
       ifs.clear();
@@ -119,15 +169,31 @@ bool load_msg_from_file(
     buffer.resize(static_cast<size_t>(payload_size));
     ifs.read(reinterpret_cast<char *>(buffer.data()), static_cast<std::streamsize>(payload_size));
     if (!ifs) {set_error(ec); return false;}
+    ifs.close();
 
-    // Deserialize ROS 2 CDR
-    rclcpp::SerializedMessage serialized(buffer.size());
-    auto & rcl_ser = serialized.get_rcl_serialized_message();
-    std::memcpy(rcl_ser.buffer, buffer.data(), buffer.size());
-    rcl_ser.buffer_length = buffer.size();
-
-    rclcpp::Serialization<MsgT> ser;
-    ser.deserialize_message(&serialized, &out_msg);
+    if (version == kVersion) {
+      deserialize(buffer, out_msg);
+    } else {
+      // Deprecated format: migrate, and replace the file with the current format
+      navmap_ros_interfaces::msg::NavMapV1 old;
+      deserialize(buffer, old);
+      out_msg = migrate_v1(old);
+      auto logger = rclcpp::get_logger("navmap_io");
+      std::error_code wec;
+      if (save_msg_to_file(out_msg, path + ".migrating", {}, &wec) &&
+        std::rename((path + ".migrating").c_str(), path.c_str()) == 0)
+      {
+        RCLCPP_WARN(
+          logger, "%s: .navmap format version %u is deprecated; migrated to version %u and "
+          "rewritten in place", path.c_str(), version, kVersion);
+      } else {
+        std::remove((path + ".migrating").c_str());
+        RCLCPP_WARN(
+          logger, "%s: .navmap format version %u is deprecated; loaded through a migration to "
+          "version %u, but the file could not be rewritten (save it again to update it)",
+          path.c_str(), version, kVersion);
+      }
+    }
 
     if (ec) {*ec = {};}
     return true;

@@ -35,24 +35,46 @@ import os
 import struct
 import sys
 
-from navmap_ros_interfaces.msg import NavMap, NavMapLayer, NavMapSurface
+from navmap_ros_interfaces.msg import NavMap, NavMapLayer, NavMapSurface, NavMapV1
 import numpy as np
 from rclpy.serialization import deserialize_message, serialize_message
 
 MAGIC = b'NAVMAP\x00\x00'
-VERSION = 1
+VERSION = 2  # 2: layer metadata (unknown, description, unit) and int16 layers
 FREE, LETHAL, UNKNOWN = 0, 254, 255
 
 
 # ------------------------------- Reading ---------------------------------
 
+def migrate_v1(old):
+    """Convert a file-version-1 NavMap message (no layer metadata) to the current one."""
+    msg = NavMap()
+    for field in ('header', 'positions_x', 'positions_y', 'positions_z', 'has_vertex_rgba',
+                  'colors_r', 'colors_g', 'colors_b', 'colors_a', 'navcels_v0', 'navcels_v1',
+                  'navcels_v2', 'surfaces'):
+        setattr(msg, field, getattr(old, field))
+    for lo in old.layers:
+        layer = NavMapLayer()
+        layer.header, layer.name, layer.type = lo.header, lo.name, lo.type
+        layer.data_u8, layer.data_f32, layer.data_f64 = lo.data_u8, lo.data_f32, lo.data_f64
+        msg.layers.append(layer)
+    return msg
+
+
 def read_navmap(path):
     with open(path, 'rb') as f:
         data = f.read()
+    version = 1  # files without header are the oldest format
     if data[:8] == MAGIC:
-        _, size = struct.unpack('<IQ', data[8:20])
+        version, size = struct.unpack('<IQ', data[8:20])
         data = data[20:20 + size]
-    return deserialize_message(data, NavMap)
+    if version == VERSION:
+        return deserialize_message(data, NavMap)
+    if version == 1:
+        print(f'{path}: .navmap format version 1 is deprecated; read through a migration to '
+              f'version {VERSION}', file=sys.stderr)
+        return migrate_v1(deserialize_message(data, NavMapV1))
+    sys.exit(f'{path}: .navmap version {version}, this tool reads up to version {VERSION}')
 
 
 def write_navmap(msg, path):
@@ -153,15 +175,18 @@ def grid_from_navmap(msg):
             grid = np.zeros((h, w), np.uint8)
             np.maximum.at(grid, (cj, ci), vals)
         else:
-            vals = np.array(layer.data_f32 if layer.type == NavMapLayer.F32 else layer.data_f64,
-                            float)
+            raw = {NavMapLayer.F32: layer.data_f32, NavMapLayer.F64: layer.data_f64,
+                   NavMapLayer.I16: layer.data_i16}[layer.type]
+            vals = np.array(raw, float)
+            if layer.has_unknown and np.isfinite(layer.unknown_value):
+                vals[vals == layer.unknown_value] = np.nan  # unknown: not averaged
             acc = np.zeros((h, w))
             cnt = np.zeros((h, w))
             np.add.at(acc, (cj, ci), np.where(np.isfinite(vals), vals, 0.0))
             np.add.at(cnt, (cj, ci), np.isfinite(vals))
             with np.errstate(invalid='ignore', divide='ignore'):
                 grid = np.where(cnt > 0, acc / cnt, np.nan)
-        layers[layer.name] = (layer.type, grid)
+        layers[layer.name] = (layer.type, grid, layer)
     frame = msg.surfaces[0].frame_id or msg.header.frame_id
     return layers, (xs[0], ys[0], z[0]), res, frame
 
@@ -190,14 +215,16 @@ def resample_occupancy(grid, k):
 
 def resample(layers, k):
     out = {}
-    for name, (ltype, grid) in layers.items():
+    for name, (ltype, grid, *meta) in layers.items():
+        meta = meta[0] if meta else None
         if name == 'occupancy':
-            out[name] = (ltype, resample_occupancy(grid, k))
+            out[name] = (ltype, resample_occupancy(grid, k), meta)
         elif ltype == NavMapLayer.U8:
-            out[name] = (ltype, blocks(grid, k, 0).max(axis=2))
+            out[name] = (ltype, blocks(grid, k, 0).max(axis=2), meta)
         else:
             with np.errstate(invalid='ignore'):
-                out[name] = (ltype, np.nanmean(blocks(grid.astype(float), k, np.nan), axis=2))
+                mean = np.nanmean(blocks(grid.astype(float), k, np.nan), axis=2)
+            out[name] = (ltype, mean, meta)
     return out
 
 
@@ -227,16 +254,25 @@ def build_navmap(layers, origin, res, frame):
     surface.navcels = list(range(2 * w * h))
     msg.surfaces = [surface]
 
-    for name, (ltype, grid) in layers.items():
+    for name, (ltype, grid, *meta) in layers.items():
         layer = NavMapLayer()
         layer.header.frame_id = frame
         layer.name = name
         layer.type = ltype
+        if meta and meta[0] is not None:  # description, unit and unknown of the source layer
+            layer.description, layer.unit = meta[0].description, meta[0].unit
+            layer.has_unknown, layer.unknown_value = meta[0].has_unknown, meta[0].unknown_value
+        elif name == 'occupancy' and ltype == NavMapLayer.U8:  # as navmap_ros::from_occupancy_grid
+            layer.has_unknown, layer.unknown_value = True, float(UNKNOWN)
         per_triangle = np.repeat(grid.ravel(), 2)  # both triangles of a cell
         if ltype == NavMapLayer.U8:
             layer.data_u8 = per_triangle.astype(np.uint8).tobytes()
         elif ltype == NavMapLayer.F32:
             layer.data_f32 = per_triangle.astype(np.float32).tolist()
+        elif ltype == NavMapLayer.I16:
+            fill = layer.unknown_value if layer.has_unknown else 0.0
+            vals = np.round(np.where(np.isnan(per_triangle), fill, per_triangle))
+            layer.data_i16 = np.clip(vals, -32768, 32767).astype(np.int16).tolist()
         else:
             layer.data_f64 = per_triangle.astype(float).tolist()
         msg.layers.append(layer)

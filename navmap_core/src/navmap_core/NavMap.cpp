@@ -168,6 +168,14 @@ NavMap & NavMap::operator=(const NavMap & other)
             if (!same_hash) {dst->set_data(src->data());}
             break;
           }
+        case LayerType::I16: {
+            auto src = std::dynamic_pointer_cast<LayerView<int16_t>>(src_base);
+            auto dst = layers.add_or_get<int16_t>(name, navcels.size(), layer_type_tag<int16_t>());
+            const bool same_size = dst->data().size() == src->data().size();
+            const bool same_hash = same_size && (dst->content_hash() == src->content_hash());
+            if (!same_hash) {dst->set_data(src->data());}
+            break;
+          }
         default: break;
       }
     }
@@ -1192,6 +1200,7 @@ std::string NavMap::layer_type_name(const std::string & name) const
       case LayerType::U8:  return "uint8";
       case LayerType::F32: return "float";
       case LayerType::F64: return "double";
+      case LayerType::I16: return "int16";
       default: break;
     }
   }
@@ -1203,6 +1212,21 @@ std::optional<LayerMeta> NavMap::get_layer_meta(const std::string & name) const
   auto it = layer_meta.find(name);
   if (it == layer_meta.end()) {return std::nullopt;}
   return it->second;
+}
+
+void NavMap::set_layer_unknown(const std::string & name, double value)
+{
+  layer_meta[name].unknown = value;
+}
+
+bool NavMap::is_unknown(const std::string & name, NavCelId cid) const
+{
+  const auto it = layer_meta.find(name);
+  if (it == layer_meta.end() || !it->second.unknown) {return false;}
+  const double u = *it->second.unknown;
+  const double v = layer_get<double>(name, cid, std::numeric_limits<double>::quiet_NaN());
+  if (std::isnan(u)) {return std::isnan(v) && has_layer(name) && cid < layer_size(name);}
+  return v == u;
 }
 
 std::vector<std::string> NavMap::list_layers() const
