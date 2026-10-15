@@ -28,6 +28,7 @@ Funded by the European Union through the Horizon Europe programme under Grant Ag
 - **Locate API**: find the NavCel under/around a 3D position using BVH acceleration and raycasting.
 - **Raytracing**: Möller–Trumbore intersection with a simple BVH for efficiency.
 - **Multi-surface support**: naturally supports multiple disconnected surfaces (e.g., separate floors).
+- **Iterators** over NavCels (`navmap_core/Iterators.hpp`): box, disc, ring, polygon, distance order and segment walk; regions grow over the surface, so they never jump to another floor.
 
 ---
 
@@ -224,6 +225,34 @@ nm.set_area<uint8_t>(Eigen::Vector3f(0.8f, 0.2f, 0.0f),
                      navmap::AreaShape::RECTANGULAR,
                      0.35f);
 ```
+
+---
+
+## 7b. Iterating over NavCels (`Iterators.hpp`)
+
+Visitors are called once per NavCel; returning `false` stops. Regions around a point grow from the NavCel under it through the mesh adjacency, so a disc on one floor never reaches the floor above. Reuse a `TraversalScratch` to avoid allocations.
+
+```cpp
+#include <navmap_core/Iterators.hpp>
+
+navmap::TraversalScratch scratch;
+const Eigen::Vector3f robot(2.0f, 1.0f, 0.0f);
+
+// NavCels within 0.5 m of the robot (3D distance to the centroid)
+navmap::for_each_in_disc(nm, robot, 0.5f, [&](navmap::NavCelId c) {/* ... */},
+  navmap::Metric::EUCLIDEAN, &scratch);
+
+// NavCels crossed by a sensor ray projected on the surface, with the entry/exit parameters
+navmap::for_each_on_segment(nm, robot, Eigen::Vector3f(6.0f, 3.0f, 0.0f),
+  [&](navmap::NavCelId c, float t_in, float t_out) {/* clear c */});
+
+// Nearest NavCel along the surface (geodesic order) with a free value
+navmap::for_each_by_distance(nm, seed, robot, 3.0f, [&](navmap::NavCelId c, float d) {
+    return nm.layer_get<uint8_t>("occupancy", c) != 0;  // false stops at the first free one
+  });
+```
+
+Also `for_each_in_aabb` (every surface, via the BVH), `for_each_in_ring` and `for_each_in_polygon` (XY polygon on the seed's floor). `Metric::GEODESIC` measures along the surface and bends around borders; it is about 80 times costlier than `EUCLIDEAN`, so use it for occasional queries.
 
 ---
 

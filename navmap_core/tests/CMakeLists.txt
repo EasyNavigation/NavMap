@@ -52,3 +52,8 @@ ament_add_gtest(test_distance_field test_distance_field.cpp)
 target_link_libraries(test_distance_field
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_iterators test_iterators.cpp)
+target_link_libraries(test_iterators
+  ${PROJECT_NAME}
+)
