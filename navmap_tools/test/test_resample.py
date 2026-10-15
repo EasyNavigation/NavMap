@@ -14,6 +14,7 @@
 
 """Unit tests for navmap_tools.resample (grid-based NavMap resampling)."""
 
+import struct
 import sys
 
 from navmap_ros_interfaces.msg import NavMapLayer, NavMapLayerV1, NavMapSurface, NavMapV1
@@ -110,6 +111,39 @@ def test_the_file_header_is_the_navmap_one(tmp_path):
     path = tmp_path / 'm.navmap'
     write_navmap(build_navmap(occ_layers([[0]]), (0, 0, 0), 1.0, 'map'), str(path))
     assert path.read_bytes()[:8] == b'NAVMAP\x00\x00'
+
+
+@pytest.mark.parametrize('compress', [True, False])
+def test_files_are_zlib_compressed_or_not_and_read_back(tmp_path, compress):
+    g = np.zeros((40, 40), np.uint8)
+    g[20, :] = 254
+    path = tmp_path / 'm.navmap'
+    write_navmap(build_navmap(occ_layers(g), (0, 0, 0), 0.1, 'map'), str(path), compress)
+    data = path.read_bytes()
+    version, codec, raw, stored = struct.unpack('<IIQQ', data[8:32])
+    assert (version, codec) == (2, 1 if compress else 0)
+    assert len(data) == 32 + stored
+    assert (stored < raw / 3) if compress else (stored == raw)
+    layers, _, _, _ = grid_from_navmap(read_navmap(str(path)))
+    assert layers['occupancy'][1].tolist() == g.tolist()
+
+
+@pytest.mark.parametrize('damage', ['codec', 'raw_size', 'payload', 'truncated'])
+def test_a_corrupt_compressed_file_is_rejected(tmp_path, damage):
+    path = tmp_path / 'm.navmap'
+    write_navmap(build_navmap(occ_layers(np.zeros((20, 20))), (0, 0, 0), 0.1, 'map'), str(path))
+    data = bytearray(path.read_bytes())
+    if damage == 'codec':
+        data[12:16] = (7).to_bytes(4, 'little')
+    elif damage == 'raw_size':
+        data[16:24] = (5).to_bytes(8, 'little')
+    elif damage == 'payload':
+        data[32:48] = bytes(range(16))
+    else:
+        data = data[:len(data) // 2]
+    path.write_bytes(bytes(data))
+    with pytest.raises(SystemExit):
+        read_navmap(str(path))
 
 
 def test_a_non_flat_navmap_is_rejected():

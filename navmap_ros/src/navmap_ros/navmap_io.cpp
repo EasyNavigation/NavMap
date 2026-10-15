@@ -16,6 +16,7 @@
 
 #include <unistd.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <fstream>
 #include <vector>
@@ -29,17 +30,21 @@
 #include "rclcpp/serialization.hpp"
 #include "rclcpp/logging.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_v1.hpp"
+#include "zlib.h"
 
 namespace navmap_ros::io
 {
 
 namespace
 {
-// Magic header "NAVMAP\0" (7 chars + NUL), version uint32_t, payload_size uint64_t (LE).
-// Version 1 (also files without header) is migrated on load.
+// Magic "NAVMAP\0\0", then (little endian):
+//  v1: version u32, payload_size u64, CDR payload (also files without header). Migrated on load.
+//  v2: version u32, codec u32, raw_size u64, stored_size u64, payload (CDR, compressed by codec).
+//      Adds layer metadata (unknown, description, unit), int16 layers, links and geometry ids.
 static constexpr char kMagic[8] = {'N', 'A', 'V', 'M', 'A', 'P', '\0', '\0'};
-// 2: layer metadata (unknown, description, unit), int16 layers and links
 static constexpr uint32_t kVersion = 2;
+static constexpr uint32_t kCodecNone = 0;
+static constexpr uint32_t kCodecZlib = 1;
 
 inline void set_error(std::error_code * ec, int ev = EIO)
 {
@@ -51,32 +56,43 @@ inline void set_error(std::error_code * ec, int ev = EIO)
 bool save_msg_to_file(
   const navmap_ros_interfaces::msg::NavMap & msg,
   const std::string & path,
-  const SaveOptions & /*options*/,
+  const SaveOptions & options,
   std::error_code * ec)
 {
   using MsgT = navmap_ros_interfaces::msg::NavMap;
   try {
-    // Serialize to ROS 2 CDR
     rclcpp::SerializedMessage serialized;
     rclcpp::Serialization<MsgT> ser;
     ser.serialize_message(&msg, &serialized);
-
     const auto & rcl_ser = serialized.get_rcl_serialized_message();
-    const auto payload = static_cast<const uint8_t *>(rcl_ser.buffer);
-    const size_t payload_size = rcl_ser.buffer_length;
+    const auto * raw = static_cast<const uint8_t *>(rcl_ser.buffer);
+    const uint64_t raw_size = rcl_ser.buffer_length;
+
+    uint32_t codec = kCodecNone;
+    const uint8_t * payload = raw;
+    uint64_t stored_size = raw_size;
+    std::vector<uint8_t> packed;
+    if (options.compression == Compression::ZLIB) {
+      uLongf n = compressBound(static_cast<uLong>(raw_size));
+      packed.resize(n);
+      const int level = std::clamp(options.level, 1, 9);
+      if (compress2(packed.data(), &n, raw, static_cast<uLong>(raw_size), level) != Z_OK) {
+        set_error(ec); return false;
+      }
+      codec = kCodecZlib;
+      payload = packed.data();
+      stored_size = n;
+    }
 
     std::ofstream ofs(path, std::ios::binary);
     if (!ofs) {set_error(ec, EACCES); return false;}
-
-    // Write header
-    ofs.write(reinterpret_cast<const char *>(kMagic), sizeof(kMagic));
-    uint32_t ver = kVersion;
+    ofs.write(kMagic, sizeof(kMagic));
+    const uint32_t ver = kVersion;
     ofs.write(reinterpret_cast<const char *>(&ver), sizeof(ver));
-    uint64_t size64 = static_cast<uint64_t>(payload_size);
-    ofs.write(reinterpret_cast<const char *>(&size64), sizeof(size64));
-
-    // Write payload
-    ofs.write(reinterpret_cast<const char *>(payload), payload_size);
+    ofs.write(reinterpret_cast<const char *>(&codec), sizeof(codec));
+    ofs.write(reinterpret_cast<const char *>(&raw_size), sizeof(raw_size));
+    ofs.write(reinterpret_cast<const char *>(&stored_size), sizeof(stored_size));
+    ofs.write(reinterpret_cast<const char *>(payload), static_cast<std::streamsize>(stored_size));
     ofs.flush();
     if (!ofs) {set_error(ec); return false;}
     if (ec) {*ec = {};}
@@ -149,28 +165,49 @@ bool load_msg_from_file(
 
     // Files without header are the oldest format: version 1
     uint32_t version = 1;
-    uint64_t payload_size = 0;
-    bool has_header = std::memcmp(magic, kMagic, sizeof(kMagic)) == 0;
-    if (has_header) {
+    uint32_t codec = kCodecNone;
+    uint64_t raw_size = 0, stored_size = 0;
+    if (std::memcmp(magic, kMagic, sizeof(kMagic)) == 0) {
       ifs.read(reinterpret_cast<char *>(&version), sizeof(version));
-      ifs.read(reinterpret_cast<char *>(&payload_size), sizeof(payload_size));
       if (!ifs || version < 1 || version > kVersion) {set_error(ec); return false;}
+      if (version >= 2) {
+        ifs.read(reinterpret_cast<char *>(&codec), sizeof(codec));
+        ifs.read(reinterpret_cast<char *>(&raw_size), sizeof(raw_size));
+      }
+      ifs.read(reinterpret_cast<char *>(&stored_size), sizeof(stored_size));
+      if (!ifs || (codec != kCodecNone && codec != kCodecZlib)) {set_error(ec); return false;}
+      if (version == 1) {raw_size = stored_size;}
     } else {
-      // No header: treat whole file as payload
       ifs.clear();
       ifs.seekg(0, std::ios::end);
       auto end = ifs.tellg();
       if (end <= 0) {set_error(ec); return false;}
-      payload_size = static_cast<uint64_t>(end);
+      stored_size = raw_size = static_cast<uint64_t>(end);
       ifs.seekg(0, std::ios::beg);
     }
+    // A truncated or corrupt header must not allocate blindly
+    const auto here = ifs.tellg();
+    ifs.seekg(0, std::ios::end);
+    const auto left = static_cast<uint64_t>(ifs.tellg() - here);
+    ifs.seekg(here);
+    if (stored_size > left || (codec == kCodecNone && raw_size != stored_size)) {
+      set_error(ec); return false;
+    }
 
-    // Read payload
-    std::vector<uint8_t> buffer;
-    buffer.resize(static_cast<size_t>(payload_size));
-    ifs.read(reinterpret_cast<char *>(buffer.data()), static_cast<std::streamsize>(payload_size));
+    std::vector<uint8_t> buffer(static_cast<size_t>(stored_size));
+    ifs.read(reinterpret_cast<char *>(buffer.data()), static_cast<std::streamsize>(stored_size));
     if (!ifs) {set_error(ec); return false;}
     ifs.close();
+    if (codec == kCodecZlib) {
+      std::vector<uint8_t> raw(static_cast<size_t>(raw_size));
+      uLongf n = static_cast<uLongf>(raw_size);
+      if (uncompress(raw.data(), &n, buffer.data(), static_cast<uLong>(stored_size)) != Z_OK ||
+        n != raw_size)
+      {
+        set_error(ec); return false;
+      }
+      buffer.swap(raw);
+    }
 
     if (version == kVersion) {
       deserialize(buffer, out_msg);

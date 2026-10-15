@@ -18,6 +18,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common io kdtree search)
 find_package(pcl_conversions REQUIRED)
+find_package(ZLIB REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}/conversions.cpp
@@ -39,6 +40,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   ${pcl_conversions_TARGETS}
   ${pcl_conversions_LIBRARIES}
   ${PCL_LIBRARIES}
+  ZLIB::ZLIB
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
   rclcpp::rclcpp

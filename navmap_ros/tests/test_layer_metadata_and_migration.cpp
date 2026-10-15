@@ -267,6 +267,157 @@ TEST(FormatMigration, NewerOrBrokenFilesAreRejected)
   fs::remove_all(dir);
 }
 
+// ------------------------------------------------------------------ compression
+
+// A map large enough for compression to matter: a 60 x 60 grid with a few layers
+NavMap grid_map()
+{
+  nav_msgs::msg::OccupancyGrid g;
+  g.header.frame_id = "map";
+  g.info.resolution = 0.1f;
+  g.info.width = 60;
+  g.info.height = 60;
+  g.data.assign(60 * 60, 0);
+  for (int i = 0; i < 60; ++i) {g.data[30 * 60 + i] = 100; g.data[i] = -1;}
+  NavMap nm = navmap_ros::from_occupancy_grid(g);
+  nm.add_layer<float>("elevation", "", "m", 0.25f);
+  return nm;
+}
+
+struct Envelope
+{
+  uint32_t version{0}, codec{0};
+  uint64_t raw{0}, stored{0}, file{0};
+};
+
+Envelope envelope(const std::string & path)
+{
+  Envelope e;
+  std::ifstream f(path, std::ios::binary);
+  f.seekg(8);
+  f.read(reinterpret_cast<char *>(&e.version), 4);
+  f.read(reinterpret_cast<char *>(&e.codec), 4);
+  f.read(reinterpret_cast<char *>(&e.raw), 8);
+  f.read(reinterpret_cast<char *>(&e.stored), 8);
+  e.file = fs::file_size(path);
+  return e;
+}
+
+void patch(const std::string & path, std::streamoff at, const void * bytes, std::size_t n)
+{
+  std::fstream f(path, std::ios::binary | std::ios::in | std::ios::out);
+  f.seekp(at);
+  f.write(static_cast<const char *>(bytes), static_cast<std::streamsize>(n));
+}
+
+void expect_same(const NavMap & a, const NavMap & b)
+{
+  EXPECT_EQ(a.positions.x, b.positions.x);
+  EXPECT_EQ(a.positions.z, b.positions.z);
+  ASSERT_EQ(a.navcels.size(), b.navcels.size());
+  for (navmap::NavCelId c = 0; c < a.navcels.size(); ++c) {
+    ASSERT_EQ(a.layer_get<uint8_t>("occupancy", c), b.layer_get<uint8_t>("occupancy", c));
+    ASSERT_EQ(a.layer_get<float>("elevation", c), b.layer_get<float>("elevation", c));
+  }
+  EXPECT_TRUE(b.get_layer_meta("occupancy")->unknown.has_value());
+  EXPECT_EQ(a.geometry_id(), b.geometry_id());
+}
+
+TEST(Compression, ZlibByDefaultSmallerAndIdenticalOnLoad)
+{
+  const std::string dir = tmp_dir("navmap_z_");
+  const NavMap nm = grid_map();
+  navmap_ros::io::SaveOptions raw_opt;
+  raw_opt.compression = navmap_ros::io::Compression::NONE;
+  ASSERT_TRUE(navmap_ros::io::save_to_file(nm, dir + "/z.navmap"));
+  ASSERT_TRUE(navmap_ros::io::save_to_file(nm, dir + "/raw.navmap", raw_opt));
+  const Envelope z = envelope(dir + "/z.navmap"), r = envelope(dir + "/raw.navmap");
+  EXPECT_EQ(z.version, 2u);
+  EXPECT_EQ(z.codec, 1u);
+  EXPECT_EQ(r.codec, 0u);
+  EXPECT_EQ(z.raw, r.raw);                 // same CDR payload
+  EXPECT_EQ(r.stored, r.raw);
+  EXPECT_EQ(z.file, 32 + z.stored);        // header + payload, nothing else
+  EXPECT_LT(z.stored, r.raw / 3);          // a mostly uniform grid compresses well
+  for (const auto * f : {"/z.navmap", "/raw.navmap"}) {
+    NavMap back;
+    ASSERT_TRUE(navmap_ros::io::load_from_file(dir + f, back)) << f;
+    expect_same(nm, back);
+  }
+  fs::remove_all(dir);
+}
+
+TEST(Compression, EveryLevelLoadsAndOutOfRangeLevelsAreClamped)
+{
+  const std::string dir = tmp_dir("navmap_zl_");
+  const NavMap nm = grid_map();
+  // The zlib stream header records the level class: 0x01 fastest, 0x9C default, 0xDA best
+  auto flevel = [&](int level) {
+      std::ifstream f(dir + "/l" + std::to_string(level) + ".navmap", std::ios::binary);
+      f.seekg(33);
+      return static_cast<unsigned>(static_cast<unsigned char>(f.get()));
+    };
+  for (const int level : {-5, 0, 1, 6, 9, 42}) {
+    navmap_ros::io::SaveOptions o;
+    o.level = level;
+    const std::string path = dir + "/l" + std::to_string(level) + ".navmap";
+    ASSERT_TRUE(navmap_ros::io::save_to_file(nm, path, o)) << level;
+    NavMap back;
+    ASSERT_TRUE(navmap_ros::io::load_from_file(path, back)) << level;
+    expect_same(nm, back);
+  }
+  // The level is applied, and clamped to [1, 9]
+  EXPECT_EQ(flevel(1), 0x01u);
+  EXPECT_EQ(flevel(6), 0x9Cu);
+  EXPECT_EQ(flevel(9), 0xDAu);
+  EXPECT_EQ(flevel(-5), 0x01u);
+  EXPECT_EQ(flevel(0), 0x01u);
+  EXPECT_EQ(flevel(42), 0xDAu);
+  fs::remove_all(dir);
+}
+
+TEST(Compression, EmptyMapRoundTrips)
+{
+  const std::string dir = tmp_dir("navmap_ze_");
+  ASSERT_TRUE(navmap_ros::io::save_to_file(NavMap{}, dir + "/e.navmap"));
+  NavMap back;
+  ASSERT_TRUE(navmap_ros::io::load_from_file(dir + "/e.navmap", back));
+  EXPECT_TRUE(back.navcels.empty());
+  fs::remove_all(dir);
+}
+
+TEST(Compression, CorruptOrTruncatedFilesAreRejectedWithoutCrashing)
+{
+  const std::string dir = tmp_dir("navmap_zc_");
+  const std::string good = dir + "/good.navmap";
+  ASSERT_TRUE(navmap_ros::io::save_to_file(grid_map(), good));
+  const Envelope e = envelope(good);
+  auto fails = [&](const std::string & what, auto && damage) {
+      const std::string path = dir + "/bad.navmap";
+      fs::copy_file(good, path, fs::copy_options::overwrite_existing);
+      damage(path);
+      NavMap nm;
+      std::error_code ec;
+      EXPECT_FALSE(navmap_ros::io::load_from_file(path, nm, &ec)) << what;
+      EXPECT_TRUE(ec) << what;
+    };
+  fails("unknown codec", [](const std::string & p) {const uint32_t c = 7; patch(p, 12, &c, 4);});
+  fails("raw size too small", [&](const std::string & p) {
+      const uint64_t v = e.raw / 2; patch(p, 16, &v, 8);});
+  fails("raw size too large", [&](const std::string & p) {
+      const uint64_t v = e.raw + 1; patch(p, 16, &v, 8);});
+  fails("stored size beyond the file", [](const std::string & p) {
+      const uint64_t v = uint64_t{1} << 40; patch(p, 24, &v, 8);});
+  fails("garbage payload", [](const std::string & p) {
+      const char junk[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+      patch(p, 32, junk, sizeof(junk));});
+  fails("truncated payload", [&](const std::string & p) {fs::resize_file(p, 32 + e.stored / 2);});
+  fails("truncated header", [](const std::string & p) {fs::resize_file(p, 20);});
+  fails("uncompressed with mismatched sizes", [&](const std::string & p) {
+      const uint32_t c = 0; patch(p, 12, &c, 4);});
+  fs::remove_all(dir);
+}
+
 TEST(LayerMetadata, OccupancyGridUnknownCellsAreDeclaredUnknown)
 {
   // As slam_toolbox publishes it: -1 unknown, 0 free, 100 occupied
@@ -347,8 +498,8 @@ TEST(LayerUpdates, SparseWhenFewCellsChangedAndAppliedOnTheSameGeometry)
   for (NavCelId c = 0; c < 4; ++c) {
     src.layer_set<float>("cost", c, 1.0f);
                                                                           }
-  EXPECT_TRUE(navmap_ros::to_layer_update_msg(src, "cost", {}, 0.25f).indices.empty());
-  EXPECT_FALSE(navmap_ros::to_layer_update_msg(src, "cost", {}, 0.9f).indices.empty());
+  EXPECT_TRUE(navmap_ros::to_layer_update_msg(src, "cost", std_msgs::msg::Header(), 0.25f).indices.empty());
+  EXPECT_FALSE(navmap_ros::to_layer_update_msg(src, "cost", std_msgs::msg::Header(), 0.9f).indices.empty());
 }
 
 TEST(LayerUpdates, UpdatesForAnotherGeometryOrMalformedAreRejected)

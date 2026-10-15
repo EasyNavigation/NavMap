@@ -34,13 +34,15 @@ import math
 import os
 import struct
 import sys
+import zlib
 
 from navmap_ros_interfaces.msg import NavMap, NavMapLayer, NavMapSurface, NavMapV1
 import numpy as np
 from rclpy.serialization import deserialize_message, serialize_message
 
 MAGIC = b'NAVMAP\x00\x00'
-VERSION = 2  # 2: layer metadata (unknown, description, unit) and int16 layers
+VERSION = 2  # 2: layer metadata, int16 layers, links, geometry ids; compressed payload
+CODEC_NONE, CODEC_ZLIB = 0, 1
 FREE, LETHAL, UNKNOWN = 0, 254, 255
 
 
@@ -66,8 +68,22 @@ def read_navmap(path):
         data = f.read()
     version = 1  # files without header are the oldest format
     if data[:8] == MAGIC:
-        version, size = struct.unpack('<IQ', data[8:20])
-        data = data[20:20 + size]
+        (version,) = struct.unpack('<I', data[8:12])
+        if version == 1:
+            (size,) = struct.unpack('<Q', data[12:20])
+            data = data[20:20 + size]
+        elif version == VERSION:
+            codec, raw_size, size = struct.unpack('<IQQ', data[12:32])
+            data = data[32:32 + size]
+            if len(data) != size or codec not in (CODEC_NONE, CODEC_ZLIB):
+                sys.exit(f'{path}: corrupt .navmap file')
+            if codec == CODEC_ZLIB:
+                try:
+                    data = zlib.decompress(data)
+                except zlib.error:
+                    sys.exit(f'{path}: corrupt .navmap file')
+            if len(data) != raw_size:
+                sys.exit(f'{path}: corrupt .navmap file')
     if version == VERSION:
         return deserialize_message(data, NavMap)
     if version == 1:
@@ -77,11 +93,13 @@ def read_navmap(path):
     sys.exit(f'{path}: .navmap version {version}, this tool reads up to version {VERSION}')
 
 
-def write_navmap(msg, path):
-    payload = serialize_message(msg)
+def write_navmap(msg, path, compress=True):
+    raw = serialize_message(msg)
+    payload = zlib.compress(raw, 6) if compress else raw
     with open(path, 'wb') as f:
         f.write(MAGIC)
-        f.write(struct.pack('<IQ', VERSION, len(payload)))
+        f.write(struct.pack('<IIQQ', VERSION, CODEC_ZLIB if compress else CODEC_NONE,
+                            len(raw), len(payload)))
         f.write(payload)
 
 
