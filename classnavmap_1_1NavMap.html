@@ -211,6 +211,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ada6881dcd6865fb03a053244aa5f0e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor: deep copy of geometry, surfaces, layers and metadata.  <br /></td></tr>
 <tr class="memitem:a9fa159b44d4d690aca1f65b3e3a4ffe7" id="r_a9fa159b44d4d690aca1f65b3e3a4ffe7"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a9fa159b44d4d690aca1f65b3e3a4ffe7">NavMap</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;other)</td></tr>
 <tr class="memdesc:a9fa159b44d4d690aca1f65b3e3a4ffe7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy constructor: deep copy of geometry, surfaces, layers and metadata.  <br /></td></tr>
+<tr class="memitem:a84b386bbec559c8816fdae68ef85b7a2" id="r_a84b386bbec559c8816fdae68ef85b7a2"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a84b386bbec559c8816fdae68ef85b7a2">nonmanifold_edges</a> () const</td></tr>
+<tr class="memdesc:a84b386bbec559c8816fdae68ef85b7a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Edges shared by more than two NavCels in the last adjacency build.  <br /></td></tr>
 <tr class="memitem:abdba6967622302fdf575a33000719624" id="r_abdba6967622302fdf575a33000719624"><td class="memItemLeft"><a class="el" href="classNavMap.html">NavMap</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#abdba6967622302fdf575a33000719624">operator=</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;other)</td></tr>
 <tr class="memdesc:abdba6967622302fdf575a33000719624"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy assignment optimized to avoid geometry duplication.  <br /></td></tr>
 <tr class="memitem:a8f722995f4482cc0933e9d02af566af6" id="r_a8f722995f4482cc0933e9d02af566af6"><td class="memItemLeft"><a class="el" href="classNavMap.html">NavMap</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a8f722995f4482cc0933e9d02af566af6">operator=</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;&amp;other) noexcept</td></tr>
@@ -538,7 +540,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Build topological adjacency between neighboring NavCels. </p>
-<p>Two triangles are neighbors if they share an undirected edge. Called by <a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1" title="rebuild_geometry_accels()">rebuild_geometry_accels()</a>. </p>
+<p>Two triangles are neighbors if they share an undirected edge and no other triangle uses it; edges shared by more than two (non-manifold) stay open. Called by <a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1" title="rebuild_geometry_accels()">rebuild_geometry_accels()</a>. </p>
 
 </div>
 </div>
@@ -1206,6 +1208,25 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The value for triangle <code class="param">cid</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a84b386bbec559c8816fdae68ef85b7a2" name="a84b386bbec559c8816fdae68ef85b7a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84b386bbec559c8816fdae68ef85b7a2">&#9670;&#160;</a></span>nonmanifold_edges()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t nonmanifold_edges </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Edges shared by more than two NavCels in the last adjacency build. </p>
 
 </div>
 </div>

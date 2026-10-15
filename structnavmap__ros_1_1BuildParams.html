@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 </div><!--header-->
 <div class="contents">
 
-<p>Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from unorganized points.  
+<p>Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from point clouds.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="conversions_8hpp_source.html">conversions.hpp</a>&gt;</code></p>
@@ -112,13 +112,13 @@ Collaboration diagram for BuildParams:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap__ros_1_1BuildParams__coll__graph.png" border="0" usemap="#aBuildParams_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aBuildParams_coll__map" id="aBuildParams_coll__map">
-<area shape="rect" title="Parameters controlling NavMap construction from unorganized points." alt="" coords="110,224,205,250"/>
+<area shape="rect" title="Parameters controlling NavMap construction from point clouds." alt="" coords="122,305,217,331"/>
 <area shape="rect" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" title=" " alt="" coords="26,46,24,80,26,121,35,162,55,198,80,217,110,228,109,233,78,222,51,202,30,164,20,121,19,80,21,46"/>
-<area shape="rect" title=" " alt="" coords="138,5,177,31"/>
-<area shape="poly" title=" " alt="" coords="160,46,160,224,155,224,155,46"/>
-<area shape="rect" title=" " alt="" coords="255,5,300,31"/>
-<area shape="poly" title=" " alt="" coords="283,47,285,81,282,122,271,164,250,202,230,219,207,229,204,224,227,214,246,198,266,162,276,121,279,81,278,47"/>
+<area shape="poly" title=" " alt="" coords="24,47,17,96,15,158,18,190,26,222,38,252,55,280,69,292,85,301,122,312,120,317,83,306,66,297,51,283,33,255,21,224,13,191,10,158,12,95,19,46"/>
+<area shape="rect" title=" " alt="" coords="150,5,189,31"/>
+<area shape="poly" title=" " alt="" coords="172,47,172,305,167,305,167,47"/>
+<area shape="rect" title=" " alt="" coords="267,5,312,31"/>
+<area shape="poly" title=" " alt="" coords="297,46,303,95,303,157,299,190,292,223,280,254,262,283,242,300,218,311,216,306,239,296,258,280,275,252,287,222,294,189,298,157,298,95,292,47"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -130,14 +130,20 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a8c2901c184925044a9bd4e62b6b0a79b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum allowed vertical jump (meters) between vertices of a triangle.  <br /></td></tr>
 <tr class="memitem:ad13e370af216e1188c1268b74472f57f" id="r_ad13e370af216e1188c1268b74472f57f"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ad13e370af216e1188c1268b74472f57f">max_edge_len</a> = 2.0</td></tr>
 <tr class="memdesc:ad13e370af216e1188c1268b74472f57f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum allowed edge length (meters) when forming triangles.  <br /></td></tr>
+<tr class="memitem:a69af246440c030d3a5d8d52d757a4d42" id="r_a69af246440c030d3a5d8d52d757a4d42"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a69af246440c030d3a5d8d52d757a4d42">max_hole_area</a> = 1.0f</td></tr>
+<tr class="memdesc:a69af246440c030d3a5d8d52d757a4d42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enclosed empty regions up to this area (square meters) are filled (0 = none).  <br /></td></tr>
 <tr class="memitem:a0ff349dd9350a87c621e936084ec2d1f" id="r_a0ff349dd9350a87c621e936084ec2d1f"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a0ff349dd9350a87c621e936084ec2d1f">max_slope_deg</a> = 30.0f</td></tr>
 <tr class="memdesc:a0ff349dd9350a87c621e936084ec2d1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum slope with respect to the vertical axis (degrees).  <br /></td></tr>
 <tr class="memitem:a6734abebd4b0cf51caa407b285928658" id="r_a6734abebd4b0cf51caa407b285928658"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a6734abebd4b0cf51caa407b285928658">max_surfaces</a> = 0</td></tr>
-<tr class="memdesc:a6734abebd4b0cf51caa407b285928658"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximun surfaces to keep, ordenred by size.  <br /></td></tr>
+<tr class="memdesc:a6734abebd4b0cf51caa407b285928658"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of surfaces to keep, largest first (0 = all).  <br /></td></tr>
 <tr class="memitem:a7652613347524c6ec775068fd6c24ca9" id="r_a7652613347524c6ec775068fd6c24ca9"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a7652613347524c6ec775068fd6c24ca9">min_angle_deg</a> = 20.0f</td></tr>
 <tr class="memdesc:a7652613347524c6ec775068fd6c24ca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum interior angle (degrees) to avoid sliver triangles.  <br /></td></tr>
 <tr class="memitem:ab6746f896b14d17115f0a020de06c4a7" id="r_ab6746f896b14d17115f0a020de06c4a7"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ab6746f896b14d17115f0a020de06c4a7">min_area</a> = 1e-6f</td></tr>
 <tr class="memdesc:ab6746f896b14d17115f0a020de06c4a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum triangle area (square meters) to reject degenerate faces.  <br /></td></tr>
+<tr class="memitem:a98805a5d18e84ea864ae85a606915f4f" id="r_a98805a5d18e84ea864ae85a606915f4f"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a98805a5d18e84ea864ae85a606915f4f">min_clearance</a> = 1.0f</td></tr>
+<tr class="memdesc:a98805a5d18e84ea864ae85a606915f4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vertical free space (meters) that separates two stacked surfaces in a cell.  <br /></td></tr>
+<tr class="memitem:aed65902bc007baa29c4c35d3832bb57a" id="r_aed65902bc007baa29c4c35d3832bb57a"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#aed65902bc007baa29c4c35d3832bb57a">min_surface_area</a> = 0.0f</td></tr>
+<tr class="memdesc:aed65902bc007baa29c4c35d3832bb57a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Surfaces smaller than this area (square meters) are dropped (0 = keep all).  <br /></td></tr>
 <tr class="memitem:ac78a02fc61c6c030d1fee6d9ad314df3" id="r_ac78a02fc61c6c030d1fee6d9ad314df3"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ac78a02fc61c6c030d1fee6d9ad314df3">neighbor_radius</a> = 2.0f</td></tr>
 <tr class="memdesc:ac78a02fc61c6c030d1fee6d9ad314df3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Neighborhood radius (meters) for candidate connectivity.  <br /></td></tr>
 <tr class="memitem:a4333d786c60465d20826583358b2798d" id="r_a4333d786c60465d20826583358b2798d"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a4333d786c60465d20826583358b2798d">resolution</a> = 1.0</td></tr>
@@ -146,8 +152,8 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:aced40c47c4fec9366b6ebb7f04b39f98"><td class="mdescLeft">&#160;</td><td class="mdescRight">If true, use radius-based neighborhoods; otherwise use k-NN.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from unorganized points. </p>
-<p>These parameters guide neighborhood search, local meshing, and basic geometric filtering used by the point-cloud based builders. </p>
+<div class="textblock"><p>Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from point clouds. </p>
+<p><a class="el" href="namespacenavmap__ros.html#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap from an unorganized point cloud (multi-level grid triangulation).">from_points()</a> uses resolution, max_dz, max_slope_deg, min_area, min_clearance, max_surfaces, min_surface_area and max_hole_area. max_edge_len, neighbor_radius, k_neighbors, use_radius and min_angle_deg are kept for API compatibility and ignored. For voxelized clouds, use a resolution of at least twice the voxel size. </p>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
 <a id="a6756d66b9752cff73a41c607d4572ae0" name="a6756d66b9752cff73a41c607d4572ae0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6756d66b9752cff73a41c607d4572ae0">&#9670;&#160;</a></span>k_neighbors</h2>
@@ -197,6 +203,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a69af246440c030d3a5d8d52d757a4d42" name="a69af246440c030d3a5d8d52d757a4d42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69af246440c030d3a5d8d52d757a4d42">&#9670;&#160;</a></span>max_hole_area</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float max_hole_area = 1.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enclosed empty regions up to this area (square meters) are filled (0 = none). </p>
+
+</div>
+</div>
 <a id="a0ff349dd9350a87c621e936084ec2d1f" name="a0ff349dd9350a87c621e936084ec2d1f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0ff349dd9350a87c621e936084ec2d1f">&#9670;&#160;</a></span>max_slope_deg</h2>
 
@@ -225,7 +247,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Maximun surfaces to keep, ordenred by size. </p>
+<p>Maximum number of surfaces to keep, largest first (0 = all). </p>
 
 </div>
 </div>
@@ -258,6 +280,38 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Minimum triangle area (square meters) to reject degenerate faces. </p>
+
+</div>
+</div>
+<a id="a98805a5d18e84ea864ae85a606915f4f" name="a98805a5d18e84ea864ae85a606915f4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98805a5d18e84ea864ae85a606915f4f">&#9670;&#160;</a></span>min_clearance</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float min_clearance = 1.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vertical free space (meters) that separates two stacked surfaces in a cell. </p>
+
+</div>
+</div>
+<a id="aed65902bc007baa29c4c35d3832bb57a" name="aed65902bc007baa29c4c35d3832bb57a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed65902bc007baa29c4c35d3832bb57a">&#9670;&#160;</a></span>min_surface_area</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float min_surface_area = 0.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Surfaces smaller than this area (square meters) are dropped (0 = keep all). </p>
 
 </div>
 </div>

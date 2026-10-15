@@ -112,13 +112,7 @@ Namespaces</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:BuildParams" id="r_BuildParams"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from unorganized points.  <a href="structnavmap__ros_1_1BuildParams.html#details">More...</a><br /></td></tr>
-<tr class="memitem:EdgeHasher" id="r_EdgeHasher"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a></td></tr>
-<tr class="memitem:EdgeKey" id="r_EdgeKey"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a></td></tr>
-<tr class="memitem:TriHasher" id="r_TriHasher"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a></td></tr>
-<tr class="memitem:TriKey" id="r_TriKey"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a></td></tr>
-<tr class="memitem:Voxel" id="r_Voxel"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1Voxel.html">Voxel</a></td></tr>
-<tr class="memitem:VoxelHash" id="r_VoxelHash"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1VoxelHash.html">VoxelHash</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from point clouds.  <a href="structnavmap__ros_1_1BuildParams.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-typedef-members" class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -127,8 +121,6 @@ Typedefs</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a0a05354967c19acb4e9cb8675a0c251d" id="r_a0a05354967c19acb4e9cb8675a0c251d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a0a05354967c19acb4e9cb8675a0c251d">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt)</td></tr>
-<tr class="memitem:a1415897f31aa289e68d9a1a6f216ce59" id="r_a1415897f31aa289e68d9a1a6f216ce59"><td class="memItemLeft">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a1415897f31aa289e68d9a1a6f216ce59">downsample_voxelize_topZ_layered</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, float resolution, float dz_merge)</td></tr>
-<tr class="memitem:ab45a2264fff18e80f39046cbd88f5911" id="r_ab45a2264fff18e80f39046cbd88f5911"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ab45a2264fff18e80f39046cbd88f5911">effective_max_edge_len</a> (const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P)</td></tr>
 <tr class="memitem:a9835bd4485202df104ab38cb5cdc1ed8" id="r_a9835bd4485202df104ab38cb5cdc1ed8"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a9835bd4485202df104ab38cb5cdc1ed8">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg)</td></tr>
 <tr class="memitem:aa9519c921a7499b39e2cbe21304b2b64" id="r_aa9519c921a7499b39e2cbe21304b2b64"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa9519c921a7499b39e2cbe21304b2b64">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg, std_msgs::msg::Header &amp;header)</td></tr>
 <tr class="memitem:ac70f12eb1f059a42b6993cb612720ea0" id="r_ac70f12eb1f059a42b6993cb612720ea0"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac70f12eb1f059a42b6993cb612720ea0">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
@@ -146,7 +138,7 @@ Functions</h2></td></tr>
 <tr class="memitem:af1d0f450cee491ef385215a317c6876a" id="r_af1d0f450cee491ef385215a317c6876a"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#af1d0f450cee491ef385215a317c6876a">from_pointcloud2</a> (const sensor_msgs::msg::PointCloud2 &amp;pc2, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
 <tr class="memdesc:af1d0f450cee491ef385215a317c6876a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a ROS <span class="tt">sensor_msgs::msg::PointCloud2</span>.  <br /></td></tr>
 <tr class="memitem:a731ad13a79c7d061fba796add4aea852" id="r_a731ad13a79c7d061fba796add4aea852"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a731ad13a79c7d061fba796add4aea852">from_points</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
-<tr class="memdesc:a731ad13a79c7d061fba796add4aea852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a PCL point cloud.  <br /></td></tr>
+<tr class="memdesc:a731ad13a79c7d061fba796add4aea852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> from an unorganized point cloud (multi-level grid triangulation).  <br /></td></tr>
 <tr class="memitem:ad865ae66bd00fdd94fac6609b436cf02" id="r_ad865ae66bd00fdd94fac6609b436cf02"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ad865ae66bd00fdd94fac6609b436cf02">from_regular_grid</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;grid_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
 <tr class="memdesc:ad865ae66bd00fdd94fac6609b436cf02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud.  <br /></td></tr>
 <tr class="memitem:aba26a033fbd9456e2368c8f49f62779e" id="r_aba26a033fbd9456e2368c8f49f62779e"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMap&#160;</td><td class="memItemRight"><a class="el" href="#aba26a033fbd9456e2368c8f49f62779e">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
@@ -161,8 +153,6 @@ Functions</h2></td></tr>
 <tr class="memdesc:a42165113e6236698fe947ca8ffa69bc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload.  <br /></td></tr>
 <tr class="memitem:a185f2164687718cb363751dce8cfe900" id="r_a185f2164687718cb363751dce8cfe900"><td class="memItemLeft">nav_msgs::msg::OccupancyGrid&#160;</td><td class="memItemRight"><a class="el" href="#a185f2164687718cb363751dce8cfe900">to_occupancy_grid</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std_msgs::msg::Header &amp;header)</td></tr>
 <tr class="memdesc:a185f2164687718cb363751dce8cfe900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> back to <span class="tt">nav_msgs::msg::OccupancyGrid</span>.  <br /></td></tr>
-<tr class="memitem:ad089d6caf5156b818488bbec8de30a4b" id="r_ad089d6caf5156b818488bbec8de30a4b"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad089d6caf5156b818488bbec8de30a4b">triangle_angles_deg</a> (const Eigen::Vector3f &amp;A, const Eigen::Vector3f &amp;B, const Eigen::Vector3f &amp;C, float &amp;angA, float &amp;angB, float &amp;angC)</td></tr>
-<tr class="memitem:ad27d5737db6b45f6d50f445c5cdeabda" id="r_ad27d5737db6b45f6d50f445c5cdeabda"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ad27d5737db6b45f6d50f445c5cdeabda">try_add_triangle</a> (int i, int j, int k, const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;P, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a>, <a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a> &gt; &amp;tri_set, std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a>, <a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a> &gt; &amp;edge_set, std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; &amp;tris)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -230,49 +220,6 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *</td>          <td class="paramname"><span class="paramname"><em>out_core_opt</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a1415897f31aa289e68d9a1a6f216ce59" name="a1415897f31aa289e68d9a1a6f216ce59"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1415897f31aa289e68d9a1a6f216ce59">&#9670;&#160;</a></span>downsample_voxelize_topZ_layered()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">pcl::PointCloud&lt; pcl::PointXYZ &gt; downsample_voxelize_topZ_layered </td>
-          <td>(</td>
-          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>input_points</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>resolution</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>dz_merge</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ab45a2264fff18e80f39046cbd88f5911" name="ab45a2264fff18e80f39046cbd88f5911"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab45a2264fff18e80f39046cbd88f5911">&#9670;&#160;</a></span>effective_max_edge_len()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">float effective_max_edge_len </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>P</em></span></td><td>)</td>
-          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -544,7 +491,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span>.</dd></dl>
 <ul>
-<li>The cloud is decoded to <span class="tt">pcl::PointXYZ</span> and processed as in <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap surface from a PCL point cloud.">navmap_ros::from_points</a>.</li>
+<li>The cloud is decoded to <span class="tt">pcl::PointXYZ</span> and processed as in <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap from an unorganized point cloud (multi-level grid triangulation).">navmap_ros::from_points</a>.</li>
 <li>Non-Cartesian fields present in <code class="param">pc2</code> are ignored by this overload.</li>
 <li>The resulting <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> is exported to <code class="param">out_msg</code> for downstream publication or storage.</li>
 </ul>
@@ -582,7 +529,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a PCL point cloud. </p>
+<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> from an unorganized point cloud (multi-level grid triangulation). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">input_points</td><td>Point set in world coordinates (<span class="tt">pcl::PointXYZ</span>). </td></tr>
@@ -591,21 +538,15 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span>.</dd></dl>
-<p>Typical steps implemented by this builder include:</p><ul>
-<li>Optional downsampling according to <code class="param">params.resolution</code>.</li>
-<li>Local neighborhood discovery using either radius (<code class="param">params.use_radius</code>) or k-NN.</li>
-<li>Edge and face filtering based on <code class="param">params.max_edge_len</code>, <code class="param">params.min_area</code> and <code class="param">params.min_angle_deg</code>.</li>
-<li>Optional slope gating using <code class="param">params.max_slope_deg</code> with respect to the vertical axis.</li>
-<li>Creation of a single surface with shared vertices and triangle indices. The function also fills <code class="param">out_msg</code> with the compact ROS representation of the resulting map.</li>
+<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> (empty if nothing could be meshed).</dd></dl>
+<ul>
+<li>Points are binned in XY cells of <code class="param">params.resolution</code>. In each cell, points closer than max(min_clearance, max_dz) in z form one level. Its height at the cell centre comes from a robust plane fit of its upper face (points above a gap of max_dz / 2, e.g. a slab seen from above and below); a face whose spread around the plane exceeds max_dz is clutter and keeps a high top (an obstacle). Stacked floors give several vertices per cell.</li>
+<li>Enclosed empty regions up to max_hole_area are filled by interpolating the levels present around most of their border.</li>
+<li>Vertices of neighbouring cells are linked to the closest level within max_dz + tan(max_slope_deg) * distance, only when the choice is mutual.</li>
+<li>Each grid quad gets at most the two triangles of one diagonal per connected level, so every edge has at most two triangles (manifold), and no triangle steeper than max_slope_deg is created.</li>
+<li>Surfaces are the connected components; max_surfaces and min_surface_area drop the smaller ones together with their triangles and vertices.</li>
+<li>Adds per-triangle layers "elevation" (mean vertex height) and "support" (points behind the weakest vertex, up to 255; 0 = interpolated over a hole). Frame id is "map". </li>
 </ul>
-<dl class="section note"><dt>Note</dt><dd>Input is treated as an unorganized cloud. If normals or intensities are present, they are ignored by this overload. </dd></dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>If meshing fails due to inconsistent parameters or empty input. </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
@@ -634,7 +575,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud. </p>
-<p>Unlike <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap surface from a PCL point cloud.">navmap_ros::from_points</a> &ndash; which discovers connectivity by neighbor search over an otherwise-unstructured point set, a heuristic that needs either a generous <code class="param">params.neighbor_radius</code> (at real cost in redundant, overlapping triangles) or leaves gaps on an evenly-sampled surface even when every cell is individually navigable &ndash; this overload takes a cloud whose grid connectivity is <em>already known</em> (row-major, <span class="tt">cloud.width</span> x <span class="tt">cloud.height</span>, exactly as PCL's own "organized point cloud" convention) and builds the two triangles per grid cell directly from the (i, j) indices, the same deterministic scheme <a class="el" href="#afffebef87c724021d5e855c6bebfaff7" title="Build a navmap::NavMap from a nav_msgs::msg::OccupancyGrid using a regular triangular surface with sh...">navmap_ros::from_occupancy_grid</a> already uses. No neighbor search, no possibility of a meshing-artifact gap: the only triangles skipped are ones that fail the slope filter (<code class="param">params.max_slope_deg</code>) or reference a non-finite vertex, i.e. every remaining hole is a real "not navigable here" gap, not a search-radius artifact.</p>
+<p>Unlike <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap from an unorganized point cloud (multi-level grid triangulation).">navmap_ros::from_points</a> &ndash; which discovers connectivity by neighbor search over an otherwise-unstructured point set, a heuristic that needs either a generous <code class="param">params.neighbor_radius</code> (at real cost in redundant, overlapping triangles) or leaves gaps on an evenly-sampled surface even when every cell is individually navigable &ndash; this overload takes a cloud whose grid connectivity is <em>already known</em> (row-major, <span class="tt">cloud.width</span> x <span class="tt">cloud.height</span>, exactly as PCL's own "organized point cloud" convention) and builds the two triangles per grid cell directly from the (i, j) indices, the same deterministic scheme <a class="el" href="#afffebef87c724021d5e855c6bebfaff7" title="Build a navmap::NavMap from a nav_msgs::msg::OccupancyGrid using a regular triangular surface with sh...">navmap_ros::from_occupancy_grid</a> already uses. No neighbor search, no possibility of a meshing-artifact gap: the only triangles skipped are ones that fail the slope filter (<code class="param">params.max_slope_deg</code>) or reference a non-finite vertex, i.e. every remaining hole is a real "not navigable here" gap, not a search-radius artifact.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">grid_points</td><td>Organized point set (<span class="tt">cloud.height</span> must be &gt; 1); row j, column i is at index <span class="tt">j * cloud.width + i</span>. </td></tr>
@@ -825,98 +766,6 @@ Variables</h2></td></tr>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>The fallback path assumes the presence of an <span class="tt">"occupancy"</span> layer. The precise sampling strategy (bounds, resolution, and handling of cells without a containing navcel) is implementation-defined.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>If the map does not carry grid metadata or the <span class="tt">"occupancy"</span> layer is missing, the result may be incomplete or implementation-defined. </dd></dl>
-
-</div>
-</div>
-<a id="ad089d6caf5156b818488bbec8de30a4b" name="ad089d6caf5156b818488bbec8de30a4b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad089d6caf5156b818488bbec8de30a4b">&#9670;&#160;</a></span>triangle_angles_deg()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void triangle_angles_deg </td>
-          <td>(</td>
-          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>A</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>B</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>C</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float &amp;</td>          <td class="paramname"><span class="paramname"><em>angA</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float &amp;</td>          <td class="paramname"><span class="paramname"><em>angB</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float &amp;</td>          <td class="paramname"><span class="paramname"><em>angC</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ad27d5737db6b45f6d50f445c5cdeabda" name="ad27d5737db6b45f6d50f445c5cdeabda"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad27d5737db6b45f6d50f445c5cdeabda">&#9670;&#160;</a></span>try_add_triangle()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool try_add_triangle </td>
-          <td>(</td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>i</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>j</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>k</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>cloud</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>P</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1TriKey.html">TriKey</a>, <a class="el" href="structnavmap__ros_1_1TriHasher.html">TriHasher</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tri_set</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::unordered_set&lt; <a class="el" href="structnavmap__ros_1_1EdgeKey.html">EdgeKey</a>, <a class="el" href="structnavmap__ros_1_1EdgeHasher.html">EdgeHasher</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>edge_set</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="#a37d0f527460c6073c32227c05174f022">Triangle</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tris</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
 
 </div>
 </div>

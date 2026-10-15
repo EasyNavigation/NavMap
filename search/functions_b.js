@@ -7,5 +7,6 @@ var searchData=
   ['navmap_4',['NavMap',['../classnavmap_1_1NavMap.html#ada6881dcd6865fb03a053244aa5f0e18',1,'navmap::NavMap::NavMap()'],['../classnavmap_1_1NavMap.html#a9fa159b44d4d690aca1f65b3e3a4ffe7',1,'navmap::NavMap::NavMap(const NavMap &amp;other)'],['../classNavMap.html#ada6881dcd6865fb03a053244aa5f0e18',1,'NavMap::NavMap()'],['../classNavMap.html#a9fa159b44d4d690aca1f65b3e3a4ffe7',1,'NavMap::NavMap(const NavMap &amp;other)']]],
   ['navmapdisplay_5',['NavMapDisplay',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8d0048cf38eb3250489c97fd4359cd23',1,'navmap_rviz_plugin::NavMapDisplay']]],
   ['navmapgoaltool_6',['NavMapGoalTool',['../classnavmap__rviz__plugin_1_1NavMapGoalTool.html#a8889886a3b298cd5d04670a48d20b494',1,'navmap_rviz_plugin::NavMapGoalTool']]],
-  ['navmapposetool_7',['NavMapPoseTool',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a1cbbfebc0ac3f53a87759f6f44170564',1,'navmap_rviz_plugin::NavMapPoseTool']]]
+  ['navmapposetool_7',['NavMapPoseTool',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a1cbbfebc0ac3f53a87759f6f44170564',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['nonmanifold_5fedges_8',['nonmanifold_edges',['../classnavmap_1_1NavMap.html#a84b386bbec559c8816fdae68ef85b7a2',1,'navmap::NavMap::nonmanifold_edges()'],['../classNavMap.html#a84b386bbec559c8816fdae68ef85b7a2',1,'NavMap::nonmanifold_edges()']]]
 ];
