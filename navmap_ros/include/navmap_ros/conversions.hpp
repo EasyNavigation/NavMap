@@ -247,7 +247,7 @@ nav_msgs::msg::OccupancyGrid to_occupancy_grid(const navmap::NavMap & nm);
  * @brief Parameters controlling NavMap construction from point clouds.
  *
  * from_points() uses resolution, max_dz, max_slope_deg, min_area, min_clearance,
- * max_surfaces, min_surface_area and max_hole_area. max_edge_len, neighbor_radius, k_neighbors,
+ * max_surfaces, min_surface_area, max_hole_area and min_obstacle_points. max_edge_len, neighbor_radius, k_neighbors,
  * use_radius and min_angle_deg are kept for API compatibility and ignored.
  * For voxelized clouds, use a resolution of at least twice the voxel size.
  */
@@ -291,6 +291,11 @@ struct BuildParams
 
   /** @brief Enclosed empty regions up to this area (square meters) are filled (0 = none). */
   float max_hole_area = 1.0f;
+
+  /** @brief Points standing on a floor (above its lowest max_dz slice) needed to make it an
+   *  obstacle; fewer, and fewer than the floor's own, are noise (people passing while
+   *  mapping). A wall always counts: it outnumbers its own base. */
+  int min_obstacle_points = 3;
 };
 
 /**
@@ -305,8 +310,10 @@ struct BuildParams
  *  - Points are binned in XY cells of @p params.resolution. In each cell, points closer
  *    than max(min_clearance, max_dz) in z form one level. Its height at the cell centre comes
  *    from a robust plane fit of its upper face (points above a gap of max_dz / 2, e.g. a slab
- *    seen from above and below); a face whose spread around the plane exceeds max_dz is
- *    clutter and keeps a high top (an obstacle). Stacked floors give several vertices per cell.
+ *    seen from above and below), which must be flat; a face whose spread around the plane
+ *    exceeds max_dz is clutter and keeps a high top (an obstacle). Points standing on the
+ *    lowest face (its max_dz slice) are noise when fewer than min_obstacle_points and than
+ *    the face's own: the face is kept. Stacked floors give several vertices per cell.
  *  - Enclosed empty regions up to max_hole_area are filled by interpolating the levels
  *    present around most of their border.
  *  - Vertices of neighbouring cells are linked to the closest level within

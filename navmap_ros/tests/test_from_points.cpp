@@ -758,3 +758,108 @@ TEST(FromPoints, PotholeIsNotLiftedToTheFloor)
   expect_clean_mesh(nm);
   EXPECT_FALSE(has_cell_near(nm, 4.8f, 4.8f, 0.0f, 0.05f));
 }
+
+TEST(FromPoints, StrayPointsOverTheFloorAreNoiseBelowMinObstaclePoints)
+{
+  // k points over one floor cell, flat (a would-be face) or spread (a would-be clutter): below
+  // min_obstacle_points they are noise and the floor stays whole; from it on, an obstacle.
+  Cloud floor;
+  scatter(floor, 0.0f, 10.0f, 0.0f, 10.0f, flat(0.0f), 100.0f, 51);
+  auto p = params(0.3f);
+  const float full = total_area(build(floor, p));
+  for (const bool spread : {false, true}) {
+    for (int k = 1; k <= 4; ++k) {
+      Cloud cloud = floor;
+      for (int q = 0; q < k; ++q) {
+        cloud.push_back(pcl::PointXYZ(5.0f, 5.0f, spread ? 0.5f + 0.3f * q : 0.6f + 0.02f * q));
+      }
+      p.min_obstacle_points = 3;
+      const NavMap nm = build(cloud, p);
+      expect_clean_mesh(nm);
+      if (k < 3) {
+        EXPECT_NEAR(total_area(nm), full, 1e-3f) << "k " << k << " spread " << spread;
+      } else {
+        EXPECT_LT(total_area(nm), full - 0.1f) << "k " << k << " spread " << spread;
+      }
+    }
+  }
+}
+
+TEST(FromPoints, MinObstaclePointsZeroKeepsEveryReturn)
+{
+  // Edge value: 0 disables the noise rule, so a single stray point makes an obstacle.
+  Cloud cloud;
+  scatter(cloud, 0.0f, 10.0f, 0.0f, 10.0f, flat(0.0f), 100.0f, 52);
+  auto p = params(0.3f);
+  const float full = total_area(build(cloud, p));
+  cloud.push_back(pcl::PointXYZ(5.0f, 5.0f, 0.7f));
+  p.min_obstacle_points = 0;
+  EXPECT_LT(total_area(build(cloud, p)), full - 0.1f);
+  p.min_obstacle_points = 3;
+  EXPECT_NEAR(total_area(build(cloud, p)), full, 1e-3f);
+}
+
+TEST(FromPoints, PeopleTrailOverTheFloorIsNotAnObstacle)
+{
+  // People walking past while mapping: a sparse curtain of returns from 0.2 to 1.8 m along a
+  // corridor (a few points per cell, continuous with the floor). The floor must stay whole.
+  Cloud cloud;
+  scatter(cloud, 0.0f, 10.0f, 0.0f, 4.0f, flat(0.0f), 120.0f, 53);
+  std::mt19937 rng(54);
+  std::uniform_real_distribution<float> X(1.0f, 9.0f), Y(1.9f, 2.1f), Z(0.2f, 1.8f);
+  for (int k = 0; k < 120; ++k) {  // about 4 per cell, a third of the floor's
+    cloud.push_back(pcl::PointXYZ(X(rng), Y(rng), Z(rng)));
+  }
+  auto p = params(0.3f);
+  p.min_surface_area = 1.0f;  // the highest returns, above the clearance, are slivers
+  p.min_obstacle_points = 0;
+  const NavMap blocked = build(cloud, p);
+  p.min_obstacle_points = 10;
+  const NavMap nm = build(cloud, p);
+  expect_clean_mesh(nm);
+  EXPECT_EQ(nm.surfaces.size(), 1u);
+  EXPECT_GT(total_area(nm), total_area(blocked) + 1.0f);
+  EXPECT_TRUE(connected(nm, cell_at(nm, 5.0f, 0.5f, 0.0f), cell_at(nm, 5.0f, 3.5f, 0.0f)));
+  for (std::size_t v = 0; v < nm.positions.size(); ++v) {
+    EXPECT_NEAR(nm.positions.z[v], 0.0f, 0.05f) << "vertex " << v;
+  }
+}
+
+TEST(FromPoints, SparseWallOutnumbersItsBaseAndStaysAWall)
+{
+  // A wall with few points per cell, under a huge min_obstacle_points: it still outnumbers its
+  // own base slice, so it splits the floor (walls are never noise).
+  Cloud cloud;
+  scatter(cloud, 0.0f, 10.0f, 0.0f, 10.0f, flat(0.0f), 100.0f, 55);
+  for (float y = 0.05f; y < 10.0f; y += 0.15f) {
+    for (float z = 0.0f; z < 2.0f; z += 0.2f) {
+      cloud.push_back(pcl::PointXYZ(5.1f, y, z));
+    }
+  }
+  auto p = params(0.3f);
+  p.min_obstacle_points = 1000;
+  const NavMap nm = build(cloud, p);
+  expect_clean_mesh(nm);
+  EXPECT_FALSE(connected(nm, cell_at(nm, 2.0f, 5.0f, 0.0f), cell_at(nm, 8.0f, 5.0f, 0.0f)));
+}
+
+TEST(FromPoints, VerySparseUpperFaceSpreadsFromItsDenserParts)
+{
+  // A slab top seen with 12 points/m2 (about 1 per 0.3 m cell): one pass of neighbour
+  // consensus only lifts cells next to a dense one; repeated, the whole face is recovered.
+  Cloud cloud;
+  scatter(cloud, 0.0f, 10.0f, 0.0f, 10.0f, flat(0.0f), 100.0f, 56);
+  scatter(cloud, 0.0f, 10.0f, 0.0f, 10.0f, flat(2.21f), 100.0f, 57);  // ceiling face
+  scatter(cloud, 0.0f, 10.0f, 0.0f, 10.0f, flat(2.5f), 12.0f, 58);    // very sparse top
+  scatter(cloud, 0.0f, 2.0f, 0.0f, 2.0f, flat(2.5f), 100.0f, 59);     // a dense corner
+  const NavMap nm = build(cloud, params(0.3f));
+  expect_clean_mesh(nm);
+  float upper = 0.0f, ceiling = 0.0f;
+  for (NavCelId cid = 0; cid < nm.navcels.size(); ++cid) {
+    const float z = nm.navcel_centroid(cid).z();
+    if (z > 2.4f) {upper += nm.navcels[cid].area;}
+    if (z > 1.0f && z < 2.35f) {ceiling += nm.navcels[cid].area;}
+  }
+  EXPECT_GT(upper, 0.8f * 9.6f * 9.6f);
+  EXPECT_LT(ceiling, 0.1f * 9.6f * 9.6f);
+}

@@ -825,19 +825,34 @@ struct BinnedPoint
 float level_height_top(const BinnedPoint * pts, std::size_t n, float step);
 
 // Height of one level at its cell centre. The level may hold several faces closer than the
-// clearance (a slab seen from above and below): the support is its upper face, the top group
-// of points above a gap. A top group too small to trust on its own (a sparse face, or a spike)
-// is returned in alt_z, for the neighbours to decide.
-float level_height(const BinnedPoint * pts, std::size_t n, float step, float & alt_z)
+// clearance (a slab seen from above and below): the support is its upper face, a flat top group
+// of points above a gap. A top group too small to trust on its own (a sparse face, a spike, or
+// noise under min_obstacle points) is returned in alt_z, for the neighbours to decide. Fewer
+// than min_obstacle points standing on the lowest face, and fewer than its own, are noise.
+float level_height(
+  const BinnedPoint * pts, std::size_t n, float step, int min_obstacle, float & alt_z)
 {
   alt_z = std::numeric_limits<float>::quiet_NaN();
   const float layer_gap = 0.5f * step;
   for (std::size_t k = n - 1; k >= 1; --k) {
     if (pts[k].z - pts[k - 1].z <= layer_gap) {continue;}
-    if (n - k >= std::max<std::size_t>(3, n / 10)) {
-      return level_height_top(pts + k, n - k, step);
+    const std::size_t top = n - k;
+    if (top >= std::max<std::size_t>(3, n / 10) &&
+      (top >= static_cast<std::size_t>(std::max(min_obstacle, 0)) || top >= k))
+    {
+      const float top90 = pts[k + ((top - 1) * 9) / 10].z;  // flat, up to a stray spike
+      if (top90 - pts[k].z <= step) {return level_height_top(pts + k, n - k, step);}
+      break;  // not a face: clutter or noise over the lower points
     }
     if (std::isnan(alt_z)) {alt_z = pts[k + (n - k - 1) / 2].z;}  // median of the small group
+  }
+  // Lowest face (a slice of max_dz) and what stands on it: noise if sparse and outnumbered
+  // by the face (people passing while mapping); a wall outnumbers its own base.
+  std::size_t face = 1;
+  while (face < n && pts[face].z - pts[0].z <= step) {++face;}
+  const std::size_t above = n - face;
+  if (above > 0 && above < static_cast<std::size_t>(std::max(min_obstacle, 0)) && above < face) {
+    return level_height_top(pts, face, step);
   }
   return level_height_top(pts, n, step);
 }
@@ -979,7 +994,7 @@ navmap::NavMap from_points(
       if (cell_end || binned[k].z - binned[k - 1].z > gap) {
         const std::size_t n = k - level_begin;
         float alt_z;
-        const float z = level_height(&binned[level_begin], n, step, alt_z);
+        const float z = level_height(&binned[level_begin], n, step, P.min_obstacle_points, alt_z);
         nodes.push_back({i, j, z, static_cast<uint32_t>(n), alt_z, binned[level_begin].z});
         level_begin = k;
       }
@@ -1004,24 +1019,28 @@ navmap::NavMap from_points(
         return votes;
       };
     // Pass 1: a sparse upper face is the support when a neighbour stands on it (its main
-    // height) and two or more neighbours see it. Spikes over a floor never have a neighbour
-    // whose main height is theirs.
+    // height) and two or more neighbours see it; repeated, so it spreads over the face.
+    // Spikes over a floor never have a neighbour whose main height is theirs.
     std::vector<std::pair<std::size_t, float>> lifted;
-    for (std::size_t n = 0; n < nodes.size(); ++n) {
-      const auto & nd = nodes[n];
-      if (std::isnan(nd.alt_z)) {continue;}
-      const int on_it = neighbours_with(
-        nd, [&](const GridNode & nb) {return std::fabs(nb.z - nd.alt_z) <= tol;});
-      const int seen = neighbours_with(
-        nd, [&](const GridNode & nb) {
-          return std::fabs(nb.z - nd.alt_z) <= tol ||
-                 (!std::isnan(nb.alt_z) && std::fabs(nb.alt_z - nd.alt_z) <= tol);
-        });
-      if (on_it >= 1 && seen >= 2) {lifted.emplace_back(n, nd.alt_z);}
-    }
-    for (const auto & [n, z] : lifted) {
-      nodes[n].z = z;
-    }
+    do {
+      lifted.clear();
+      for (std::size_t n = 0; n < nodes.size(); ++n) {
+        const auto & nd = nodes[n];
+        if (std::isnan(nd.alt_z)) {continue;}
+        const int on_it = neighbours_with(
+          nd, [&](const GridNode & nb) {return std::fabs(nb.z - nd.alt_z) <= tol;});
+        const int seen = neighbours_with(
+          nd, [&](const GridNode & nb) {
+            return std::fabs(nb.z - nd.alt_z) <= tol ||
+                   (!std::isnan(nb.alt_z) && std::fabs(nb.alt_z - nd.alt_z) <= tol);
+          });
+        if (on_it >= 1 && seen >= 2) {lifted.emplace_back(n, nd.alt_z);}
+      }
+      for (const auto & [n, z] : lifted) {
+        nodes[n].z = z;
+        nodes[n].alt_z = std::numeric_limits<float>::quiet_NaN();
+      }
+    } while (!lifted.empty());
 
     // Pass 2: a cell that only saw the lower face takes the upper face of the neighbours whose
     // lower face is at its height. It needs a level below in its column (where the sensor
