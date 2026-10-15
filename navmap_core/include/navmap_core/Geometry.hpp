@@ -140,6 +140,17 @@ inline bool ray_triangle_intersect(
 // -----------------------------------------------------------------------------
 
 /**
+ * @brief Distance from point @p p to segment [@p a, @p b] (a point if a == b).
+ */
+inline float point_segment_distance(const Vec3 & p, const Vec3 & a, const Vec3 & b)
+{
+  const Vec3 ab = b - a;
+  const float len2 = ab.squaredNorm();
+  const float t = len2 > 0.0f ? std::clamp((p - a).dot(ab) / len2, 0.0f, 1.0f) : 0.0f;
+  return (p - (a + t * ab)).norm();
+}
+
+/**
  * @brief Axis-aligned bounding box.
  *
  * Stores component-wise minima/maxima and provides helpers for:

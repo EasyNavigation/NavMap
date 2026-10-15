@@ -276,6 +276,23 @@ The unknown value, description and unit of each layer travel in the message and 
 
 ---
 
+## 7d. Incremental updates (change tracking, `DistanceField.hpp`)
+
+Layers record which NavCels changed since the last `clear_changes()` (`layer_set`, `OccupancyLayer`; bulk writes mark the whole layer), so a consumer only reprocesses what changed. `DistanceField` keeps a distance-to-seed field up to date from the seed cells added and removed:
+
+```cpp
+#include <navmap_core/DistanceField.hpp>
+
+navmap::DistanceField df(nm, /*from_boundary=*/true, /*max_distance=*/0.7f);
+df.compute(lethal_cells);                       // once
+df.update(newly_lethal, no_longer_lethal);      // every cycle: cost of the area that changes
+for (navmap::NavCelId c : df.changed()) {/* recompute the cost of c from df[c] */}
+```
+
+With a finite `max_distance` the field is exact (straight distance to the nearest seed reaching the NavCel over the surface), and identical after any sequence of updates to a full recomputation.
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:

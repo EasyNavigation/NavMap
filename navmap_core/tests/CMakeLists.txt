@@ -62,3 +62,8 @@ ament_add_gtest(test_layers_unknown_occupancy test_layers_unknown_occupancy.cpp)
 target_link_libraries(test_layers_unknown_occupancy
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_incremental test_incremental.cpp)
+target_link_libraries(test_incremental
+  ${PROJECT_NAME}
+)

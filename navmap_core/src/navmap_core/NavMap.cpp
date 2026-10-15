@@ -1109,17 +1109,6 @@ bool NavMap::locate_navcel(
 
 // ---- Distance field ----
 
-namespace
-{
-inline float point_segment_distance(const Vec3 & p, const Vec3 & a, const Vec3 & b)
-{
-  const Vec3 ab = b - a;
-  const float len2 = ab.squaredNorm();
-  const float t = len2 > 0.0f ? std::clamp((p - a).dot(ab) / len2, 0.0f, 1.0f) : 0.0f;
-  return (p - (a + t * ab)).norm();
-}
-}  // namespace
-
 std::vector<float> NavMap::distance_field(
   const std::vector<NavCelId> & seed_cells, bool from_boundary, float max_distance) const
 {

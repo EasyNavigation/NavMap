@@ -140,12 +140,55 @@ struct LayerViewBase
   /// @brief Mark content dirty (forces hash recompute on next query).
   void mark_dirty() const noexcept {hash_dirty_ = true;}
 
-  /// @brief Independent copy of this layer (data, name, type and cached hash).
+  /// @brief Independent copy of this layer (data, name, type, cached hash and pending changes).
   virtual std::shared_ptr<LayerViewBase> clone() const = 0;
+
+  // ---- Change tracking (for incremental consumers: inflation, publication...) ----
+  // Cells written since the last clear_changes(): recorded by NavMap::layer_set(), OccupancyLayer
+  // and mark_changed(). Bulk writes (set_data, layer_clear, copies) mark the whole layer, and so
+  // does creating it. Direct writes through data() must call mark_changed() themselves.
+
+  /// @brief Record that cell @p cid changed (deduplicated).
+  void mark_changed(NavCelId cid) const
+  {
+    hash_dirty_ = true;
+    if (all_changed_) {return;}
+    const std::size_t word = cid / 64;
+    if (changed_bits_.size() <= word) {
+      changed_bits_.resize(std::max(word + 1, (size() + 63) / 64));
+    }
+    const std::uint64_t bit = std::uint64_t{1} << (cid % 64);
+    if (!(changed_bits_[word] & bit)) {
+      changed_bits_[word] |= bit;
+      changed_.push_back(cid);
+    }
+  }
+
+  /// @brief Record that the whole layer changed.
+  void mark_all_changed() const noexcept {hash_dirty_ = true; all_changed_ = true;}
+
+  /// @brief Whether the whole layer changed (then changed() is not meaningful).
+  bool all_changed() const noexcept {return all_changed_;}
+
+  /// @brief Cells changed one by one since the last clear_changes(), in order of first change.
+  const std::vector<NavCelId> & changed() const noexcept {return changed_;}
+
+  bool has_changes() const noexcept {return all_changed_ || !changed_.empty();}
+
+  /// @brief Forget the recorded changes (call it once every consumer has seen them).
+  void clear_changes() const
+  {
+    for (const NavCelId c : changed_) {changed_bits_[c / 64] &= ~(std::uint64_t{1} << (c % 64));}
+    changed_.clear();
+    all_changed_ = false;
+  }
 
 protected:
   mutable bool hash_dirty_{true};
   mutable std::uint64_t hash_cache_{0};
+  mutable bool all_changed_{true};               // a new layer is all new
+  mutable std::vector<NavCelId> changed_;
+  mutable std::vector<std::uint64_t> changed_bits_;  // allocated on the first single change
 };
 
 /**
@@ -191,7 +234,7 @@ struct LayerView : LayerViewBase
   {
     hash_dirty_ = true; return const_cast<std::vector<T> &>(data_);
   }
-  void set_data(const std::vector<T> & v) {data_ = v; hash_dirty_ = true;}
+  void set_data(const std::vector<T> & v) {data_ = v; mark_all_changed();}
   std::uint64_t content_hash() const override;
 
   std::shared_ptr<LayerViewBase> clone() const override
@@ -339,17 +382,22 @@ public:
     for (auto & kv : layers_) {
       if (auto v = std::dynamic_pointer_cast<LayerView<uint8_t>>(kv.second)) {
         v->data_.resize(nitems);
-        kv.second->mark_dirty();
+        kv.second->mark_all_changed();
         continue;
       }
       if (auto v = std::dynamic_pointer_cast<LayerView<float>>(kv.second)) {
         v->data_.resize(nitems);
-        kv.second->mark_dirty();
+        kv.second->mark_all_changed();
         continue;
       }
       if (auto v = std::dynamic_pointer_cast<LayerView<double>>(kv.second)) {
         v->data_.resize(nitems);
-        kv.second->mark_dirty();
+        kv.second->mark_all_changed();
+        continue;
+      }
+      if (auto v = std::dynamic_pointer_cast<LayerView<int16_t>>(kv.second)) {
+        v->data_.resize(nitems);
+        kv.second->mark_all_changed();
         continue;
       }
     }
@@ -781,7 +829,7 @@ public:
     auto v = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     if (!existed || v->data().size() != navcels.size()) {  // new layers start at default_value
       v->data().assign(navcels.size(), default_value);
-      v->mark_dirty();
+      v->mark_all_changed();
     }
     auto & meta = layer_meta[name];
     meta.description = description;
@@ -812,7 +860,7 @@ public:
     auto view = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     if (static_cast<size_t>(cid) < view->data().size()) {
       view->data()[cid] = value;
-      view->mark_dirty();
+      view->mark_changed(cid);
     }
   }
 
@@ -929,7 +977,7 @@ public:
   {
     auto view = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     std::fill(view->data().begin(), view->data().end(), value);
-    view->mark_dirty();
+    view->mark_all_changed();
   }
 
   /**

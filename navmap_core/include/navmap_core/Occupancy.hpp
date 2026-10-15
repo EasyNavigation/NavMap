@@ -96,14 +96,14 @@ public:
     if (cid >= d.size()) {return;}
     const int v = static_cast<int>(d[cid]) + delta;
     d[cid] = static_cast<int16_t>(std::clamp(v, static_cast<int>(min_), static_cast<int>(max_)));
-    view_->mark_dirty();
+    view_->mark_changed(cid);
   }
 
   /// Forgets @p cid (back to unknown).
   void reset(NavCelId cid)
   {
     auto & d = view_->data();
-    if (cid < d.size()) {d[cid] = 0; view_->mark_dirty();}
+    if (cid < d.size()) {d[cid] = 0; view_->mark_changed(cid);}
   }
 
   float logodds(NavCelId cid) const {return value(cid) / kScale;}

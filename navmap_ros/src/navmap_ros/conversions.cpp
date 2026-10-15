@@ -111,7 +111,7 @@ void set_layer(navmap::NavMap & nm, const NavMapLayer & msg, const V & data)
   using T = typename V::value_type;
   auto dst = nm.add_layer<T>(msg.name, msg.description, msg.unit, T{});
   dst->data().assign(data.begin(), data.end());
-  dst->mark_dirty();
+  dst->mark_all_changed();
 }
 
 // Message -> layer data and metadata (the layer is created or retyped as needed).

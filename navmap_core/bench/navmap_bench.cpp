@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "navmap_core/DistanceField.hpp"
 #include "navmap_core/Iterators.hpp"
 #include "navmap_core/NavMap.hpp"
 
@@ -232,6 +233,47 @@ int main(int argc, char ** argv)
       std::printf(" %16s", c);
     }
     std::printf("\n");
+  }
+
+  // Distance fields (borders + obstacle cells as seeds), radius r: full computation with
+  // NavMap::distance_field (nearest-feature propagation) and DistanceField (exact), and
+  // incremental updates of DistanceField (k obstacle cells moved), in ms.
+  std::printf(
+    "\ndistance fields, ms\n%9s %5s %14s %14s %14s %14s %14s\n", "navcels", "r",
+    "propag_full", "exact_full", "upd_1", "upd_10", "upd_100");
+  for (int side : {100, 300, 1000}) {
+    if (side > max_side) {break;}
+    NavMap nm = make_map(side, 1, res);
+    nm.rebuild_geometry_accels();
+    std::mt19937 rng(5);
+    std::uniform_int_distribution<NavCelId> C(0, static_cast<NavCelId>(nm.navcels.size() - 1));
+    std::vector<NavCelId> obstacles(nm.navcels.size() / 50);
+    for (auto & o : obstacles) {
+      o = C(rng);
+    }
+    for (const float r : {0.7f, 2.0f}) {
+      auto ms = [](auto && f) {
+          const auto t0 = Clock::now();
+          f();
+          return std::chrono::duration<double, std::milli>(Clock::now() - t0).count();
+        };
+      const double propag = ms([&] {(void)nm.distance_field(obstacles, true, r);});
+      navmap::DistanceField df(nm, true, r);
+      const double exact = ms([&] {df.compute(obstacles);});
+      double upd[3];
+      int i = 0;
+      for (const int k : {1, 10, 100}) {
+        std::vector<NavCelId> rem(obstacles.begin(), obstacles.begin() + k), add(k);
+        for (auto & a : add) {
+          a = C(rng);
+        }
+        upd[i++] = ms([&] {df.update(add, rem);});
+        df.update(rem, add);  // back
+      }
+      std::printf(
+        "%9zu %5.1f %14.2f %14.2f %14.3f %14.3f %14.3f\n", nm.navcels.size(), r, propag, exact,
+        upd[0], upd[1], upd[2]);
+    }
   }
   return 0;
 }
