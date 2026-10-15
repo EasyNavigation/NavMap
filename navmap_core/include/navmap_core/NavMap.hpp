@@ -140,6 +140,9 @@ struct LayerViewBase
   /// @brief Mark content dirty (forces hash recompute on next query).
   void mark_dirty() const noexcept {hash_dirty_ = true;}
 
+  /// @brief Independent copy of this layer (data, name, type and cached hash).
+  virtual std::shared_ptr<LayerViewBase> clone() const = 0;
+
 protected:
   mutable bool hash_dirty_{true};
   mutable std::uint64_t hash_cache_{0};
@@ -190,6 +193,11 @@ struct LayerView : LayerViewBase
   }
   void set_data(const std::vector<T> & v) {data_ = v; hash_dirty_ = true;}
   std::uint64_t content_hash() const override;
+
+  std::shared_ptr<LayerViewBase> clone() const override
+  {
+    return std::make_shared<LayerView<T>>(*this);
+  }
   ///@}
 };
 
@@ -237,6 +245,27 @@ std::uint64_t LayerView<T>::content_hash() const
 class LayerRegistry
 {
 public:
+  LayerRegistry() = default;
+  LayerRegistry(LayerRegistry &&) noexcept = default;
+  LayerRegistry & operator=(LayerRegistry &&) noexcept = default;
+
+  /// Copies are deep: each copy owns its layers (writes never reach the original).
+  LayerRegistry(const LayerRegistry & other)
+  {
+    for (const auto & [name, view] : other.layers_) {
+      layers_.emplace(name, view ? view->clone() : nullptr);
+    }
+  }
+
+  LayerRegistry & operator=(const LayerRegistry & other)
+  {
+    if (this != &other) {
+      LayerRegistry tmp(other);
+      layers_.swap(tmp.layers_);
+    }
+    return *this;
+  }
+
   /**
    * \brief Add a new typed layer or return an existing one with the same name.
    *
