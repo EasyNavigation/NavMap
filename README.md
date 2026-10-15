@@ -293,6 +293,12 @@ With a finite `max_distance` the field is exact (straight distance to the neares
 
 ---
 
+## 7e. Geometric descriptors (`Descriptors.hpp`)
+
+`navmap::compute_descriptors(nm)` adds F32 layers per NavCel: `slope` (deg), `roughness` (RMS distance to the plane fitted in a disc, m), `step` (height span in a small disc, m) and `clearance` (free height to the next surface of the map above, m; +inf if none). Discs grow over the surface, so floors never mix. They only describe the surface: weighing them into a cost is up to the planner.
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:
