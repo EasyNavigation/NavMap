@@ -113,6 +113,8 @@ inline bool ray_triangle_intersect(
   float & v)
 {
   const float kEps = 1e-8f;
+  // Barycentric slack, relative: a ray through a shared edge hits both NavCels, never neither
+  const float kBary = 1e-5f;
   Vec3 e1 = v1 - v0;
   Vec3 e2 = v2 - v0;
   Vec3 pvec = dir.cross(e2);
@@ -123,12 +125,12 @@ inline bool ray_triangle_intersect(
   float inv_det = 1.0f / det;
   Vec3 tvec = orig - v0;
   u = tvec.dot(pvec) * inv_det;
-  if (u < -kEps || u > 1.0f + kEps) {
+  if (u < -kBary || u > 1.0f + kBary) {
     return false;
   }
   Vec3 qvec = tvec.cross(e1);
   v = dir.dot(qvec) * inv_det;
-  if (v < -kEps || (u + v) > 1.0f + kEps) {
+  if (v < -kBary || (u + v) > 1.0f + kBary) {
     return false;
   }
   t = e2.dot(qvec) * inv_det;
