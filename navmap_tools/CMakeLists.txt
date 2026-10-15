@@ -45,9 +45,16 @@ target_link_libraries(navmap_publisher
   ${navmap_ros_interfaces_TARGETS}
 )
 
+add_executable(navmap_simplify src/navmap_simplify.cpp)
+target_link_libraries(navmap_simplify
+  navmap_core::navmap_core
+  navmap_ros::navmap_ros
+)
+
 install(TARGETS
   pointcloud_to_navmap
   navmap_publisher
+  navmap_simplify
   DESTINATION lib/${PROJECT_NAME}
 )
 

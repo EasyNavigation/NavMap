@@ -46,6 +46,7 @@
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
+#include "navmap_core/Costs.hpp"
 #include "navmap_core/NavMap.hpp"
 
 /**
@@ -55,25 +56,12 @@
 namespace navmap_ros
 {
 
-/**
- * @name Costmap value semantics
- * @brief Standardized occupancy/cost values used when projecting NavMap layers
- *        onto a 2D grid (compatible with `costmap_2d` conventions).
- *
- * These constants follow the same meaning as in `costmap_2d`:
- *  - `NO_INFORMATION` (255): Unknown or unobserved area.
- *  - `LETHAL_OBSTACLE` (254): Non-traversable obstacle.
- *  - `INSCRIBED_INFLATED_OBSTACLE` (253): Inside the robot’s inscribed radius.
- *  - `MAX_NON_OBSTACLE` (252): Highest cost still considered traversable.
- *  - `FREE_SPACE` (0): Known free space.
- * @{
- */
-constexpr uint8_t NO_INFORMATION = 255;
-constexpr uint8_t LETHAL_OBSTACLE = 254;
-constexpr uint8_t INSCRIBED_INFLATED_OBSTACLE = 253;
-constexpr uint8_t MAX_NON_OBSTACLE = 252;
-constexpr uint8_t FREE_SPACE = 0;
-/** @} */  // end of Costmap value semantics group
+// Cost values (costmap_2d convention), defined in navmap_core/Costs.hpp
+using navmap::NO_INFORMATION;
+using navmap::LETHAL_OBSTACLE;
+using navmap::INSCRIBED_INFLATED_OBSTACLE;
+using navmap::MAX_NON_OBSTACLE;
+using navmap::FREE_SPACE;
 
 // --------- NavMap <-> ROS message ---------
 
@@ -151,6 +139,20 @@ navmap_ros_interfaces::msg::NavMapLayer to_msg(
   const std::string & layer);
 
 /**
+ * @brief Layer update with only what changed since the layer's last clear_changes().
+ *
+ * Sparse (indices + values) when few NavCels changed one by one; the full layer when the whole
+ * layer changed, nothing did, or more than @p max_sparse_fraction of it did. Carries the
+ * geometry id, so a receiver can reject an update for another map. Does not clear the changes.
+ *
+ * @throw std::runtime_error If the layer does not exist.
+ */
+navmap_ros_interfaces::msg::NavMapLayer to_layer_update_msg(
+  const navmap::NavMap & nm, const std::string & layer,
+  const std_msgs::msg::Header & header = std_msgs::msg::Header(),
+  float max_sparse_fraction = 0.25f);
+
+/**
  * @brief Import a single NavMapLayer message into a NavMap.
  *
  * If the layer already exists in @p nm, it is overwritten. Otherwise, it is created.
@@ -161,11 +163,13 @@ navmap_ros_interfaces::msg::NavMapLayer to_msg(
  * @param[out] header Header extracted from the message.
  *
  * @details
- *  - The function verifies that the length of the populated data array matches
- *    the number of triangles (NavCels) in @p nm.
- *  - Exactly one of the arrays `data_u8`, `data_f32`, or `data_f64` must be set.
+ *  - Exactly one of the arrays `data_u8`, `data_f32`, `data_f64` or `data_i16` must be set.
+ *  - With `indices`, only those NavCels are written (sparse update of an existing layer of the
+ *    same type); without them, the whole layer is replaced, with its metadata.
+ *  - A message whose `geometry_id` is set and differs from nm.geometry_id() is rejected.
  *
- * @throw std::runtime_error If sizes are inconsistent or the message is ill-formed.
+ * @throw std::runtime_error If the message belongs to another geometry, a sparse update does
+ *        not match its layer, or the type is unsupported.
  */
 void from_msg(
   const navmap_ros_interfaces::msg::NavMapLayer & msg,

@@ -28,6 +28,8 @@ Funded by the European Union through the Horizon Europe programme under Grant Ag
 - **Locate API**: find the NavCel under/around a 3D position using BVH acceleration and raycasting.
 - **Raytracing**: Möller–Trumbore intersection with a simple BVH for efficiency.
 - **Multi-surface support**: naturally supports multiple disconnected surfaces (e.g., separate floors).
+- **Unknown values and probabilistic occupancy**: each layer can declare the value that means "not observed"; `Occupancy.hpp` keeps log-odds occupancy (OctoMap's clamped update) in an int16 layer, with free / occupied / unknown states.
+- **Iterators** over NavCels (`navmap_core/Iterators.hpp`): box, disc, ring, polygon, distance order and segment walk; regions grow over the surface, so they never jump to another floor.
 
 ---
 
@@ -227,6 +229,124 @@ nm.set_area<uint8_t>(Eigen::Vector3f(0.8f, 0.2f, 0.0f),
 
 ---
 
+## 7b. Iterating over NavCels (`Iterators.hpp`)
+
+Visitors are called once per NavCel; returning `false` stops. Regions around a point grow from the NavCel under it through the mesh adjacency, so a disc on one floor never reaches the floor above. Reuse a `TraversalScratch` to avoid allocations.
+
+```cpp
+#include <navmap_core/Iterators.hpp>
+
+navmap::TraversalScratch scratch;
+const Eigen::Vector3f robot(2.0f, 1.0f, 0.0f);
+
+// NavCels within 0.5 m of the robot (3D distance to the centroid)
+navmap::for_each_in_disc(nm, robot, 0.5f, [&](navmap::NavCelId c) {/* ... */},
+  navmap::Metric::EUCLIDEAN, &scratch);
+
+// NavCels crossed by a sensor ray projected on the surface, with the entry/exit parameters
+navmap::for_each_on_segment(nm, robot, Eigen::Vector3f(6.0f, 3.0f, 0.0f),
+  [&](navmap::NavCelId c, float t_in, float t_out) {/* clear c */});
+
+// Nearest NavCel along the surface (geodesic order) with a free value
+navmap::for_each_by_distance(nm, seed, robot, 3.0f, [&](navmap::NavCelId c, float d) {
+    return nm.layer_get<uint8_t>("occupancy", c) != 0;  // false stops at the first free one
+  });
+```
+
+Also `for_each_in_aabb` (every surface, via the BVH), `for_each_in_ring` and `for_each_in_polygon` (XY polygon on the seed's floor). `Metric::GEODESIC` measures along the surface and bends around borders; it is about 80 times costlier than `EUCLIDEAN`, so use it for occasional queries.
+
+---
+
+## 7c. Unknown values and log-odds occupancy (`Occupancy.hpp`)
+
+```cpp
+#include <navmap_core/Occupancy.hpp>
+
+nm.add_layer<float>("elevation", "terrain height", "m", 0.0f);
+nm.set_layer_unknown("elevation", std::numeric_limits<double>::quiet_NaN());  // NaN = not surveyed
+bool unseen = nm.is_unknown("elevation", cid);
+
+navmap::OccupancyLayer occ(nm);   // int16 layer "occupancy_logodds", all unknown
+occ.miss(crossed_cid);            // a ray crossed it
+occ.hit(end_cid);                 // a ray ended on it
+if (occ.state(cid) == navmap::OccupancyState::OCCUPIED) {/* ... */}
+```
+
+The unknown value, description and unit of each layer travel in the message and in the file. Which NavCels a ray hits or crosses is up to the algorithm using it (see `for_each_on_segment`). `ros2 launch navmap_examples unknown_occupancy.launch.py` shows both in RViz2 (build with `-DBUILD_ROS_EXAMPLES=ON`).
+
+---
+
+## 7d. Incremental updates (change tracking, `DistanceField.hpp`)
+
+Layers record which NavCels changed since the last `clear_changes()` (`layer_set`, `OccupancyLayer`; bulk writes mark the whole layer), so a consumer only reprocesses what changed. `DistanceField` keeps a distance-to-seed field up to date from the seed cells added and removed:
+
+```cpp
+#include <navmap_core/DistanceField.hpp>
+
+navmap::DistanceField df(nm, /*from_boundary=*/true, /*max_distance=*/0.7f);
+df.compute(lethal_cells);                       // once
+df.update(newly_lethal, no_longer_lethal);      // every cycle: cost of the area that changes
+for (navmap::NavCelId c : df.changed()) {/* recompute the cost of c from df[c] */}
+```
+
+With a finite `max_distance` the field is exact (straight distance to the nearest seed reaching the NavCel over the surface), and identical after any sequence of updates to a full recomputation.
+
+---
+
+## 7e. Geometric descriptors (`Descriptors.hpp`)
+
+`navmap::compute_descriptors(nm)` adds F32 layers per NavCel: `slope` (deg), `roughness` (RMS distance to the plane fitted in a disc, m), `step` (height span in a small disc, m) and `clearance` (free height to the next surface of the map above, m; +inf if none). Discs grow over the surface, so floors never mix. They only describe the surface: weighing them into a cost is up to the planner.
+
+---
+
+## 7f. Links between surfaces (`SurfaceLink`)
+
+Stairs, elevators or doors between NavCels that do not share an edge. The map only records them; whether a robot can take one, and at which cost, is up to the planner. They travel in the message and the file, and RViz2 draws them (*Draw Links*).
+
+```cpp
+nm.add_link(ground_cid, upper_cid, navmap::LinkType::ELEVATOR);            // both ways
+nm.add_link(top_cid, bottom_cid, navmap::LinkType::STAIRS, 4.5f, false);   // one way, 4.5 m
+for (std::uint32_t i : nm.links_from(cid)) {const auto & l = nm.links()[i]; /* ... */}
+```
+
+---
+
+## 7g. Combining layers (`Combine.hpp`)
+
+Each source keeps its own layer (a static prior, obstacles from a sensor, a keep-out zone), and a master layer is composed from them with `navmap::combine_layer(nm, dst, src, op, options)`. The operators are those of costmap_2d: `OVERWRITE`, `TRUE_OVERWRITE`, `MAX`, `MAX_KEEP_UNKNOWN`, `MIN` and `ADD` (saturating at `options.cap`). Each layer's declared unknown value is respected, types may differ, `options.cells` restricts the work to the cells that changed, and `options.provenance` names a U8 layer that records which source set each cell. Clearing the sensor layer never erases the prior, because the sensor never writes it. The cost values (`navmap_core/Costs.hpp`) are those of costmap_2d.
+
+```cpp
+#include <navmap_core/Combine.hpp>
+
+navmap::CombineOptions o;
+o.provenance = "source";
+o.source_id = 1;
+navmap::combine_layer(nm, "cost", "prior", navmap::CombineOp::TRUE_OVERWRITE, o);
+o.source_id = 2;
+o.cells = nm.layers.get("obstacles")->changed();
+navmap::combine_layer(nm, "cost", "obstacles", navmap::CombineOp::MAX, o);
+```
+
+---
+
+## 7h. Simplification that keeps the layers (`Simplify.hpp`)
+
+`navmap::simplify(nm, params)` merges NavCels where the surface is flat (within `max_error`) and the layers have the same value, and keeps the original ones where they change: every layer keeps its value at every point, open edges keep their shape and the topology does not change (floors, holes, links). `max_edge_length` bounds the NavCel size. Layers that are per-cell geometry (`elevation`, `support` from `from_points`) go in `ignore_layers`.
+
+```bash
+ros2 run navmap_tools navmap_simplify in.navmap out.navmap --max-error 0.02 \
+  --ignore-layer elevation --ignore-layer support
+```
+
+| Map (playgrounds) | NavCels | `max_error` | After | File (zlib) |
+|---|---|---|---|---|
+| `home2_20cm` (occupancy grid) | 10 716 | 0.02 m | 22.6 % | 248 KB → 16 KB |
+| `warehouse_20cm` (occupancy grid) | 18 720 | 0.02 m | 21.4 % | 433 KB → 25 KB |
+| `parking_garage` (`from_points`) | 38 543 | 0.02 / 0.1 m | 10.6 / 4.2 % | 1.06 MB → 56 / 24 KB |
+| `excavation_urjc` (`from_points`) | 29 728 | 0.02 / 0.1 m | 67 / 38 % | 822 KB → 235 / 142 KB |
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:
@@ -244,21 +364,25 @@ navmap::NavMap nm2 = navmap_ros::from_msg(msg);
 
 ---
 
+### Layer updates
+
+`navmap_ros::to_layer_update_msg(nm, "obstacles")` publishes only what changed since the layer's last `clear_changes()`: a sparse `NavMapLayer` (`indices` + values) when few NavCels changed, the full layer otherwise. Every `NavMap` and `NavMapLayer` message carries the map's `geometry_id`, so `from_msg` (and RViz2) reject updates meant for another geometry.
+
+---
+
 ## 9. Save and load from disk
 
-NavMap supports saving and loading using YAML + mesh files:
-
 ```cpp
-#include <navmap_ros/map_io.hpp>
+#include <navmap_ros/navmap_io.hpp>
 
-// Save NavMap to disk
-navmap_ros::saveMapToFile(nm, "/tmp/navmap.yaml");
-
-// Load NavMap from disk
-navmap::NavMap nm3 = navmap_ros::loadMapFromYaml("/tmp/navmap.yaml");
+navmap_ros::io::save_to_file(nm, "/tmp/map.navmap");     // zlib-compressed by default
+navmap::NavMap nm3;
+navmap_ros::io::load_from_file("/tmp/map.navmap", nm3);
 ```
 
 ---
+
+> **File format.** `.navmap` files are version 2: the CDR-serialized `NavMap` message (layer metadata, int16 layers, links, geometry id), zlib-compressed by default (`SaveOptions::compression`, `level`). zlib is available on every ROS distro and in the Python standard library. Version 1 files, and files without header, still load: they are migrated with a deprecation warning and rewritten in place when the location is writable.
 
 ## 10. Classic low-level API
 

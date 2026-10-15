@@ -60,6 +60,8 @@ NavMap::NavMap(const NavMap & other)
   layer_meta = other.layer_meta;
   navcel_surface_ = other.navcel_surface_;
   nonmanifold_edges_ = other.nonmanifold_edges_;
+  links_ = other.links_;
+  link_index_dirty_ = true;
 
   geometry_dirty_ = true;
   geometry_fp_ = 0;
@@ -168,11 +170,21 @@ NavMap & NavMap::operator=(const NavMap & other)
             if (!same_hash) {dst->set_data(src->data());}
             break;
           }
+        case LayerType::I16: {
+            auto src = std::dynamic_pointer_cast<LayerView<int16_t>>(src_base);
+            auto dst = layers.add_or_get<int16_t>(name, navcels.size(), layer_type_tag<int16_t>());
+            const bool same_size = dst->data().size() == src->data().size();
+            const bool same_hash = same_size && (dst->content_hash() == src->content_hash());
+            if (!same_hash) {dst->set_data(src->data());}
+            break;
+          }
         default: break;
       }
     }
 
     layer_meta = other.layer_meta;
+    links_ = other.links_;
+    link_index_dirty_ = true;
     return *this;
   }
 
@@ -185,6 +197,8 @@ NavMap & NavMap::operator=(const NavMap & other)
   layer_meta = other.layer_meta;
   navcel_surface_ = other.navcel_surface_;
   nonmanifold_edges_ = other.nonmanifold_edges_;
+  links_ = other.links_;
+  link_index_dirty_ = true;
 
   geometry_dirty_ = true;
   return *this;
@@ -203,6 +217,8 @@ NavMap & NavMap::operator=(NavMap && other) noexcept
   layer_meta = std::move(other.layer_meta);
   navcel_surface_ = std::move(other.navcel_surface_);
   nonmanifold_edges_ = other.nonmanifold_edges_;
+  links_ = std::move(other.links_);
+  link_index_dirty_ = true;
 
   geometry_fp_ = other.geometry_fp_;
   geometry_dirty_ = other.geometry_dirty_;
@@ -423,6 +439,7 @@ inline float box_sq_dist(const AABB & box, const Vec3 & p)
 
 void NavMap::rebuild_geometry_accels()
 {
+  geometry_dirty_ = true;
   // Normals and areas.
   for (auto & c : navcels) {
     Vec3 a = positions.at(c.v[0]);
@@ -932,6 +949,7 @@ bool NavMap::remove_surface(std::size_t surface_index)
 
 uint32_t NavMap::add_vertex(const Eigen::Vector3f & p)
 {
+  geometry_dirty_ = true;
   positions.x.push_back(p.x());
   positions.y.push_back(p.y());
   positions.z.push_back(p.z());
@@ -940,6 +958,7 @@ uint32_t NavMap::add_vertex(const Eigen::Vector3f & p)
 
 NavCelId NavMap::add_navcel(uint32_t v0, uint32_t v1, uint32_t v2)
 {
+  geometry_dirty_ = true;
   NavCel t; t.v[0] = v0; t.v[1] = v1; t.v[2] = v2;
   navcels.push_back(t);
   return static_cast<NavCelId>(navcels.size() - 1);
@@ -1101,17 +1120,6 @@ bool NavMap::locate_navcel(
 
 // ---- Distance field ----
 
-namespace
-{
-inline float point_segment_distance(const Vec3 & p, const Vec3 & a, const Vec3 & b)
-{
-  const Vec3 ab = b - a;
-  const float len2 = ab.squaredNorm();
-  const float t = len2 > 0.0f ? std::clamp((p - a).dot(ab) / len2, 0.0f, 1.0f) : 0.0f;
-  return (p - (a + t * ab)).norm();
-}
-}  // namespace
-
 std::vector<float> NavMap::distance_field(
   const std::vector<NavCelId> & seed_cells, bool from_boundary, float max_distance) const
 {
@@ -1173,6 +1181,47 @@ std::vector<float> NavMap::distance_field(
   return dist;
 }
 
+// ---- Links ----
+std::size_t NavMap::add_link(
+  NavCelId from, NavCelId to, LinkType type, float length, bool bidirectional)
+{
+  if (from >= navcels.size() || to >= navcels.size() || from == to) {return kInvalidLink;}
+  if (length < 0.0f) {length = (navcel_centroid(to) - navcel_centroid(from)).norm();}
+  links_.push_back({from, to, type, length, bidirectional});
+  link_index_dirty_ = true;
+  return links_.size() - 1;
+}
+
+bool NavMap::remove_link(std::size_t index)
+{
+  if (index >= links_.size()) {return false;}
+  links_[index] = links_.back();
+  links_.pop_back();
+  link_index_dirty_ = true;
+  return true;
+}
+
+void NavMap::clear_links()
+{
+  links_.clear();
+  link_index_dirty_ = true;
+}
+
+const std::vector<std::uint32_t> & NavMap::links_from(NavCelId cid) const
+{
+  static const std::vector<std::uint32_t> kEmpty;
+  if (link_index_dirty_ || link_index_.size() != navcels.size()) {
+    link_index_.assign(navcels.size(), {});
+    for (std::uint32_t i = 0; i < links_.size(); ++i) {
+      const auto & l = links_[i];
+      if (l.from < navcels.size()) {link_index_[l.from].push_back(i);}
+      if (l.bidirectional && l.to < navcels.size()) {link_index_[l.to].push_back(i);}
+    }
+    link_index_dirty_ = false;
+  }
+  return cid < link_index_.size() ? link_index_[cid] : kEmpty;
+}
+
 // ---- Layers ----
 bool NavMap::has_layer(const std::string & name) const
 {
@@ -1192,6 +1241,7 @@ std::string NavMap::layer_type_name(const std::string & name) const
       case LayerType::U8:  return "uint8";
       case LayerType::F32: return "float";
       case LayerType::F64: return "double";
+      case LayerType::I16: return "int16";
       default: break;
     }
   }
@@ -1203,6 +1253,21 @@ std::optional<LayerMeta> NavMap::get_layer_meta(const std::string & name) const
   auto it = layer_meta.find(name);
   if (it == layer_meta.end()) {return std::nullopt;}
   return it->second;
+}
+
+void NavMap::set_layer_unknown(const std::string & name, double value)
+{
+  layer_meta[name].unknown = value;
+}
+
+bool NavMap::is_unknown(const std::string & name, NavCelId cid) const
+{
+  const auto it = layer_meta.find(name);
+  if (it == layer_meta.end() || !it->second.unknown) {return false;}
+  const double u = *it->second.unknown;
+  const double v = layer_get<double>(name, cid, std::numeric_limits<double>::quiet_NaN());
+  if (std::isnan(u)) {return std::isnan(v) && has_layer(name) && cid < layer_size(name);}
+  return v == u;
 }
 
 std::vector<std::string> NavMap::list_layers() const

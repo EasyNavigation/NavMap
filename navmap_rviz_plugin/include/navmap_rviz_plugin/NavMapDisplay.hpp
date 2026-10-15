@@ -99,6 +99,7 @@ private Q_SLOTS:
   void updateLayerUpdateTopic();
   void onLayerSelectionChanged();
   void onDrawNormalsChanged();
+  void onDrawLinksChanged();
   void onAlphaChanged();
   void onNormalScaleChanged();
   void onColorSchemeChanged();
@@ -118,6 +119,7 @@ private:
   // Rendering
   void updateGeometry_();            // Build geometry (first time) and update colors.
   void updateNormals_();             // Rebuild normals debug object.
+  void updateLinks_();               // Rebuild the links between non-adjacent NavCels.
   void updateColorSchemeOptions_();  // Refresh color-scheme choices for current layer.
 
   // Mesh/Entity path (Option B)
@@ -132,6 +134,7 @@ private:
   rviz_common::properties::QosProfileProperty * layer_profile_property_{nullptr};
   rviz_common::properties::EnumProperty * color_scheme_property_{nullptr};
   rviz_common::properties::BoolProperty * draw_normals_property_{nullptr};
+  rviz_common::properties::BoolProperty * draw_links_property_{nullptr};
   rviz_common::properties::FloatProperty * normal_scale_property_{nullptr};
   rviz_common::properties::FloatProperty * alpha_property_{nullptr};
   rviz_common::properties::StringProperty * info_property_{nullptr};
@@ -154,6 +157,7 @@ private:
   // ---- OGRE scene objects ----
   Ogre::SceneNode * root_node_{nullptr};
   Ogre::ManualObject * normals_obj_{nullptr};
+  Ogre::ManualObject * links_obj_{nullptr};
 
   // Option B: static mesh + entity + dynamic colour buffer
   Ogre::Entity * entity_{nullptr};

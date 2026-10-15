@@ -249,3 +249,38 @@ TEST(NavMapAssign, LayerMetaSynchronized)
   EXPECT_EQ(dst.layer_meta.at("occ").unit, "unitless");
   EXPECT_TRUE(dst.layer_meta.at("occ").per_cell);
 }
+
+TEST(NavMapAssign, CopiesNeverShareLayerData)
+{
+  // Copy constructor, assignment with different geometry (full copy) and with the same geometry
+  // (layer sync): writes on either side must never reach the other.
+  NavMap src;
+  fill_one_tri_map(src);
+  NavMap copy(src);
+  NavMap assigned;
+  assigned = src;
+  NavMap synced;
+  fill_one_tri_map(synced);
+  synced = src;
+
+  src.layer_set<uint8_t>("occ", 0, 7);
+  for (const NavMap * m : {&copy, &assigned, &synced}) {
+    EXPECT_EQ(m->layer_get<uint8_t>("occ", 0), 254);
+  }
+  copy.layer_set<uint8_t>("occ", 0, 1);
+  assigned.layer_set<float>("cost", 0, -1.0f);
+  synced.layer_set<uint8_t>("occ", 0, 2);
+  EXPECT_EQ(src.layer_get<uint8_t>("occ", 0), 7);
+  EXPECT_FLOAT_EQ(src.layer_get<float>("cost", 0), 10.0f);
+  EXPECT_EQ(copy.layer_get<uint8_t>("occ", 0), 1);
+  EXPECT_EQ(synced.layer_get<uint8_t>("occ", 0), 2);
+
+  // A layer added to a copy does not appear in the original
+  copy.add_layer<float>("extra", "", "", 3.0f);
+  EXPECT_FALSE(src.has_layer("extra"));
+
+  // Moving keeps the data (and leaves nothing shared behind)
+  NavMap moved(std::move(copy));
+  EXPECT_EQ(moved.layer_get<uint8_t>("occ", 0), 1);
+  EXPECT_FLOAT_EQ(moved.layer_get<float>("extra", 0), 3.0f);
+}
