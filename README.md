@@ -311,6 +311,24 @@ for (std::uint32_t i : nm.links_from(cid)) {const auto & l = nm.links()[i]; /* .
 
 ---
 
+## 7g. Combining layers (`Combine.hpp`)
+
+Each source keeps its own layer (a static prior, obstacles from a sensor, a keep-out zone), and a master layer is composed from them with `navmap::combine_layer(nm, dst, src, op, options)`. The operators are those of costmap_2d: `OVERWRITE`, `TRUE_OVERWRITE`, `MAX`, `MAX_KEEP_UNKNOWN`, `MIN` and `ADD` (saturating at `options.cap`). Each layer's declared unknown value is respected, types may differ, `options.cells` restricts the work to the cells that changed, and `options.provenance` names a U8 layer that records which source set each cell. Clearing the sensor layer never erases the prior, because the sensor never writes it. The cost values (`navmap_core/Costs.hpp`) are those of costmap_2d.
+
+```cpp
+#include <navmap_core/Combine.hpp>
+
+navmap::CombineOptions o;
+o.provenance = "source";
+o.source_id = 1;
+navmap::combine_layer(nm, "cost", "prior", navmap::CombineOp::TRUE_OVERWRITE, o);
+o.source_id = 2;
+o.cells = nm.layers.get("obstacles")->changed();
+navmap::combine_layer(nm, "cost", "obstacles", navmap::CombineOp::MAX, o);
+```
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:
@@ -336,21 +354,17 @@ navmap::NavMap nm2 = navmap_ros::from_msg(msg);
 
 ## 9. Save and load from disk
 
-NavMap supports saving and loading using YAML + mesh files:
-
 ```cpp
-#include <navmap_ros/map_io.hpp>
+#include <navmap_ros/navmap_io.hpp>
 
-// Save NavMap to disk
-navmap_ros::saveMapToFile(nm, "/tmp/navmap.yaml");
-
-// Load NavMap from disk
-navmap::NavMap nm3 = navmap_ros::loadMapFromYaml("/tmp/navmap.yaml");
+navmap_ros::io::save_to_file(nm, "/tmp/map.navmap");     // zlib-compressed by default
+navmap::NavMap nm3;
+navmap_ros::io::load_from_file("/tmp/map.navmap", nm3);
 ```
 
 ---
 
-> **File format.** `.navmap` files are version 2 (layer metadata and int16 layers). Version 1 files, and files without header, still load: they are migrated with a deprecation warning and rewritten in place when the location is writable.
+> **File format.** `.navmap` files are version 2: the CDR-serialized `NavMap` message (layer metadata, int16 layers, links, geometry id), zlib-compressed by default (`SaveOptions::compression`, `level`). zlib is available on every ROS distro and in the Python standard library. Version 1 files, and files without header, still load: they are migrated with a deprecation warning and rewritten in place when the location is writable.
 
 ## 10. Classic low-level API
 

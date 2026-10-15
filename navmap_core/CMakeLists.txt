@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}/NavMap.cpp
   src/${PROJECT_NAME}/DistanceField.cpp
   src/${PROJECT_NAME}/Descriptors.cpp
+  src/${PROJECT_NAME}/Combine.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

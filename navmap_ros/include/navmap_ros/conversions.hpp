@@ -46,6 +46,7 @@
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
+#include "navmap_core/Costs.hpp"
 #include "navmap_core/NavMap.hpp"
 
 /**
@@ -55,25 +56,12 @@
 namespace navmap_ros
 {
 
-/**
- * @name Costmap value semantics
- * @brief Standardized occupancy/cost values used when projecting NavMap layers
- *        onto a 2D grid (compatible with `costmap_2d` conventions).
- *
- * These constants follow the same meaning as in `costmap_2d`:
- *  - `NO_INFORMATION` (255): Unknown or unobserved area.
- *  - `LETHAL_OBSTACLE` (254): Non-traversable obstacle.
- *  - `INSCRIBED_INFLATED_OBSTACLE` (253): Inside the robot’s inscribed radius.
- *  - `MAX_NON_OBSTACLE` (252): Highest cost still considered traversable.
- *  - `FREE_SPACE` (0): Known free space.
- * @{
- */
-constexpr uint8_t NO_INFORMATION = 255;
-constexpr uint8_t LETHAL_OBSTACLE = 254;
-constexpr uint8_t INSCRIBED_INFLATED_OBSTACLE = 253;
-constexpr uint8_t MAX_NON_OBSTACLE = 252;
-constexpr uint8_t FREE_SPACE = 0;
-/** @} */  // end of Costmap value semantics group
+// Cost values (costmap_2d convention), defined in navmap_core/Costs.hpp
+using navmap::NO_INFORMATION;
+using navmap::LETHAL_OBSTACLE;
+using navmap::INSCRIBED_INFLATED_OBSTACLE;
+using navmap::MAX_NON_OBSTACLE;
+using navmap::FREE_SPACE;
 
 // --------- NavMap <-> ROS message ---------
 
