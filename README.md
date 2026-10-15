@@ -329,6 +329,24 @@ navmap::combine_layer(nm, "cost", "obstacles", navmap::CombineOp::MAX, o);
 
 ---
 
+## 7h. Simplification that keeps the layers (`Simplify.hpp`)
+
+`navmap::simplify(nm, params)` merges NavCels where the surface is flat (within `max_error`) and the layers have the same value, and keeps the original ones where they change: every layer keeps its value at every point, open edges keep their shape and the topology does not change (floors, holes, links). `max_edge_length` bounds the NavCel size. Layers that are per-cell geometry (`elevation`, `support` from `from_points`) go in `ignore_layers`.
+
+```bash
+ros2 run navmap_tools navmap_simplify in.navmap out.navmap --max-error 0.02 \
+  --ignore-layer elevation --ignore-layer support
+```
+
+| Map (playgrounds) | NavCels | `max_error` | After | File (zlib) |
+|---|---|---|---|---|
+| `home2_20cm` (occupancy grid) | 10 716 | 0.02 m | 22.6 % | 248 KB → 16 KB |
+| `warehouse_20cm` (occupancy grid) | 18 720 | 0.02 m | 21.4 % | 433 KB → 25 KB |
+| `parking_garage` (`from_points`) | 38 543 | 0.02 / 0.1 m | 10.6 / 4.2 % | 1.06 MB → 56 / 24 KB |
+| `excavation_urjc` (`from_points`) | 29 728 | 0.02 / 0.1 m | 67 / 38 % | 822 KB → 235 / 142 KB |
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:
