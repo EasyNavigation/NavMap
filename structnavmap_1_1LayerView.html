@@ -123,19 +123,23 @@ Collaboration diagram for LayerView&lt; T &gt;:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap_1_1LayerView__coll__graph.png" border="0" usemap="#aLayerView_3_01T_01_4_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aLayerView_3_01T_01_4_coll__map" id="aLayerView_3_01T_01_4_coll__map">
-<area shape="rect" title="Typed layer view storing one T value per NavCel." alt="" coords="177,199,290,224"/>
-<area shape="rect" href="structnavmap_1_1LayerViewBase.html" title="Non&#45;templated base for runtime layer handling." alt="" coords="24,102,136,128"/>
-<area shape="poly" title=" " alt="" coords="114,134,215,196,212,200,111,138"/>
+<area shape="rect" title="Typed layer view storing one T value per NavCel." alt="" coords="300,219,412,245"/>
+<area shape="rect" href="structnavmap_1_1LayerViewBase.html" title="Non&#45;templated base for runtime layer handling." alt="" coords="146,122,259,148"/>
+<area shape="poly" title=" " alt="" coords="236,154,338,216,335,221,234,159"/>
 <area shape="rect" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" title=" " alt="" coords="27,47,28,62,32,77,42,89,56,99,53,104,39,93,28,79,22,63,21,47"/>
-<area shape="rect" title=" " alt="" coords="100,5,167,31"/>
-<area shape="poly" title=" " alt="" coords="124,46,106,79,91,103,86,100,102,77,119,44"/>
-<area shape="rect" title=" " alt="" coords="160,102,213,128"/>
-<area shape="poly" title=" " alt="" coords="195,142,207,173,224,197,220,200,203,176,190,144"/>
-<area shape="rect" title=" " alt="" coords="238,102,325,128"/>
-<area shape="poly" title=" " alt="" coords="271,143,254,176,242,200,237,197,250,173,266,141"/>
-<area shape="rect" title=" " alt="" coords="349,102,430,128"/>
-<area shape="poly" title=" " alt="" coords="364,140,311,177,264,201,261,196,308,172,361,136"/>
+<area shape="poly" title=" " alt="" coords="29,46,33,73,46,96,61,106,86,114,146,125,145,130,85,119,59,111,42,100,28,75,24,47"/>
+<area shape="rect" title=" " alt="" coords="105,5,172,31"/>
+<area shape="poly" title=" " alt="" coords="137,46,137,72,145,97,157,110,172,120,169,124,153,114,141,100,132,73,131,46"/>
+<area shape="rect" title=" " alt="" coords="196,5,329,31"/>
+<area shape="poly" title=" " alt="" coords="258,47,236,100,217,124,213,121,231,97,253,45"/>
+<area shape="rect" title=" " alt="" coords="353,5,503,31"/>
+<area shape="poly" title=" " alt="" coords="405,43,368,73,322,101,258,124,256,119,320,96,365,68,402,39"/>
+<area shape="rect" title=" " alt="" coords="283,122,336,148"/>
+<area shape="poly" title=" " alt="" coords="318,162,330,194,347,217,343,220,325,196,313,164"/>
+<area shape="rect" title=" " alt="" coords="360,122,448,148"/>
+<area shape="poly" title=" " alt="" coords="394,163,377,196,365,220,360,217,372,194,389,161"/>
+<area shape="rect" title=" " alt="" coords="471,122,553,148"/>
+<area shape="poly" title=" " alt="" coords="487,160,433,197,386,221,384,216,431,193,484,156"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -156,7 +160,20 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4a6518b7820fa41b9cc6b948312dc80c" id="r_a4a6518b7820fa41b9cc6b948312dc80c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a4a6518b7820fa41b9cc6b948312dc80c">set_data</a> (const std::vector&lt; T &gt; &amp;v)</td></tr>
 <tr class="memitem:a0004705aea04a4d5ae569f630378a999" id="r_a0004705aea04a4d5ae569f630378a999"><td class="memItemLeft">std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="#a0004705aea04a4d5ae569f630378a999">content_hash</a> () const override</td></tr>
 <tr class="memdesc:a0004705aea04a4d5ae569f630378a999"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return 64-bit content hash (cached; recomputed lazily).  <br /></td></tr>
+<tr class="memitem:aee566f7eaa0a0826a113567439c0fefb" id="r_aee566f7eaa0a0826a113567439c0fefb"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerViewBase.html">LayerViewBase</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aee566f7eaa0a0826a113567439c0fefb">clone</a> () const override</td></tr>
+<tr class="memdesc:aee566f7eaa0a0826a113567439c0fefb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Independent copy of this layer (data, name, type, cached hash and pending changes).  <br /></td></tr>
 <tr class="inherit_header pub_methods_structnavmap_1_1LayerViewBase"><td colspan="2">Public Member Functions inherited from <a class="el" href="structnavmap_1_1LayerViewBase.html">LayerViewBase</a></td></tr>
+<tr class="memitem:a1e95f975ae35f7739a55cbaf27e10492 pub_methods_structnavmap_1_1LayerViewBase" id="r_a1e95f975ae35f7739a55cbaf27e10492"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#a1e95f975ae35f7739a55cbaf27e10492">all_changed</a> () const noexcept</td></tr>
+<tr class="memdesc:a1e95f975ae35f7739a55cbaf27e10492 pub_methods_structnavmap_1_1LayerViewBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the whole layer changed (then <a class="el" href="structnavmap_1_1LayerViewBase.html#a818a9a4871fdcafc70e25a44354fc6d2" title="Cells changed one by one since the last clear_changes(), in order of first change.">changed()</a> is not meaningful).  <br /></td></tr>
+<tr class="memitem:a818a9a4871fdcafc70e25a44354fc6d2 pub_methods_structnavmap_1_1LayerViewBase" id="r_a818a9a4871fdcafc70e25a44354fc6d2"><td class="memItemLeft">const std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#a818a9a4871fdcafc70e25a44354fc6d2">changed</a> () const noexcept</td></tr>
+<tr class="memdesc:a818a9a4871fdcafc70e25a44354fc6d2 pub_methods_structnavmap_1_1LayerViewBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cells changed one by one since the last <a class="el" href="structnavmap_1_1LayerViewBase.html#a87aa8fdde218a8cd88ed9369b1cf6f52" title="Forget the recorded changes (call it once every consumer has seen them).">clear_changes()</a>, in order of first change.  <br /></td></tr>
+<tr class="memitem:a87aa8fdde218a8cd88ed9369b1cf6f52 pub_methods_structnavmap_1_1LayerViewBase" id="r_a87aa8fdde218a8cd88ed9369b1cf6f52"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#a87aa8fdde218a8cd88ed9369b1cf6f52">clear_changes</a> () const</td></tr>
+<tr class="memdesc:a87aa8fdde218a8cd88ed9369b1cf6f52 pub_methods_structnavmap_1_1LayerViewBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forget the recorded changes (call it once every consumer has seen them).  <br /></td></tr>
+<tr class="memitem:ad22e5609a5893448d22512ebeafe6bc5 pub_methods_structnavmap_1_1LayerViewBase" id="r_ad22e5609a5893448d22512ebeafe6bc5"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#ad22e5609a5893448d22512ebeafe6bc5">has_changes</a> () const noexcept</td></tr>
+<tr class="memitem:a0e70664484443cd8b52589d6d9a92b8a pub_methods_structnavmap_1_1LayerViewBase" id="r_a0e70664484443cd8b52589d6d9a92b8a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#a0e70664484443cd8b52589d6d9a92b8a">mark_all_changed</a> () const noexcept</td></tr>
+<tr class="memdesc:a0e70664484443cd8b52589d6d9a92b8a pub_methods_structnavmap_1_1LayerViewBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Record that the whole layer changed.  <br /></td></tr>
+<tr class="memitem:ad2592fe8d3a8028e68b2b4a1e4062c74 pub_methods_structnavmap_1_1LayerViewBase" id="r_ad2592fe8d3a8028e68b2b4a1e4062c74"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#ad2592fe8d3a8028e68b2b4a1e4062c74">mark_changed</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
+<tr class="memdesc:ad2592fe8d3a8028e68b2b4a1e4062c74 pub_methods_structnavmap_1_1LayerViewBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Record that cell <code class="param">cid</code> changed (deduplicated).  <br /></td></tr>
 <tr class="memitem:aa759e012e6f9fe55ea43968e16ba51a8 pub_methods_structnavmap_1_1LayerViewBase" id="r_aa759e012e6f9fe55ea43968e16ba51a8"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#aa759e012e6f9fe55ea43968e16ba51a8">mark_dirty</a> () const noexcept</td></tr>
 <tr class="memdesc:aa759e012e6f9fe55ea43968e16ba51a8 pub_methods_structnavmap_1_1LayerViewBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark content dirty (forces hash recompute on next query).  <br /></td></tr>
 <tr class="memitem:acbb624dff379bebf3b283b6bbbd03e45 pub_methods_structnavmap_1_1LayerViewBase" id="r_acbb624dff379bebf3b283b6bbbd03e45"><td class="memItemLeft">virtual&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#acbb624dff379bebf3b283b6bbbd03e45">~LayerViewBase</a> ()=default</td></tr>
@@ -173,6 +190,9 @@ Public Attributes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-inherited" class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_attribs_structnavmap_1_1LayerViewBase"><td colspan="2">Protected Attributes inherited from <a class="el" href="structnavmap_1_1LayerViewBase.html">LayerViewBase</a></td></tr>
+<tr class="memitem:acc9b3f18199029e54fc768ada866db41 pro_attribs_structnavmap_1_1LayerViewBase" id="r_acc9b3f18199029e54fc768ada866db41"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#acc9b3f18199029e54fc768ada866db41">all_changed_</a> {true}</td></tr>
+<tr class="memitem:a20acd1f447ca891e832252e12c29bec6 pro_attribs_structnavmap_1_1LayerViewBase" id="r_a20acd1f447ca891e832252e12c29bec6"><td class="memItemLeft">std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#a20acd1f447ca891e832252e12c29bec6">changed_</a></td></tr>
+<tr class="memitem:a83456df4236254ca540dc288735b692a pro_attribs_structnavmap_1_1LayerViewBase" id="r_a83456df4236254ca540dc288735b692a"><td class="memItemLeft">std::vector&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#a83456df4236254ca540dc288735b692a">changed_bits_</a></td></tr>
 <tr class="memitem:a8581078ac807babd5da5dfee7df0d955 pro_attribs_structnavmap_1_1LayerViewBase" id="r_a8581078ac807babd5da5dfee7df0d955"><td class="memItemLeft">std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#a8581078ac807babd5da5dfee7df0d955">hash_cache_</a> {0}</td></tr>
 <tr class="memitem:ad225cec597f9f6010183540620e3e861 pro_attribs_structnavmap_1_1LayerViewBase" id="r_ad225cec597f9f6010183540620e3e861"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerViewBase.html#ad225cec597f9f6010183540620e3e861">hash_dirty_</a> {true}</td></tr>
 </table>
@@ -226,6 +246,37 @@ template&lt;typename T&gt; </div>
 </div>
 </div>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="aee566f7eaa0a0826a113567439c0fefb" name="aee566f7eaa0a0826a113567439c0fefb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee566f7eaa0a0826a113567439c0fefb">&#9670;&#160;</a></span>clone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerViewBase.html">LayerViewBase</a> &gt; clone </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Independent copy of this layer (data, name, type, cached hash and pending changes). </p>
+
+<p>Implements <a class="el" href="structnavmap_1_1LayerViewBase.html#aa97b097fafe2bd32532d43daa393ca11">LayerViewBase</a>.</p>
+
+</div>
+</div>
 <a id="a0004705aea04a4d5ae569f630378a999" name="a0004705aea04a4d5ae569f630378a999"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0004705aea04a4d5ae569f630378a999">&#9670;&#160;</a></span>content_hash()</h2>
 

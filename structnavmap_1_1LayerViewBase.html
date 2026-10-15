@@ -123,18 +123,35 @@ Collaboration diagram for LayerViewBase:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap_1_1LayerViewBase__coll__graph.png" border="0" usemap="#aLayerViewBase_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aLayerViewBase_coll__map" id="aLayerViewBase_coll__map">
-<area shape="rect" title="Non&#45;templated base for runtime layer handling." alt="" coords="24,102,136,128"/>
+<area shape="rect" title="Non&#45;templated base for runtime layer handling." alt="" coords="146,122,259,148"/>
 <area shape="rect" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" title=" " alt="" coords="27,47,28,62,32,77,42,89,56,99,53,104,39,93,28,79,22,63,21,47"/>
-<area shape="rect" title=" " alt="" coords="100,5,167,31"/>
-<area shape="poly" title=" " alt="" coords="124,46,106,79,91,103,86,100,102,77,119,44"/>
+<area shape="poly" title=" " alt="" coords="29,46,33,73,46,96,61,106,86,114,146,125,145,130,85,119,59,111,42,100,28,75,24,47"/>
+<area shape="rect" title=" " alt="" coords="105,5,172,31"/>
+<area shape="poly" title=" " alt="" coords="137,46,137,72,145,97,157,110,172,120,169,124,153,114,141,100,132,73,131,46"/>
+<area shape="rect" title=" " alt="" coords="196,5,329,31"/>
+<area shape="poly" title=" " alt="" coords="258,47,236,100,217,124,213,121,231,97,253,45"/>
+<area shape="rect" title=" " alt="" coords="353,5,503,31"/>
+<area shape="poly" title=" " alt="" coords="405,43,368,73,322,101,258,124,256,119,320,96,365,68,402,39"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a1e95f975ae35f7739a55cbaf27e10492" id="r_a1e95f975ae35f7739a55cbaf27e10492"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a1e95f975ae35f7739a55cbaf27e10492">all_changed</a> () const noexcept</td></tr>
+<tr class="memdesc:a1e95f975ae35f7739a55cbaf27e10492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the whole layer changed (then <a class="el" href="#a818a9a4871fdcafc70e25a44354fc6d2" title="Cells changed one by one since the last clear_changes(), in order of first change.">changed()</a> is not meaningful).  <br /></td></tr>
+<tr class="memitem:a818a9a4871fdcafc70e25a44354fc6d2" id="r_a818a9a4871fdcafc70e25a44354fc6d2"><td class="memItemLeft">const std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a818a9a4871fdcafc70e25a44354fc6d2">changed</a> () const noexcept</td></tr>
+<tr class="memdesc:a818a9a4871fdcafc70e25a44354fc6d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cells changed one by one since the last <a class="el" href="#a87aa8fdde218a8cd88ed9369b1cf6f52" title="Forget the recorded changes (call it once every consumer has seen them).">clear_changes()</a>, in order of first change.  <br /></td></tr>
+<tr class="memitem:a87aa8fdde218a8cd88ed9369b1cf6f52" id="r_a87aa8fdde218a8cd88ed9369b1cf6f52"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a87aa8fdde218a8cd88ed9369b1cf6f52">clear_changes</a> () const</td></tr>
+<tr class="memdesc:a87aa8fdde218a8cd88ed9369b1cf6f52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forget the recorded changes (call it once every consumer has seen them).  <br /></td></tr>
+<tr class="memitem:aa97b097fafe2bd32532d43daa393ca11" id="r_aa97b097fafe2bd32532d43daa393ca11"><td class="memItemLeft">virtual std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerViewBase.html">LayerViewBase</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aa97b097fafe2bd32532d43daa393ca11">clone</a> () const =0</td></tr>
+<tr class="memdesc:aa97b097fafe2bd32532d43daa393ca11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Independent copy of this layer (data, name, type, cached hash and pending changes).  <br /></td></tr>
 <tr class="memitem:a7013c93c5b8c980840c8fb0138b3bf51" id="r_a7013c93c5b8c980840c8fb0138b3bf51"><td class="memItemLeft">virtual std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="#a7013c93c5b8c980840c8fb0138b3bf51">content_hash</a> () const =0</td></tr>
 <tr class="memdesc:a7013c93c5b8c980840c8fb0138b3bf51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return 64-bit content hash (cached; recomputed lazily).  <br /></td></tr>
+<tr class="memitem:ad22e5609a5893448d22512ebeafe6bc5" id="r_ad22e5609a5893448d22512ebeafe6bc5"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ad22e5609a5893448d22512ebeafe6bc5">has_changes</a> () const noexcept</td></tr>
+<tr class="memitem:a0e70664484443cd8b52589d6d9a92b8a" id="r_a0e70664484443cd8b52589d6d9a92b8a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a0e70664484443cd8b52589d6d9a92b8a">mark_all_changed</a> () const noexcept</td></tr>
+<tr class="memdesc:a0e70664484443cd8b52589d6d9a92b8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Record that the whole layer changed.  <br /></td></tr>
+<tr class="memitem:ad2592fe8d3a8028e68b2b4a1e4062c74" id="r_ad2592fe8d3a8028e68b2b4a1e4062c74"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad2592fe8d3a8028e68b2b4a1e4062c74">mark_changed</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
+<tr class="memdesc:ad2592fe8d3a8028e68b2b4a1e4062c74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Record that cell <code class="param">cid</code> changed (deduplicated).  <br /></td></tr>
 <tr class="memitem:aa759e012e6f9fe55ea43968e16ba51a8" id="r_aa759e012e6f9fe55ea43968e16ba51a8"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa759e012e6f9fe55ea43968e16ba51a8">mark_dirty</a> () const noexcept</td></tr>
 <tr class="memdesc:aa759e012e6f9fe55ea43968e16ba51a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark content dirty (forces hash recompute on next query).  <br /></td></tr>
 <tr class="memitem:a5c976984805ab775a1876f4484f7f75e" id="r_a5c976984805ab775a1876f4484f7f75e"><td class="memItemLeft">virtual const std::string &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a5c976984805ab775a1876f4484f7f75e">name</a> () const =0</td></tr>
@@ -144,6 +161,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pro-attribs" class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
+<tr class="memitem:acc9b3f18199029e54fc768ada866db41" id="r_acc9b3f18199029e54fc768ada866db41"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#acc9b3f18199029e54fc768ada866db41">all_changed_</a> {true}</td></tr>
+<tr class="memitem:a20acd1f447ca891e832252e12c29bec6" id="r_a20acd1f447ca891e832252e12c29bec6"><td class="memItemLeft">std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a20acd1f447ca891e832252e12c29bec6">changed_</a></td></tr>
+<tr class="memitem:a83456df4236254ca540dc288735b692a" id="r_a83456df4236254ca540dc288735b692a"><td class="memItemLeft">std::vector&lt; std::uint64_t &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a83456df4236254ca540dc288735b692a">changed_bits_</a></td></tr>
 <tr class="memitem:a8581078ac807babd5da5dfee7df0d955" id="r_a8581078ac807babd5da5dfee7df0d955"><td class="memItemLeft">std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="#a8581078ac807babd5da5dfee7df0d955">hash_cache_</a> {0}</td></tr>
 <tr class="memitem:ad225cec597f9f6010183540620e3e861" id="r_ad225cec597f9f6010183540620e3e861"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ad225cec597f9f6010183540620e3e861">hash_dirty_</a> {true}</td></tr>
 </table>
@@ -177,6 +197,108 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="a1e95f975ae35f7739a55cbaf27e10492" name="a1e95f975ae35f7739a55cbaf27e10492"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e95f975ae35f7739a55cbaf27e10492">&#9670;&#160;</a></span>all_changed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool all_changed </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the whole layer changed (then <a class="el" href="#a818a9a4871fdcafc70e25a44354fc6d2" title="Cells changed one by one since the last clear_changes(), in order of first change.">changed()</a> is not meaningful). </p>
+
+</div>
+</div>
+<a id="a818a9a4871fdcafc70e25a44354fc6d2" name="a818a9a4871fdcafc70e25a44354fc6d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a818a9a4871fdcafc70e25a44354fc6d2">&#9670;&#160;</a></span>changed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt; &amp; changed </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Cells changed one by one since the last <a class="el" href="#a87aa8fdde218a8cd88ed9369b1cf6f52" title="Forget the recorded changes (call it once every consumer has seen them).">clear_changes()</a>, in order of first change. </p>
+
+</div>
+</div>
+<a id="a87aa8fdde218a8cd88ed9369b1cf6f52" name="a87aa8fdde218a8cd88ed9369b1cf6f52"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87aa8fdde218a8cd88ed9369b1cf6f52">&#9670;&#160;</a></span>clear_changes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void clear_changes </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Forget the recorded changes (call it once every consumer has seen them). </p>
+
+</div>
+</div>
+<a id="aa97b097fafe2bd32532d43daa393ca11" name="aa97b097fafe2bd32532d43daa393ca11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa97b097fafe2bd32532d43daa393ca11">&#9670;&#160;</a></span>clone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerViewBase.html">LayerViewBase</a> &gt; clone </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel pure-virtual">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Independent copy of this layer (data, name, type, cached hash and pending changes). </p>
+
+<p>Implemented in <a class="el" href="structLayerView.html#aee566f7eaa0a0826a113567439c0fefb">LayerView&lt; T &gt;</a>, and <a class="el" href="structnavmap_1_1LayerView.html#aee566f7eaa0a0826a113567439c0fefb">LayerView&lt; T &gt;</a>.</p>
+
+</div>
+</div>
 <a id="a7013c93c5b8c980840c8fb0138b3bf51" name="a7013c93c5b8c980840c8fb0138b3bf51"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7013c93c5b8c980840c8fb0138b3bf51">&#9670;&#160;</a></span>content_hash()</h2>
 
@@ -203,6 +325,77 @@ Protected Attributes</h2></td></tr>
 <p>Return 64-bit content hash (cached; recomputed lazily). </p>
 
 <p>Implemented in <a class="el" href="structLayerView.html#a0004705aea04a4d5ae569f630378a999">LayerView&lt; T &gt;</a>, and <a class="el" href="structnavmap_1_1LayerView.html#a0004705aea04a4d5ae569f630378a999">LayerView&lt; T &gt;</a>.</p>
+
+</div>
+</div>
+<a id="ad22e5609a5893448d22512ebeafe6bc5" name="ad22e5609a5893448d22512ebeafe6bc5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad22e5609a5893448d22512ebeafe6bc5">&#9670;&#160;</a></span>has_changes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool has_changes </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0e70664484443cd8b52589d6d9a92b8a" name="a0e70664484443cd8b52589d6d9a92b8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e70664484443cd8b52589d6d9a92b8a">&#9670;&#160;</a></span>mark_all_changed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mark_all_changed </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Record that the whole layer changed. </p>
+
+</div>
+</div>
+<a id="ad2592fe8d3a8028e68b2b4a1e4062c74" name="ad2592fe8d3a8028e68b2b4a1e4062c74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2592fe8d3a8028e68b2b4a1e4062c74">&#9670;&#160;</a></span>mark_changed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mark_changed </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>cid</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Record that cell <code class="param">cid</code> changed (deduplicated). </p>
 
 </div>
 </div>
@@ -318,6 +511,72 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
+<a id="acc9b3f18199029e54fc768ada866db41" name="acc9b3f18199029e54fc768ada866db41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc9b3f18199029e54fc768ada866db41">&#9670;&#160;</a></span>all_changed_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool all_changed_ {true}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel mutable">mutable</span><span class="mlabel protected">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a20acd1f447ca891e832252e12c29bec6" name="a20acd1f447ca891e832252e12c29bec6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20acd1f447ca891e832252e12c29bec6">&#9670;&#160;</a></span>changed_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a>&gt; changed_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel mutable">mutable</span><span class="mlabel protected">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a83456df4236254ca540dc288735b692a" name="a83456df4236254ca540dc288735b692a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83456df4236254ca540dc288735b692a">&#9670;&#160;</a></span>changed_bits_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::uint64_t&gt; changed_bits_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel mutable">mutable</span><span class="mlabel protected">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a8581078ac807babd5da5dfee7df0d955" name="a8581078ac807babd5da5dfee7df0d955"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8581078ac807babd5da5dfee7df0d955">&#9670;&#160;</a></span>hash_cache_</h2>
 

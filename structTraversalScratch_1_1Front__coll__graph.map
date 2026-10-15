@@ -1,0 +1,9 @@
+<map id="TraversalScratch::Front" name="TraversalScratch::Front">
+<area shape="rect" id="Node000001" title="Dijkstra frontier entry: distance, NavCel, and the pivot it is measured from." alt="" coords="40,122,197,148"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,51,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="34,45,41,72,55,97,70,110,87,119,84,124,67,114,51,100,37,74,29,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="85,5,152,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,47,121,122,116,122,116,47"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="177,5,247,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="210,47,200,74,185,100,169,114,152,124,149,119,166,110,181,97,196,72,204,45"/>
+</map>

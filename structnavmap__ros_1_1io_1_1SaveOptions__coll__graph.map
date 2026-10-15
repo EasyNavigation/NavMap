@@ -1,5 +1,9 @@
 <map id="SaveOptions" name="SaveOptions">
-<area shape="rect" id="Node000001" title="Save options." alt="" coords="5,102,102,128"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="31,5,76,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="56,46,56,101,51,101,51,46"/>
+<area shape="rect" id="Node000001" title="Save options." alt="" coords="76,102,172,128"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,51,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="48,41,79,76,108,100,104,104,75,80,44,45"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="75,5,173,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="127,46,127,101,121,101,121,46"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="218,5,257,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="231,47,222,64,210,80,191,94,170,104,167,99,188,89,206,76,218,61,226,44"/>
 </map>

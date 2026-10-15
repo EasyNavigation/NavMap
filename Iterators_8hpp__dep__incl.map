@@ -1,0 +1,9 @@
+<map id="navmap_core/include/navmap_core/Iterators.hpp" name="navmap_core/include/navmap_core/Iterators.hpp">
+<area shape="rect" id="Node000001" title="Traversals over the NavCels of a navmap::NavMap: box, disc, ring, polygon, distance order and segment..." alt="" coords="214,5,393,46"/>
+<area shape="rect" id="Node000002" href="$navmap__bench_8cpp.html" title=" " alt="" coords="5,94,194,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,55,147,96,145,91,242,50"/>
+<area shape="rect" id="Node000003" href="$Descriptors_8cpp.html" title=" " alt="" coords="218,94,389,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="306,62,306,94,301,94,301,62"/>
+<area shape="rect" id="Node000004" href="$test__iterators_8cpp.html" title=" " alt="" coords="414,94,572,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="361,50,451,91,449,96,359,55"/>
+</map>

@@ -1,11 +1,24 @@
 var searchData=
 [
-  ['d_0',['d',['../structnavmap_1_1Ray.html#a6cd76f27294d1f281293c466a34b7e18',1,'navmap::Ray::d'],['../structRay.html#a6cd76f27294d1f281293c466a34b7e18',1,'Ray::d']]],
-  ['data_1',['data',['../structnavmap_1_1LayerView.html#aec9cb5dc10183bdc496c97625a6721e9',1,'navmap::LayerView::data()'],['../structnavmap_1_1LayerView.html#a23f1e1f0d40be1fdc3a701bd824535bd',1,'navmap::LayerView::data() const'],['../structLayerView.html#aec9cb5dc10183bdc496c97625a6721e9',1,'LayerView::data()'],['../structLayerView.html#a23f1e1f0d40be1fdc3a701bd824535bd',1,'LayerView::data() const']]],
-  ['data_5f_2',['data_',['../structnavmap_1_1LayerView.html#a50e48a2b8e3773b3ab9af0e5cccd87b5',1,'navmap::LayerView::data_'],['../structLayerView.html#a50e48a2b8e3773b3ab9af0e5cccd87b5',1,'LayerView::data_']]],
-  ['deactivate_3',['deactivate',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a3f11e97d344d3f181f8160c61a32a574',1,'navmap_rviz_plugin::NavMapPoseTool']]],
-  ['dependencies_4',['Dependencies',['../index.html#autotoc_md9',1,'']]],
-  ['description_5',['description',['../structnavmap_1_1LayerMeta.html#a2e1454f6988673f814408646edaeb320',1,'navmap::LayerMeta']]],
-  ['disk_6',['9. Save and load from disk',['../index.html#autotoc_md29',1,'']]],
-  ['distance_5ffield_7',['distance_field',['../classnavmap_1_1NavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'navmap::NavMap::distance_field()'],['../classNavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'NavMap::distance_field()']]]
+  ['d_0',['D',['../test__combine_8cpp.html#ac23576b31c427f588ec17ce03475d7a6',1,'test_combine.cpp']]],
+  ['d_1',['d',['../structnavmap_1_1TraversalScratch_1_1Front.html#a3fbbd8a3959e76a2bc3455d3bade52dc',1,'navmap::TraversalScratch::Front::d'],['../structnavmap_1_1Ray.html#a6cd76f27294d1f281293c466a34b7e18',1,'navmap::Ray::d'],['../structTraversalScratch_1_1Front.html#a3fbbd8a3959e76a2bc3455d3bade52dc',1,'TraversalScratch::Front::d'],['../structRay.html#a6cd76f27294d1f281293c466a34b7e18',1,'Ray::d']]],
+  ['data_2',['data',['../structnavmap_1_1LayerView.html#aec9cb5dc10183bdc496c97625a6721e9',1,'navmap::LayerView::data()'],['../structnavmap_1_1LayerView.html#a23f1e1f0d40be1fdc3a701bd824535bd',1,'navmap::LayerView::data() const'],['../structLayerView.html#aec9cb5dc10183bdc496c97625a6721e9',1,'LayerView::data()'],['../structLayerView.html#a23f1e1f0d40be1fdc3a701bd824535bd',1,'LayerView::data() const']]],
+  ['data_5f_3',['data_',['../structnavmap_1_1LayerView.html#a50e48a2b8e3773b3ab9af0e5cccd87b5',1,'navmap::LayerView::data_'],['../structLayerView.html#a50e48a2b8e3773b3ab9af0e5cccd87b5',1,'LayerView::data_']]],
+  ['deactivate_4',['deactivate',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a3f11e97d344d3f181f8160c61a32a574',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['dependencies_5',['Dependencies',['../index.html#autotoc_md9',1,'']]],
+  ['description_6',['description',['../structnavmap_1_1LayerMeta.html#a2e1454f6988673f814408646edaeb320',1,'navmap::LayerMeta']]],
+  ['descriptorparams_7',['DescriptorParams',['../structDescriptorParams.html',1,'DescriptorParams'],['../structnavmap_1_1DescriptorParams.html',1,'DescriptorParams']]],
+  ['descriptors_20descriptors_20hpp_8',['7e. Geometric descriptors (&lt;span class=&quot;tt&quot;&gt;Descriptors.hpp&lt;/span&gt;)',['../index.html#autotoc_md33',1,'']]],
+  ['descriptors_20hpp_9',['7e. Geometric descriptors (&lt;span class=&quot;tt&quot;&gt;Descriptors.hpp&lt;/span&gt;)',['../index.html#autotoc_md33',1,'']]],
+  ['descriptors_2ecpp_10',['Descriptors.cpp',['../Descriptors_8cpp.html',1,'']]],
+  ['descriptors_2ehpp_11',['Descriptors.hpp',['../Descriptors_8hpp.html',1,'']]],
+  ['disk_12',['9. Save and load from disk',['../index.html#autotoc_md45',1,'']]],
+  ['dist_13',['dist',['../classnavmap_1_1TraversalScratch.html#af1bb20ac12a3a93d4841c049a880cf0e',1,'navmap::TraversalScratch::dist'],['../classTraversalScratch.html#af1bb20ac12a3a93d4841c049a880cf0e',1,'TraversalScratch::dist']]],
+  ['distance_5ffield_14',['distance_field',['../classnavmap_1_1NavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'navmap::NavMap::distance_field()'],['../classNavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'NavMap::distance_field()']]],
+  ['distancefield_15',['DistanceField',['../classDistanceField.html',1,'DistanceField'],['../classnavmap_1_1DistanceField.html',1,'DistanceField'],['../classnavmap_1_1DistanceField.html#a38f49c368efa958aa133507d2227bcdb',1,'navmap::DistanceField::DistanceField()'],['../classDistanceField.html#a38f49c368efa958aa133507d2227bcdb',1,'DistanceField::DistanceField()']]],
+  ['distancefield_20hpp_16',['7d. Incremental updates (change tracking, &lt;span class=&quot;tt&quot;&gt;DistanceField.hpp&lt;/span&gt;)',['../index.html#autotoc_md31',1,'']]],
+  ['distancefield_2ecpp_17',['DistanceField.cpp',['../DistanceField_8cpp.html',1,'']]],
+  ['distancefield_2ehpp_18',['DistanceField.hpp',['../DistanceField_8hpp.html',1,'']]],
+  ['distances_19',['distances',['../classnavmap_1_1DistanceField.html#a74841e381ea34a9920556316fa7388f9',1,'navmap::DistanceField::distances()'],['../classDistanceField.html#a74841e381ea34a9920556316fa7388f9',1,'DistanceField::distances()']]],
+  ['door_20',['DOOR',['../namespacenavmap.html#a80f357f44615e61f34b3a588af18d783a37ce845535b7c13f529505fdfdb04942',1,'navmap']]]
 ];

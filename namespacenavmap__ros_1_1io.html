@@ -98,12 +98,13 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">navmap_ros::io Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>IO helpers to persist <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> objects to/from disk.  
+<p>IO helpers to persist <a class="el" href="classNavMap.html">NavMap</a> objects to/from disk.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -111,20 +112,56 @@ Classes</h2></td></tr>
 <tr class="memitem:SaveOptions" id="r_SaveOptions"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1io_1_1SaveOptions.html">SaveOptions</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save options.  <a href="structnavmap__ros_1_1io_1_1SaveOptions.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a56a83bf6847f4801f4205eb4be237ccf" id="r_a56a83bf6847f4801f4205eb4be237ccf"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="#a56a83bf6847f4801f4205eb4be237ccf">Compression</a> { <a class="el" href="#a56a83bf6847f4801f4205eb4be237ccfab50339a10e1de285ac99d4c3990b8693">NONE</a>
+, <a class="el" href="#a56a83bf6847f4801f4205eb4be237ccfa87c23ff88ac9b1c4390a679b63ea3b8c">ZLIB</a>
+ }</td></tr>
+<tr class="memdesc:a56a83bf6847f4801f4205eb4be237ccf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Payload compression. zlib is available on every ROS distro and platform, and in Python.  <a href="#a56a83bf6847f4801f4205eb4be237ccf">More...</a><br /></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:acaf42fccfb899ffad41fa83d36c83b59" id="r_acaf42fccfb899ffad41fa83d36c83b59"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#acaf42fccfb899ffad41fa83d36c83b59">load_from_file</a> (const std::string &amp;path, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;out_map, std::error_code *ec=nullptr)</td></tr>
-<tr class="memdesc:acaf42fccfb899ffad41fa83d36c83b59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> by deserializing a message and converting to core.  <br /></td></tr>
+<tr class="memdesc:acaf42fccfb899ffad41fa83d36c83b59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> by deserializing a message and converting to core.  <br /></td></tr>
 <tr class="memitem:a9de88efbe247d7153b1690430979baee" id="r_a9de88efbe247d7153b1690430979baee"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a9de88efbe247d7153b1690430979baee">load_msg_from_file</a> (const std::string &amp;path, navmap_ros_interfaces::msg::NavMap &amp;out_msg, std::error_code *ec=nullptr)</td></tr>
-<tr class="memdesc:a9de88efbe247d7153b1690430979baee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a <span class="tt"><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></span> message from a file created by this saver.  <br /></td></tr>
+<tr class="memdesc:a9de88efbe247d7153b1690430979baee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> message from a file created by this saver.  <br /></td></tr>
 <tr class="memitem:aea95e432d3c1ef7afc60d63fcef75561" id="r_aea95e432d3c1ef7afc60d63fcef75561"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aea95e432d3c1ef7afc60d63fcef75561">save_msg_to_file</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg, const std::string &amp;path, const <a class="el" href="structnavmap__ros_1_1io_1_1SaveOptions.html">SaveOptions</a> &amp;options={}, std::error_code *ec=nullptr)</td></tr>
-<tr class="memdesc:aea95e432d3c1ef7afc60d63fcef75561"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save a <span class="tt"><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></span> message to disk using ROS 2 CDR serialization.  <br /></td></tr>
+<tr class="memdesc:aea95e432d3c1ef7afc60d63fcef75561"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save a <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> message to disk using ROS 2 CDR serialization.  <br /></td></tr>
 <tr class="memitem:aa19ad1ba39748ead755ba46cbf4eeff0" id="r_aa19ad1ba39748ead755ba46cbf4eeff0"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aa19ad1ba39748ead755ba46cbf4eeff0">save_to_file</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;map, const std::string &amp;path, const <a class="el" href="structnavmap__ros_1_1io_1_1SaveOptions.html">SaveOptions</a> &amp;options={}, std::error_code *ec=nullptr)</td></tr>
-<tr class="memdesc:aa19ad1ba39748ead755ba46cbf4eeff0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> by converting it to a message and serializing to disk.  <br /></td></tr>
+<tr class="memdesc:aa19ad1ba39748ead755ba46cbf4eeff0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> by converting it to a message and serializing to disk.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>IO helpers to persist <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> objects to/from disk. </p>
-</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<div class="textblock"><p>IO helpers to persist <a class="el" href="classNavMap.html">NavMap</a> objects to/from disk. </p>
+</div><a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Enumeration Type Documentation</h2>
+<a id="a56a83bf6847f4801f4205eb4be237ccf" name="a56a83bf6847f4801f4205eb4be237ccf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56a83bf6847f4801f4205eb4be237ccf">&#9670;&#160;</a></span>Compression</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#a56a83bf6847f4801f4205eb4be237ccf">Compression</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel strong">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Payload compression. zlib is available on every ROS distro and platform, and in Python. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a56a83bf6847f4801f4205eb4be237ccfab50339a10e1de285ac99d4c3990b8693" name="a56a83bf6847f4801f4205eb4be237ccfab50339a10e1de285ac99d4c3990b8693"></a>NONE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a56a83bf6847f4801f4205eb4be237ccfa87c23ff88ac9b1c4390a679b63ea3b8c" name="a56a83bf6847f4801f4205eb4be237ccfa87c23ff88ac9b1c4390a679b63ea3b8c"></a>ZLIB&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="acaf42fccfb899ffad41fa83d36c83b59" name="acaf42fccfb899ffad41fa83d36c83b59"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acaf42fccfb899ffad41fa83d36c83b59">&#9670;&#160;</a></span>load_from_file()</h2>
 
@@ -149,7 +186,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Load a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> by deserializing a message and converting to core. </p>
+<p>Load a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> by deserializing a message and converting to core. </p>
 <p>Requires <span class="tt">navmap_core</span> headers and <span class="tt"><a class="el" href="namespacenavmap__ros.html#a303bf3630b9cdc3b17180af1a76210cb" title="Reconstruct a core navmap::NavMap from the ROS transport message.">navmap_ros::from_msg</a></span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -188,7 +225,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Load a <span class="tt"><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></span> message from a file created by this saver. </p>
+<p>Load a <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> message from a file created by this saver. </p>
 <p>The loader first tries to parse the header; if the magic header is missing, it falls back to treating the whole file as a raw CDR payload.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -231,13 +268,13 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Save a <span class="tt"><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></span> message to disk using ROS 2 CDR serialization. </p>
+<p>Save a <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> message to disk using ROS 2 CDR serialization. </p>
 <p>The resulting file contains a small header (magic, version, size) followed by the CDR payload.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">msg</td><td>Message to save. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">path</td><td>Destination file path. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Save options (currently unused, reserved). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Save options (compression). </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">ec</td><td>Optional error code; if not null, it will be set on failure. </td></tr>
   </table>
   </dd>
@@ -276,13 +313,13 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Save a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> by converting it to a message and serializing to disk. </p>
+<p>Save a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> by converting it to a message and serializing to disk. </p>
 <p>Requires <span class="tt">navmap_core</span> headers and <span class="tt"><a class="el" href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549" title="Convert a core navmap::NavMap into its compact ROS transport message.">navmap_ros::to_msg</a></span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">map</td><td>Core map to save. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">path</td><td>Destination file path. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Save options (currently unused, reserved). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Save options (compression). </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">ec</td><td>Optional error code; if not null, it will be set on failure. </td></tr>
   </table>
   </dd>

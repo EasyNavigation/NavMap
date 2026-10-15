@@ -1,0 +1,5 @@
+<map id="OccupancyParams" name="OccupancyParams">
+<area shape="rect" id="Node000001" title="Probabilities of the update rule and of the classification (OctoMap defaults)." alt="" coords="5,204,137,229"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="48,5,94,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="74,46,74,203,68,203,68,46"/>
+</map>

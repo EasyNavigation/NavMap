@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['occupancy_0',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
-  ['occupancy_20mapping_1',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md45',1,'']]],
-  ['or_20occupancy_2',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]]
+  ['mapping_0',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md61',1,'']]],
+  ['marking_20areas_20set_5farea_1',['7. Marking areas (&lt;span class=&quot;tt&quot;&gt;set_area&lt;/span&gt;)',['../index.html#autotoc_md25',1,'']]],
+  ['messages_2',['8. Serialize to / from ROS messages',['../index.html#autotoc_md41',1,'']]],
+  ['minimal_20navmap_20single_20square_20floor_20with_20two_20triangles_3',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]]
 ];

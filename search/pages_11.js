@@ -1,11 +1,7 @@
 var searchData=
 [
-  ['layer_20at_20a_20world_20position_0',['5. Sample a layer at a world position',['../index.html#autotoc_md21',1,'']]],
-  ['layer_20cost_20or_20occupancy_1',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
-  ['layer_20value_20for_20a_20given_20navcel_2',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md17',1,'']]],
-  ['level_20api_3',['10. Classic low-level API',['../index.html#autotoc_md31',1,'']]],
-  ['license_4',['📜 License',['../index.html#autotoc_md42',1,'']]],
-  ['load_20from_20disk_5',['9. Save and load from disk',['../index.html#autotoc_md29',1,'']]],
-  ['locate_20the_20navcel_20corresponding_20to_20a_203d_20position_6',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md19',1,'']]],
-  ['low_20level_20api_7',['10. Classic low-level API',['../index.html#autotoc_md31',1,'']]]
+  ['incremental_20updates_20change_20tracking_20distancefield_20hpp_0',['7d. Incremental updates (change tracking, &lt;span class=&quot;tt&quot;&gt;DistanceField.hpp&lt;/span&gt;)',['../index.html#autotoc_md31',1,'']]],
+  ['instructions_1',['⚙️ Build instructions',['../index.html#autotoc_md7',1,'']]],
+  ['iterating_20over_20navcels_20iterators_20hpp_2',['7b. Iterating over NavCels (&lt;span class=&quot;tt&quot;&gt;Iterators.hpp&lt;/span&gt;)',['../index.html#autotoc_md27',1,'']]],
+  ['iterators_20hpp_3',['7b. Iterating over NavCels (&lt;span class=&quot;tt&quot;&gt;Iterators.hpp&lt;/span&gt;)',['../index.html#autotoc_md27',1,'']]]
 ];

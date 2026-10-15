@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['testing_0',['🧪 Testing',['../index.html#autotoc_md38',1,'']]],
-  ['the_20navcel_20corresponding_20to_20a_203d_20position_1',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md19',1,'']]],
-  ['to_20a_203d_20position_2',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md19',1,'']]],
-  ['to_20from_20ros_20messages_3',['8. Serialize to / from ROS messages',['../index.html#autotoc_md27',1,'']]],
-  ['triangles_4',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]],
-  ['two_20triangles_5',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]]
+  ['raycasting_0',['6. Raycasting',['../index.html#autotoc_md23',1,'']]],
+  ['read_20a_20layer_20value_20for_20a_20given_20navcel_1',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md17',1,'']]],
+  ['repository_20structure_2',['📂 Repository structure',['../index.html#autotoc_md5',1,'']]],
+  ['ros_202_20colcon_20build_3',['ROS 2 colcon build',['../index.html#autotoc_md8',1,'']]],
+  ['ros_202_20examples_4',['Run ROS 2 examples',['../index.html#autotoc_md52',1,'']]],
+  ['ros_20messages_5',['8. Serialize to / from ROS messages',['../index.html#autotoc_md41',1,'']]],
+  ['run_20core_20examples_6',['Run core examples',['../index.html#autotoc_md51',1,'']]],
+  ['run_20ros_202_20examples_7',['Run ROS 2 examples',['../index.html#autotoc_md52',1,'']]]
 ];

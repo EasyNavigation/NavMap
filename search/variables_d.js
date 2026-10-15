@@ -1,9 +1,19 @@
 var searchData=
 [
   ['p_0',['p',['../structnavmap_1_1RayHit.html#a3a96810042eedd9cd982bd320412688f',1,'navmap::RayHit::p'],['../structRayHit.html#a3a96810042eedd9cd982bd320412688f',1,'RayHit::p']]],
-  ['per_5fcell_1',['per_cell',['../structnavmap_1_1LayerMeta.html#a613b72a6d524268b27910caec7645e16',1,'navmap::LayerMeta']]],
-  ['planar_5feps_2',['planar_eps',['../structnavmap_1_1NavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'navmap::NavMap::LocateOpts::planar_eps'],['../structNavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'NavMap::LocateOpts::planar_eps']]],
-  ['positions_3',['positions',['../classnavmap_1_1NavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'navmap::NavMap::positions'],['../classNavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'NavMap::positions']]],
-  ['prim_5findices_4',['prim_indices',['../structnavmap_1_1Surface.html#afa2adca8a80850f7f7e108220b96e529',1,'navmap::Surface::prim_indices'],['../structSurface.html#afa2adca8a80850f7f7e108220b96e529',1,'Surface::prim_indices']]],
-  ['projection_5ffinder_5f_5',['projection_finder_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a55e6cddce189c4da6d12b9c4791d06b2',1,'navmap_rviz_plugin::NavMapPoseTool']]]
+  ['p_5ffree_1',['p_free',['../structnavmap_1_1OccupancyParams.html#af30afc9b7f4ad31295d62099451a20a9',1,'navmap::OccupancyParams::p_free'],['../structOccupancyParams.html#af30afc9b7f4ad31295d62099451a20a9',1,'OccupancyParams::p_free']]],
+  ['p_5fhit_2',['p_hit',['../structnavmap_1_1OccupancyParams.html#a4e1a005945638eea80d8e785d6cadb05',1,'navmap::OccupancyParams::p_hit'],['../structOccupancyParams.html#a4e1a005945638eea80d8e785d6cadb05',1,'OccupancyParams::p_hit']]],
+  ['p_5fmax_3',['p_max',['../structnavmap_1_1OccupancyParams.html#a2bea0c94a1a4bb318bbe178dccc9bd83',1,'navmap::OccupancyParams::p_max'],['../structOccupancyParams.html#a2bea0c94a1a4bb318bbe178dccc9bd83',1,'OccupancyParams::p_max']]],
+  ['p_5fmin_4',['p_min',['../structnavmap_1_1OccupancyParams.html#ab3f04db518812dd2cf4071e07ee5936a',1,'navmap::OccupancyParams::p_min'],['../structOccupancyParams.html#ab3f04db518812dd2cf4071e07ee5936a',1,'OccupancyParams::p_min']]],
+  ['p_5fmiss_5',['p_miss',['../structnavmap_1_1OccupancyParams.html#a6bdcaf8d280eac661d971e69f3922fe9',1,'navmap::OccupancyParams::p_miss'],['../structOccupancyParams.html#a6bdcaf8d280eac661d971e69f3922fe9',1,'OccupancyParams::p_miss']]],
+  ['p_5foccupied_6',['p_occupied',['../structnavmap_1_1OccupancyParams.html#a5e1b9a2e782a40324eb1a4ce982a4eb7',1,'navmap::OccupancyParams::p_occupied'],['../structOccupancyParams.html#a5e1b9a2e782a40324eb1a4ce982a4eb7',1,'OccupancyParams::p_occupied']]],
+  ['per_5fcell_7',['per_cell',['../structnavmap_1_1LayerMeta.html#a613b72a6d524268b27910caec7645e16',1,'navmap::LayerMeta']]],
+  ['pivot_8',['pivot',['../structnavmap_1_1TraversalScratch_1_1Front.html#a0da80cb5f977dc16e70eb384bdb42fb0',1,'navmap::TraversalScratch::Front::pivot'],['../structTraversalScratch_1_1Front.html#a0da80cb5f977dc16e70eb384bdb42fb0',1,'TraversalScratch::Front::pivot']]],
+  ['pivot_5fcel_9',['pivot_cel',['../structnavmap_1_1TraversalScratch_1_1Front.html#a6e8dddb34ac47fde5621abf52ce3a4ca',1,'navmap::TraversalScratch::Front::pivot_cel'],['../structTraversalScratch_1_1Front.html#a6e8dddb34ac47fde5621abf52ce3a4ca',1,'TraversalScratch::Front::pivot_cel']]],
+  ['pivot_5flen_10',['pivot_len',['../structnavmap_1_1TraversalScratch_1_1Front.html#a5a7ca41ee8746512af3fe766444418a1',1,'navmap::TraversalScratch::Front::pivot_len'],['../structTraversalScratch_1_1Front.html#a5a7ca41ee8746512af3fe766444418a1',1,'TraversalScratch::Front::pivot_len']]],
+  ['planar_5feps_11',['planar_eps',['../structnavmap_1_1NavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'navmap::NavMap::LocateOpts::planar_eps'],['../structNavMap_1_1LocateOpts.html#aff3e0ba9c07d157a4feb3eaaf9ce9ac1',1,'NavMap::LocateOpts::planar_eps']]],
+  ['positions_12',['positions',['../classnavmap_1_1NavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'navmap::NavMap::positions'],['../classNavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'NavMap::positions']]],
+  ['prim_5findices_13',['prim_indices',['../structnavmap_1_1Surface.html#afa2adca8a80850f7f7e108220b96e529',1,'navmap::Surface::prim_indices'],['../structSurface.html#afa2adca8a80850f7f7e108220b96e529',1,'Surface::prim_indices']]],
+  ['projection_5ffinder_5f_14',['projection_finder_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a55e6cddce189c4da6d12b9c4791d06b2',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['provenance_15',['provenance',['../structnavmap_1_1CombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4',1,'navmap::CombineOptions::provenance'],['../structCombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4',1,'CombineOptions::provenance']]]
 ];

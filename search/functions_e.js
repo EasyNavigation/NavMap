@@ -5,7 +5,8 @@ var searchData=
   ['raycast_5fmany_2',['raycast_many',['../classnavmap_1_1NavMap.html#a1a19ac67ff1cef1298b7f824d26ef786',1,'navmap::NavMap::raycast_many()'],['../classNavMap.html#a1a19ac67ff1cef1298b7f824d26ef786',1,'NavMap::raycast_many()']]],
   ['rebuild_5fgeometry_5faccels_3',['rebuild_geometry_accels',['../classnavmap_1_1NavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'navmap::NavMap::rebuild_geometry_accels()'],['../classNavMap.html#aeb8444f2290bd34e7904f036ebf17ab1',1,'NavMap::rebuild_geometry_accels()']]],
   ['remove_4',['remove',['../classnavmap_1_1LayerRegistry.html#a018768fa4b740b3e5abbd2eb06270ac2',1,'navmap::LayerRegistry']]],
-  ['remove_5fsurface_5',['remove_surface',['../classnavmap_1_1NavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'navmap::NavMap::remove_surface()'],['../classNavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'NavMap::remove_surface()']]],
-  ['reset_6',['reset',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#aebfcdbbd0fe4efbff10b180be50ca6bc',1,'navmap_rviz_plugin::NavMapDisplay']]],
-  ['resize_5fall_7',['resize_all',['../classnavmap_1_1LayerRegistry.html#a039a25cf408f86a30b5932ef29ac6234',1,'navmap::LayerRegistry']]]
+  ['remove_5flink_5',['remove_link',['../classnavmap_1_1NavMap.html#aef659b724ffd6b12378f75cdb85214d4',1,'navmap::NavMap::remove_link()'],['../classNavMap.html#aef659b724ffd6b12378f75cdb85214d4',1,'NavMap::remove_link()']]],
+  ['remove_5fsurface_6',['remove_surface',['../classnavmap_1_1NavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'navmap::NavMap::remove_surface()'],['../classNavMap.html#a3a1a2ff16f86a0b41965cbe850af34ef',1,'NavMap::remove_surface()']]],
+  ['reset_7',['reset',['../classnavmap_1_1OccupancyLayer.html#ab955a9583eed97fbfa476fd82be4f2a9',1,'navmap::OccupancyLayer::reset()'],['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#aebfcdbbd0fe4efbff10b180be50ca6bc',1,'navmap_rviz_plugin::NavMapDisplay::reset()'],['../classOccupancyLayer.html#ab955a9583eed97fbfa476fd82be4f2a9',1,'OccupancyLayer::reset()']]],
+  ['resize_5fall_8',['resize_all',['../classnavmap_1_1LayerRegistry.html#a039a25cf408f86a30b5932ef29ac6234',1,'navmap::LayerRegistry']]]
 ];

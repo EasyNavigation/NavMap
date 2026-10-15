@@ -93,14 +93,20 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div id="doc-content">
 <div class="header">
   <div class="summary">
+<a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">navmap Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:detail" id="r_detail"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacenavmap_1_1detail.html">detail</a></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:AABB" id="r_AABB"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1AABB.html">AABB</a></td></tr>
@@ -109,6 +115,12 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Node in a per-surface bounding volume hierarchy (BVH).  <a href="structnavmap_1_1BVHNode.html#details">More...</a><br /></td></tr>
 <tr class="memitem:Colors" id="r_Colors"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1Colors.html">Colors</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional per-vertex colors (RGBA, 8-bit per channel).  <a href="structnavmap_1_1Colors.html#details">More...</a><br /></td></tr>
+<tr class="memitem:CombineOptions" id="r_CombineOptions"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1CombineOptions.html">CombineOptions</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Options of <a class="el" href="#a9f147e5d7c1b5aecd5595b6c5f394e2c" title="Combine layer src into layer dst cell by cell with op.">combine_layer()</a>.  <a href="structnavmap_1_1CombineOptions.html#details">More...</a><br /></td></tr>
+<tr class="memitem:DescriptorParams" id="r_DescriptorParams"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1DescriptorParams.html">DescriptorParams</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which descriptors to compute, and over which neighbourhoods.  <a href="structnavmap_1_1DescriptorParams.html#details">More...</a><br /></td></tr>
+<tr class="memitem:DistanceField" id="r_DistanceField"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap_1_1DistanceField.html">DistanceField</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance from each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> to the nearest seed (seed NavCels and, optionally, the open edges of the mesh), kept up to date incrementally.  <a href="classnavmap_1_1DistanceField.html#details">More...</a><br /></td></tr>
 <tr class="memitem:LayerMeta" id="r_LayerMeta"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1LayerMeta.html">LayerMeta</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Metadata associated to a layer (optional).  <a href="structnavmap_1_1LayerMeta.html#details">More...</a><br /></td></tr>
 <tr class="memitem:LayerRegistry" id="r_LayerRegistry"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap_1_1LayerRegistry.html">LayerRegistry</a></td></tr>
@@ -120,15 +132,26 @@ Classes</h2></td></tr>
 <tr class="memitem:NavCel" id="r_NavCel"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1NavCel.html">NavCel</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Navigation cell (triangle) with geometry and adjacency.  <a href="structnavmap_1_1NavCel.html#details">More...</a><br /></td></tr>
 <tr class="memitem:NavMap" id="r_NavMap"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap_1_1NavMap.html">NavMap</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main container for navigable surfaces, geometry, and layers.  <a href="classnavmap_1_1NavMap.html#details">More...</a><br /></td></tr>
+<tr class="memitem:OccupancyLayer" id="r_OccupancyLayer"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap_1_1OccupancyLayer.html">OccupancyLayer</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log-odds occupancy over an int16 layer of a <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a>.  <a href="classnavmap_1_1OccupancyLayer.html#details">More...</a><br /></td></tr>
+<tr class="memitem:OccupancyParams" id="r_OccupancyParams"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1OccupancyParams.html">OccupancyParams</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Probabilities of the update rule and of the classification (OctoMap defaults).  <a href="structnavmap_1_1OccupancyParams.html#details">More...</a><br /></td></tr>
 <tr class="memitem:Positions" id="r_Positions"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1Positions.html">Positions</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure-of-arrays for storing 3D vertex positions.  <a href="structnavmap_1_1Positions.html#details">More...</a><br /></td></tr>
 <tr class="memitem:Ray" id="r_Ray"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1Ray.html">Ray</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple ray (origin + direction).  <a href="structnavmap_1_1Ray.html#details">More...</a><br /></td></tr>
 <tr class="memitem:RayHit" id="r_RayHit"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1RayHit.html">RayHit</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of a raycast against the <a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>.  <a href="structnavmap_1_1RayHit.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result of a raycast against the <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a>.  <a href="structnavmap_1_1RayHit.html#details">More...</a><br /></td></tr>
+<tr class="memitem:SimplifyParams" id="r_SimplifyParams"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1SimplifyParams.html">SimplifyParams</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters of <a class="el" href="#acf3a6f11cdca28b0a6336ea72a9777c3" title="Simplify nm in place by half-edge collapses, cheapest first.">simplify()</a>.  <a href="structnavmap_1_1SimplifyParams.html#details">More...</a><br /></td></tr>
+<tr class="memitem:SimplifyStats" id="r_SimplifyStats"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1SimplifyStats.html">SimplifyStats</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sizes before and after <a class="el" href="#acf3a6f11cdca28b0a6336ea72a9777c3" title="Simplify nm in place by half-edge collapses, cheapest first.">simplify()</a>.  <a href="structnavmap_1_1SimplifyStats.html#details">More...</a><br /></td></tr>
 <tr class="memitem:Surface" id="r_Surface"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1Surface.html">Surface</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A connected set of NavCels in a common reference frame.  <a href="structnavmap_1_1Surface.html#details">More...</a><br /></td></tr>
+<tr class="memitem:SurfaceLink" id="r_SurfaceLink"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1SurfaceLink.html">SurfaceLink</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connection between two NavCels that do not share an edge (stairs, an elevator, a door between surfaces that are not welded...).  <a href="structnavmap_1_1SurfaceLink.html#details">More...</a><br /></td></tr>
+<tr class="memitem:TraversalScratch" id="r_TraversalScratch"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap_1_1TraversalScratch.html">TraversalScratch</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reusable traversal buffers. Not thread-safe: one per thread.  <a href="classnavmap_1_1TraversalScratch.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-typedef-members" class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -137,7 +160,7 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ab6033fb29a33510706c3211b18a41e12" id="r_ab6033fb29a33510706c3211b18a41e12"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#ab6033fb29a33510706c3211b18a41e12">PointId</a> = uint32_t</td></tr>
 <tr class="memdesc:ab6033fb29a33510706c3211b18a41e12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index into the per-vertex position arrays (SoA).  <br /></td></tr>
 <tr class="memitem:a2120d19c30c459cd97f49ff80421f7a6" id="r_a2120d19c30c459cd97f49ff80421f7a6"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> = Eigen::Vector3f</td></tr>
-<tr class="memdesc:a2120d19c30c459cd97f49ff80421f7a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">3D vector alias used across <a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> geometry.  <br /></td></tr>
+<tr class="memdesc:a2120d19c30c459cd97f49ff80421f7a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">3D vector alias used across <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> geometry.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -145,16 +168,78 @@ Enumerations</h2></td></tr>
 , <a class="el" href="#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">RECTANGULAR</a>
  }</td></tr>
 <tr class="memdesc:a63cf6a237030c393768c302c76a2bed7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shape selector for area-writing APIs.  <a href="#a63cf6a237030c393768c302c76a2bed7">More...</a><br /></td></tr>
+<tr class="memitem:a5f0aff0a3be02d25f4e4eaadaac1fff1" id="r_a5f0aff0a3be02d25f4e4eaadaac1fff1"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1">CombineOp</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1a1038b7c5b38b3977c52e47d18cc741ee">OVERWRITE</a>
+, <a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1af29670cc57920e8ee8bb3b05ab8c560b">TRUE_OVERWRITE</a>
+, <a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1a26a4b44a837bf97b972628509912b4a5">MAX</a>
+, <a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1ae00fd7a5f396add54d8cb21ee24a9fe6">MAX_KEEP_UNKNOWN</a>
+, <br />
+&#160;&#160;<a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1ace31e2a082d17e038fcc6e3006166653">MIN</a>
+, <a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1a9eeb52badb613229884838847294b90d">ADD</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:a5f0aff0a3be02d25f4e4eaadaac1fff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">How a source value s is combined into the destination value d (as costmap_2d's update modes).  <a href="#a5f0aff0a3be02d25f4e4eaadaac1fff1">More...</a><br /></td></tr>
 <tr class="memitem:a5917577db02be1f1e02673723942f472" id="r_a5917577db02be1f1e02673723942f472"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="#a5917577db02be1f1e02673723942f472">LayerType</a> : uint8_t { <a class="el" href="#a5917577db02be1f1e02673723942f472a6669348b484e3008dca2bfa8e85e40b5">U8</a> = 0
 , <a class="el" href="#a5917577db02be1f1e02673723942f472a44ad4ef5a76e6aa6fb3e3fa079a54fda">F32</a> = 1
 , <a class="el" href="#a5917577db02be1f1e02673723942f472a1ad5f6f3069070ec4cbbdc94d5e61e0e">F64</a> = 2
+, <a class="el" href="#a5917577db02be1f1e02673723942f472abcd774f891b5f9df7099f3ea75dadf8d">I16</a> = 3
  }</td></tr>
 <tr class="memdesc:a5917577db02be1f1e02673723942f472"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime type tag for a layer's scalar storage.  <a href="#a5917577db02be1f1e02673723942f472">More...</a><br /></td></tr>
+<tr class="memitem:a80f357f44615e61f34b3a588af18d783" id="r_a80f357f44615e61f34b3a588af18d783"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="#a80f357f44615e61f34b3a588af18d783">LinkType</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="#a80f357f44615e61f34b3a588af18d783ac942dc2a9f958acddc67e11472d3ca0b">GENERIC</a> = 0
+, <a class="el" href="#a80f357f44615e61f34b3a588af18d783af89e1aea17dcf73105f3c89a72d3df3c">RAMP</a> = 1
+, <a class="el" href="#a80f357f44615e61f34b3a588af18d783a0b2918cc4f3f0f320637c26126b519c4">STAIRS</a> = 2
+, <a class="el" href="#a80f357f44615e61f34b3a588af18d783a0727a5b7a92dc07a4e5ed231272d0bde">ELEVATOR</a> = 3
+, <br />
+&#160;&#160;<a class="el" href="#a80f357f44615e61f34b3a588af18d783a37ce845535b7c13f529505fdfdb04942">DOOR</a> = 4
+<br />
+ }</td></tr>
+<tr class="memdesc:a80f357f44615e61f34b3a588af18d783"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main container for navigable surfaces, geometry, and layers.  <a href="#a80f357f44615e61f34b3a588af18d783">More...</a><br /></td></tr>
+<tr class="memitem:abf74dfd688b4203cefa6d49f8d14403e" id="r_abf74dfd688b4203cefa6d49f8d14403e"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a> { <a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">EUCLIDEAN</a>
+, <a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eae75df005c8809e031b7797318957c6ee">GEODESIC</a>
+ }</td></tr>
+<tr class="memdesc:abf74dfd688b4203cefa6d49f8d14403e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance from a centre used to grow a region.  <a href="#abf74dfd688b4203cefa6d49f8d14403e">More...</a><br /></td></tr>
+<tr class="memitem:ae9e3d1b163d5c551e0a3de7ab1f5b6f9" id="r_ae9e3d1b163d5c551e0a3de7ab1f5b6f9"><td class="memItemLeft">enum class &#160;</td><td class="memItemRight"><a class="el" href="#ae9e3d1b163d5c551e0a3de7ab1f5b6f9">OccupancyState</a> : uint8_t { <a class="el" href="#ae9e3d1b163d5c551e0a3de7ab1f5b6f9a696b031073e74bf2cb98e5ef201d4aa3">UNKNOWN</a> = 0
+, <a class="el" href="#ae9e3d1b163d5c551e0a3de7ab1f5b6f9a88c189a42c87aa49d667fc8ab76bc323">FREE</a> = 1
+, <a class="el" href="#ae9e3d1b163d5c551e0a3de7ab1f5b6f9a95bb06a35b7ae1afcf75777bb28ea62c">OCCUPIED</a> = 2
+ }</td></tr>
+<tr class="memdesc:ae9e3d1b163d5c551e0a3de7ab1f5b6f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Three-state classification of a <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a>.  <a href="#ae9e3d1b163d5c551e0a3de7ab1f5b6f9">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a8ec46dd39ad14c2364207e40c31f6764" id="r_a8ec46dd39ad14c2364207e40c31f6764"><td class="memItemLeft"><a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a>&#160;</td><td class="memItemRight"><a class="el" href="#a8ec46dd39ad14c2364207e40c31f6764">closest_point_on_triangle</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;p, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;a, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;b, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;c)</td></tr>
 <tr class="memdesc:a8ec46dd39ad14c2364207e40c31f6764"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the closest point on triangle ABC to point P.  <br /></td></tr>
+<tr class="memitem:a9f147e5d7c1b5aecd5595b6c5f394e2c" id="r_a9f147e5d7c1b5aecd5595b6c5f394e2c"><td class="memItemLeft">std::ptrdiff_t&#160;</td><td class="memItemRight"><a class="el" href="#a9f147e5d7c1b5aecd5595b6c5f394e2c">combine_layer</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const std::string &amp;dst, const std::string &amp;src, <a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1">CombineOp</a> op, const <a class="el" href="structCombineOptions.html">CombineOptions</a> &amp;options={})</td></tr>
+<tr class="memdesc:a9f147e5d7c1b5aecd5595b6c5f394e2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combine layer <code class="param">src</code> into layer <code class="param">dst</code> cell by cell with <code class="param">op</code>.  <br /></td></tr>
+<tr class="memitem:a01503d1831539f99e753927d836b039e" id="r_a01503d1831539f99e753927d836b039e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a01503d1831539f99e753927d836b039e">compute_descriptors</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const <a class="el" href="structDescriptorParams.html">DescriptorParams</a> &amp;params={})</td></tr>
+<tr class="memdesc:a01503d1831539f99e753927d836b039e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the selected descriptors as F32 layers of <code class="param">nm</code> (created or overwritten).  <br /></td></tr>
+<tr class="memitem:ad3af88be08d02713dc025616cc831847" id="r_ad3af88be08d02713dc025616cc831847"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:ad3af88be08d02713dc025616cc831847 template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#ad3af88be08d02713dc025616cc831847">for_each_by_distance</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, <a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> seed, const Eigen::Vector3f &amp;center, float max_distance, F &amp;&amp;f, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
+<tr class="memdesc:ad3af88be08d02713dc025616cc831847"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits NavCels by geodesic distance from <code class="param">center</code>, up to <code class="param">max_distance:</code> a spiral over the surface (nearest free cell, local search...).  <br /></td></tr>
+<tr class="memitem:aca442e070195a8f9f5a401049e7bc9f9" id="r_aca442e070195a8f9f5a401049e7bc9f9"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:aca442e070195a8f9f5a401049e7bc9f9 template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#aca442e070195a8f9f5a401049e7bc9f9">for_each_in_aabb</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const <a class="el" href="structAABB.html">AABB</a> &amp;box, F &amp;&amp;f, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
+<tr class="memdesc:aca442e070195a8f9f5a401049e7bc9f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits the NavCels whose bounding box overlaps <code class="param">box</code>, on every surface (via the BVH).  <br /></td></tr>
+<tr class="memitem:ae41a10bfcb1b2cefebed81a789a15270" id="r_ae41a10bfcb1b2cefebed81a789a15270"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:ae41a10bfcb1b2cefebed81a789a15270 template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#ae41a10bfcb1b2cefebed81a789a15270">for_each_in_disc</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const Eigen::Vector3f &amp;center, float radius, F &amp;&amp;f, <a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a> metric=<a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">Metric::EUCLIDEAN</a>, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
+<tr class="memdesc:ae41a10bfcb1b2cefebed81a789a15270"><td class="mdescLeft">&#160;</td><td class="mdescRight">As above, locating the seed under <code class="param">center</code>; visits nothing if the centre is off the map.  <br /></td></tr>
+<tr class="memitem:a7dac5d9d6f76ceddaff2b1ec9adb1e4a" id="r_a7dac5d9d6f76ceddaff2b1ec9adb1e4a"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:a7dac5d9d6f76ceddaff2b1ec9adb1e4a template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a7dac5d9d6f76ceddaff2b1ec9adb1e4a">for_each_in_disc</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, <a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> seed, const Eigen::Vector3f &amp;center, float radius, F &amp;&amp;f, <a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a> metric=<a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">Metric::EUCLIDEAN</a>, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
+<tr class="memdesc:a7dac5d9d6f76ceddaff2b1ec9adb1e4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits the NavCels within <code class="param">radius</code> of <code class="param">center</code>, connected to <code class="param">seed</code> (which should contain the centre).  <br /></td></tr>
+<tr class="memitem:a5147ab5c584ea4788339732fdaf55379" id="r_a5147ab5c584ea4788339732fdaf55379"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:a5147ab5c584ea4788339732fdaf55379 template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a5147ab5c584ea4788339732fdaf55379">for_each_in_polygon</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const Eigen::Vector3f &amp;on_surface, const std::vector&lt; Eigen::Vector2f &gt; &amp;poly, F &amp;&amp;f, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
+<tr class="memdesc:a5147ab5c584ea4788339732fdaf55379"><td class="mdescLeft">&#160;</td><td class="mdescRight">As above, locating the seed under <code class="param">on_surface</code> (a point of the polygon's level).  <br /></td></tr>
+<tr class="memitem:a321bb3040d183b447982bc187b02b979" id="r_a321bb3040d183b447982bc187b02b979"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:a321bb3040d183b447982bc187b02b979 template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a321bb3040d183b447982bc187b02b979">for_each_in_polygon</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, <a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> seed, const std::vector&lt; Eigen::Vector2f &gt; &amp;poly, F &amp;&amp;f, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
+<tr class="memdesc:a321bb3040d183b447982bc187b02b979"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits the NavCels whose centroid lies inside the XY polygon <code class="param">poly</code>, connected to <code class="param">seed</code> through NavCels inside it (so only the seed's level).  <br /></td></tr>
+<tr class="memitem:af7265bd514f8420a7ce2a7f7622e22b5" id="r_af7265bd514f8420a7ce2a7f7622e22b5"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:af7265bd514f8420a7ce2a7f7622e22b5 template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#af7265bd514f8420a7ce2a7f7622e22b5">for_each_in_ring</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, <a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> seed, const Eigen::Vector3f &amp;center, float r_in, float r_out, F &amp;&amp;f, <a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a> metric=<a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">Metric::EUCLIDEAN</a>, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
+<tr class="memdesc:af7265bd514f8420a7ce2a7f7622e22b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits the NavCels at distance in [<code class="param">r_in</code>, <code class="param">r_out</code>] from <code class="param">center</code>, connected to <code class="param">seed</code> through NavCels within <code class="param">r_out</code> (the inner part is crossed, not visited).  <br /></td></tr>
+<tr class="memitem:a98b69496847f87c3e7410264f6d18642" id="r_a98b69496847f87c3e7410264f6d18642"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:a98b69496847f87c3e7410264f6d18642 template"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a98b69496847f87c3e7410264f6d18642">for_each_on_segment</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const Eigen::Vector3f &amp;a, const Eigen::Vector3f &amp;b, F &amp;&amp;f)</td></tr>
+<tr class="memdesc:a98b69496847f87c3e7410264f6d18642"><td class="mdescLeft">&#160;</td><td class="mdescRight">As above, locating the seed under <code class="param">a</code>; false if a is off the map.  <br /></td></tr>
+<tr class="memitem:a72a0bfe8353fc1630a2a6042659a0d42" id="r_a72a0bfe8353fc1630a2a6042659a0d42"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
+<tr class="memitem:a72a0bfe8353fc1630a2a6042659a0d42 template"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a72a0bfe8353fc1630a2a6042659a0d42">for_each_on_segment</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, <a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> seed, const Eigen::Vector3f &amp;a, const Eigen::Vector3f &amp;b, F &amp;&amp;f)</td></tr>
+<tr class="memdesc:a72a0bfe8353fc1630a2a6042659a0d42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Walks the surface along segment a -&gt; b (in XY), from <code class="param">seed</code> (the <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> under a), visiting each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> crossed with the segment parameters where it enters and leaves.  <br /></td></tr>
 <tr class="memitem:a8b0769f31b1a1f6aab9dd18535914c57" id="r_a8b0769f31b1a1f6aab9dd18535914c57"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a8b0769f31b1a1f6aab9dd18535914c57 template"><td class="memItemLeft">constexpr <a class="el" href="#a5917577db02be1f1e02673723942f472">LayerType</a>&#160;</td><td class="memItemRight"><a class="el" href="#a8b0769f31b1a1f6aab9dd18535914c57">layer_type_tag</a> ()</td></tr>
 <tr class="memdesc:a8b0769f31b1a1f6aab9dd18535914c57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper to map C++ scalar type to <a class="el" href="#a5917577db02be1f1e02673723942f472" title="Runtime type tag for a layer&#39;s scalar storage.">navmap::LayerType</a> tag.  <br /></td></tr>
@@ -162,16 +247,35 @@ Functions</h2></td></tr>
 <tr class="memitem:a2133d0e5e023781ba2c72d20505e1cb1 template"><td class="memItemLeft">constexpr <a class="el" href="#a5917577db02be1f1e02673723942f472">LayerType</a>&#160;</td><td class="memItemRight"><a class="el" href="#a2133d0e5e023781ba2c72d20505e1cb1">layer_type_tag&lt; double &gt;</a> ()</td></tr>
 <tr class="memitem:aebc8993204f101ebbc7d31df52c11a68" id="r_aebc8993204f101ebbc7d31df52c11a68"><td class="memItemLeft">template&lt;&gt; </td></tr>
 <tr class="memitem:aebc8993204f101ebbc7d31df52c11a68 template"><td class="memItemLeft">constexpr <a class="el" href="#a5917577db02be1f1e02673723942f472">LayerType</a>&#160;</td><td class="memItemRight"><a class="el" href="#aebc8993204f101ebbc7d31df52c11a68">layer_type_tag&lt; float &gt;</a> ()</td></tr>
+<tr class="memitem:af0661ed410022dc4fba590ae4e74a45a" id="r_af0661ed410022dc4fba590ae4e74a45a"><td class="memItemLeft">template&lt;&gt; </td></tr>
+<tr class="memitem:af0661ed410022dc4fba590ae4e74a45a template"><td class="memItemLeft">constexpr <a class="el" href="#a5917577db02be1f1e02673723942f472">LayerType</a>&#160;</td><td class="memItemRight"><a class="el" href="#af0661ed410022dc4fba590ae4e74a45a">layer_type_tag&lt; int16_t &gt;</a> ()</td></tr>
 <tr class="memitem:a3e180c47802a6dcc23cdf00dd068ac11" id="r_a3e180c47802a6dcc23cdf00dd068ac11"><td class="memItemLeft">template&lt;&gt; </td></tr>
 <tr class="memitem:a3e180c47802a6dcc23cdf00dd068ac11 template"><td class="memItemLeft">constexpr <a class="el" href="#a5917577db02be1f1e02673723942f472">LayerType</a>&#160;</td><td class="memItemRight"><a class="el" href="#a3e180c47802a6dcc23cdf00dd068ac11">layer_type_tag&lt; uint8_t &gt;</a> ()</td></tr>
+<tr class="memitem:aa2cb90c55667eba5c9605cb5f7ee8795" id="r_aa2cb90c55667eba5c9605cb5f7ee8795"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#aa2cb90c55667eba5c9605cb5f7ee8795">point_segment_distance</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;p, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;a, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;b)</td></tr>
+<tr class="memdesc:aa2cb90c55667eba5c9605cb5f7ee8795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance from point <code class="param">p</code> to segment [<code class="param">a</code>, <code class="param">b</code>] (a point if a == b).  <br /></td></tr>
 <tr class="memitem:a1e63337f4523878b0a7c1cea68a23a26" id="r_a1e63337f4523878b0a7c1cea68a23a26"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a1e63337f4523878b0a7c1cea68a23a26">point_triangle_squared_distance</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;p, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;a, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;b, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;c, <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> *closest=nullptr)</td></tr>
 <tr class="memdesc:a1e63337f4523878b0a7c1cea68a23a26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Squared distance between point and triangle, with optional closest pt.  <br /></td></tr>
 <tr class="memitem:a62d9baa8d9422826604fe3f1a86d9398" id="r_a62d9baa8d9422826604fe3f1a86d9398"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a62d9baa8d9422826604fe3f1a86d9398">ray_triangle_intersect</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;orig, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;dir, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;v0, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;v1, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;v2, float &amp;t, float &amp;u, float &amp;v)</td></tr>
 <tr class="memdesc:a62d9baa8d9422826604fe3f1a86d9398"><td class="mdescLeft">&#160;</td><td class="mdescRight">Möller–Trumbore ray–triangle intersection.  <br /></td></tr>
+<tr class="memitem:acf3a6f11cdca28b0a6336ea72a9777c3" id="r_acf3a6f11cdca28b0a6336ea72a9777c3"><td class="memItemLeft"><a class="el" href="structnavmap_1_1SimplifyStats.html">SimplifyStats</a>&#160;</td><td class="memItemRight"><a class="el" href="#acf3a6f11cdca28b0a6336ea72a9777c3">simplify</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const <a class="el" href="structSimplifyParams.html">SimplifyParams</a> &amp;params={})</td></tr>
+<tr class="memdesc:acf3a6f11cdca28b0a6336ea72a9777c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simplify <code class="param">nm</code> in place by half-edge collapses, cheapest first.  <br /></td></tr>
 <tr class="memitem:a407e9ecaf6b96cdd89d265586ff5a3f9" id="r_a407e9ecaf6b96cdd89d265586ff5a3f9"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a407e9ecaf6b96cdd89d265586ff5a3f9">triangle_area</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;a, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;b, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;c)</td></tr>
 <tr class="memdesc:a407e9ecaf6b96cdd89d265586ff5a3f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the area of a triangle ABC.  <br /></td></tr>
 <tr class="memitem:a60e8da02e5b45b0ffc00e6d31ec96afa" id="r_a60e8da02e5b45b0ffc00e6d31ec96afa"><td class="memItemLeft"><a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a>&#160;</td><td class="memItemRight"><a class="el" href="#a60e8da02e5b45b0ffc00e6d31ec96afa">triangle_normal</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;a, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;b, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;c)</td></tr>
 <tr class="memdesc:a60e8da02e5b45b0ffc00e6d31ec96afa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a unit normal of triangle ABC.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a7a65269933e0dbc23c558a608feb349a" id="r_a7a65269933e0dbc23c558a608feb349a"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a7a65269933e0dbc23c558a608feb349a">FREE_SPACE</a> = 0</td></tr>
+<tr class="memdesc:a7a65269933e0dbc23c558a608feb349a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Known free.  <br /></td></tr>
+<tr class="memitem:af26307054451995d1e1dc0146e4b5cdd" id="r_af26307054451995d1e1dc0146e4b5cdd"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#af26307054451995d1e1dc0146e4b5cdd">INSCRIBED_INFLATED_OBSTACLE</a> = 253</td></tr>
+<tr class="memdesc:af26307054451995d1e1dc0146e4b5cdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The robot would touch an obstacle.  <br /></td></tr>
+<tr class="memitem:a83262c1ef071fac056488a671b8bea04" id="r_a83262c1ef071fac056488a671b8bea04"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a83262c1ef071fac056488a671b8bea04">LETHAL_OBSTACLE</a> = 254</td></tr>
+<tr class="memdesc:a83262c1ef071fac056488a671b8bea04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obstacle.  <br /></td></tr>
+<tr class="memitem:a3d75017364e2da8cf2dd9dd2cce2725d" id="r_a3d75017364e2da8cf2dd9dd2cce2725d"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a3d75017364e2da8cf2dd9dd2cce2725d">MAX_NON_OBSTACLE</a> = 252</td></tr>
+<tr class="memdesc:a3d75017364e2da8cf2dd9dd2cce2725d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highest traversable cost.  <br /></td></tr>
+<tr class="memitem:a7094ff8c6514c9670856617147e52d7b" id="r_a7094ff8c6514c9670856617147e52d7b"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a7094ff8c6514c9670856617147e52d7b">NO_INFORMATION</a> = 255</td></tr>
+<tr class="memdesc:a7094ff8c6514c9670856617147e52d7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown, not observed.  <br /></td></tr>
 </table>
 <a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Typedef Documentation</h2>
 <a id="aa58a3ffe91264dc6f20df0cd2edd9cd0" name="aa58a3ffe91264dc6f20df0cd2edd9cd0"></a>
@@ -218,7 +322,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>3D vector alias used across <a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> geometry. </p>
+<p>3D vector alias used across <a class="el" href="classnavmap_1_1NavMap.html">NavMap</a> geometry. </p>
 
 </div>
 </div>
@@ -251,6 +355,44 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a5f0aff0a3be02d25f4e4eaadaac1fff1" name="a5f0aff0a3be02d25f4e4eaadaac1fff1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f0aff0a3be02d25f4e4eaadaac1fff1">&#9670;&#160;</a></span>CombineOp</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1">CombineOp</a> : uint8_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel strong">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>How a source value s is combined into the destination value d (as costmap_2d's update modes). </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5f0aff0a3be02d25f4e4eaadaac1fff1a1038b7c5b38b3977c52e47d18cc741ee" name="a5f0aff0a3be02d25f4e4eaadaac1fff1a1038b7c5b38b3977c52e47d18cc741ee"></a>OVERWRITE&#160;</td><td class="fielddoc"><p>d = s, except where s is unknown </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a5f0aff0a3be02d25f4e4eaadaac1fff1af29670cc57920e8ee8bb3b05ab8c560b" name="a5f0aff0a3be02d25f4e4eaadaac1fff1af29670cc57920e8ee8bb3b05ab8c560b"></a>TRUE_OVERWRITE&#160;</td><td class="fielddoc"><p>d = s, unknown included </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a5f0aff0a3be02d25f4e4eaadaac1fff1a26a4b44a837bf97b972628509912b4a5" name="a5f0aff0a3be02d25f4e4eaadaac1fff1a26a4b44a837bf97b972628509912b4a5"></a>MAX&#160;</td><td class="fielddoc"><p>d = max(d, s); s replaces an unknown d; an unknown s is ignored </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a5f0aff0a3be02d25f4e4eaadaac1fff1ae00fd7a5f396add54d8cb21ee24a9fe6" name="a5f0aff0a3be02d25f4e4eaadaac1fff1ae00fd7a5f396add54d8cb21ee24a9fe6"></a>MAX_KEEP_UNKNOWN&#160;</td><td class="fielddoc"><p>as MAX, but an unknown d stays unknown </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a5f0aff0a3be02d25f4e4eaadaac1fff1ace31e2a082d17e038fcc6e3006166653" name="a5f0aff0a3be02d25f4e4eaadaac1fff1ace31e2a082d17e038fcc6e3006166653"></a>MIN&#160;</td><td class="fielddoc"><p>d = min(d, s); s replaces an unknown d; an unknown s is ignored </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a5f0aff0a3be02d25f4e4eaadaac1fff1a9eeb52badb613229884838847294b90d" name="a5f0aff0a3be02d25f4e4eaadaac1fff1a9eeb52badb613229884838847294b90d"></a>ADD&#160;</td><td class="fielddoc"><p>d = min(d + s, cap); s replaces an unknown d; an unknown s is ignored </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="a5917577db02be1f1e02673723942f472" name="a5917577db02be1f1e02673723942f472"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5917577db02be1f1e02673723942f472">&#9670;&#160;</a></span>LayerType</h2>
 
@@ -277,6 +419,104 @@ Functions</h2></td></tr>
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5917577db02be1f1e02673723942f472a6669348b484e3008dca2bfa8e85e40b5" name="a5917577db02be1f1e02673723942f472a6669348b484e3008dca2bfa8e85e40b5"></a>U8&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a5917577db02be1f1e02673723942f472a44ad4ef5a76e6aa6fb3e3fa079a54fda" name="a5917577db02be1f1e02673723942f472a44ad4ef5a76e6aa6fb3e3fa079a54fda"></a>F32&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a5917577db02be1f1e02673723942f472a1ad5f6f3069070ec4cbbdc94d5e61e0e" name="a5917577db02be1f1e02673723942f472a1ad5f6f3069070ec4cbbdc94d5e61e0e"></a>F64&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a5917577db02be1f1e02673723942f472abcd774f891b5f9df7099f3ea75dadf8d" name="a5917577db02be1f1e02673723942f472abcd774f891b5f9df7099f3ea75dadf8d"></a>I16&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="a80f357f44615e61f34b3a588af18d783" name="a80f357f44615e61f34b3a588af18d783"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80f357f44615e61f34b3a588af18d783">&#9670;&#160;</a></span>LinkType</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#a80f357f44615e61f34b3a588af18d783">LinkType</a> : uint8_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel strong">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Main container for navigable surfaces, geometry, and layers. </p>
+<p>A <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> aggregates vertex positions, a list of <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">navmap::NavCel</a> triangles (global indexing), one or more <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">navmap::Surface</a> partitions, and a <a class="el" href="classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per-NavCel).">navmap::LayerRegistry</a> with arbitrary per-NavCel scalar attributes.</p>
+<p><b>Typical workflow</b></p><ul>
+<li>Fill positions, navcels, and surfaces.</li>
+<li>Call rebuild_geometry_accels() to compute normals, areas, adjacency, and build per-surface BVHs.</li>
+<li>Create layers via <a class="el" href="classnavmap_1_1LayerRegistry.html#a9062d2a18081c8d870ea2c90531027ad" title="add_or_get()">add_or_get()</a> sized to navcels.size().</li>
+<li>Query with locate_navcel(), raycast(), or closest_navcel(). Kind of a link between NavCels that are not adjacent in the mesh. </li>
+</ul>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a80f357f44615e61f34b3a588af18d783ac942dc2a9f958acddc67e11472d3ca0b" name="a80f357f44615e61f34b3a588af18d783ac942dc2a9f958acddc67e11472d3ca0b"></a>GENERIC&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a80f357f44615e61f34b3a588af18d783af89e1aea17dcf73105f3c89a72d3df3c" name="a80f357f44615e61f34b3a588af18d783af89e1aea17dcf73105f3c89a72d3df3c"></a>RAMP&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a80f357f44615e61f34b3a588af18d783a0b2918cc4f3f0f320637c26126b519c4" name="a80f357f44615e61f34b3a588af18d783a0b2918cc4f3f0f320637c26126b519c4"></a>STAIRS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a80f357f44615e61f34b3a588af18d783a0727a5b7a92dc07a4e5ed231272d0bde" name="a80f357f44615e61f34b3a588af18d783a0727a5b7a92dc07a4e5ed231272d0bde"></a>ELEVATOR&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a80f357f44615e61f34b3a588af18d783a37ce845535b7c13f529505fdfdb04942" name="a80f357f44615e61f34b3a588af18d783a37ce845535b7c13f529505fdfdb04942"></a>DOOR&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="abf74dfd688b4203cefa6d49f8d14403e" name="abf74dfd688b4203cefa6d49f8d14403e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf74dfd688b4203cefa6d49f8d14403e">&#9670;&#160;</a></span>Metric</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel strong">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Distance from a centre used to grow a region. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d" name="abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d"></a>EUCLIDEAN&#160;</td><td class="fielddoc"><p>3D distance from the centre to each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> centroid </p>
+</td></tr>
+<tr><td class="fieldname"><a id="abf74dfd688b4203cefa6d49f8d14403eae75df005c8809e031b7797318957c6ee" name="abf74dfd688b4203cefa6d49f8d14403eae75df005c8809e031b7797318957c6ee"></a>GEODESIC&#160;</td><td class="fielddoc"><p>Along the surface: straight lines on it, bent only around borders. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ae9e3d1b163d5c551e0a3de7ab1f5b6f9" name="ae9e3d1b163d5c551e0a3de7ab1f5b6f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9e3d1b163d5c551e0a3de7ab1f5b6f9">&#9670;&#160;</a></span>OccupancyState</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#ae9e3d1b163d5c551e0a3de7ab1f5b6f9">OccupancyState</a> : uint8_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel strong">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Three-state classification of a <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ae9e3d1b163d5c551e0a3de7ab1f5b6f9a696b031073e74bf2cb98e5ef201d4aa3" name="ae9e3d1b163d5c551e0a3de7ab1f5b6f9a696b031073e74bf2cb98e5ef201d4aa3"></a>UNKNOWN&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae9e3d1b163d5c551e0a3de7ab1f5b6f9a88c189a42c87aa49d667fc8ab76bc323" name="ae9e3d1b163d5c551e0a3de7ab1f5b6f9a88c189a42c87aa49d667fc8ab76bc323"></a>FREE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae9e3d1b163d5c551e0a3de7ab1f5b6f9a95bb06a35b7ae1afcf75777bb28ea62c" name="ae9e3d1b163d5c551e0a3de7ab1f5b6f9a95bb06a35b7ae1afcf75777bb28ea62c"></a>OCCUPIED&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -323,6 +563,499 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Closest point on triangle to <code class="param">p</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a9f147e5d7c1b5aecd5595b6c5f394e2c" name="a9f147e5d7c1b5aecd5595b6c5f394e2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f147e5d7c1b5aecd5595b6c5f394e2c">&#9670;&#160;</a></span>combine_layer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::ptrdiff_t combine_layer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>dst</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>src</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#a5f0aff0a3be02d25f4e4eaadaac1fff1">CombineOp</a></td>          <td class="paramname"><span class="paramname"><em>op</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structCombineOptions.html">CombineOptions</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>options</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{}</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Combine layer <code class="param">src</code> into layer <code class="param">dst</code> cell by cell with <code class="param">op</code>. </p>
+<p>Both layers must exist with one value per <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a>; their types may differ (values convert as in <a class="el" href="classnavmap_1_1NavMap.html#af549de6d60fe38ed0094d4ed2b7f854f" title="Get a per-cell value as the requested type.">NavMap::layer_get</a>: integers are rounded and clamped to their range). Which value is unknown is each layer's own <a class="el" href="structnavmap_1_1LayerMeta.html#a33cbe02838975af52348521fcabc4d6a" title="Value meaning &quot;not observed&quot; (NaN allowed), if any.">LayerMeta::unknown</a> (NaN allowed). Writing an unknown value into <code class="param">dst</code> writes the unknown of <code class="param">dst</code>; if <code class="param">dst</code> has none, nothing is written.</p>
+<p>Cells whose value changes are recorded with mark_changed() in <code class="param">dst</code>. The provenance layer, if requested, gets source_id wherever the result is the source's value (MAX/MIN: it won or tied; ADD: it added something), even if the value was already the same.</p>
+<dl class="section return"><dt>Returns</dt><dd>Cells whose <code class="param">dst</code> value changed, or -1 if a layer is missing, sizes differ or <code class="param">dst</code> == <code class="param">src</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a01503d1831539f99e753927d836b039e" name="a01503d1831539f99e753927d836b039e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01503d1831539f99e753927d836b039e">&#9670;&#160;</a></span>compute_descriptors()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void compute_descriptors </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structDescriptorParams.html">DescriptorParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>params</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{}</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compute the selected descriptors as F32 layers of <code class="param">nm</code> (created or overwritten). </p>
+<p>Discs grow over the mesh adjacency from each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> (navmap/Iterators.hpp), so a descriptor never mixes floors. "clearance" casts a ray up from each centroid against every surface of the map: it is the room up to the next surface the map holds (the floor above), not to a ceiling that is not in the map; +inf when there is none within clearance_max. </p>
+
+</div>
+</div>
+<a id="ad3af88be08d02713dc025616cc831847" name="ad3af88be08d02713dc025616cc831847"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3af88be08d02713dc025616cc831847">&#9670;&#160;</a></span>for_each_by_distance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t for_each_by_distance </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>seed</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>center</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>max_distance</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classTraversalScratch.html">TraversalScratch</a> *</td>          <td class="paramname"><span class="paramname"><em>scratch</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Visits NavCels by geodesic distance from <code class="param">center</code>, up to <code class="param">max_distance:</code> a spiral over the surface (nearest free cell, local search...). </p>
+<p>The seed comes first, always. The order is non-decreasing up to the distance between neighbour centroids. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f</td><td>Visitor <span class="tt">f(NavCelId, float distance)</span>; returning false stops. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of NavCels visited. </dd></dl>
+
+</div>
+</div>
+<a id="aca442e070195a8f9f5a401049e7bc9f9" name="aca442e070195a8f9f5a401049e7bc9f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca442e070195a8f9f5a401049e7bc9f9">&#9670;&#160;</a></span>for_each_in_aabb()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t for_each_in_aabb </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structAABB.html">AABB</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>box</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classTraversalScratch.html">TraversalScratch</a> *</td>          <td class="paramname"><span class="paramname"><em>scratch</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Visits the NavCels whose bounding box overlaps <code class="param">box</code>, on every surface (via the BVH). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f</td><td>Visitor <span class="tt">f(NavCelId)</span>; returning false stops. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of NavCels visited. </dd></dl>
+
+</div>
+</div>
+<a id="ae41a10bfcb1b2cefebed81a789a15270" name="ae41a10bfcb1b2cefebed81a789a15270"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae41a10bfcb1b2cefebed81a789a15270">&#9670;&#160;</a></span>for_each_in_disc() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t for_each_in_disc </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>center</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>radius</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a></td>          <td class="paramname"><span class="paramname"><em>metric</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">Metric::EUCLIDEAN</a></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classTraversalScratch.html">TraversalScratch</a> *</td>          <td class="paramname"><span class="paramname"><em>scratch</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>As above, locating the seed under <code class="param">center</code>; visits nothing if the centre is off the map. </p>
+
+</div>
+</div>
+<a id="a7dac5d9d6f76ceddaff2b1ec9adb1e4a" name="a7dac5d9d6f76ceddaff2b1ec9adb1e4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dac5d9d6f76ceddaff2b1ec9adb1e4a">&#9670;&#160;</a></span>for_each_in_disc() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t for_each_in_disc </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>seed</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>center</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>radius</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a></td>          <td class="paramname"><span class="paramname"><em>metric</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">Metric::EUCLIDEAN</a></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classTraversalScratch.html">TraversalScratch</a> *</td>          <td class="paramname"><span class="paramname"><em>scratch</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Visits the NavCels within <code class="param">radius</code> of <code class="param">center</code>, connected to <code class="param">seed</code> (which should contain the centre). </p>
+<p>The seed is always visited. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f</td><td>Visitor <span class="tt">f(NavCelId)</span>; returning false stops. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of NavCels visited. </dd></dl>
+
+</div>
+</div>
+<a id="a5147ab5c584ea4788339732fdaf55379" name="a5147ab5c584ea4788339732fdaf55379"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5147ab5c584ea4788339732fdaf55379">&#9670;&#160;</a></span>for_each_in_polygon() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t for_each_in_polygon </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>on_surface</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector2f &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>poly</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classTraversalScratch.html">TraversalScratch</a> *</td>          <td class="paramname"><span class="paramname"><em>scratch</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>As above, locating the seed under <code class="param">on_surface</code> (a point of the polygon's level). </p>
+
+</div>
+</div>
+<a id="a321bb3040d183b447982bc187b02b979" name="a321bb3040d183b447982bc187b02b979"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a321bb3040d183b447982bc187b02b979">&#9670;&#160;</a></span>for_each_in_polygon() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t for_each_in_polygon </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>seed</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector2f &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>poly</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classTraversalScratch.html">TraversalScratch</a> *</td>          <td class="paramname"><span class="paramname"><em>scratch</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Visits the NavCels whose centroid lies inside the XY polygon <code class="param">poly</code>, connected to <code class="param">seed</code> through NavCels inside it (so only the seed's level). </p>
+<p>Even-odd rule. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f</td><td>Visitor <span class="tt">f(NavCelId)</span>; returning false stops. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of NavCels visited. </dd></dl>
+
+</div>
+</div>
+<a id="af7265bd514f8420a7ce2a7f7622e22b5" name="af7265bd514f8420a7ce2a7f7622e22b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af7265bd514f8420a7ce2a7f7622e22b5">&#9670;&#160;</a></span>for_each_in_ring()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t for_each_in_ring </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>seed</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>center</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>r_in</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>r_out</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#abf74dfd688b4203cefa6d49f8d14403e">Metric</a></td>          <td class="paramname"><span class="paramname"><em>metric</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">Metric::EUCLIDEAN</a></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classTraversalScratch.html">TraversalScratch</a> *</td>          <td class="paramname"><span class="paramname"><em>scratch</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Visits the NavCels at distance in [<code class="param">r_in</code>, <code class="param">r_out</code>] from <code class="param">center</code>, connected to <code class="param">seed</code> through NavCels within <code class="param">r_out</code> (the inner part is crossed, not visited). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f</td><td>Visitor <span class="tt">f(NavCelId)</span>; returning false stops. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of NavCels visited. </dd></dl>
+
+</div>
+</div>
+<a id="a98b69496847f87c3e7410264f6d18642" name="a98b69496847f87c3e7410264f6d18642"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98b69496847f87c3e7410264f6d18642">&#9670;&#160;</a></span>for_each_on_segment() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool for_each_on_segment </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>As above, locating the seed under <code class="param">a</code>; false if a is off the map. </p>
+
+</div>
+</div>
+<a id="a72a0bfe8353fc1630a2a6042659a0d42" name="a72a0bfe8353fc1630a2a6042659a0d42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72a0bfe8353fc1630a2a6042659a0d42">&#9670;&#160;</a></span>for_each_on_segment() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class F&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool for_each_on_segment </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>seed</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3f &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">F &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>f</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Walks the surface along segment a -&gt; b (in XY), from <code class="param">seed</code> (the <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> under a), visiting each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> crossed with the segment parameters where it enters and leaves. </p>
+<p>The walk follows the mesh adjacency, so it stays on the seed's level, also on slopes.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f</td><td>Visitor <span class="tt">f(NavCelId, float t_in, float t_out)</span>, 0 &lt;= t_in &lt;= t_out &lt;= 1; returning false stops. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the walk reached the <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> under b; false if it left the surface through a border first (or was stopped). </dd></dl>
 
 </div>
 </div>
@@ -409,6 +1142,33 @@ template&lt;&gt; </div>
 
 </div>
 </div>
+<a id="af0661ed410022dc4fba590ae4e74a45a" name="af0661ed410022dc4fba590ae4e74a45a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0661ed410022dc4fba590ae4e74a45a">&#9670;&#160;</a></span>layer_type_tag&lt; int16_t &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#a5917577db02be1f1e02673723942f472">LayerType</a> <a class="el" href="#a8b0769f31b1a1f6aab9dd18535914c57">layer_type_tag</a>&lt; int16_t &gt; </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a3e180c47802a6dcc23cdf00dd068ac11" name="a3e180c47802a6dcc23cdf00dd068ac11"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3e180c47802a6dcc23cdf00dd068ac11">&#9670;&#160;</a></span>layer_type_tag&lt; uint8_t &gt;()</h2>
 
@@ -433,6 +1193,34 @@ template&lt;&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa2cb90c55667eba5c9605cb5f7ee8795" name="aa2cb90c55667eba5c9605cb5f7ee8795"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2cb90c55667eba5c9605cb5f7ee8795">&#9670;&#160;</a></span>point_segment_distance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float point_segment_distance </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Distance from point <code class="param">p</code> to segment [<code class="param">a</code>, <code class="param">b</code>] (a point if a == b). </p>
 
 </div>
 </div>
@@ -558,6 +1346,30 @@ template&lt;&gt; </div>
 
 </div>
 </div>
+<a id="acf3a6f11cdca28b0a6336ea72a9777c3" name="acf3a6f11cdca28b0a6336ea72a9777c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf3a6f11cdca28b0a6336ea72a9777c3">&#9670;&#160;</a></span>simplify()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structnavmap_1_1SimplifyStats.html">SimplifyStats</a> simplify </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structSimplifyParams.html">SimplifyParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>params</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{}</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simplify <code class="param">nm</code> in place by half-edge collapses, cheapest first. </p>
+<p>A vertex is removed only if all its NavCels have the same values in the kept layers and belong to the same surface, so every layer keeps its value at every point of the map: borders between values (an obstacle, unknown space, a different cost) are kept exactly. Open edges keep their shape (within max_error), topology is preserved (no folds, no new holes or bridges), and NavCels that are the end of a link survive. Layers, surfaces, links and vertex colors are carried over; <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> and vertex ids change. Geometry accelerations are rebuilt. </p>
+
+</div>
+</div>
 <a id="a407e9ecaf6b96cdd89d265586ff5a3f9" name="a407e9ecaf6b96cdd89d265586ff5a3f9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a407e9ecaf6b96cdd89d265586ff5a3f9">&#9670;&#160;</a></span>triangle_area()</h2>
 
@@ -631,6 +1443,127 @@ template&lt;&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Unit-length normal or +Z fallback for degenerate triangles. </dd></dl>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Variable Documentation</h2>
+<a id="a7a65269933e0dbc23c558a608feb349a" name="a7a65269933e0dbc23c558a608feb349a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a65269933e0dbc23c558a608feb349a">&#9670;&#160;</a></span>FREE_SPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t FREE_SPACE = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Known free. </p>
+
+</div>
+</div>
+<a id="af26307054451995d1e1dc0146e4b5cdd" name="af26307054451995d1e1dc0146e4b5cdd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af26307054451995d1e1dc0146e4b5cdd">&#9670;&#160;</a></span>INSCRIBED_INFLATED_OBSTACLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t INSCRIBED_INFLATED_OBSTACLE = 253</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The robot would touch an obstacle. </p>
+
+</div>
+</div>
+<a id="a83262c1ef071fac056488a671b8bea04" name="a83262c1ef071fac056488a671b8bea04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83262c1ef071fac056488a671b8bea04">&#9670;&#160;</a></span>LETHAL_OBSTACLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t LETHAL_OBSTACLE = 254</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Obstacle. </p>
+
+</div>
+</div>
+<a id="a3d75017364e2da8cf2dd9dd2cce2725d" name="a3d75017364e2da8cf2dd9dd2cce2725d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d75017364e2da8cf2dd9dd2cce2725d">&#9670;&#160;</a></span>MAX_NON_OBSTACLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t MAX_NON_OBSTACLE = 252</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Highest traversable cost. </p>
+
+</div>
+</div>
+<a id="a7094ff8c6514c9670856617147e52d7b" name="a7094ff8c6514c9670856617147e52d7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7094ff8c6514c9670856617147e52d7b">&#9670;&#160;</a></span>NO_INFORMATION</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t NO_INFORMATION = 255</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Unknown, not observed. </p>
 
 </div>
 </div>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['circular_0',['CIRCULAR',['../namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68',1,'navmap']]]
+  ['add_0',['ADD',['../namespacenavmap.html#a5f0aff0a3be02d25f4e4eaadaac1fff1a9eeb52badb613229884838847294b90d',1,'navmap']]]
 ];

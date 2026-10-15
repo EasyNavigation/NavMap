@@ -115,8 +115,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a9062d2a18081c8d870ea2c90531027ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new typed layer or return an existing one with the same name.  <br /></td></tr>
 <tr class="memitem:a1f27737fbaccd76aa4c35fcbc9ea07c1" id="r_a1f27737fbaccd76aa4c35fcbc9ea07c1"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structnavmap_1_1LayerViewBase.html">LayerViewBase</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a1f27737fbaccd76aa4c35fcbc9ea07c1">get</a> (const std::string &amp;name) const</td></tr>
 <tr class="memdesc:a1f27737fbaccd76aa4c35fcbc9ea07c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an existing layer by name (untyped view).  <br /></td></tr>
+<tr class="memitem:a8fbd965f5c19e4de8e9323002ef6469a" id="r_a8fbd965f5c19e4de8e9323002ef6469a"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> ()=default</td></tr>
+<tr class="memitem:a7c6d98359672664478cc8127c4b07f75" id="r_a7c6d98359672664478cc8127c4b07f75"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a7c6d98359672664478cc8127c4b07f75">LayerRegistry</a> (const LayerRegistry &amp;other)</td></tr>
+<tr class="memdesc:a7c6d98359672664478cc8127c4b07f75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies are deep: each copy owns its layers (writes never reach the original).  <br /></td></tr>
+<tr class="memitem:ac2c8176c124c05e4258efe0391872473" id="r_ac2c8176c124c05e4258efe0391872473"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#ac2c8176c124c05e4258efe0391872473">LayerRegistry</a> (LayerRegistry &amp;&amp;) noexcept=default</td></tr>
 <tr class="memitem:a87113fff45a39421caca2fcbcbfd69cc" id="r_a87113fff45a39421caca2fcbcbfd69cc"><td class="memItemLeft">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a87113fff45a39421caca2fcbcbfd69cc">list</a> () const</td></tr>
 <tr class="memdesc:a87113fff45a39421caca2fcbcbfd69cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">List layer names currently in the registry.  <br /></td></tr>
+<tr class="memitem:aa56b748b751f1be5988131661623a92e" id="r_aa56b748b751f1be5988131661623a92e"><td class="memItemLeft"><a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#aa56b748b751f1be5988131661623a92e">operator=</a> (const <a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp;other)</td></tr>
+<tr class="memitem:add5ab87486ff362b227e2bfd8844d738" id="r_add5ab87486ff362b227e2bfd8844d738"><td class="memItemLeft"><a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#add5ab87486ff362b227e2bfd8844d738">operator=</a> (<a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp;&amp;) noexcept=default</td></tr>
 <tr class="memitem:a018768fa4b740b3e5abbd2eb06270ac2" id="r_a018768fa4b740b3e5abbd2eb06270ac2"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a018768fa4b740b3e5abbd2eb06270ac2">remove</a> (const std::string &amp;name)</td></tr>
 <tr class="memdesc:a018768fa4b740b3e5abbd2eb06270ac2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a layer by name.  <br /></td></tr>
 <tr class="memitem:a039a25cf408f86a30b5932ef29ac6234" id="r_a039a25cf408f86a30b5932ef29ac6234"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a039a25cf408f86a30b5932ef29ac6234">resize_all</a> (size_t nitems)</td></tr>
@@ -124,8 +130,78 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Registry of named layers (per-NavCel). </p>
-<p>Provides creation-or-lookup semantics with <a class="el" href="#a9062d2a18081c8d870ea2c90531027ad" title="Add a new typed layer or return an existing one with the same name.">navmap::LayerRegistry::add_or_get()</a>. All layers in the registry are expected to have a size equal to the number of NavCels in the owning <a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a>. </p>
-</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<p>Provides creation-or-lookup semantics with <a class="el" href="#a9062d2a18081c8d870ea2c90531027ad" title="Add a new typed layer or return an existing one with the same name.">navmap::LayerRegistry::add_or_get()</a>. All layers in the registry are expected to have a size equal to the number of NavCels in the owning <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>. </p>
+</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a8fbd965f5c19e4de8e9323002ef6469a" name="a8fbd965f5c19e4de8e9323002ef6469a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fbd965f5c19e4de8e9323002ef6469a">&#9670;&#160;</a></span>LayerRegistry() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">LayerRegistry </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel default">default</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac2c8176c124c05e4258efe0391872473" name="ac2c8176c124c05e4258efe0391872473"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2c8176c124c05e4258efe0391872473">&#9670;&#160;</a></span>LayerRegistry() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">LayerRegistry </td>
+          <td>(</td>
+          <td class="paramtype">LayerRegistry &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel default">default</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7c6d98359672664478cc8127c4b07f75" name="a7c6d98359672664478cc8127c4b07f75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c6d98359672664478cc8127c4b07f75">&#9670;&#160;</a></span>LayerRegistry() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">LayerRegistry </td>
+          <td>(</td>
+          <td class="paramtype">const LayerRegistry &amp;</td>          <td class="paramname"><span class="paramname"><em>other</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copies are deep: each copy owns its layers (writes never reach the original). </p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
 <a id="a9062d2a18081c8d870ea2c90531027ad" name="a9062d2a18081c8d870ea2c90531027ad"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9062d2a18081c8d870ea2c90531027ad">&#9670;&#160;</a></span>add_or_get()</h2>
 
@@ -215,6 +291,48 @@ template&lt;typename T&gt; </div>
 
 <p>List layer names currently in the registry. </p>
 <dl class="section return"><dt>Returns</dt><dd>Vector of names (unordered). </dd></dl>
+
+</div>
+</div>
+<a id="aa56b748b751f1be5988131661623a92e" name="aa56b748b751f1be5988131661623a92e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa56b748b751f1be5988131661623a92e">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp; operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>other</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="add5ab87486ff362b227e2bfd8844d738" name="add5ab87486ff362b227e2bfd8844d738"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add5ab87486ff362b227e2bfd8844d738">&#9670;&#160;</a></span>operator=() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp; operator= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="#a8fbd965f5c19e4de8e9323002ef6469a">LayerRegistry</a> &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel default">default</span><span class="mlabel noexcept">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

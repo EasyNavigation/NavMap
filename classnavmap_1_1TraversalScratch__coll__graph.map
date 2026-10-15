@@ -1,0 +1,11 @@
+<map id="TraversalScratch" name="TraversalScratch">
+<area shape="rect" id="Node000001" title="Reusable traversal buffers. Not thread&#45;safe: one per thread." alt="" coords="271,87,391,112"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="41,5,144,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,28,248,53,309,84,307,89,246,58,159,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="26,56,159,82"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,77,271,89,270,94,174,82"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,106,180,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="195,126,246,121,291,110,292,116,247,126,195,131"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="46,171,139,196"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="154,176,200,168,246,153,283,133,313,111,316,115,286,138,248,158,201,173,155,181"/>
+</map>

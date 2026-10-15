@@ -1,11 +1,10 @@
 var searchData=
 [
-  ['raycasting_0',['6. Raycasting',['../index.html#autotoc_md23',1,'']]],
-  ['read_20a_20layer_20value_20for_20a_20given_20navcel_1',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md17',1,'']]],
-  ['repository_20structure_2',['📂 Repository structure',['../index.html#autotoc_md5',1,'']]],
-  ['ros_202_20colcon_20build_3',['ROS 2 colcon build',['../index.html#autotoc_md8',1,'']]],
-  ['ros_202_20examples_4',['Run ROS 2 examples',['../index.html#autotoc_md36',1,'']]],
-  ['ros_20messages_5',['8. Serialize to / from ROS messages',['../index.html#autotoc_md27',1,'']]],
-  ['run_20core_20examples_6',['Run core examples',['../index.html#autotoc_md35',1,'']]],
-  ['run_20ros_202_20examples_7',['Run ROS 2 examples',['../index.html#autotoc_md36',1,'']]]
+  ['occupancy_0',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
+  ['occupancy_20hpp_1',['7c. Unknown values and log-odds occupancy (&lt;span class=&quot;tt&quot;&gt;Occupancy.hpp&lt;/span&gt;)',['../index.html#autotoc_md29',1,'']]],
+  ['occupancy_20mapping_2',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md61',1,'']]],
+  ['occupancy_20occupancy_20hpp_3',['7c. Unknown values and log-odds occupancy (&lt;span class=&quot;tt&quot;&gt;Occupancy.hpp&lt;/span&gt;)',['../index.html#autotoc_md29',1,'']]],
+  ['odds_20occupancy_20occupancy_20hpp_4',['7c. Unknown values and log-odds occupancy (&lt;span class=&quot;tt&quot;&gt;Occupancy.hpp&lt;/span&gt;)',['../index.html#autotoc_md29',1,'']]],
+  ['or_20occupancy_5',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
+  ['over_20navcels_20iterators_20hpp_6',['7b. Iterating over NavCels (&lt;span class=&quot;tt&quot;&gt;Iterators.hpp&lt;/span&gt;)',['../index.html#autotoc_md27',1,'']]]
 ];

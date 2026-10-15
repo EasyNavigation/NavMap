@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['🚀_20usage_20c_20api_0',['🚀 Usage (C++ API)',['../index.html#autotoc_md11',1,'']]]
+  ['📦_20usage_20examples_20package_0',['📦 Usage (Examples package)',['../index.html#autotoc_md49',1,'']]]
 ];

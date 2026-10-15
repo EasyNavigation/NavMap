@@ -1,0 +1,5 @@
+<map id="OccupancyLayer" name="OccupancyLayer">
+<area shape="rect" id="Node000001" title="Log&#45;odds occupancy over an int16 layer of a NavMap." alt="" coords="5,102,124,128"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="42,5,87,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,46,67,101,62,101,62,46"/>
+</map>

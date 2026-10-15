@@ -92,14 +92,14 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 </div>
 
 <div><div class="header">
-  <div class="headertitle"><div class="title"><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> </div></div>
+  <div class="headertitle"><div class="title"><a class="el" href="classNavMap.html">NavMap</a> </div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
 <p><a href="https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/doxygen-doc.yml/badge.svg" alt="Doxygen Deployment" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/rolling.yaml/badge.svg?branch=rolling" alt="rolling" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/EasyNavigation/NavMap/actions/workflows/lyrical.yaml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/lyrical.yaml/badge.svg?branch=lyrical" alt="lyrical" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/EasyNavigation/NavMap/actions/workflows/kilted.yaml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/kilted.yaml/badge.svg?branch=kilted" alt="kilted" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/jazzy.yaml/badge.svg?branch=jazzy" alt="jazzy" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml"><img src="https://github.com/EasyNavigation/NavMap/actions/workflows/humble.yaml/badge.svg?branch=humble" alt="humble" style="pointer-events: none;" class="inline"/></a></p>
 <p><img src="https://github.com/user-attachments/assets/470f45cc-3142-4c51-8375-2446d282d4de" alt="navmap_logo_white" width="400" class="inline"/></p>
 <p><a href="https://www.youtube.com/watch?v=t5p6c2HO7UA"><img src="https://img.youtube.com/vi/t5p6c2HO7UA/0.jpg" alt="NavMap SLAM" class="inline"/></a></p>
-<p><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> is an open-source C++ and ROS 2 library for representing <b>navigable surfaces</b> for mobile robot navigation and localization. Unlike classic grid-based maps, <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> stores the environment as <b>triangular meshes</b> (NavCels), enabling efficient queries and multi-surface environments (e.g., multi-floor buildings).</p>
+<p><a class="el" href="classNavMap.html">NavMap</a> is an open-source C++ and ROS 2 library for representing <b>navigable surfaces</b> for mobile robot navigation and localization. Unlike classic grid-based maps, <a class="el" href="classNavMap.html">NavMap</a> stores the environment as <b>triangular meshes</b> (NavCels), enabling efficient queries and multi-surface environments (e.g., multi-floor buildings).</p>
 <hr  />
 <p><img src="https://github.com/user-attachments/assets/fedfcf13-6af6-43d7-8290-fe22da4e1db0" alt="MICIU+Cofinanciado+AEI" width="240" height="47" class="inline"/> <img src="https://github.com/user-attachments/assets/b11da974-9201-4f79-902e-c9c20e8aa7a4" alt="eu_funded_en" width="240" height="50" class="inline"/> Funded by the European Union through the Horizon Europe programme under Grant Agreement No. 101070254 (CoreSense), and by MICIU/AEI/10.13039/501100011033 and ERDF/EU under grants PERMAP PID2024-161761OB-C21 and PLANNAV PID2024-161761OB-C22 (AURORAS).</p>
 <hr  />
@@ -111,6 +111,8 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <li><b>Locate API</b>: find the NavCel under/around a 3D position using BVH acceleration and raycasting.</li>
 <li><b>Raytracing</b>: Möller–Trumbore intersection with a simple BVH for efficiency.</li>
 <li><b>Multi-surface support</b>: naturally supports multiple disconnected surfaces (e.g., separate floors).</li>
+<li><b>Unknown values and probabilistic occupancy</b>: each layer can declare the value that means "not observed"; <span class="tt"><a class="el" href="Occupancy_8hpp.html" title="Probabilistic occupancy per NavCel: log-odds with clamping (as OctoMap), stored in an int16 layer in ...">Occupancy.hpp</a></span> keeps log-odds occupancy (OctoMap's clamped update) in an int16 layer, with free / occupied / unknown states.</li>
+<li><b>Iterators</b> over NavCels (<span class="tt"><a class="el" href="Iterators_8hpp.html" title="Traversals over the NavCels of a navmap::NavMap: box, disc, ring, polygon, distance order and segment...">navmap_core/Iterators.hpp</a></span>): box, disc, ring, polygon, distance order and segment walk; regions grow over the surface, so they never jump to another floor.</li>
 </ul>
 <hr  />
 <h1 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
@@ -118,17 +120,17 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <p>This repository is organized into several ROS 2 packages:</p>
 <ul>
 <li><b><span class="tt">navmap_core/</span></b> <br  />
- Core C++ library implementing <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. Minimal dependencies (Eigen3).</li>
+ Core C++ library implementing <a class="el" href="classNavMap.html">NavMap</a>. Minimal dependencies (Eigen3).</li>
 <li><b><span class="tt">navmap_ros/</span></b> <br  />
  ROS 2 conversions and message definitions: <br  />
 <ul>
-<li><span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> ↔ <span class="tt">navmap_ros_interfaces::msg::NavMap</span> <br  />
+<li><span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> ↔ <span class="tt">navmap_ros_interfaces::msg::NavMap</span> <br  />
 </li>
-<li><span class="tt">nav_msgs::msg::OccupancyGrid</span> ↔ <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span></li>
+<li><span class="tt">nav_msgs::msg::OccupancyGrid</span> ↔ <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span></li>
 </ul>
 </li>
 <li><b><span class="tt">navmap_rviz_plugin/</span></b> <br  />
- RViz2 plugin for visualization of <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> messages: <br  />
+ RViz2 plugin for visualization of <a class="el" href="classNavMap.html">NavMap</a> messages: <br  />
 <ul>
 <li>Displays surfaces and layers. <br  />
 </li>
@@ -140,12 +142,12 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <li><b><span class="tt">navmap_tools/</span></b> <br  />
  Tools and utilities for building and testing NavMaps (mesh import/export, conversions, etc.)</li>
 <li><b><span class="tt">navmap_examples/</span></b> <br  />
- Practical examples demonstrating the usage of <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>, both core C++ API and ROS 2 integrations.</li>
+ Practical examples demonstrating the usage of <a class="el" href="classNavMap.html">NavMap</a>, both core C++ API and ROS 2 integrations.</li>
 </ul>
 <hr  />
 <h1 class="doxsection"><a class="anchor" id="autotoc_md7"></a>
 ⚙️ Build instructions</h1>
-<p><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> can be built as a standalone C++ library or within a ROS 2 workspace.</p>
+<p><a class="el" href="classNavMap.html">NavMap</a> can be built as a standalone C++ library or within a ROS 2 workspace.</p>
 <h2 class="doxsection"><a class="anchor" id="autotoc_md8"></a>
 ROS 2 colcon build</h2>
 <div class="fragment"><div class="line"># Clone into your ROS 2 workspace</div>
@@ -171,7 +173,7 @@ Dependencies</h2>
 <h1 class="doxsection"><a class="anchor" id="autotoc_md11"></a>
 🚀 Usage (C++ API)</h1>
 <p><a href="https://easynavigation.github.io/NavMap/">C++ API</a></p>
-<p>This section shows <b>small, self-contained snippets</b> that demonstrate how to create a <span class="tt"><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a></span>, add geometry, attach layers, query values, and locate the triangle (NavCel) corresponding to a 3D position. <br  />
+<p>This section shows <b>small, self-contained snippets</b> that demonstrate how to create a <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span>, add geometry, attach layers, query values, and locate the triangle (NavCel) corresponding to a 3D position. <br  />
  </p><blockquote class="doxtable">
 <p><b>Note</b>: After modifying geometry (vertices, triangles, or surfaces), always call <span class="tt">rebuild_geometry_accels()</span> before performing queries such as <span class="tt">locate_navcel()</span> or <span class="tt">raycast()</span>. </p>
 </blockquote>
@@ -206,7 +208,7 @@ Dependencies</h2>
 <div class="line"><span class="comment">// Build normals, adjacency, BVH, etc.</span></div>
 <div class="line">nm.rebuild_geometry_accels();</div>
 <div class="ttc" id="aNavMap_8hpp_html"><div class="ttname"><a href="NavMap_8hpp.html">NavMap.hpp</a></div><div class="ttdoc">Core container and data structures for EasyNav navigable meshes.</div></div>
-<div class="ttc" id="aclassnavmap_1_1NavMap_html"><div class="ttname"><a href="classnavmap_1_1NavMap.html">navmap::NavMap</a></div><div class="ttdoc">Main container for navigable surfaces, geometry, and layers.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:464</div></div>
+<div class="ttc" id="aclassnavmap_1_1NavMap_html"><div class="ttname"><a href="classnavmap_1_1NavMap.html">navmap::NavMap</a></div><div class="ttdef"><b>Definition</b> NavMap.hpp:561</div></div>
 <div class="ttc" id="anamespacenavmap_html_aa58a3ffe91264dc6f20df0cd2edd9cd0"><div class="ttname"><a href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">navmap::NavCelId</a></div><div class="ttdeci">uint32_t NavCelId</div><div class="ttdoc">Index of a triangle (NavCel) within the global mesh.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:59</div></div>
 <div class="ttc" id="anavmap__bench_8cpp_html_aa58a3ffe91264dc6f20df0cd2edd9cd0"><div class="ttname"><a href="navmap__bench_8cpp.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></div><div class="ttdeci">uint32_t NavCelId</div><div class="ttdoc">Index of a triangle (NavCel) within the global mesh.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:59</div></div>
 </div><!-- fragment --><hr  />
@@ -281,10 +283,120 @@ Dependencies</h2>
 <div class="line">                     <span class="stringliteral">&quot;occupancy&quot;</span>,</div>
 <div class="line">                     <a class="code hl_enumvalue" href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">navmap::AreaShape::RECTANGULAR</a>,</div>
 <div class="line">                     0.35f);</div>
-<div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">navmap::AreaShape::RECTANGULAR</a></div><div class="ttdeci">@ RECTANGULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:443</div></div>
-<div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68">navmap::AreaShape::CIRCULAR</a></div><div class="ttdeci">@ CIRCULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:443</div></div>
+<div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a47428d834e54119100c608d0d1448e51">navmap::AreaShape::RECTANGULAR</a></div><div class="ttdeci">@ RECTANGULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:522</div></div>
+<div class="ttc" id="anamespacenavmap_html_a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68"><div class="ttname"><a href="namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68">navmap::AreaShape::CIRCULAR</a></div><div class="ttdeci">@ CIRCULAR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:522</div></div>
 </div><!-- fragment --><hr  />
 <h1 class="doxsection"><a class="anchor" id="autotoc_md27"></a>
+7b. Iterating over NavCels (<span class="tt">Iterators.hpp</span>)</h1>
+<p>Visitors are called once per NavCel; returning <span class="tt">false</span> stops. Regions around a point grow from the NavCel under it through the mesh adjacency, so a disc on one floor never reaches the floor above. Reuse a <span class="tt"><a class="el" href="classTraversalScratch.html" title="Reusable traversal buffers. Not thread-safe: one per thread.">TraversalScratch</a></span> to avoid allocations.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="Iterators_8hpp.html">navmap_core/Iterators.hpp</a>&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><a class="code hl_class" href="classnavmap_1_1TraversalScratch.html">navmap::TraversalScratch</a> scratch;</div>
+<div class="line"><span class="keyword">const</span> Eigen::Vector3f robot(2.0f, 1.0f, 0.0f);</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// NavCels within 0.5 m of the robot (3D distance to the centroid)</span></div>
+<div class="line"><a class="code hl_function" href="namespacenavmap.html#a7dac5d9d6f76ceddaff2b1ec9adb1e4a">navmap::for_each_in_disc</a>(nm, robot, 0.5f, [&amp;](<a class="code hl_typedef" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">navmap::NavCelId</a> c) {<span class="comment">/* ... */</span>},</div>
+<div class="line">  <a class="code hl_enumvalue" href="namespacenavmap.html#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">navmap::Metric::EUCLIDEAN</a>, &amp;scratch);</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// NavCels crossed by a sensor ray projected on the surface, with the entry/exit parameters</span></div>
+<div class="line"><a class="code hl_function" href="namespacenavmap.html#a72a0bfe8353fc1630a2a6042659a0d42">navmap::for_each_on_segment</a>(nm, robot, Eigen::Vector3f(6.0f, 3.0f, 0.0f),</div>
+<div class="line">  [&amp;](<a class="code hl_typedef" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">navmap::NavCelId</a> c, <span class="keywordtype">float</span> t_in, <span class="keywordtype">float</span> t_out) {<span class="comment">/* clear c */</span>});</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Nearest NavCel along the surface (geodesic order) with a free value</span></div>
+<div class="line"><a class="code hl_function" href="namespacenavmap.html#ad3af88be08d02713dc025616cc831847">navmap::for_each_by_distance</a>(nm, seed, robot, 3.0f, [&amp;](<a class="code hl_typedef" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">navmap::NavCelId</a> c, <span class="keywordtype">float</span> d) {</div>
+<div class="line">    <span class="keywordflow">return</span> nm.layer_get&lt;uint8_t&gt;(<span class="stringliteral">&quot;occupancy&quot;</span>, c) != 0;  <span class="comment">// false stops at the first free one</span></div>
+<div class="line">  });</div>
+<div class="ttc" id="aIterators_8hpp_html"><div class="ttname"><a href="Iterators_8hpp.html">Iterators.hpp</a></div><div class="ttdoc">Traversals over the NavCels of a navmap::NavMap: box, disc, ring, polygon, distance order and segment...</div></div>
+<div class="ttc" id="aclassnavmap_1_1TraversalScratch_html"><div class="ttname"><a href="classnavmap_1_1TraversalScratch.html">navmap::TraversalScratch</a></div><div class="ttdoc">Reusable traversal buffers. Not thread-safe: one per thread.</div><div class="ttdef"><b>Definition</b> Iterators.hpp:59</div></div>
+<div class="ttc" id="anamespacenavmap_html_a72a0bfe8353fc1630a2a6042659a0d42"><div class="ttname"><a href="namespacenavmap.html#a72a0bfe8353fc1630a2a6042659a0d42">navmap::for_each_on_segment</a></div><div class="ttdeci">bool for_each_on_segment(const NavMap &amp;nm, NavCelId seed, const Eigen::Vector3f &amp;a, const Eigen::Vector3f &amp;b, F &amp;&amp;f)</div><div class="ttdoc">Walks the surface along segment a -&gt; b (in XY), from seed (the NavCel under a), visiting each NavCel ...</div><div class="ttdef"><b>Definition</b> Iterators.hpp:458</div></div>
+<div class="ttc" id="anamespacenavmap_html_a7dac5d9d6f76ceddaff2b1ec9adb1e4a"><div class="ttname"><a href="namespacenavmap.html#a7dac5d9d6f76ceddaff2b1ec9adb1e4a">navmap::for_each_in_disc</a></div><div class="ttdeci">std::size_t for_each_in_disc(const NavMap &amp;nm, NavCelId seed, const Eigen::Vector3f &amp;center, float radius, F &amp;&amp;f, Metric metric=Metric::EUCLIDEAN, TraversalScratch *scratch=nullptr)</div><div class="ttdoc">Visits the NavCels within radius of center, connected to seed (which should contain the centre).</div><div class="ttdef"><b>Definition</b> Iterators.hpp:352</div></div>
+<div class="ttc" id="anamespacenavmap_html_abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d"><div class="ttname"><a href="namespacenavmap.html#abf74dfd688b4203cefa6d49f8d14403eab142d642e537e694b9314e1a56835f8d">navmap::Metric::EUCLIDEAN</a></div><div class="ttdeci">@ EUCLIDEAN</div><div class="ttdoc">3D distance from the centre to each NavCel centroid</div><div class="ttdef"><b>Definition</b> Iterators.hpp:53</div></div>
+<div class="ttc" id="anamespacenavmap_html_ad3af88be08d02713dc025616cc831847"><div class="ttname"><a href="namespacenavmap.html#ad3af88be08d02713dc025616cc831847">navmap::for_each_by_distance</a></div><div class="ttdeci">std::size_t for_each_by_distance(const NavMap &amp;nm, NavCelId seed, const Eigen::Vector3f &amp;center, float max_distance, F &amp;&amp;f, TraversalScratch *scratch=nullptr)</div><div class="ttdoc">Visits NavCels by geodesic distance from center, up to max_distance: a spiral over the surface (neare...</div><div class="ttdef"><b>Definition</b> Iterators.hpp:394</div></div>
+</div><!-- fragment --><p>Also <span class="tt">for_each_in_aabb</span> (every surface, via the BVH), <span class="tt">for_each_in_ring</span> and <span class="tt">for_each_in_polygon</span> (XY polygon on the seed's floor). <span class="tt">Metric::GEODESIC</span> measures along the surface and bends around borders; it is about 80 times costlier than <span class="tt">EUCLIDEAN</span>, so use it for occasional queries.</p>
+<hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
+7c. Unknown values and log-odds occupancy (<span class="tt">Occupancy.hpp</span>)</h1>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="Occupancy_8hpp.html">navmap_core/Occupancy.hpp</a>&gt;</span></div>
+<div class="line"> </div>
+<div class="line">nm.add_layer&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;elevation&quot;</span>, <span class="stringliteral">&quot;terrain height&quot;</span>, <span class="stringliteral">&quot;m&quot;</span>, 0.0f);</div>
+<div class="line">nm.set_layer_unknown(<span class="stringliteral">&quot;elevation&quot;</span>, std::numeric_limits&lt;double&gt;::quiet_NaN());  <span class="comment">// NaN = not surveyed</span></div>
+<div class="line"><span class="keywordtype">bool</span> unseen = nm.is_unknown(<span class="stringliteral">&quot;elevation&quot;</span>, cid);</div>
+<div class="line"> </div>
+<div class="line"><a class="code hl_class" href="classnavmap_1_1OccupancyLayer.html">navmap::OccupancyLayer</a> occ(nm);   <span class="comment">// int16 layer &quot;occupancy_logodds&quot;, all unknown</span></div>
+<div class="line">occ.miss(crossed_cid);            <span class="comment">// a ray crossed it</span></div>
+<div class="line">occ.hit(end_cid);                 <span class="comment">// a ray ended on it</span></div>
+<div class="line"><span class="keywordflow">if</span> (occ.state(cid) == <a class="code hl_enumvalue" href="namespacenavmap.html#ae9e3d1b163d5c551e0a3de7ab1f5b6f9a95bb06a35b7ae1afcf75777bb28ea62c">navmap::OccupancyState::OCCUPIED</a>) {<span class="comment">/* ... */</span>}</div>
+<div class="ttc" id="aOccupancy_8hpp_html"><div class="ttname"><a href="Occupancy_8hpp.html">Occupancy.hpp</a></div><div class="ttdoc">Probabilistic occupancy per NavCel: log-odds with clamping (as OctoMap), stored in an int16 layer in ...</div></div>
+<div class="ttc" id="aclassnavmap_1_1OccupancyLayer_html"><div class="ttname"><a href="classnavmap_1_1OccupancyLayer.html">navmap::OccupancyLayer</a></div><div class="ttdoc">Log-odds occupancy over an int16 layer of a NavMap.</div><div class="ttdef"><b>Definition</b> Occupancy.hpp:61</div></div>
+<div class="ttc" id="anamespacenavmap_html_ae9e3d1b163d5c551e0a3de7ab1f5b6f9a95bb06a35b7ae1afcf75777bb28ea62c"><div class="ttname"><a href="namespacenavmap.html#ae9e3d1b163d5c551e0a3de7ab1f5b6f9a95bb06a35b7ae1afcf75777bb28ea62c">navmap::OccupancyState::OCCUPIED</a></div><div class="ttdeci">@ OCCUPIED</div><div class="ttdef"><b>Definition</b> Occupancy.hpp:52</div></div>
+</div><!-- fragment --><p>The unknown value, description and unit of each layer travel in the message and in the file. Which NavCels a ray hits or crosses is up to the algorithm using it (see <span class="tt">for_each_on_segment</span>). <span class="tt">ros2 launch navmap_examples unknown_occupancy.launch.py</span> shows both in RViz2 (build with <span class="tt">-DBUILD_ROS_EXAMPLES=ON</span>).</p>
+<hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md31"></a>
+7d. Incremental updates (change tracking, <span class="tt">DistanceField.hpp</span>)</h1>
+<p>Layers record which NavCels changed since the last <span class="tt">clear_changes()</span> (<span class="tt">layer_set</span>, <span class="tt"><a class="el" href="classOccupancyLayer.html" title="Log-odds occupancy over an int16 layer of a NavMap.">OccupancyLayer</a></span>; bulk writes mark the whole layer), so a consumer only reprocesses what changed. <span class="tt"><a class="el" href="classDistanceField.html" title="Distance from each NavCel to the nearest seed (seed NavCels and, optionally, the open edges of the me...">DistanceField</a></span> keeps a distance-to-seed field up to date from the seed cells added and removed:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="DistanceField_8hpp.html">navmap_core/DistanceField.hpp</a>&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><a class="code hl_class" href="classnavmap_1_1DistanceField.html">navmap::DistanceField</a> df(nm, <span class="comment">/*from_boundary=*/</span><span class="keyword">true</span>, <span class="comment">/*max_distance=*/</span>0.7f);</div>
+<div class="line">df.compute(lethal_cells);                       <span class="comment">// once</span></div>
+<div class="line">df.update(newly_lethal, no_longer_lethal);      <span class="comment">// every cycle: cost of the area that changes</span></div>
+<div class="line"><span class="keywordflow">for</span> (<a class="code hl_typedef" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">navmap::NavCelId</a> c : df.changed()) {<span class="comment">/* recompute the cost of c from df[c] */</span>}</div>
+<div class="ttc" id="aDistanceField_8hpp_html"><div class="ttname"><a href="DistanceField_8hpp.html">DistanceField.hpp</a></div><div class="ttdoc">Incremental distance field over a NavMap, updated by the seed cells added and removed instead of reco...</div></div>
+<div class="ttc" id="aclassnavmap_1_1DistanceField_html"><div class="ttname"><a href="classnavmap_1_1DistanceField.html">navmap::DistanceField</a></div><div class="ttdoc">Distance from each NavCel to the nearest seed (seed NavCels and, optionally, the open edges of the me...</div><div class="ttdef"><b>Definition</b> DistanceField.hpp:51</div></div>
+</div><!-- fragment --><p>With a finite <span class="tt">max_distance</span> the field is exact (straight distance to the nearest seed reaching the NavCel over the surface), and identical after any sequence of updates to a full recomputation.</p>
+<hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md33"></a>
+7e. Geometric descriptors (<span class="tt">Descriptors.hpp</span>)</h1>
+<p><span class="tt">navmap::compute_descriptors(nm)</span> adds F32 layers per NavCel: <span class="tt">slope</span> (deg), <span class="tt">roughness</span> (RMS distance to the plane fitted in a disc, m), <span class="tt">step</span> (height span in a small disc, m) and <span class="tt">clearance</span> (free height to the next surface of the map above, m; +inf if none). Discs grow over the surface, so floors never mix. They only describe the surface: weighing them into a cost is up to the planner.</p>
+<hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md35"></a>
+7f. Links between surfaces (<span class="tt">SurfaceLink</span>)</h1>
+<p>Stairs, elevators or doors between NavCels that do not share an edge. The map only records them; whether a robot can take one, and at which cost, is up to the planner. They travel in the message and the file, and RViz2 draws them (<em>Draw Links</em>).</p>
+<div class="fragment"><div class="line">nm.add_link(ground_cid, upper_cid, <a class="code hl_enumvalue" href="namespacenavmap.html#a80f357f44615e61f34b3a588af18d783a0727a5b7a92dc07a4e5ed231272d0bde">navmap::LinkType::ELEVATOR</a>);            <span class="comment">// both ways</span></div>
+<div class="line">nm.add_link(top_cid, bottom_cid, <a class="code hl_enumvalue" href="namespacenavmap.html#a80f357f44615e61f34b3a588af18d783a0b2918cc4f3f0f320637c26126b519c4">navmap::LinkType::STAIRS</a>, 4.5f, <span class="keyword">false</span>);   <span class="comment">// one way, 4.5 m</span></div>
+<div class="line"><span class="keywordflow">for</span> (std::uint32_t i : nm.links_from(cid)) {<span class="keyword">const</span> <span class="keyword">auto</span> &amp; l = nm.links()[i]; <span class="comment">/* ... */</span>}</div>
+<div class="ttc" id="anamespacenavmap_html_a80f357f44615e61f34b3a588af18d783a0727a5b7a92dc07a4e5ed231272d0bde"><div class="ttname"><a href="namespacenavmap.html#a80f357f44615e61f34b3a588af18d783a0727a5b7a92dc07a4e5ed231272d0bde">navmap::LinkType::ELEVATOR</a></div><div class="ttdeci">@ ELEVATOR</div><div class="ttdef"><b>Definition</b> NavMap.hpp:543</div></div>
+<div class="ttc" id="anamespacenavmap_html_a80f357f44615e61f34b3a588af18d783a0b2918cc4f3f0f320637c26126b519c4"><div class="ttname"><a href="namespacenavmap.html#a80f357f44615e61f34b3a588af18d783a0b2918cc4f3f0f320637c26126b519c4">navmap::LinkType::STAIRS</a></div><div class="ttdeci">@ STAIRS</div><div class="ttdef"><b>Definition</b> NavMap.hpp:543</div></div>
+</div><!-- fragment --><hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md37"></a>
+7g. Combining layers (<span class="tt">Combine.hpp</span>)</h1>
+<p>Each source keeps its own layer (a static prior, obstacles from a sensor, a keep-out zone), and a master layer is composed from them with <span class="tt">navmap::combine_layer(nm, dst, src, op, options)</span>. The operators are those of costmap_2d: <span class="tt">OVERWRITE</span>, <span class="tt">TRUE_OVERWRITE</span>, <span class="tt">MAX</span>, <span class="tt">MAX_KEEP_UNKNOWN</span>, <span class="tt">MIN</span> and <span class="tt">ADD</span> (saturating at <span class="tt">options.cap</span>). Each layer's declared unknown value is respected, types may differ, <span class="tt">options.cells</span> restricts the work to the cells that changed, and <span class="tt">options.provenance</span> names a U8 layer that records which source set each cell. Clearing the sensor layer never erases the prior, because the sensor never writes it. The cost values (<span class="tt"><a class="el" href="Costs_8hpp.html" title="Values of a U8 cost layer, as in costmap_2d / Nav2 (so that bridging to them is a copy).">navmap_core/Costs.hpp</a></span>) are those of costmap_2d.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="Combine_8hpp.html">navmap_core/Combine.hpp</a>&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><a class="code hl_struct" href="structnavmap_1_1CombineOptions.html">navmap::CombineOptions</a> o;</div>
+<div class="line">o.<a class="code hl_variable" href="structnavmap_1_1CombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4">provenance</a> = <span class="stringliteral">&quot;source&quot;</span>;</div>
+<div class="line">o.<a class="code hl_variable" href="structnavmap_1_1CombineOptions.html#ad4fd79835f5ef941c9d455176d02477d">source_id</a> = 1;</div>
+<div class="line"><a class="code hl_function" href="namespacenavmap.html#a9f147e5d7c1b5aecd5595b6c5f394e2c">navmap::combine_layer</a>(nm, <span class="stringliteral">&quot;cost&quot;</span>, <span class="stringliteral">&quot;prior&quot;</span>, <a class="code hl_enumvalue" href="namespacenavmap.html#a5f0aff0a3be02d25f4e4eaadaac1fff1af29670cc57920e8ee8bb3b05ab8c560b">navmap::CombineOp::TRUE_OVERWRITE</a>, o);</div>
+<div class="line">o.<a class="code hl_variable" href="structnavmap_1_1CombineOptions.html#ad4fd79835f5ef941c9d455176d02477d">source_id</a> = 2;</div>
+<div class="line">o.<a class="code hl_variable" href="structnavmap_1_1CombineOptions.html#aaeffe5b1655a2b0b28301863263550ae">cells</a> = nm.layers.get(<span class="stringliteral">&quot;obstacles&quot;</span>)-&gt;changed();</div>
+<div class="line"><a class="code hl_function" href="namespacenavmap.html#a9f147e5d7c1b5aecd5595b6c5f394e2c">navmap::combine_layer</a>(nm, <span class="stringliteral">&quot;cost&quot;</span>, <span class="stringliteral">&quot;obstacles&quot;</span>, <a class="code hl_enumvalue" href="namespacenavmap.html#a5f0aff0a3be02d25f4e4eaadaac1fff1a26a4b44a837bf97b972628509912b4a5">navmap::CombineOp::MAX</a>, o);</div>
+<div class="ttc" id="aCombine_8hpp_html"><div class="ttname"><a href="Combine_8hpp.html">Combine.hpp</a></div><div class="ttdoc">Combining one layer into another with explicit operators, unknown-aware, with provenance.</div></div>
+<div class="ttc" id="anamespacenavmap_html_a5f0aff0a3be02d25f4e4eaadaac1fff1a26a4b44a837bf97b972628509912b4a5"><div class="ttname"><a href="namespacenavmap.html#a5f0aff0a3be02d25f4e4eaadaac1fff1a26a4b44a837bf97b972628509912b4a5">navmap::CombineOp::MAX</a></div><div class="ttdeci">@ MAX</div><div class="ttdoc">d = max(d, s); s replaces an unknown d; an unknown s is ignored</div><div class="ttdef"><b>Definition</b> Combine.hpp:46</div></div>
+<div class="ttc" id="anamespacenavmap_html_a5f0aff0a3be02d25f4e4eaadaac1fff1af29670cc57920e8ee8bb3b05ab8c560b"><div class="ttname"><a href="namespacenavmap.html#a5f0aff0a3be02d25f4e4eaadaac1fff1af29670cc57920e8ee8bb3b05ab8c560b">navmap::CombineOp::TRUE_OVERWRITE</a></div><div class="ttdeci">@ TRUE_OVERWRITE</div><div class="ttdoc">d = s, unknown included</div><div class="ttdef"><b>Definition</b> Combine.hpp:45</div></div>
+<div class="ttc" id="anamespacenavmap_html_a9f147e5d7c1b5aecd5595b6c5f394e2c"><div class="ttname"><a href="namespacenavmap.html#a9f147e5d7c1b5aecd5595b6c5f394e2c">navmap::combine_layer</a></div><div class="ttdeci">std::ptrdiff_t combine_layer(NavMap &amp;nm, const std::string &amp;dst, const std::string &amp;src, CombineOp op, const CombineOptions &amp;options={})</div><div class="ttdoc">Combine layer src into layer dst cell by cell with op.</div><div class="ttdef"><b>Definition</b> Combine.cpp:141</div></div>
+<div class="ttc" id="astructnavmap_1_1CombineOptions_html"><div class="ttname"><a href="structnavmap_1_1CombineOptions.html">navmap::CombineOptions</a></div><div class="ttdoc">Options of combine_layer().</div><div class="ttdef"><b>Definition</b> Combine.hpp:54</div></div>
+<div class="ttc" id="astructnavmap_1_1CombineOptions_html_a41ea8708157b1e6aab18d4700d9972c4"><div class="ttname"><a href="structnavmap_1_1CombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4">navmap::CombineOptions::provenance</a></div><div class="ttdeci">std::string provenance</div><div class="ttdoc">U8 layer recording which source set each cell (created if absent, 0 = none). Empty: no record.</div><div class="ttdef"><b>Definition</b> Combine.hpp:61</div></div>
+<div class="ttc" id="astructnavmap_1_1CombineOptions_html_aaeffe5b1655a2b0b28301863263550ae"><div class="ttname"><a href="structnavmap_1_1CombineOptions.html#aaeffe5b1655a2b0b28301863263550ae">navmap::CombineOptions::cells</a></div><div class="ttdeci">std::vector&lt; NavCelId &gt; cells</div><div class="ttdoc">Cells to combine (e.g. the source&#39;s changed()); all cells if empty.</div><div class="ttdef"><b>Definition</b> Combine.hpp:56</div></div>
+<div class="ttc" id="astructnavmap_1_1CombineOptions_html_ad4fd79835f5ef941c9d455176d02477d"><div class="ttname"><a href="structnavmap_1_1CombineOptions.html#ad4fd79835f5ef941c9d455176d02477d">navmap::CombineOptions::source_id</a></div><div class="ttdeci">std::uint8_t source_id</div><div class="ttdoc">Value written to the provenance layer for this source.</div><div class="ttdef"><b>Definition</b> Combine.hpp:63</div></div>
+</div><!-- fragment --><hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md39"></a>
+7h. Simplification that keeps the layers (<span class="tt">Simplify.hpp</span>)</h1>
+<p><span class="tt">navmap::simplify(nm, params)</span> merges NavCels where the surface is flat (within <span class="tt">max_error</span>) and the layers have the same value, and keeps the original ones where they change: every layer keeps its value at every point, open edges keep their shape and the topology does not change (floors, holes, links). <span class="tt">max_edge_length</span> bounds the NavCel size. Layers that are per-cell geometry (<span class="tt">elevation</span>, <span class="tt">support</span> from <span class="tt">from_points</span>) go in <span class="tt">ignore_layers</span>.</p>
+<div class="fragment"><div class="line">ros2 run navmap_tools navmap_simplify in.navmap out.navmap --max-error 0.02 \</div>
+<div class="line">  --ignore-layer elevation --ignore-layer support</div>
+</div><!-- fragment --><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Map (playgrounds)  </th><th class="markdownTableHeadNone">NavCels  </th><th class="markdownTableHeadNone"><span class="tt">max_error</span>  </th><th class="markdownTableHeadNone">After  </th><th class="markdownTableHeadNone">File (zlib)  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">home2_20cm</span> (occupancy grid)  </td><td class="markdownTableBodyNone">10 716  </td><td class="markdownTableBodyNone">0.02 m  </td><td class="markdownTableBodyNone">22.6 %  </td><td class="markdownTableBodyNone">248 KB → 16 KB  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">warehouse_20cm</span> (occupancy grid)  </td><td class="markdownTableBodyNone">18 720  </td><td class="markdownTableBodyNone">0.02 m  </td><td class="markdownTableBodyNone">21.4 %  </td><td class="markdownTableBodyNone">433 KB → 25 KB  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><span class="tt">parking_garage</span> (<span class="tt">from_points</span>)  </td><td class="markdownTableBodyNone">38 543  </td><td class="markdownTableBodyNone">0.02 / 0.1 m  </td><td class="markdownTableBodyNone">10.6 / 4.2 %  </td><td class="markdownTableBodyNone">1.06 MB → 56 / 24 KB  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><span class="tt">excavation_urjc</span> (<span class="tt">from_points</span>)  </td><td class="markdownTableBodyNone">29 728  </td><td class="markdownTableBodyNone">0.02 / 0.1 m  </td><td class="markdownTableBodyNone">67 / 38 %  </td><td class="markdownTableBodyNone">822 KB → 235 / 142 KB  </td></tr>
+</table>
+<hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md41"></a>
 8. Serialize to / from ROS messages</h1>
 <p>Conversion functions are provided in <span class="tt"><a class="el" href="namespacenavmap__ros.html" title="Conversions between core NavMap and ROS-level structures.">navmap_ros</a></span>:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="conversions_8hpp.html">navmap_ros/conversions.hpp</a>&gt;</span></div>
@@ -297,20 +409,27 @@ Dependencies</h2>
 <div class="line"><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> nm2 = <a class="code hl_function" href="namespacenavmap__ros.html#a303bf3630b9cdc3b17180af1a76210cb">navmap_ros::from_msg</a>(msg);</div>
 <div class="ttc" id="aconversions_8hpp_html"><div class="ttname"><a href="conversions_8hpp.html">conversions.hpp</a></div><div class="ttdoc">Conversions between the core NavMap representation and ROS messages.</div></div>
 <div class="ttc" id="anamespacenavmap__ros_html_a303bf3630b9cdc3b17180af1a76210cb"><div class="ttname"><a href="namespacenavmap__ros.html#a303bf3630b9cdc3b17180af1a76210cb">navmap_ros::from_msg</a></div><div class="ttdeci">navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap &amp;msg, std_msgs::msg::Header &amp;header)</div><div class="ttdoc">Reconstruct a core navmap::NavMap from the ROS transport message.</div></div>
-<div class="ttc" id="anamespacenavmap__ros_html_a498034a43d57cc22889b0b80b600c549"><div class="ttname"><a href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm, const std_msgs::msg::Header &amp;header)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:74</div></div>
+<div class="ttc" id="anamespacenavmap__ros_html_a498034a43d57cc22889b0b80b600c549"><div class="ttname"><a href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm, const std_msgs::msg::Header &amp;header)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:183</div></div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md29"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md43"></a>
+Layer updates</h2>
+<p><span class="tt"><a class="el" href="namespacenavmap__ros.html#a3a16849e5d9ef3a6edc29afce784f47e" title="Layer update with only what changed since the layer&#39;s last clear_changes().">navmap_ros::to_layer_update_msg</a>(nm, "obstacles")</span> publishes only what changed since the layer's last <span class="tt">clear_changes()</span>: a sparse <span class="tt">NavMapLayer</span> (<span class="tt">indices</span> + values) when few NavCels changed, the full layer otherwise. Every <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> and <span class="tt">NavMapLayer</span> message carries the map's <span class="tt">geometry_id</span>, so <span class="tt">from_msg</span> (and RViz2) reject updates meant for another geometry.</p>
+<hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md45"></a>
 9. Save and load from disk</h1>
-<p><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> supports saving and loading using YAML + mesh files:</p>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;navmap_ros/map_io.hpp&gt;</span></div>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="navmap__io_8hpp.html">navmap_ros/navmap_io.hpp</a>&gt;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="comment">// Save NavMap to disk</span></div>
-<div class="line">navmap_ros::saveMapToFile(nm, <span class="stringliteral">&quot;/tmp/navmap.yaml&quot;</span>);</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// Load NavMap from disk</span></div>
-<div class="line"><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> nm3 = navmap_ros::loadMapFromYaml(<span class="stringliteral">&quot;/tmp/navmap.yaml&quot;</span>);</div>
+<div class="line"><a class="code hl_function" href="namespacenavmap__ros_1_1io.html#aa19ad1ba39748ead755ba46cbf4eeff0">navmap_ros::io::save_to_file</a>(nm, <span class="stringliteral">&quot;/tmp/map.navmap&quot;</span>);     <span class="comment">// zlib-compressed by default</span></div>
+<div class="line"><a class="code hl_class" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> nm3;</div>
+<div class="line"><a class="code hl_function" href="namespacenavmap__ros_1_1io.html#acaf42fccfb899ffad41fa83d36c83b59">navmap_ros::io::load_from_file</a>(<span class="stringliteral">&quot;/tmp/map.navmap&quot;</span>, nm3);</div>
+<div class="ttc" id="anamespacenavmap__ros_1_1io_html_aa19ad1ba39748ead755ba46cbf4eeff0"><div class="ttname"><a href="namespacenavmap__ros_1_1io.html#aa19ad1ba39748ead755ba46cbf4eeff0">navmap_ros::io::save_to_file</a></div><div class="ttdeci">bool save_to_file(const navmap::NavMap &amp;map, const std::string &amp;path, const SaveOptions &amp;options={}, std::error_code *ec=nullptr)</div><div class="ttdoc">Save a navmap::NavMap by converting it to a message and serializing to disk.</div><div class="ttdef"><b>Definition</b> navmap_io.cpp:244</div></div>
+<div class="ttc" id="anamespacenavmap__ros_1_1io_html_acaf42fccfb899ffad41fa83d36c83b59"><div class="ttname"><a href="namespacenavmap__ros_1_1io.html#acaf42fccfb899ffad41fa83d36c83b59">navmap_ros::io::load_from_file</a></div><div class="ttdeci">bool load_from_file(const std::string &amp;path, navmap::NavMap &amp;out_map, std::error_code *ec=nullptr)</div><div class="ttdoc">Load a navmap::NavMap by deserializing a message and converting to core.</div><div class="ttdef"><b>Definition</b> navmap_io.cpp:254</div></div>
+<div class="ttc" id="anavmap__io_8hpp_html"><div class="ttname"><a href="navmap__io_8hpp.html">navmap_io.hpp</a></div><div class="ttdoc">Save/Load utilities for NavMap to/from disk using ROS 2 CDR serialization.</div></div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md31"></a>
+<blockquote class="doxtable">
+<p><b>File format.</b> <span class="tt">.<a class="el" href="namespacenavmap.html">navmap</a></span> files are version 2: the CDR-serialized <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> message (layer metadata, int16 layers, links, geometry id), zlib-compressed by default (<span class="tt">SaveOptions::compression</span>, <span class="tt">level</span>). zlib is available on every ROS distro and in the Python standard library. Version 1 files, and files without header, still load: they are migrated with a deprecation warning and rewritten in place when the location is writable. </p>
+</blockquote>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md47"></a>
 10. Classic low-level API</h1>
 <p>For advanced control you can still access internal data directly:</p>
 <div class="fragment"><div class="line"><span class="comment">// Access vertex positions</span></div>
@@ -323,17 +442,17 @@ Dependencies</h2>
 <div class="line">            &lt;&lt; <span class="stringliteral">&quot; centroid: &quot;</span> &lt;&lt; centroid.transpose() &lt;&lt; std::endl;</div>
 <div class="line">}</div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md33"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md49"></a>
 📦 Usage (Examples package)</h1>
 <p>In addition to the snippets above, the repository provides the package <span class="tt">navmap_examples</span> with ready-to-run executables.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md34"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md50"></a>
 Build</h2>
 <div class="fragment"><div class="line">colcon build --packages-select navmap_examples</div>
 </div><!-- fragment --><p>If your <span class="tt">navmap_core</span> / <span class="tt"><a class="el" href="namespacenavmap__ros.html" title="Conversions between core NavMap and ROS-level structures.">navmap_ros</a></span> do not yet export CMake targets, you can provide include paths:</p>
 <div class="fragment"><div class="line">colcon build --packages-select navmap_examples   --cmake-args -DNAVMAP_CORE_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_core/include                -DNAVMAP_ROS_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_ros/include</div>
 </div><!-- fragment --><p>Disable ROS 2 examples:</p>
 <div class="fragment"><div class="line">colcon build --packages-select navmap_examples --cmake-args -DBUILD_ROS_EXAMPLES=OFF</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md35"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md51"></a>
 Run core examples</h2>
 <div class="fragment"><div class="line">ros2 run navmap_examples 01_flat_plane</div>
 <div class="line">ros2 run navmap_examples 02_two_floors</div>
@@ -344,7 +463,7 @@ Run core examples</h2>
 <div class="line">ros2 run navmap_examples 07_raycast</div>
 <div class="line">ros2 run navmap_examples 08_copy_and_assign</div>
 </div><!-- fragment --><p>Each demonstrates a different feature: geometry creation, multi-surface, U8/F32 layers, centroids and neighbors, area marking, raycasting, and copy/assign semantics.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md36"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md52"></a>
 Run ROS 2 examples</h2>
 <p>If <span class="tt">BUILD_ROS_EXAMPLES=ON</span>:</p>
 <div class="fragment"><div class="line">ros2 run navmap_examples 01_from_occgrid</div>
@@ -353,25 +472,25 @@ Run ROS 2 examples</h2>
 </div><!-- fragment --><p>Or via launch:</p>
 <div class="fragment"><div class="line">ros2 launch navmap_examples navmap_to_occgrid.launch.py</div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md38"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md54"></a>
 🧪 Testing</h1>
-<p><a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> provides unit tests with GTest. To run them:</p>
+<p><a class="el" href="classNavMap.html">NavMap</a> provides unit tests with GTest. To run them:</p>
 <div class="fragment"><div class="line">colcon test --packages-select navmap_core navmap_ros</div>
 <div class="line">colcon test-result --verbose</div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md40"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
 🤝 Contributing</h1>
 <p>Contributions are welcome! Please open issues and pull requests on GitHub. <br  />
  Before submitting code, run the linters and tests:</p>
 <div class="fragment"><div class="line">colcon test</div>
 <div class="line">ament_lint_auto</div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md42"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
 📜 License</h1>
 <p>This project is licensed under the <b>Apache 2 License</b>. <br  />
  See the [LICENSE](LICENSE) file for details.</p>
 <hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md44"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
 🙏 Acknowledgements</h1>
 <p>Developed at the <b>Intelligent Robotics Lab (Universidad Rey Juan Carlos)</b>. <br  />
  Part of the Easy Navigation (EasyNav) project. </p>

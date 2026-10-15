@@ -1,0 +1,7 @@
+<map id="Envelope" name="Envelope">
+<area shape="rect" id="Node000001" title=" " alt="" coords="47,143,122,168"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,73,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="41,46,44,81,54,117,72,141,68,144,49,120,38,82,35,46"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="97,5,165,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="127,47,104,120,93,144,88,141,99,118,122,45"/>
+</map>

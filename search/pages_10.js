@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['instructions_0',['⚙️ Build instructions',['../index.html#autotoc_md7',1,'']]]
+  ['hpp_0',['hpp',['../index.html#autotoc_md27',1,'7b. Iterating over NavCels (&lt;span class=&quot;tt&quot;&gt;Iterators.hpp&lt;/span&gt;)'],['../index.html#autotoc_md29',1,'7c. Unknown values and log-odds occupancy (&lt;span class=&quot;tt&quot;&gt;Occupancy.hpp&lt;/span&gt;)'],['../index.html#autotoc_md31',1,'7d. Incremental updates (change tracking, &lt;span class=&quot;tt&quot;&gt;DistanceField.hpp&lt;/span&gt;)'],['../index.html#autotoc_md33',1,'7e. Geometric descriptors (&lt;span class=&quot;tt&quot;&gt;Descriptors.hpp&lt;/span&gt;)'],['../index.html#autotoc_md37',1,'7g. Combining layers (&lt;span class=&quot;tt&quot;&gt;Combine.hpp&lt;/span&gt;)'],['../index.html#autotoc_md39',1,'7h. Simplification that keeps the layers (&lt;span class=&quot;tt&quot;&gt;Simplify.hpp&lt;/span&gt;)']]]
 ];

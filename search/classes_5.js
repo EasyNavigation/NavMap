@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['positions_0',['Positions',['../structnavmap_1_1Positions.html',1,'navmap']]]
+  ['front_0',['Front',['../structnavmap_1_1TraversalScratch_1_1Front.html',1,'TraversalScratch::Front'],['../structTraversalScratch_1_1Front.html',1,'TraversalScratch::Front']]]
 ];

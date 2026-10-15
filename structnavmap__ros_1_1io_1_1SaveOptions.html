@@ -112,20 +112,26 @@ Collaboration diagram for SaveOptions:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap__ros_1_1io_1_1SaveOptions__coll__graph.png" border="0" usemap="#aSaveOptions_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aSaveOptions_coll__map" id="aSaveOptions_coll__map">
-<area shape="rect" title="Save options." alt="" coords="5,102,102,128"/>
-<area shape="rect" title=" " alt="" coords="31,5,76,31"/>
-<area shape="poly" title=" " alt="" coords="56,46,56,101,51,101,51,46"/>
+<area shape="rect" title="Save options." alt="" coords="76,102,172,128"/>
+<area shape="rect" title=" " alt="" coords="5,5,51,31"/>
+<area shape="poly" title=" " alt="" coords="48,41,79,76,108,100,104,104,75,80,44,45"/>
+<area shape="rect" title=" " alt="" coords="75,5,173,31"/>
+<area shape="poly" title=" " alt="" coords="127,46,127,101,121,101,121,46"/>
+<area shape="rect" title=" " alt="" coords="218,5,257,31"/>
+<area shape="poly" title=" " alt="" coords="231,47,222,64,210,80,191,94,170,104,167,99,188,89,206,76,218,61,226,44"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a07a6bb9578ba69062c2abaac7a0422ae" id="r_a07a6bb9578ba69062c2abaac7a0422ae"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a07a6bb9578ba69062c2abaac7a0422ae">binary</a> {true}</td></tr>
-<tr class="memdesc:a07a6bb9578ba69062c2abaac7a0422ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">If <code>true</code>, save in binary (CDR). Reserved for future options.  <br /></td></tr>
+<tr class="memdesc:a07a6bb9578ba69062c2abaac7a0422ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unused (always binary CDR); kept for source compatibility.  <br /></td></tr>
+<tr class="memitem:a4d715fc2d1d542a901f2681ab924bcde" id="r_a4d715fc2d1d542a901f2681ab924bcde"><td class="memItemLeft"><a class="el" href="namespacenavmap__ros_1_1io.html#a56a83bf6847f4801f4205eb4be237ccf">Compression</a>&#160;</td><td class="memItemRight"><a class="el" href="#a4d715fc2d1d542a901f2681ab924bcde">compression</a> {<a class="el" href="namespacenavmap__ros_1_1io.html#a56a83bf6847f4801f4205eb4be237ccfa87c23ff88ac9b1c4390a679b63ea3b8c">Compression::ZLIB</a>}</td></tr>
+<tr class="memitem:acf4d33ee4cff36f69b924471174dcb11" id="r_acf4d33ee4cff36f69b924471174dcb11"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#acf4d33ee4cff36f69b924471174dcb11">level</a> {6}</td></tr>
+<tr class="memdesc:acf4d33ee4cff36f69b924471174dcb11"><td class="mdescLeft">&#160;</td><td class="mdescRight">zlib level, 1 (fast) to 9 (small)  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Save options. </p>
-<dl class="section note"><dt>Note</dt><dd>Currently a placeholder for future extensions (e.g., compression). </dd></dl>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
 <a id="a07a6bb9578ba69062c2abaac7a0422ae" name="a07a6bb9578ba69062c2abaac7a0422ae"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a07a6bb9578ba69062c2abaac7a0422ae">&#9670;&#160;</a></span>binary</h2>
@@ -139,7 +145,37 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>If <code>true</code>, save in binary (CDR). Reserved for future options. </p>
+<p>Unused (always binary CDR); kept for source compatibility. </p>
+
+</div>
+</div>
+<a id="a4d715fc2d1d542a901f2681ab924bcde" name="a4d715fc2d1d542a901f2681ab924bcde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d715fc2d1d542a901f2681ab924bcde">&#9670;&#160;</a></span>compression</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacenavmap__ros_1_1io.html#a56a83bf6847f4801f4205eb4be237ccf">Compression</a> compression {<a class="el" href="namespacenavmap__ros_1_1io.html#a56a83bf6847f4801f4205eb4be237ccfa87c23ff88ac9b1c4390a679b63ea3b8c">Compression::ZLIB</a>}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acf4d33ee4cff36f69b924471174dcb11" name="acf4d33ee4cff36f69b924471174dcb11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf4d33ee4cff36f69b924471174dcb11">&#9670;&#160;</a></span>level</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int level {6}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>zlib level, 1 (fast) to 9 (small) </p>
 
 </div>
 </div>

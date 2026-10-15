@@ -96,23 +96,24 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">navmap_ros Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Conversions between core <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> and ROS-level structures.  
+<p>Conversions between core <a class="el" href="classNavMap.html">NavMap</a> and ROS-level structures.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:io" id="r_io"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacenavmap__ros_1_1io.html">io</a></td></tr>
-<tr class="memdesc:namespacenavmap__ros_1_1io"><td class="mdescLeft">&#160;</td><td class="mdescRight">IO helpers to persist <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> objects to/from disk. <br /></td></tr>
+<tr class="memdesc:namespacenavmap__ros_1_1io"><td class="mdescLeft">&#160;</td><td class="mdescRight">IO helpers to persist <a class="el" href="classNavMap.html">NavMap</a> objects to/from disk. <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:BuildParams" id="r_BuildParams"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters controlling <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> construction from point clouds.  <a href="structnavmap__ros_1_1BuildParams.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters controlling <a class="el" href="classNavMap.html">NavMap</a> construction from point clouds.  <a href="structnavmap__ros_1_1BuildParams.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-typedef-members" class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -126,54 +127,51 @@ Functions</h2></td></tr>
 <tr class="memitem:ac70f12eb1f059a42b6993cb612720ea0" id="r_ac70f12eb1f059a42b6993cb612720ea0"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac70f12eb1f059a42b6993cb612720ea0">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
 <tr class="memdesc:ac70f12eb1f059a42b6993cb612720ea0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload (ignores message header).  <br /></td></tr>
 <tr class="memitem:a303bf3630b9cdc3b17180af1a76210cb" id="r_a303bf3630b9cdc3b17180af1a76210cb"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a303bf3630b9cdc3b17180af1a76210cb">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg, std_msgs::msg::Header &amp;header)</td></tr>
-<tr class="memdesc:a303bf3630b9cdc3b17180af1a76210cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reconstruct a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> from the ROS transport message.  <br /></td></tr>
+<tr class="memdesc:a303bf3630b9cdc3b17180af1a76210cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reconstruct a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> from the ROS transport message.  <br /></td></tr>
 <tr class="memitem:a570457f653972601dcd8b1fa821af02a" id="r_a570457f653972601dcd8b1fa821af02a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a570457f653972601dcd8b1fa821af02a">from_msg</a> (const navmap_ros_interfaces::msg::NavMapLayer &amp;msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:a570457f653972601dcd8b1fa821af02a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload (ignores message header).  <br /></td></tr>
 <tr class="memitem:a29bdd7baf8e232e74d5c960a1993d856" id="r_a29bdd7baf8e232e74d5c960a1993d856"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a29bdd7baf8e232e74d5c960a1993d856">from_msg</a> (const navmap_ros_interfaces::msg::NavMapLayer &amp;msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, std_msgs::msg::Header &amp;header)</td></tr>
-<tr class="memdesc:a29bdd7baf8e232e74d5c960a1993d856"><td class="mdescLeft">&#160;</td><td class="mdescRight">Import a single NavMapLayer message into a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>.  <br /></td></tr>
+<tr class="memdesc:a29bdd7baf8e232e74d5c960a1993d856"><td class="mdescLeft">&#160;</td><td class="mdescRight">Import a single NavMapLayer message into a <a class="el" href="classNavMap.html">NavMap</a>.  <br /></td></tr>
 <tr class="memitem:af26f003771b7de20efd8c9d2c3c519c8" id="r_af26f003771b7de20efd8c9d2c3c519c8"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#af26f003771b7de20efd8c9d2c3c519c8">from_occupancy_grid</a> (const nav_msgs::msg::OccupancyGrid &amp;grid)</td></tr>
 <tr class="memdesc:af26f003771b7de20efd8c9d2c3c519c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload (ignores grid header).  <br /></td></tr>
 <tr class="memitem:afffebef87c724021d5e855c6bebfaff7" id="r_afffebef87c724021d5e855c6bebfaff7"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#afffebef87c724021d5e855c6bebfaff7">from_occupancy_grid</a> (const nav_msgs::msg::OccupancyGrid &amp;grid, std_msgs::msg::Header &amp;header)</td></tr>
-<tr class="memdesc:afffebef87c724021d5e855c6bebfaff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> from a <span class="tt">nav_msgs::msg::OccupancyGrid</span> using a regular triangular surface with shared vertices.  <br /></td></tr>
+<tr class="memdesc:afffebef87c724021d5e855c6bebfaff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> from a <span class="tt">nav_msgs::msg::OccupancyGrid</span> using a regular triangular surface with shared vertices.  <br /></td></tr>
 <tr class="memitem:af1d0f450cee491ef385215a317c6876a" id="r_af1d0f450cee491ef385215a317c6876a"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#af1d0f450cee491ef385215a317c6876a">from_pointcloud2</a> (const sensor_msgs::msg::PointCloud2 &amp;pc2, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
-<tr class="memdesc:af1d0f450cee491ef385215a317c6876a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a ROS <span class="tt">sensor_msgs::msg::PointCloud2</span>.  <br /></td></tr>
+<tr class="memdesc:af1d0f450cee491ef385215a317c6876a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html">NavMap</a> surface from a ROS <span class="tt">sensor_msgs::msg::PointCloud2</span>.  <br /></td></tr>
 <tr class="memitem:a731ad13a79c7d061fba796add4aea852" id="r_a731ad13a79c7d061fba796add4aea852"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a731ad13a79c7d061fba796add4aea852">from_points</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
-<tr class="memdesc:a731ad13a79c7d061fba796add4aea852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> from an unorganized point cloud (multi-level grid triangulation).  <br /></td></tr>
+<tr class="memdesc:a731ad13a79c7d061fba796add4aea852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html">NavMap</a> from an unorganized point cloud (multi-level grid triangulation).  <br /></td></tr>
 <tr class="memitem:ad865ae66bd00fdd94fac6609b436cf02" id="r_ad865ae66bd00fdd94fac6609b436cf02"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ad865ae66bd00fdd94fac6609b436cf02">from_regular_grid</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;grid_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
-<tr class="memdesc:ad865ae66bd00fdd94fac6609b436cf02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud.  <br /></td></tr>
+<tr class="memdesc:ad865ae66bd00fdd94fac6609b436cf02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud.  <br /></td></tr>
+<tr class="memitem:a3a16849e5d9ef3a6edc29afce784f47e" id="r_a3a16849e5d9ef3a6edc29afce784f47e"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMapLayer&#160;</td><td class="memItemRight"><a class="el" href="#a3a16849e5d9ef3a6edc29afce784f47e">to_layer_update_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std::string &amp;layer, const std_msgs::msg::Header &amp;header=std_msgs::msg::Header(), float max_sparse_fraction=0.25f)</td></tr>
+<tr class="memdesc:a3a16849e5d9ef3a6edc29afce784f47e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer update with only what changed since the layer's last clear_changes().  <br /></td></tr>
 <tr class="memitem:aba26a033fbd9456e2368c8f49f62779e" id="r_aba26a033fbd9456e2368c8f49f62779e"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMap&#160;</td><td class="memItemRight"><a class="el" href="#aba26a033fbd9456e2368c8f49f62779e">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:aba26a033fbd9456e2368c8f49f62779e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload (no header provided).  <br /></td></tr>
 <tr class="memitem:aa68b7b4a46e881dc9304c50a73e69d7d" id="r_aa68b7b4a46e881dc9304c50a73e69d7d"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMapLayer&#160;</td><td class="memItemRight"><a class="el" href="#aa68b7b4a46e881dc9304c50a73e69d7d">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std::string &amp;layer)</td></tr>
 <tr class="memdesc:aa68b7b4a46e881dc9304c50a73e69d7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload (no header provided).  <br /></td></tr>
 <tr class="memitem:abada4447f5fc66723c31dd4ebe15eab2" id="r_abada4447f5fc66723c31dd4ebe15eab2"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMapLayer&#160;</td><td class="memItemRight"><a class="el" href="#abada4447f5fc66723c31dd4ebe15eab2">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std::string &amp;layer, const std_msgs::msg::Header &amp;header)</td></tr>
-<tr class="memdesc:abada4447f5fc66723c31dd4ebe15eab2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a single layer from a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> into a ROS message.  <br /></td></tr>
+<tr class="memdesc:abada4447f5fc66723c31dd4ebe15eab2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a single layer from a <a class="el" href="classNavMap.html">NavMap</a> into a ROS message.  <br /></td></tr>
 <tr class="memitem:a498034a43d57cc22889b0b80b600c549" id="r_a498034a43d57cc22889b0b80b600c549"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMap&#160;</td><td class="memItemRight"><a class="el" href="#a498034a43d57cc22889b0b80b600c549">to_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std_msgs::msg::Header &amp;header)</td></tr>
-<tr class="memdesc:a498034a43d57cc22889b0b80b600c549"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> into its compact ROS transport message.  <br /></td></tr>
+<tr class="memdesc:a498034a43d57cc22889b0b80b600c549"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> into its compact ROS transport message.  <br /></td></tr>
 <tr class="memitem:a42165113e6236698fe947ca8ffa69bc8" id="r_a42165113e6236698fe947ca8ffa69bc8"><td class="memItemLeft">nav_msgs::msg::OccupancyGrid&#160;</td><td class="memItemRight"><a class="el" href="#a42165113e6236698fe947ca8ffa69bc8">to_occupancy_grid</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm)</td></tr>
 <tr class="memdesc:a42165113e6236698fe947ca8ffa69bc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload.  <br /></td></tr>
 <tr class="memitem:a185f2164687718cb363751dce8cfe900" id="r_a185f2164687718cb363751dce8cfe900"><td class="memItemLeft">nav_msgs::msg::OccupancyGrid&#160;</td><td class="memItemRight"><a class="el" href="#a185f2164687718cb363751dce8cfe900">to_occupancy_grid</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std_msgs::msg::Header &amp;header)</td></tr>
-<tr class="memdesc:a185f2164687718cb363751dce8cfe900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> back to <span class="tt">nav_msgs::msg::OccupancyGrid</span>.  <br /></td></tr>
+<tr class="memdesc:a185f2164687718cb363751dce8cfe900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> back to <span class="tt">nav_msgs::msg::OccupancyGrid</span>.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr id="var-members-0" class="groupHeader"><td colspan="2"><div class="groupHeader">Costmap value semantics</div></td></tr>
-<tr><td colspan="2" class="ititle"><div class="groupText"><p>Standardized occupancy/cost values used when projecting <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> layers onto a 2D grid (compatible with <span class="tt">costmap_2d</span> conventions).</p>
-<p>These constants follow the same meaning as in <span class="tt">costmap_2d</span>:</p><ul>
-<li><span class="tt"><a class="el" href="#a25c6ea3d54a1076fb294ba10b49f22f3">NO_INFORMATION</a></span> (255): Unknown or unobserved area.</li>
-<li><span class="tt"><a class="el" href="#a588ceea73cabcebbd8ccf4bdc9aea979">LETHAL_OBSTACLE</a></span> (254): Non-traversable obstacle.</li>
-<li><span class="tt"><a class="el" href="#ad3256d9191d4add6559784daf93c16a1">INSCRIBED_INFLATED_OBSTACLE</a></span> (253): Inside the robot’s inscribed radius.</li>
-<li><span class="tt"><a class="el" href="#aae5c24b1ea105fa4c97a23cd368ddcf9">MAX_NON_OBSTACLE</a></span> (252): Highest cost still considered traversable.</li>
-<li><span class="tt"><a class="el" href="#addc6b5ef2555b7792016c6b3f5d9d320">FREE_SPACE</a></span> (0): Known free space. </li>
-</ul>
-</div></td></tr>
-<tr class="memitem:a25c6ea3d54a1076fb294ba10b49f22f3" id="r_a25c6ea3d54a1076fb294ba10b49f22f3"><td class="memItemLeft">constexpr uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a25c6ea3d54a1076fb294ba10b49f22f3">NO_INFORMATION</a> = 255</td></tr>
-<tr class="memitem:a588ceea73cabcebbd8ccf4bdc9aea979" id="r_a588ceea73cabcebbd8ccf4bdc9aea979"><td class="memItemLeft">constexpr uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a588ceea73cabcebbd8ccf4bdc9aea979">LETHAL_OBSTACLE</a> = 254</td></tr>
-<tr class="memitem:ad3256d9191d4add6559784daf93c16a1" id="r_ad3256d9191d4add6559784daf93c16a1"><td class="memItemLeft">constexpr uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#ad3256d9191d4add6559784daf93c16a1">INSCRIBED_INFLATED_OBSTACLE</a> = 253</td></tr>
-<tr class="memitem:aae5c24b1ea105fa4c97a23cd368ddcf9" id="r_aae5c24b1ea105fa4c97a23cd368ddcf9"><td class="memItemLeft">constexpr uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#aae5c24b1ea105fa4c97a23cd368ddcf9">MAX_NON_OBSTACLE</a> = 252</td></tr>
-<tr class="memitem:addc6b5ef2555b7792016c6b3f5d9d320" id="r_addc6b5ef2555b7792016c6b3f5d9d320"><td class="memItemLeft">constexpr uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#addc6b5ef2555b7792016c6b3f5d9d320">FREE_SPACE</a> = 0</td></tr>
+<tr class="memitem:a7a65269933e0dbc23c558a608feb349a" id="r_a7a65269933e0dbc23c558a608feb349a"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a7a65269933e0dbc23c558a608feb349a">FREE_SPACE</a></td></tr>
+<tr class="memdesc:a7a65269933e0dbc23c558a608feb349a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Known free.  <br /></td></tr>
+<tr class="memitem:af26307054451995d1e1dc0146e4b5cdd" id="r_af26307054451995d1e1dc0146e4b5cdd"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#af26307054451995d1e1dc0146e4b5cdd">INSCRIBED_INFLATED_OBSTACLE</a></td></tr>
+<tr class="memdesc:af26307054451995d1e1dc0146e4b5cdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The robot would touch an obstacle.  <br /></td></tr>
+<tr class="memitem:a83262c1ef071fac056488a671b8bea04" id="r_a83262c1ef071fac056488a671b8bea04"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a83262c1ef071fac056488a671b8bea04">LETHAL_OBSTACLE</a></td></tr>
+<tr class="memdesc:a83262c1ef071fac056488a671b8bea04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obstacle.  <br /></td></tr>
+<tr class="memitem:a3d75017364e2da8cf2dd9dd2cce2725d" id="r_a3d75017364e2da8cf2dd9dd2cce2725d"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a3d75017364e2da8cf2dd9dd2cce2725d">MAX_NON_OBSTACLE</a></td></tr>
+<tr class="memdesc:a3d75017364e2da8cf2dd9dd2cce2725d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highest traversable cost.  <br /></td></tr>
+<tr class="memitem:a7094ff8c6514c9670856617147e52d7b" id="r_a7094ff8c6514c9670856617147e52d7b"><td class="memItemLeft">constexpr std::uint8_t&#160;</td><td class="memItemRight"><a class="el" href="#a7094ff8c6514c9670856617147e52d7b">NO_INFORMATION</a></td></tr>
+<tr class="memdesc:a7094ff8c6514c9670856617147e52d7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown, not observed.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Conversions between core <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> and ROS-level structures. </p>
+<div class="textblock"><p>Conversions between core <a class="el" href="classNavMap.html">NavMap</a> and ROS-level structures. </p>
 </div><a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Typedef Documentation</h2>
 <a id="a37d0f527460c6073c32227c05174f022" name="a37d0f527460c6073c32227c05174f022"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a37d0f527460c6073c32227c05174f022">&#9670;&#160;</a></span>Triangle</h2>
@@ -302,7 +300,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Reconstruct a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> from the ROS transport message. </p>
+<p>Reconstruct a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> from the ROS transport message. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">msg</td><td>Input <span class="tt">navmap_ros_interfaces::msg::NavMap</span> message. </td></tr>
@@ -310,7 +308,7 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> equivalent to the content of <code class="param">msg</code>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> equivalent to the content of <code class="param">msg</code>.</dd></dl>
 <ul>
 <li>Intended to be the inverse of <a class="el" href="#a498034a43d57cc22889b0b80b600c549" title="Convert a core navmap::NavMap into its compact ROS transport message.">navmap_ros::to_msg</a> for a round-trip without loss.</li>
 <li>Assumes that the message is internally consistent (sizes and indices match).</li>
@@ -371,23 +369,24 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Import a single NavMapLayer message into a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </p>
+<p>Import a single NavMapLayer message into a <a class="el" href="classNavMap.html">NavMap</a>. </p>
 <p>If the layer already exists in <code class="param">nm</code>, it is overwritten. Otherwise, it is created. Performs type dispatch based on the message field <span class="tt">type</span>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">msg</td><td>Input NavMapLayer message. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">nm</td><td>Destination <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> (must already have navcels sized correctly). </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">nm</td><td>Destination <a class="el" href="classNavMap.html">NavMap</a> (must already have navcels sized correctly). </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">header</td><td>Header extracted from the message.</td></tr>
   </table>
   </dd>
 </dl>
 <ul>
-<li>The function verifies that the length of the populated data array matches the number of triangles (NavCels) in <code class="param">nm</code>.</li>
-<li>Exactly one of the arrays <span class="tt">data_u8</span>, <span class="tt">data_f32</span>, or <span class="tt">data_f64</span> must be set.</li>
+<li>Exactly one of the arrays <span class="tt">data_u8</span>, <span class="tt">data_f32</span>, <span class="tt">data_f64</span> or <span class="tt">data_i16</span> must be set.</li>
+<li>With <span class="tt">indices</span>, only those NavCels are written (sparse update of an existing layer of the same type); without them, the whole layer is replaced, with its metadata.</li>
+<li>A message whose <span class="tt">geometry_id</span> is set and differs from nm.geometry_id() is rejected.</li>
 </ul>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td>If sizes are inconsistent or the message is ill-formed. </td></tr>
+    <tr><td class="paramname">std::runtime_error</td><td>If the message belongs to another geometry, a sparse update does not match its layer, or the type is unsupported. </td></tr>
   </table>
   </dd>
 </dl>
@@ -432,7 +431,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> from a <span class="tt">nav_msgs::msg::OccupancyGrid</span> using a regular triangular surface with shared vertices. </p>
+<p>Build a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> from a <span class="tt">nav_msgs::msg::OccupancyGrid</span> using a regular triangular surface with shared vertices. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">grid</td><td>Input ROS OccupancyGrid (row-major, width×height, resolution and origin). </td></tr>
@@ -440,7 +439,7 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> with:<ul>
+<dl class="section return"><dt>Returns</dt><dd>A core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> with:<ul>
 <li>Vertices: <span class="tt">(W+1) * (H+1)</span> laid on the grid plane, with <span class="tt">Z = grid.info.origin.position.z</span>.</li>
 <li>Triangles: <span class="tt">2 * W * H</span> (two per cell), using diagonal pattern = 0.</li>
 <li>One surface whose frame matches <span class="tt">grid.header.frame_id</span>, and grid metadata filled.</li>
@@ -480,20 +479,20 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from a ROS <span class="tt">sensor_msgs::msg::PointCloud2</span>. </p>
+<p>Build a <a class="el" href="classNavMap.html">NavMap</a> surface from a ROS <span class="tt">sensor_msgs::msg::PointCloud2</span>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">pc2</td><td>Input PointCloud2 message (expects fields <span class="tt">x</span>, <span class="tt">y</span>, <span class="tt">z</span>). </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html">NavMap</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">params</td><td>Meshing and filtering parameters (see ::BuildParams). </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span>.</dd></dl>
 <ul>
 <li>The cloud is decoded to <span class="tt">pcl::PointXYZ</span> and processed as in <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap from an unorganized point cloud (multi-level grid triangulation).">navmap_ros::from_points</a>.</li>
 <li>Non-Cartesian fields present in <code class="param">pc2</code> are ignored by this overload.</li>
-<li>The resulting <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> is exported to <code class="param">out_msg</code> for downstream publication or storage.</li>
+<li>The resulting <a class="el" href="classNavMap.html">NavMap</a> is exported to <code class="param">out_msg</code> for downstream publication or storage.</li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>If the message is empty or lacks the required fields, no geometry is produced. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
@@ -529,16 +528,16 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> from an unorganized point cloud (multi-level grid triangulation). </p>
+<p>Build a <a class="el" href="classNavMap.html">NavMap</a> from an unorganized point cloud (multi-level grid triangulation). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">input_points</td><td>Point set in world coordinates (<span class="tt">pcl::PointXYZ</span>). </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html">NavMap</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">params</td><td>Meshing and filtering parameters (see ::BuildParams). </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> (empty if nothing could be meshed).</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> (empty if nothing could be meshed).</dd></dl>
 <ul>
 <li>Points are binned in XY cells of <code class="param">params.resolution</code>. In each cell, points closer than max(min_clearance, max_dz) in z form one level. Its height at the cell centre comes from a robust plane fit of its upper face (points above a gap of max_dz / 2, e.g. a slab seen from above and below); a face whose spread around the plane exceeds max_dz is clutter and keeps a high top (an obstacle). Stacked floors give several vertices per cell.</li>
 <li>Enclosed empty regions up to max_hole_area are filled by interpolating the levels present around most of their border.</li>
@@ -574,17 +573,57 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Build a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud. </p>
+<p>Build a <a class="el" href="classNavMap.html">NavMap</a> surface from an <em>organized</em> (grid-shaped) PCL point cloud. </p>
 <p>Unlike <a class="el" href="#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap from an unorganized point cloud (multi-level grid triangulation).">navmap_ros::from_points</a> &ndash; which discovers connectivity by neighbor search over an otherwise-unstructured point set, a heuristic that needs either a generous <code class="param">params.neighbor_radius</code> (at real cost in redundant, overlapping triangles) or leaves gaps on an evenly-sampled surface even when every cell is individually navigable &ndash; this overload takes a cloud whose grid connectivity is <em>already known</em> (row-major, <span class="tt">cloud.width</span> x <span class="tt">cloud.height</span>, exactly as PCL's own "organized point cloud" convention) and builds the two triangles per grid cell directly from the (i, j) indices, the same deterministic scheme <a class="el" href="#afffebef87c724021d5e855c6bebfaff7" title="Build a navmap::NavMap from a nav_msgs::msg::OccupancyGrid using a regular triangular surface with sh...">navmap_ros::from_occupancy_grid</a> already uses. No neighbor search, no possibility of a meshing-artifact gap: the only triangles skipped are ones that fail the slope filter (<code class="param">params.max_slope_deg</code>) or reference a non-finite vertex, i.e. every remaining hole is a real "not navigable here" gap, not a search-radius artifact.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">grid_points</td><td>Organized point set (<span class="tt">cloud.height</span> must be &gt; 1); row j, column i is at index <span class="tt">j * cloud.width + i</span>. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out_msg</td><td>Output transport message mirroring the created <a class="el" href="classNavMap.html">NavMap</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">params</td><td>Only <code class="param">params.max_slope_deg</code> and <code class="param">params.max_surfaces</code> apply here; the neighbor-search/edge-length/angle fields are meaningless without a search step and are ignored. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span>; empty if <code class="param">grid_points</code> is not organized (<span class="tt">height &lt;= 1</span>) or is smaller than 2x2. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The constructed <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span>; empty if <code class="param">grid_points</code> is not organized (<span class="tt">height &lt;= 1</span>) or is smaller than 2x2. </dd></dl>
+
+</div>
+</div>
+<a id="a3a16849e5d9ef3a6edc29afce784f47e" name="a3a16849e5d9ef3a6edc29afce784f47e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a16849e5d9ef3a6edc29afce784f47e">&#9670;&#160;</a></span>to_layer_update_msg()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">navmap_ros_interfaces::msg::NavMapLayer to_layer_update_msg </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>layer</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std_msgs::msg::Header &amp;</td>          <td class="paramname"><span class="paramname"><em>header</em></span><span class="paramdefsep"> = </span><span class="paramdefval">std_msgs::msg::Header()</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>max_sparse_fraction</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0.25f</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Layer update with only what changed since the layer's last clear_changes(). </p>
+<p>Sparse (indices + values) when few NavCels changed one by one; the full layer when the whole layer changed, nothing did, or more than <code class="param">max_sparse_fraction</code> of it did. Carries the geometry id, so a receiver can reject an update for another map. Does not clear the changes.</p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>If the layer does not exist. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -655,10 +694,10 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Convert a single layer from a <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> into a ROS message. </p>
+<p>Convert a single layer from a <a class="el" href="classNavMap.html">NavMap</a> into a ROS message. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">nm</td><td>Input <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nm</td><td>Input <a class="el" href="classNavMap.html">NavMap</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">layer</td><td>Name of the layer to export. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">header</td><td>Header to assign to the resulting message. </td></tr>
   </table>
@@ -697,10 +736,10 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Convert a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> into its compact ROS transport message. </p>
+<p>Convert a core <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> into its compact ROS transport message. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">nm</td><td>Core <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> to be serialized into a ROS message. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nm</td><td>Core <a class="el" href="classNavMap.html">NavMap</a> to be serialized into a ROS message. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">header</td><td>Header to assign to the resulting message. </td></tr>
   </table>
   </dd>
@@ -752,10 +791,10 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Convert a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a></span> back to <span class="tt">nav_msgs::msg::OccupancyGrid</span>. </p>
+<p>Convert a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> back to <span class="tt">nav_msgs::msg::OccupancyGrid</span>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">nm</td><td>Core <a class="el" href="classNavMap.html" title="Main container for navigable surfaces, geometry, and layers.">NavMap</a> to be rasterized as an occupancy grid. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nm</td><td>Core <a class="el" href="classNavMap.html">NavMap</a> to be rasterized as an occupancy grid. </td></tr>
   </table>
   </dd>
 </dl>
@@ -770,8 +809,8 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Variable Documentation</h2>
-<a id="addc6b5ef2555b7792016c6b3f5d9d320" name="addc6b5ef2555b7792016c6b3f5d9d320"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#addc6b5ef2555b7792016c6b3f5d9d320">&#9670;&#160;</a></span>FREE_SPACE</h2>
+<a id="a7a65269933e0dbc23c558a608feb349a" name="a7a65269933e0dbc23c558a608feb349a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a65269933e0dbc23c558a608feb349a">&#9670;&#160;</a></span>FREE_SPACE</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -780,7 +819,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t FREE_SPACE = 0</td>
+          <td class="memname">std::uint8_t FREE_SPACE</td>
         </tr>
       </table>
   </td>
@@ -790,10 +829,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Known free. </p>
+
 </div>
 </div>
-<a id="ad3256d9191d4add6559784daf93c16a1" name="ad3256d9191d4add6559784daf93c16a1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3256d9191d4add6559784daf93c16a1">&#9670;&#160;</a></span>INSCRIBED_INFLATED_OBSTACLE</h2>
+<a id="af26307054451995d1e1dc0146e4b5cdd" name="af26307054451995d1e1dc0146e4b5cdd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af26307054451995d1e1dc0146e4b5cdd">&#9670;&#160;</a></span>INSCRIBED_INFLATED_OBSTACLE</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -802,7 +843,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t INSCRIBED_INFLATED_OBSTACLE = 253</td>
+          <td class="memname">std::uint8_t INSCRIBED_INFLATED_OBSTACLE</td>
         </tr>
       </table>
   </td>
@@ -812,10 +853,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>The robot would touch an obstacle. </p>
+
 </div>
 </div>
-<a id="a588ceea73cabcebbd8ccf4bdc9aea979" name="a588ceea73cabcebbd8ccf4bdc9aea979"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a588ceea73cabcebbd8ccf4bdc9aea979">&#9670;&#160;</a></span>LETHAL_OBSTACLE</h2>
+<a id="a83262c1ef071fac056488a671b8bea04" name="a83262c1ef071fac056488a671b8bea04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83262c1ef071fac056488a671b8bea04">&#9670;&#160;</a></span>LETHAL_OBSTACLE</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -824,7 +867,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t LETHAL_OBSTACLE = 254</td>
+          <td class="memname">std::uint8_t LETHAL_OBSTACLE</td>
         </tr>
       </table>
   </td>
@@ -834,10 +877,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Obstacle. </p>
+
 </div>
 </div>
-<a id="aae5c24b1ea105fa4c97a23cd368ddcf9" name="aae5c24b1ea105fa4c97a23cd368ddcf9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae5c24b1ea105fa4c97a23cd368ddcf9">&#9670;&#160;</a></span>MAX_NON_OBSTACLE</h2>
+<a id="a3d75017364e2da8cf2dd9dd2cce2725d" name="a3d75017364e2da8cf2dd9dd2cce2725d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d75017364e2da8cf2dd9dd2cce2725d">&#9670;&#160;</a></span>MAX_NON_OBSTACLE</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -846,7 +891,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t MAX_NON_OBSTACLE = 252</td>
+          <td class="memname">std::uint8_t MAX_NON_OBSTACLE</td>
         </tr>
       </table>
   </td>
@@ -856,10 +901,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Highest traversable cost. </p>
+
 </div>
 </div>
-<a id="a25c6ea3d54a1076fb294ba10b49f22f3" name="a25c6ea3d54a1076fb294ba10b49f22f3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a25c6ea3d54a1076fb294ba10b49f22f3">&#9670;&#160;</a></span>NO_INFORMATION</h2>
+<a id="a7094ff8c6514c9670856617147e52d7b" name="a7094ff8c6514c9670856617147e52d7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7094ff8c6514c9670856617147e52d7b">&#9670;&#160;</a></span>NO_INFORMATION</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -868,7 +915,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t NO_INFORMATION = 255</td>
+          <td class="memname">std::uint8_t NO_INFORMATION</td>
         </tr>
       </table>
   </td>
@@ -877,6 +924,8 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Unknown, not observed. </p>
 
 </div>
 </div>

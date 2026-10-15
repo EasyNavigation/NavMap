@@ -1,0 +1,7 @@
+<map id="DescriptorParams" name="DescriptorParams">
+<area shape="rect" id="Node000001" title="Which descriptors to compute, and over which neighbourhoods." alt="" coords="15,163,140,189"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,51,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="24,47,21,91,24,115,32,138,41,150,54,161,51,165,38,154,27,140,19,116,16,91,19,46"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="104,5,149,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="125,47,115,91,100,140,88,164,83,161,95,138,110,90,120,46"/>
+</map>

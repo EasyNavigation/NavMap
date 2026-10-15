@@ -102,32 +102,29 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 </div><!--header-->
 <div class="contents">
 
-<p>Main container for navigable surfaces, geometry, and layers.  
- <a href="#details">More...</a></p>
-
 <p><code>#include &lt;<a class="el" href="NavMap_8hpp_source.html">NavMap.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for NavMap:</div>
 <div class="dyncontent">
 <div class="center"><img src="classNavMap__coll__graph.png" border="0" usemap="#aNavMap_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aNavMap_coll__map" id="aNavMap_coll__map">
-<area shape="rect" title="Main container for navigable surfaces, geometry, and layers." alt="" coords="486,216,556,242"/>
+<area shape="rect" title=" " alt="" coords="487,216,557,242"/>
 <area shape="rect" href="structnavmap_1_1Positions.html" title="Structure&#45;of&#45;arrays for storing 3D vertex positions." alt="" coords="228,56,304,82"/>
-<area shape="poly" title=" " alt="" coords="319,64,354,65,392,71,429,83,464,103,488,129,504,160,520,215,515,216,499,162,483,132,460,107,427,88,390,76,353,71,319,69"/>
+<area shape="poly" title=" " alt="" coords="319,63,354,65,392,71,430,83,465,103,489,129,505,160,521,215,516,216,500,162,484,132,461,107,428,88,391,76,353,70,319,69"/>
 <area shape="rect" title=" " alt="" coords="5,56,109,82"/>
 <area shape="poly" title=" " alt="" coords="124,66,228,66,228,72,124,72"/>
 <area shape="rect" title=" " alt="" coords="177,110,354,135"/>
-<area shape="poly" title=" " alt="" coords="371,127,418,139,463,159,494,186,514,214,510,217,490,189,461,163,417,144,369,132"/>
+<area shape="poly" title=" " alt="" coords="370,127,419,139,464,159,495,186,515,214,511,217,491,189,462,163,417,144,369,132"/>
 <area shape="rect" title=" " alt="" coords="179,163,353,188"/>
-<area shape="poly" title=" " alt="" coords="369,184,463,202,492,213,491,218,461,208,368,189"/>
+<area shape="poly" title=" " alt="" coords="369,183,464,202,493,213,492,218,462,208,368,189"/>
 <area shape="rect" title=" " alt="" coords="178,216,354,242"/>
-<area shape="poly" title=" " alt="" coords="369,226,486,226,486,232,369,232"/>
-<area shape="rect" href="classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per&#45;NavCel)." alt="" coords="216,267,316,292"/>
-<area shape="poly" title=" " alt="" coords="331,275,395,269,461,255,496,240,498,245,463,260,396,274,332,280"/>
-<area shape="rect" title=" " alt="" coords="171,317,361,357"/>
-<area shape="poly" title=" " alt="" coords="376,327,420,316,461,298,477,285,491,270,511,241,515,244,495,274,480,289,463,302,422,321,377,332"/>
-<area shape="rect" title=" " alt="" coords="238,382,294,407"/>
-<area shape="poly" title=" " alt="" coords="309,394,345,393,385,387,425,375,460,354,484,328,500,297,515,241,520,243,505,299,488,331,464,358,427,379,386,392,345,398,309,399"/>
+<area shape="poly" title=" " alt="" coords="370,226,487,226,487,232,370,232"/>
+<area shape="rect" href="classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per&#45;NavCel)." alt="" coords="216,268,316,294"/>
+<area shape="poly" title=" " alt="" coords="331,276,395,269,462,255,497,240,499,245,464,260,396,274,331,281"/>
+<area shape="rect" title=" " alt="" coords="171,318,361,359"/>
+<area shape="poly" title=" " alt="" coords="375,329,420,318,462,299,478,286,492,271,512,241,516,244,496,274,482,290,464,304,422,323,377,334"/>
+<area shape="rect" title=" " alt="" coords="238,399,294,424"/>
+<area shape="poly" title=" " alt="" coords="309,413,345,413,385,408,426,396,461,376,487,344,504,307,513,270,517,242,523,243,518,271,509,309,492,347,465,380,428,401,386,413,345,418,309,418"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -144,6 +141,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9f4c5219dcef644fcc82247a9b017e5b" id="r_a9f4c5219dcef644fcc82247a9b017e5b"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a9f4c5219dcef644fcc82247a9b017e5b template"><td class="memItemLeft">std::shared_ptr&lt; <a class="el" href="structLayerView.html">LayerView</a>&lt; T &gt; &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a9f4c5219dcef644fcc82247a9b017e5b">add_layer</a> (const std::string &amp;name, const std::string &amp;description={}, const std::string &amp;unit={}, T default_value=T{})</td></tr>
 <tr class="memdesc:a9f4c5219dcef644fcc82247a9b017e5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create (or get) a typed per-NavCel layer with a default value.  <br /></td></tr>
+<tr class="memitem:a9b80cbe7b2f185628d8ecaf7b6819965" id="r_a9b80cbe7b2f185628d8ecaf7b6819965"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a9b80cbe7b2f185628d8ecaf7b6819965">add_link</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> from, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> to, <a class="el" href="test__links_8cpp.html#a80f357f44615e61f34b3a588af18d783">LinkType</a> type=LinkType::GENERIC, float length=-1.0f, bool bidirectional=true)</td></tr>
+<tr class="memdesc:a9b80cbe7b2f185628d8ecaf7b6819965"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a link from <code class="param">from</code> to <code class="param">to</code>.  <br /></td></tr>
 <tr class="memitem:a37d374510d01709d4979d2cfdd2412b8" id="r_a37d374510d01709d4979d2cfdd2412b8"><td class="memItemLeft"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a>&#160;</td><td class="memItemRight"><a class="el" href="#a37d374510d01709d4979d2cfdd2412b8">add_navcel</a> (uint32_t v0, uint32_t v1, uint32_t v2)</td></tr>
 <tr class="memdesc:a37d374510d01709d4979d2cfdd2412b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append a triangle (NavCel) and return its id.  <br /></td></tr>
 <tr class="memitem:a1a410766f27bceef33d37cf8de38e08c" id="r_a1a410766f27bceef33d37cf8de38e08c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a1a410766f27bceef33d37cf8de38e08c">add_navcel_to_surface</a> (std::size_t surface_index, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid)</td></tr>
@@ -156,6 +155,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a8ca0caf7aeab120684eb998fe14dd067"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append a vertex and return its index.  <br /></td></tr>
 <tr class="memitem:ad4ba9fe2a96dc6cd1b613de3b3c73511" id="r_ad4ba9fe2a96dc6cd1b613de3b3c73511"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad4ba9fe2a96dc6cd1b613de3b3c73511">build_adjacency</a> ()</td></tr>
 <tr class="memdesc:ad4ba9fe2a96dc6cd1b613de3b3c73511"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build topological adjacency between neighboring NavCels.  <br /></td></tr>
+<tr class="memitem:a58c3ed2f73ac236a3837bca32c3f6dbf" id="r_a58c3ed2f73ac236a3837bca32c3f6dbf"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a58c3ed2f73ac236a3837bca32c3f6dbf">clear_links</a> ()</td></tr>
 <tr class="memitem:aa1faa9583317df79ce4a24c92c68dc2f" id="r_aa1faa9583317df79ce4a24c92c68dc2f"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aa1faa9583317df79ce4a24c92c68dc2f">closest_navcel</a> (const Eigen::Vector3f &amp;p_world, size_t &amp;surface_idx, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;cid, Eigen::Vector3f &amp;closest_point, float &amp;sqdist, int restrict_surface=-1) const</td></tr>
 <tr class="memdesc:aa1faa9583317df79ce4a24c92c68dc2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the closest triangle to a point.  <br /></td></tr>
 <tr class="memitem:ac62eb8c6caa3e48dd52fc2c49c6ec5fd" id="r_ac62eb8c6caa3e48dd52fc2c49c6ec5fd"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#ac62eb8c6caa3e48dd52fc2c49c6ec5fd">create_surface</a> (std::string frame_id)</td></tr>
@@ -164,6 +164,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a0415f1927fed922e8c2d5a6d4257cbbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a standalone <a class="el" href="structSurface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> object (not yet added to the map).  <br /></td></tr>
 <tr class="memitem:aaeb9d22ccea3b8ae3e94fc85ac4fcc14" id="r_aaeb9d22ccea3b8ae3e94fc85ac4fcc14"><td class="memItemLeft">std::vector&lt; float &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aaeb9d22ccea3b8ae3e94fc85ac4fcc14">distance_field</a> (const std::vector&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &gt; &amp;seed_cells, bool from_boundary, float max_distance=std::numeric_limits&lt; float &gt;::infinity()) const</td></tr>
 <tr class="memdesc:aaeb9d22ccea3b8ae3e94fc85ac4fcc14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance (m, 3D) from each NavCel centroid to the nearest seed.  <br /></td></tr>
+<tr class="memitem:a130dc16aab9502bc9311ef75e8ce1529" id="r_a130dc16aab9502bc9311ef75e8ce1529"><td class="memItemLeft">std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="#a130dc16aab9502bc9311ef75e8ce1529">geometry_id</a> () const</td></tr>
+<tr class="memdesc:a130dc16aab9502bc9311ef75e8ce1529"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fingerprint of the geometry (vertex positions and triangles), 64-bit FNV-1a.  <br /></td></tr>
 <tr class="memitem:ab392f27bbb2bc9c3c4bfe1b43aa5d758" id="r_ab392f27bbb2bc9c3c4bfe1b43aa5d758"><td class="memItemLeft">std::optional&lt; LayerMeta &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ab392f27bbb2bc9c3c4bfe1b43aa5d758">get_layer_meta</a> (const std::string &amp;name) const</td></tr>
 <tr class="memdesc:ab392f27bbb2bc9c3c4bfe1b43aa5d758"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return metadata for a layer if present (implementation-defined).  <br /></td></tr>
 <tr class="memitem:a02fe28789e1ccec8efd955bee4f894d2" id="r_a02fe28789e1ccec8efd955bee4f894d2"><td class="memItemLeft">std::array&lt; <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a>, 3 &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a02fe28789e1ccec8efd955bee4f894d2">get_neighbors</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
@@ -172,6 +174,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ad885b112b390fed2c41b6353938e5a23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether a layer named <code class="param">name</code> exists.  <br /></td></tr>
 <tr class="memitem:a79d1194d1ceb932687b26a0dab12a1f5" id="r_a79d1194d1ceb932687b26a0dab12a1f5"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a79d1194d1ceb932687b26a0dab12a1f5">has_same_geometry</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;other) const</td></tr>
 <tr class="memdesc:a79d1194d1ceb932687b26a0dab12a1f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fast check for identical geometry (vertices and NavCel indices).  <br /></td></tr>
+<tr class="memitem:a38d4dc9901779d73402088f17477bf68" id="r_a38d4dc9901779d73402088f17477bf68"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a38d4dc9901779d73402088f17477bf68">is_unknown</a> (const std::string &amp;name, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
+<tr class="memdesc:a38d4dc9901779d73402088f17477bf68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether layer <code class="param">name</code> holds its unknown value at <code class="param">cid</code> (false if it has none).  <br /></td></tr>
 <tr class="memitem:a8073b13ebb92df3e5537a475064c7f94" id="r_a8073b13ebb92df3e5537a475064c7f94"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a8073b13ebb92df3e5537a475064c7f94 template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a8073b13ebb92df3e5537a475064c7f94">layer_clear</a> (const std::string &amp;name, T value=T{})</td></tr>
 <tr class="memdesc:a8073b13ebb92df3e5537a475064c7f94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset all values in a layer to a given value.  <br /></td></tr>
@@ -188,6 +192,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ade1543329ee75f1a5137b3ebde8ecaf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of entries in a layer (should equal navcels.size()).  <br /></td></tr>
 <tr class="memitem:a6204ae4d8e934beb0950318475ab74b3" id="r_a6204ae4d8e934beb0950318475ab74b3"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a6204ae4d8e934beb0950318475ab74b3">layer_type_name</a> (const std::string &amp;name) const</td></tr>
 <tr class="memdesc:a6204ae4d8e934beb0950318475ab74b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Human-readable type name for a layer ("float", "double", "uint8", ...).  <br /></td></tr>
+<tr class="memitem:a9b5db783e56dace45e93a612fc67551f" id="r_a9b5db783e56dace45e93a612fc67551f"><td class="memItemLeft">const std::vector&lt; SurfaceLink &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a9b5db783e56dace45e93a612fc67551f">links</a> () const</td></tr>
+<tr class="memitem:ac7e3063da20efe38301d9ffb174fd0c5" id="r_ac7e3063da20efe38301d9ffb174fd0c5"><td class="memItemLeft">const std::vector&lt; std::uint32_t &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ac7e3063da20efe38301d9ffb174fd0c5">links_from</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
+<tr class="memdesc:ac7e3063da20efe38301d9ffb174fd0c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indices of the links that can be taken from <code class="param">cid</code> (both ends of bidirectional ones).  <br /></td></tr>
 <tr class="memitem:ab36912dfdc7f3fa19897b04379f7f650" id="r_ab36912dfdc7f3fa19897b04379f7f650"><td class="memItemLeft">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ab36912dfdc7f3fa19897b04379f7f650">list_layers</a> () const</td></tr>
 <tr class="memdesc:ab36912dfdc7f3fa19897b04379f7f650"><td class="mdescLeft">&#160;</td><td class="mdescRight">List all layer names currently stored.  <br /></td></tr>
 <tr class="memitem:a58eb66e6c89dab8b20c874d65350998b" id="r_a58eb66e6c89dab8b20c874d65350998b"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a58eb66e6c89dab8b20c874d65350998b">locate_navcel</a> (const Eigen::Vector3f &amp;p_world, size_t &amp;surface_idx, <a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> &amp;cid, Eigen::Vector3f &amp;bary, Eigen::Vector3f *hit_pt) const</td></tr>
@@ -221,6 +228,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a1a19ac67ff1cef1298b7f824d26ef786"><td class="mdescLeft">&#160;</td><td class="mdescRight">Batched raycast.  <br /></td></tr>
 <tr class="memitem:aeb8444f2290bd34e7904f036ebf17ab1" id="r_aeb8444f2290bd34e7904f036ebf17ab1"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1">rebuild_geometry_accels</a> ()</td></tr>
 <tr class="memdesc:aeb8444f2290bd34e7904f036ebf17ab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recompute derived geometry and acceleration structures.  <br /></td></tr>
+<tr class="memitem:aef659b724ffd6b12378f75cdb85214d4" id="r_aef659b724ffd6b12378f75cdb85214d4"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aef659b724ffd6b12378f75cdb85214d4">remove_link</a> (std::size_t index)</td></tr>
+<tr class="memdesc:aef659b724ffd6b12378f75cdb85214d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove link <code class="param">index</code> (the last link takes its index). False if out of range.  <br /></td></tr>
 <tr class="memitem:a3a1a2ff16f86a0b41965cbe850af34ef" id="r_a3a1a2ff16f86a0b41965cbe850af34ef"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a3a1a2ff16f86a0b41965cbe850af34ef">remove_surface</a> (std::size_t surface_index)</td></tr>
 <tr class="memdesc:a3a1a2ff16f86a0b41965cbe850af34ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a <a class="el" href="structSurface.html" title="A connected set of NavCels in a common reference frame.">Surface</a> by index.  <br /></td></tr>
 <tr class="memitem:a7b8be98161fa5e570b7b26c294e43ea9" id="r_a7b8be98161fa5e570b7b26c294e43ea9"><td class="memItemLeft">double&#160;</td><td class="memItemRight"><a class="el" href="#a7b8be98161fa5e570b7b26c294e43ea9">sample_layer_at</a> (const std::string &amp;name, const Eigen::Vector3f &amp;p_world, double def=std::numeric_limits&lt; double &gt;::quiet_NaN()) const</td></tr>
@@ -228,6 +237,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a88f5d6281e1d15b8443a3c69658b3e8c" id="r_a88f5d6281e1d15b8443a3c69658b3e8c"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a88f5d6281e1d15b8443a3c69658b3e8c template"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a88f5d6281e1d15b8443a3c69658b3e8c">set_area</a> (const Eigen::Vector3f &amp;p_world, T value, const std::string &amp;layer_name, AreaShape shape, float size)</td></tr>
 <tr class="memdesc:a88f5d6281e1d15b8443a3c69658b3e8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a per-NavCel layer to a constant value over a 2D area.  <br /></td></tr>
+<tr class="memitem:aaf92f36925a8889324a536616d16cfd6" id="r_aaf92f36925a8889324a536616d16cfd6"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aaf92f36925a8889324a536616d16cfd6">set_layer_unknown</a> (const std::string &amp;name, double value)</td></tr>
+<tr class="memdesc:aaf92f36925a8889324a536616d16cfd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Declare the value of layer <code class="param">name</code> that means "not observed" (NaN allowed).  <br /></td></tr>
 <tr class="memitem:a4eb38dc5b8b24bddfb955a5728c116cb" id="r_a4eb38dc5b8b24bddfb955a5728c116cb"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a4eb38dc5b8b24bddfb955a5728c116cb">surface_of</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
 <tr class="memdesc:a4eb38dc5b8b24bddfb955a5728c116cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index of the surface owning <code class="param">cid</code>, or kNoSurface.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -248,19 +259,12 @@ Public Attributes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-static-attribs" class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
+<tr class="memitem:ab026da51fd540216e0c2b4938e16eb28" id="r_ab026da51fd540216e0c2b4938e16eb28"><td class="memItemLeft">static constexpr std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#ab026da51fd540216e0c2b4938e16eb28">kInvalidLink</a> = std::numeric_limits&lt;std::size_t&gt;::max()</td></tr>
+<tr class="memdesc:ab026da51fd540216e0c2b4938e16eb28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value returned by add_link() when a NavCel id is out of range.  <br /></td></tr>
 <tr class="memitem:acf1c6db47205e68d8d10e759192270b0" id="r_acf1c6db47205e68d8d10e759192270b0"><td class="memItemLeft">static constexpr std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#acf1c6db47205e68d8d10e759192270b0">kNoSurface</a> = std::numeric_limits&lt;std::size_t&gt;::max()</td></tr>
 <tr class="memdesc:acf1c6db47205e68d8d10e759192270b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value returned by surface_of() for a NavCel in no surface.  <br /></td></tr>
 </table>
-<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Main container for navigable surfaces, geometry, and layers. </p>
-<p>A <a class="el" href="classnavmap_1_1NavMap.html" title="Main container for navigable surfaces, geometry, and layers.">navmap::NavMap</a> aggregates vertex positions, a list of <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">navmap::NavCel</a> triangles (global indexing), one or more <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">navmap::Surface</a> partitions, and a <a class="el" href="classnavmap_1_1LayerRegistry.html" title="Registry of named layers (per-NavCel).">navmap::LayerRegistry</a> with arbitrary per-NavCel scalar attributes.</p>
-<p><b>Typical workflow</b></p><ul>
-<li>Fill positions, navcels, and surfaces.</li>
-<li>Call rebuild_geometry_accels() to compute normals, areas, adjacency, and build per-surface BVHs.</li>
-<li>Create layers via LayerRegistry::add_or_get() sized to navcels.size().</li>
-<li>Query with locate_navcel(), raycast(), or closest_navcel(). </li>
-</ul>
-</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ada6881dcd6865fb03a053244aa5f0e18" name="ada6881dcd6865fb03a053244aa5f0e18"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ada6881dcd6865fb03a053244aa5f0e18">&#9670;&#160;</a></span>NavMap() <span class="overload">[1/2]</span></h2>
 
@@ -404,6 +408,45 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
+<a id="a9b80cbe7b2f185628d8ecaf7b6819965" name="a9b80cbe7b2f185628d8ecaf7b6819965"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b80cbe7b2f185628d8ecaf7b6819965">&#9670;&#160;</a></span>add_link()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t add_link </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>from</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>to</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="test__links_8cpp.html#a80f357f44615e61f34b3a588af18d783">LinkType</a></td>          <td class="paramname"><span class="paramname"><em>type</em></span><span class="paramdefsep"> = </span><span class="paramdefval">LinkType::GENERIC</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>length</em></span><span class="paramdefsep"> = </span><span class="paramdefval">-1.0f</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>bidirectional</em></span><span class="paramdefsep"> = </span><span class="paramdefval">true</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add a link from <code class="param">from</code> to <code class="param">to</code>. </p>
+<p>A negative <code class="param">length</code> takes the distance between their centroids. </p><dl class="section return"><dt>Returns</dt><dd>Index of the link, or kInvalidLink if an id is out of range or from == to. </dd></dl>
+
+</div>
+</div>
 <a id="a37d374510d01709d4979d2cfdd2412b8" name="a37d374510d01709d4979d2cfdd2412b8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a37d374510d01709d4979d2cfdd2412b8">&#9670;&#160;</a></span>add_navcel()</h2>
 
@@ -539,6 +582,23 @@ template&lt;typename T&gt; </div>
 
 <p>Build topological adjacency between neighboring NavCels. </p>
 <p>Two triangles are neighbors if they share an undirected edge and no other triangle uses it; edges shared by more than two (non-manifold) stay open. Called by rebuild_geometry_accels(). </p>
+
+</div>
+</div>
+<a id="a58c3ed2f73ac236a3837bca32c3f6dbf" name="a58c3ed2f73ac236a3837bca32c3f6dbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58c3ed2f73ac236a3837bca32c3f6dbf">&#9670;&#160;</a></span>clear_links()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void clear_links </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -688,6 +748,26 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
+<a id="a130dc16aab9502bc9311ef75e8ce1529" name="a130dc16aab9502bc9311ef75e8ce1529"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a130dc16aab9502bc9311ef75e8ce1529">&#9670;&#160;</a></span>geometry_id()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint64_t geometry_id </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fingerprint of the geometry (vertex positions and triangles), 64-bit FNV-1a. </p>
+<p>Equal maps have equal ids, so a layer update can name the geometry it belongs to. Recomputed lazily after add_vertex(), add_navcel() or rebuild_geometry_accels(); call the latter after editing positions or navcels directly. </p>
+
+</div>
+</div>
 <a id="ab392f27bbb2bc9c3c4bfe1b43aa5d758" name="ab392f27bbb2bc9c3c4bfe1b43aa5d758"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab392f27bbb2bc9c3c4bfe1b43aa5d758">&#9670;&#160;</a></span>get_layer_meta()</h2>
 
@@ -775,6 +855,29 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Fast check for identical geometry (vertices and NavCel indices). </p>
+
+</div>
+</div>
+<a id="a38d4dc9901779d73402088f17477bf68" name="a38d4dc9901779d73402088f17477bf68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38d4dc9901779d73402088f17477bf68">&#9670;&#160;</a></span>is_unknown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool is_unknown </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>cid</em></span>&#160;) const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Whether layer <code class="param">name</code> holds its unknown value at <code class="param">cid</code> (false if it has none). </p>
 
 </div>
 </div>
@@ -877,7 +980,7 @@ template&lt;typename T&gt; </div>
 <p>Si la capa no existe o <code class="param">cid</code> está fuera de rango, devuelve <code class="param">def</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">T</td><td>uint8_t, float, or double </td></tr>
+    <tr><td class="paramname">T</td><td>uint8_t, int16_t, float, or double </td></tr>
   </table>
   </dd>
 </dl>
@@ -972,6 +1075,42 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Human-readable type name for a layer ("float", "double", "uint8", ...). </p>
+
+</div>
+</div>
+<a id="a9b5db783e56dace45e93a612fc67551f" name="a9b5db783e56dace45e93a612fc67551f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b5db783e56dace45e93a612fc67551f">&#9670;&#160;</a></span>links()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::vector&lt; SurfaceLink &gt; &amp; links </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac7e3063da20efe38301d9ffb174fd0c5" name="ac7e3063da20efe38301d9ffb174fd0c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7e3063da20efe38301d9ffb174fd0c5">&#9670;&#160;</a></span>links_from()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::vector&lt; std::uint32_t &gt; &amp; links_from </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a></td>          <td class="paramname"><span class="paramname"><em>cid</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Indices of the links that can be taken from <code class="param">cid</code> (both ends of bidirectional ones). </p>
 
 </div>
 </div>
@@ -1419,6 +1558,25 @@ template&lt;typename T&gt; </div>
 
 </div>
 </div>
+<a id="aef659b724ffd6b12378f75cdb85214d4" name="aef659b724ffd6b12378f75cdb85214d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef659b724ffd6b12378f75cdb85214d4">&#9670;&#160;</a></span>remove_link()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool remove_link </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t</td>          <td class="paramname"><span class="paramname"><em>index</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Remove link <code class="param">index</code> (the last link takes its index). False if out of range. </p>
+
+</div>
+</div>
 <a id="a3a1a2ff16f86a0b41965cbe850af34ef" name="a3a1a2ff16f86a0b41965cbe850af34ef"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a1a2ff16f86a0b41965cbe850af34ef">&#9670;&#160;</a></span>remove_surface()</h2>
 
@@ -1518,7 +1676,7 @@ template&lt;typename T&gt; </div>
 <p>Efficiency: BFS from the seed NavCel with XY <a class="el" href="structAABB.html" title="Axis-aligned bounding box.">AABB</a> pruning against the circumscribed square of the area. Inclusion test by triangle centroid.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">T</td><td>uint8_t, float, or double </td></tr>
+    <tr><td class="paramname">T</td><td>uint8_t, int16_t, float, or double </td></tr>
   </table>
   </dd>
 </dl>
@@ -1533,6 +1691,30 @@ template&lt;typename T&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the seed NavCel was located and the layer updated </dd></dl>
+
+</div>
+</div>
+<a id="aaf92f36925a8889324a536616d16cfd6" name="aaf92f36925a8889324a536616d16cfd6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf92f36925a8889324a536616d16cfd6">&#9670;&#160;</a></span>set_layer_unknown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void set_layer_unknown </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Declare the value of layer <code class="param">name</code> that means "not observed" (NaN allowed). </p>
+<p>Travels with the map (message and file) and is kept by add_layer(). </p>
 
 </div>
 </div>
@@ -1570,6 +1752,30 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Optional per-vertex colors. </p>
+
+</div>
+</div>
+<a id="ab026da51fd540216e0c2b4938e16eb28" name="ab026da51fd540216e0c2b4938e16eb28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab026da51fd540216e0c2b4938e16eb28">&#9670;&#160;</a></span>kInvalidLink</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t kInvalidLink = std::numeric_limits&lt;std::size_t&gt;::max()</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span><span class="mlabel constexpr">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Value returned by add_link() when a NavCel id is out of range. </p>
 
 </div>
 </div>

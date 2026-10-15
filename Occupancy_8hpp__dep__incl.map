@@ -1,0 +1,9 @@
+<map id="navmap_core/include/navmap_core/Occupancy.hpp" name="navmap_core/include/navmap_core/Occupancy.hpp">
+<area shape="rect" id="Node000001" title="Probabilistic occupancy per NavCel: log&#45;odds with clamping (as OctoMap), stored in an int16 layer in ..." alt="" coords="197,5,393,46"/>
+<area shape="rect" id="Node000002" href="$test__incremental_8cpp.html" title=" " alt="" coords="5,94,164,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,55,133,96,131,91,233,50"/>
+<area shape="rect" id="Node000003" href="$test__layers__unknown__occupancy_8cpp.html" title=" " alt="" coords="188,94,402,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="298,62,298,94,292,94,292,62"/>
+<area shape="rect" id="Node000004" href="$test__layer__metadata__and__migration_8cpp.html" title=" " alt="" coords="426,94,655,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="366,49,486,91,484,96,364,54"/>
+</map>
