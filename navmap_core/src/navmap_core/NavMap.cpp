@@ -16,6 +16,7 @@
 
 #include "navmap_core/NavMap.hpp"
 #include <array>
+#include <queue>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -1096,6 +1097,80 @@ bool NavMap::locate_navcel(
   bary = best->bary;
   if (hit_pt) {*hit_pt = best->hit;}
   return true;
+}
+
+// ---- Distance field ----
+
+namespace
+{
+inline float point_segment_distance(const Vec3 & p, const Vec3 & a, const Vec3 & b)
+{
+  const Vec3 ab = b - a;
+  const float len2 = ab.squaredNorm();
+  const float t = len2 > 0.0f ? std::clamp((p - a).dot(ab) / len2, 0.0f, 1.0f) : 0.0f;
+  return (p - (a + t * ab)).norm();
+}
+}  // namespace
+
+std::vector<float> NavMap::distance_field(
+  const std::vector<NavCelId> & seed_cells, bool from_boundary, float max_distance) const
+{
+  constexpr float kInf = std::numeric_limits<float>::infinity();
+  constexpr auto kNone = std::numeric_limits<NavCelId>::max();
+  const std::size_t n = navcels.size();
+  std::vector<float> dist(n, kInf);
+  if (n == 0) {return dist;}
+
+  std::vector<Vec3> centroid(n);
+  for (NavCelId c = 0; c < n; ++c) {
+    centroid[c] = navcel_centroid(c);
+  }
+
+  // A seed is a point (a == b) or a segment.
+  struct Seed {Vec3 a, b;};
+  std::vector<Seed> seeds;
+  std::vector<std::uint32_t> nearest(n, std::numeric_limits<std::uint32_t>::max());
+  using Item = std::pair<float, NavCelId>;
+  std::priority_queue<Item, std::vector<Item>, std::greater<Item>> open;
+
+  auto offer = [&](NavCelId c, std::uint32_t seed, float d) {
+      if (d < dist[c] && d <= max_distance) {
+        dist[c] = d;
+        nearest[c] = seed;
+        open.push({d, c});
+      }
+    };
+  auto distance_to = [&](NavCelId c, std::uint32_t seed) {
+      return point_segment_distance(centroid[c], seeds[seed].a, seeds[seed].b);
+    };
+
+  for (NavCelId c : seed_cells) {
+    if (c >= n) {continue;}
+    seeds.push_back({centroid[c], centroid[c]});
+    offer(c, static_cast<std::uint32_t>(seeds.size() - 1), 0.0f);
+  }
+  if (from_boundary) {
+    for (NavCelId c = 0; c < n; ++c) {
+      for (int e = 0; e < 3; ++e) {
+        if (navcels[c].neighbor[e] != kNone) {continue;}
+        seeds.push_back({positions.at(navcels[c].v[e]), positions.at(navcels[c].v[(e + 1) % 3])});
+        const auto seed = static_cast<std::uint32_t>(seeds.size() - 1);
+        offer(c, seed, distance_to(c, seed));
+      }
+    }
+  }
+
+  while (!open.empty()) {
+    const auto [d, u] = open.top();
+    open.pop();
+    if (d > dist[u]) {continue;}
+    for (int e = 0; e < 3; ++e) {
+      const NavCelId v = navcels[u].neighbor[e];
+      if (v == kNone || v >= n) {continue;}
+      offer(v, nearest[u], distance_to(v, nearest[u]));
+    }
+  }
+  return dist;
 }
 
 // ---- Layers ----
