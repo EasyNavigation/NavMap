@@ -299,6 +299,18 @@ With a finite `max_distance` the field is exact (straight distance to the neares
 
 ---
 
+## 7f. Links between surfaces (`SurfaceLink`)
+
+Stairs, elevators or doors between NavCels that do not share an edge. The map only records them; whether a robot can take one, and at which cost, is up to the planner. They travel in the message and the file, and RViz2 draws them (*Draw Links*).
+
+```cpp
+nm.add_link(ground_cid, upper_cid, navmap::LinkType::ELEVATOR);            // both ways
+nm.add_link(top_cid, bottom_cid, navmap::LinkType::STAIRS, 4.5f, false);   // one way, 4.5 m
+for (std::uint32_t i : nm.links_from(cid)) {const auto & l = nm.links()[i]; /* ... */}
+```
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:

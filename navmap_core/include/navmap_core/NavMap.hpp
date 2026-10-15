@@ -539,6 +539,24 @@ enum class AreaShape { CIRCULAR, RECTANGULAR };
  *  - Create layers via \ref LayerRegistry::add_or_get() sized to navcels.size().
  *  - Query with \ref locate_navcel(), \ref raycast(), or \ref closest_navcel().
  */
+/// Kind of a link between NavCels that are not adjacent in the mesh.
+enum class LinkType : uint8_t { GENERIC = 0, RAMP = 1, STAIRS = 2, ELEVATOR = 3, DOOR = 4 };
+
+/**
+ * \brief Connection between two NavCels that do not share an edge (stairs, an elevator, a door
+ *        between surfaces that are not welded...).
+ *
+ * The map only records it; whether a robot can take it, and at which cost, is up to the planner.
+ */
+struct SurfaceLink
+{
+  NavCelId from{0};
+  NavCelId to{0};
+  LinkType type{LinkType::GENERIC};
+  float length{0.0f};          ///< Travel length (m)
+  bool bidirectional{true};    ///< Also from `to` to `from`
+};
+
 class NavMap
 {
 public:
@@ -777,6 +795,30 @@ public:
 
   /// \brief Return up to 3 neighbor cell ids (skips invalid entries).
   std::vector<NavCelId> navcel_neighbors(NavCelId cid) const;
+
+  // ---- Links between NavCels that are not adjacent (SurfaceLink) ----
+
+  /// Value returned by add_link() when a NavCel id is out of range.
+  static constexpr std::size_t kInvalidLink = std::numeric_limits<std::size_t>::max();
+
+  /**
+   * \brief Add a link from \p from to \p to. A negative \p length takes the distance between
+   *        their centroids.
+   * \return Index of the link, or kInvalidLink if an id is out of range or from == to.
+   */
+  std::size_t add_link(
+    NavCelId from, NavCelId to, LinkType type = LinkType::GENERIC, float length = -1.0f,
+    bool bidirectional = true);
+
+  /// \brief Remove link \p index (the last link takes its index). False if out of range.
+  bool remove_link(std::size_t index);
+
+  void clear_links();
+
+  const std::vector<SurfaceLink> & links() const {return links_;}
+
+  /// \brief Indices of the links that can be taken from \p cid (both ends of bidirectional ones).
+  const std::vector<std::uint32_t> & links_from(NavCelId cid) const;
 
   /**
    * \brief Distance (m, 3D) from each NavCel centroid to the nearest seed.
@@ -1251,6 +1293,9 @@ private:
 
   // Owning surface per NavCel, built in rebuild_geometry_accels().
   std::vector<std::uint32_t> navcel_surface_;
+  std::vector<SurfaceLink> links_;
+  mutable std::vector<std::vector<std::uint32_t>> link_index_;
+  mutable bool link_index_dirty_{true};
   void build_navcel_surface_index_();
 
   // Builders and traversal helpers.

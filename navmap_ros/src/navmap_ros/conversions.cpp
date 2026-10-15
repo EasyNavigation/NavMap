@@ -34,6 +34,7 @@
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_link.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 
 #include "pcl_conversions/pcl_conversions.h"
@@ -189,6 +190,18 @@ NavMap to_msg(const navmap::NavMap & nm, const std_msgs::msg::Header & header)
     out.layers.push_back(std::move(lmsg));
   }
 
+  // links between non-adjacent NavCels
+  out.links.reserve(nm.links().size());
+  for (const auto & l : nm.links()) {
+    navmap_ros_interfaces::msg::NavMapLink lm;
+    lm.from_navcel = l.from;
+    lm.to_navcel = l.to;
+    lm.type = static_cast<uint8_t>(l.type);
+    lm.length = l.length;
+    lm.bidirectional = l.bidirectional;
+    out.links.push_back(lm);
+  }
+
   return out;
 }
 
@@ -247,6 +260,13 @@ navmap::NavMap from_msg(const NavMap & msg, std_msgs::msg::Header & header)
   // layers
   for (const auto & l : msg.layers) {
     apply_layer_msg(l, nm);
+  }
+
+  // links (out-of-range ones are dropped)
+  for (const auto & l : msg.links) {
+    nm.add_link(
+      l.from_navcel, l.to_navcel, static_cast<navmap::LinkType>(l.type), l.length,
+      l.bidirectional);
   }
 
   nm.rebuild_geometry_accels();

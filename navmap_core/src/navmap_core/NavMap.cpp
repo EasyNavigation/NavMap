@@ -60,6 +60,8 @@ NavMap::NavMap(const NavMap & other)
   layer_meta = other.layer_meta;
   navcel_surface_ = other.navcel_surface_;
   nonmanifold_edges_ = other.nonmanifold_edges_;
+  links_ = other.links_;
+  link_index_dirty_ = true;
 
   geometry_dirty_ = true;
   geometry_fp_ = 0;
@@ -181,6 +183,8 @@ NavMap & NavMap::operator=(const NavMap & other)
     }
 
     layer_meta = other.layer_meta;
+    links_ = other.links_;
+    link_index_dirty_ = true;
     return *this;
   }
 
@@ -193,6 +197,8 @@ NavMap & NavMap::operator=(const NavMap & other)
   layer_meta = other.layer_meta;
   navcel_surface_ = other.navcel_surface_;
   nonmanifold_edges_ = other.nonmanifold_edges_;
+  links_ = other.links_;
+  link_index_dirty_ = true;
 
   geometry_dirty_ = true;
   return *this;
@@ -211,6 +217,8 @@ NavMap & NavMap::operator=(NavMap && other) noexcept
   layer_meta = std::move(other.layer_meta);
   navcel_surface_ = std::move(other.navcel_surface_);
   nonmanifold_edges_ = other.nonmanifold_edges_;
+  links_ = std::move(other.links_);
+  link_index_dirty_ = true;
 
   geometry_fp_ = other.geometry_fp_;
   geometry_dirty_ = other.geometry_dirty_;
@@ -1168,6 +1176,47 @@ std::vector<float> NavMap::distance_field(
     }
   }
   return dist;
+}
+
+// ---- Links ----
+std::size_t NavMap::add_link(
+  NavCelId from, NavCelId to, LinkType type, float length, bool bidirectional)
+{
+  if (from >= navcels.size() || to >= navcels.size() || from == to) {return kInvalidLink;}
+  if (length < 0.0f) {length = (navcel_centroid(to) - navcel_centroid(from)).norm();}
+  links_.push_back({from, to, type, length, bidirectional});
+  link_index_dirty_ = true;
+  return links_.size() - 1;
+}
+
+bool NavMap::remove_link(std::size_t index)
+{
+  if (index >= links_.size()) {return false;}
+  links_[index] = links_.back();
+  links_.pop_back();
+  link_index_dirty_ = true;
+  return true;
+}
+
+void NavMap::clear_links()
+{
+  links_.clear();
+  link_index_dirty_ = true;
+}
+
+const std::vector<std::uint32_t> & NavMap::links_from(NavCelId cid) const
+{
+  static const std::vector<std::uint32_t> kEmpty;
+  if (link_index_dirty_ || link_index_.size() != navcels.size()) {
+    link_index_.assign(navcels.size(), {});
+    for (std::uint32_t i = 0; i < links_.size(); ++i) {
+      const auto & l = links_[i];
+      if (l.from < navcels.size()) {link_index_[l.from].push_back(i);}
+      if (l.bidirectional && l.to < navcels.size()) {link_index_[l.to].push_back(i);}
+    }
+    link_index_dirty_ = false;
+  }
+  return cid < link_index_.size() ? link_index_[cid] : kEmpty;
 }
 
 // ---- Layers ----

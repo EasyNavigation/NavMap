@@ -38,7 +38,8 @@ namespace
 // Magic header "NAVMAP\0" (7 chars + NUL), version uint32_t, payload_size uint64_t (LE).
 // Version 1 (also files without header) is migrated on load.
 static constexpr char kMagic[8] = {'N', 'A', 'V', 'M', 'A', 'P', '\0', '\0'};
-static constexpr uint32_t kVersion = 2;  // 2: layer metadata (unknown, description, unit) and int16 layers
+// 2: layer metadata (unknown, description, unit), int16 layers and links
+static constexpr uint32_t kVersion = 2;
 
 inline void set_error(std::error_code * ec, int ev = EIO)
 {

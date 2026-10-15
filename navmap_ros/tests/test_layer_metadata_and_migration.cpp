@@ -284,3 +284,36 @@ TEST(LayerMetadata, OccupancyGridUnknownCellsAreDeclaredUnknown)
   // ...and the declaration travels with the map
   EXPECT_TRUE(navmap_ros::from_msg(navmap_ros::to_msg(nm)).is_unknown("occupancy", 0));
 }
+
+TEST(Links, TravelInMessagesAndFilesAndInvalidOnesAreDropped)
+{
+  NavMap nm = small_map();
+  nm.add_link(0, 7, navmap::LinkType::ELEVATOR, 12.0f, false);
+  nm.add_link(2, 5, navmap::LinkType::STAIRS);
+  auto msg = navmap_ros::to_msg(nm);
+  ASSERT_EQ(msg.links.size(), 2u);
+  EXPECT_EQ(msg.links[0].type, navmap_ros_interfaces::msg::NavMapLink::ELEVATOR);
+  EXPECT_FALSE(msg.links[0].bidirectional);
+  navmap_ros_interfaces::msg::NavMapLink bad;
+  bad.from_navcel = 0;
+  bad.to_navcel = 999;  // out of range
+  msg.links.push_back(bad);
+  const NavMap back = navmap_ros::from_msg(msg);
+  ASSERT_EQ(back.links().size(), 2u);
+  EXPECT_FLOAT_EQ(back.links()[0].length, 12.0f);
+  EXPECT_EQ(back.links()[1].type, navmap::LinkType::STAIRS);
+  // And in a file
+  const std::string dir = tmp_dir("navmap_links_");
+  ASSERT_TRUE(navmap_ros::io::save_to_file(nm, dir + "/m.navmap"));
+  NavMap loaded;
+  ASSERT_TRUE(navmap_ros::io::load_from_file(dir + "/m.navmap", loaded));
+  ASSERT_EQ(loaded.links().size(), 2u);
+  EXPECT_EQ(loaded.links()[0].to, 7u);
+  fs::remove_all(dir);
+  // Version-1 files have no links
+  write_v1(nm, dir + "_v1.navmap", true);
+  NavMap old;
+  ASSERT_TRUE(navmap_ros::io::load_from_file(dir + "_v1.navmap", old));
+  EXPECT_TRUE(old.links().empty());
+  fs::remove(dir + "_v1.navmap");
+}

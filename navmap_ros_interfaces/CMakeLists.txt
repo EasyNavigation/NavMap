@@ -18,6 +18,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/NavMap.msg"
   "msg/NavMapSurface.msg"
   "msg/NavMapLayer.msg"
+  "msg/NavMapLink.msg"
   "msg/NavMapV1.msg"
   "msg/NavMapLayerV1.msg"
   DEPENDENCIES builtin_interfaces std_msgs

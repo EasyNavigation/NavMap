@@ -72,3 +72,8 @@ ament_add_gtest(test_descriptors test_descriptors.cpp)
 target_link_libraries(test_descriptors
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_links test_links.cpp)
+target_link_libraries(test_links
+  ${PROJECT_NAME}
+)

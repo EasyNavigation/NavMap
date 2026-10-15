@@ -124,6 +124,10 @@ NavMapDisplay::NavMapDisplay()
 
   draw_normals_property_ = new rviz_common::properties::BoolProperty(
     "Draw Normals", false, "Draw one normal per triangle.", this, SLOT(onDrawNormalsChanged()));
+  draw_links_property_ = new rviz_common::properties::BoolProperty(
+    "Draw Links", true,
+    "Draw the links between non-adjacent NavCels (stairs, elevators, doors...), coloured by type.",
+    this, SLOT(onDrawLinksChanged()));
 
   normal_scale_property_ = new rviz_common::properties::FloatProperty(
     "Normal Scale", 0.15f, "Scale of the per-triangle normal arrow/line.",
@@ -142,6 +146,11 @@ NavMapDisplay::NavMapDisplay()
 
 NavMapDisplay::~NavMapDisplay()
 {
+  if (links_obj_) {
+    links_obj_->detachFromParent();
+    context_->getSceneManager()->destroyManualObject(links_obj_);
+    links_obj_ = nullptr;
+  }
   if (normals_obj_) {
     normals_obj_->detachFromParent();
     context_->getSceneManager()->destroyManualObject(normals_obj_);
@@ -170,6 +179,11 @@ void NavMapDisplay::onInitialize()
   }
 
   // Prepare normals object
+  if (!links_obj_) {
+    links_obj_ = context_->getSceneManager()->createManualObject();
+    links_obj_->setDynamic(true);
+    root_node_->attachObject(links_obj_);
+  }
   if (!normals_obj_) {
     normals_obj_ = context_->getSceneManager()->createManualObject();
     normals_obj_->setDynamic(true);
@@ -196,6 +210,7 @@ void NavMapDisplay::reset()
 
   destroyMesh_();
   updateNormals_();
+  updateLinks_();
 }
 
 void NavMapDisplay::onEnable()
@@ -259,6 +274,7 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
   ensureMeshBuilt_();
   updateColorsOnly_();
   updateNormals_();
+  updateLinks_();
 
   context_->queueRender();
 }
@@ -822,6 +838,57 @@ void NavMapDisplay::updateNormals_()
     normals_obj_->colour(Ogre::ColourValue(0, 0, 1, 1));
   }
   normals_obj_->end();
+}
+
+void NavMapDisplay::onDrawLinksChanged()
+{
+  updateLinks_();
+  context_->queueRender();
+}
+
+// Links between non-adjacent NavCels: a line between their centroids, raised in the middle so a
+// link between stacked NavCels stays visible, coloured by type.
+void NavMapDisplay::updateLinks_()
+{
+  if (!context_ || !last_msg_ || !links_obj_) {return;}
+  links_obj_->clear();
+  if (!draw_links_property_->getBool() || last_msg_->links.empty()) {return;}
+
+  const auto & X = last_msg_->positions_x;
+  const auto & Y = last_msg_->positions_y;
+  const auto & Z = last_msg_->positions_z;
+  const auto & V0 = last_msg_->navcels_v0;
+  const auto & V1 = last_msg_->navcels_v1;
+  const auto & V2 = last_msg_->navcels_v2;
+  auto centroid = [&](uint32_t t) {
+      return Ogre::Vector3(
+        (X[V0[t]] + X[V1[t]] + X[V2[t]]) / 3.0f, (Y[V0[t]] + Y[V1[t]] + Y[V2[t]]) / 3.0f,
+        (Z[V0[t]] + Z[V1[t]] + Z[V2[t]]) / 3.0f);
+    };
+  auto colour = [](uint8_t type) {
+      switch (type) {
+        case navmap_ros_interfaces::msg::NavMapLink::RAMP: return Ogre::ColourValue(0, 0.8f, 0, 1);
+        case navmap_ros_interfaces::msg::NavMapLink::STAIRS: return Ogre::ColourValue(1, 0.5f, 0,
+          1);
+        case navmap_ros_interfaces::msg::NavMapLink::ELEVATOR:
+          return Ogre::ColourValue(0.6f, 0, 1, 1);
+        case navmap_ros_interfaces::msg::NavMapLink::DOOR: return Ogre::ColourValue(0, 0.6f, 1, 1);
+        default: return Ogre::ColourValue(1, 1, 0, 1);
+      }
+    };
+
+  links_obj_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+  for (const auto & l : last_msg_->links) {
+    if (l.from_navcel >= V0.size() || l.to_navcel >= V0.size()) {continue;}
+    const Ogre::Vector3 a = centroid(l.from_navcel), b = centroid(l.to_navcel);
+    const Ogre::Vector3 mid = 0.5f * (a + b) + Ogre::Vector3(0, 0, 0.25f * (a - b).length());
+    const Ogre::ColourValue c = colour(l.type);
+    links_obj_->position(a); links_obj_->colour(c);
+    links_obj_->position(mid); links_obj_->colour(c);
+    links_obj_->position(mid); links_obj_->colour(c);
+    links_obj_->position(b); links_obj_->colour(c);
+  }
+  links_obj_->end();
 }
 
 void NavMapDisplay::updateColorSchemeOptions_()

@@ -23,3 +23,6 @@ navmap_ros_interfaces/NavMapSurface[] surfaces
 
 # Per-NavCel layers
 navmap_ros_interfaces/NavMapLayer[] layers
+
+# Links between NavCels that are not adjacent (file format version 2)
+navmap_ros_interfaces/NavMapLink[] links
