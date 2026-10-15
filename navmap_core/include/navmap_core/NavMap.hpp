@@ -506,10 +506,14 @@ public:
   /**
    * \brief Build topological adjacency between neighboring NavCels.
    *
-   * Two triangles are neighbors if they share an undirected edge.
+   * Two triangles are neighbors if they share an undirected edge and no other
+   * triangle uses it; edges shared by more than two (non-manifold) stay open.
    * Called by \ref rebuild_geometry_accels().
    */
   void build_adjacency();
+
+  /// \brief Edges shared by more than two NavCels in the last adjacency build.
+  std::size_t nonmanifold_edges() const {return nonmanifold_edges_;}
 
   /**
    * \brief Mark a vertex as updated (reserved for future cache invalidation).
@@ -1125,6 +1129,8 @@ private:
   bool closest_hit_(
     const Eigen::Vector3f & o, const Eigen::Vector3f & d, float t_max,
     RayHit & out) const;
+
+  std::size_t nonmanifold_edges_{0};
 
   // Owning surface per NavCel, built in rebuild_geometry_accels().
   std::vector<std::uint32_t> navcel_surface_;
