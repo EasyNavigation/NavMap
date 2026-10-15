@@ -82,6 +82,7 @@ void fill_layer_msg(
 {
   lmsg.name = name;
   lmsg.type = static_cast<uint8_t>(base.type());
+  lmsg.geometry_id = nm.geometry_id();
   switch (base.type()) {
     case navmap::LayerType::U8:
       lmsg.data_u8 = static_cast<const navmap::LayerView<uint8_t> &>(base).data();
@@ -115,9 +116,48 @@ void set_layer(navmap::NavMap & nm, const NavMapLayer & msg, const V & data)
   dst->mark_all_changed();
 }
 
-// Message -> layer data and metadata (the layer is created or retyped as needed).
+template<typename T, typename V>
+void patch_layer(navmap::NavMap & nm, const NavMapLayer & msg, const V & data)
+{
+  auto view = std::dynamic_pointer_cast<navmap::LayerView<T>>(nm.layers.get(msg.name));
+  if (!view) {
+    throw std::runtime_error(
+            "from_msg(NavMapLayer): sparse update of '" + msg.name +
+          "', which is missing or of another type");
+  }
+  if (data.size() != msg.indices.size()) {
+    throw std::runtime_error("from_msg(NavMapLayer): sparse update sizes differ");
+  }
+  auto & d = view->data();
+  for (std::size_t k = 0; k < msg.indices.size(); ++k) {
+    const auto c = msg.indices[k];
+    if (c < d.size()) {
+      d[c] = data[k];
+      view->mark_changed(c);
+    }
+  }
+}
+
+// Message -> layer data and metadata (the layer is created or retyped as needed). A message
+// naming another geometry, or a malformed sparse update, throws.
 void apply_layer_msg(const NavMapLayer & msg, navmap::NavMap & nm)
 {
+  if (msg.geometry_id != 0 && nm.geometry_id() != msg.geometry_id && !nm.navcels.empty()) {
+    throw std::runtime_error(
+            "from_msg(NavMapLayer): layer '" + msg.name + "' belongs to another geometry");
+  }
+  if (!msg.indices.empty()) {
+    switch (msg.type) {
+      case NavMapLayer::U8: patch_layer<uint8_t>(nm, msg, msg.data_u8); break;
+      case NavMapLayer::F32: patch_layer<float>(nm, msg, msg.data_f32); break;
+      case NavMapLayer::F64: patch_layer<double>(nm, msg, msg.data_f64); break;
+      case NavMapLayer::I16: patch_layer<int16_t>(nm, msg, msg.data_i16); break;
+      default:
+        throw std::runtime_error("from_msg(NavMapLayer): unsupported type value " +
+          std::to_string(msg.type));
+    }
+    return;
+  }
   if (auto existing = nm.layers.get(msg.name);
     existing && static_cast<uint8_t>(existing->type()) != msg.type)
   {
@@ -189,6 +229,8 @@ NavMap to_msg(const navmap::NavMap & nm, const std_msgs::msg::Header & header)
     fill_layer_msg(nm, lname, *base, lmsg);
     out.layers.push_back(std::move(lmsg));
   }
+
+  out.geometry_id = nm.geometry_id();
 
   // links between non-adjacent NavCels
   out.links.reserve(nm.links().size());
@@ -301,6 +343,55 @@ navmap_ros_interfaces::msg::NavMapLayer to_msg(
   const std::string & layer_name)
 {
   return to_msg(nm, layer_name, std_msgs::msg::Header());
+}
+
+navmap_ros_interfaces::msg::NavMapLayer to_layer_update_msg(
+  const navmap::NavMap & nm, const std::string & layer_name,
+  const std_msgs::msg::Header & header, float max_sparse_fraction)
+{
+  auto base = nm.layers.get(layer_name);
+  if (!base) {
+    throw std::runtime_error("to_layer_update_msg: layer '" + layer_name + "' not found");
+  }
+  const auto & changed = base->changed();
+  if (base->all_changed() || changed.empty() ||
+    static_cast<float>(changed.size()) > max_sparse_fraction * static_cast<float>(base->size()))
+  {
+    return to_msg(nm, layer_name, header);  // full layer
+  }
+  NavMapLayer msg;
+  msg.header = header;
+  msg.name = layer_name;
+  msg.type = static_cast<uint8_t>(base->type());
+  msg.geometry_id = nm.geometry_id();
+  if (const auto meta = nm.get_layer_meta(layer_name)) {
+    msg.description = meta->description;
+    msg.unit = meta->unit;
+    msg.has_unknown = meta->unknown.has_value();
+    msg.unknown_value = meta->unknown.value_or(0.0);
+  }
+  msg.indices.assign(changed.begin(), changed.end());
+  auto gather = [&](const auto & data, auto & out) {
+      out.reserve(changed.size());
+      for (const auto c : changed) {
+        out.push_back(data[c]);
+      }
+    };
+  switch (base->type()) {
+    case navmap::LayerType::U8:
+      gather(static_cast<const navmap::LayerView<uint8_t> &>(*base).data(), msg.data_u8);
+      break;
+    case navmap::LayerType::F32:
+      gather(static_cast<const navmap::LayerView<float> &>(*base).data(), msg.data_f32);
+      break;
+    case navmap::LayerType::F64:
+      gather(static_cast<const navmap::LayerView<double> &>(*base).data(), msg.data_f64);
+      break;
+    case navmap::LayerType::I16:
+      gather(static_cast<const navmap::LayerView<int16_t> &>(*base).data(), msg.data_i16);
+      break;
+  }
+  return msg;
 }
 
 void from_msg(

@@ -328,6 +328,12 @@ navmap::NavMap nm2 = navmap_ros::from_msg(msg);
 
 ---
 
+### Layer updates
+
+`navmap_ros::to_layer_update_msg(nm, "obstacles")` publishes only what changed since the layer's last `clear_changes()`: a sparse `NavMapLayer` (`indices` + values) when few NavCels changed, the full layer otherwise. Every `NavMap` and `NavMapLayer` message carries the map's `geometry_id`, so `from_msg` (and RViz2) reject updates meant for another geometry.
+
+---
+
 ## 9. Save and load from disk
 
 NavMap supports saving and loading using YAML + mesh files:

@@ -346,6 +346,54 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
     return;
   }
 
+  if (msg->geometry_id != 0 && last_msg_->geometry_id != 0 &&
+    msg->geometry_id != last_msg_->geometry_id)
+  {
+    setStatus(rviz_common::properties::StatusProperty::Warn, "Layer Update",
+      QString("Ignored \"%1\": it belongs to another geometry").arg(
+        QString::fromStdString(msg->name)));
+    return;
+  }
+
+  // Sparse update: patch the cached layer of the same name and type
+  if (!msg->indices.empty()) {
+    NavMapLayerMsg * cached = nullptr;
+    for (auto & L : last_msg_->layers) {
+      if (L.name == msg->name && L.type == msg->type) {cached = &L;}
+    }
+    auto patch = [&](auto & dst, const auto & src) {
+        if (src.size() != msg->indices.size()) {return false;}
+        for (size_t k = 0; k < msg->indices.size(); ++k) {
+          if (msg->indices[k] < dst.size()) {dst[msg->indices[k]] = src[k];}
+        }
+        return true;
+      };
+    bool ok = cached != nullptr;
+    if (ok) {
+      switch (msg->type) {
+        case NavMapLayerMsg::U8: ok = patch(cached->data_u8, msg->data_u8); break;
+        case NavMapLayerMsg::F32: ok = patch(cached->data_f32, msg->data_f32); break;
+        case NavMapLayerMsg::F64: ok = patch(cached->data_f64, msg->data_f64); break;
+        case NavMapLayerMsg::I16: ok = patch(cached->data_i16, msg->data_i16); break;
+        default: ok = false;
+      }
+    }
+    if (!ok) {
+      setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
+        QString("Sparse update of \"%1\" does not match a received layer").arg(
+          QString::fromStdString(msg->name)));
+      return;
+    }
+    ++layer_update_count_;
+    if (currentSelectedLayer_() == msg->name) {updateColorsOnly_();}
+    setStatus(rviz_common::properties::StatusProperty::Ok, "Layer Update",
+      QString("OK — updates: %1 | last: \"%2\" (sparse, %3 cells)")
+      .arg(qulonglong(layer_update_count_)).arg(QString::fromStdString(msg->name))
+      .arg(qulonglong(msg->indices.size())));
+    context_->queueRender();
+    return;
+  }
+
   const size_t n_tris = last_msg_->navcels_v0.size();
   const size_t n_u8 = msg->data_u8.size();
   const size_t n_f32 = msg->data_f32.size();

@@ -15,8 +15,15 @@ string unit
 bool has_unknown        # true: unknown_value means "not observed" (NaN allowed)
 float64 unknown_value
 
+# Geometry this layer belongs to (NavMap::geometry_id(); 0 = unspecified)
+uint64 geometry_id
+
+# Sparse update: if non-empty, the data_* array holds one value per listed NavCel and the
+# rest of the layer is unchanged. If empty, the data_* array covers every NavCel.
+uint32[] indices
+
 # Exactly one of the data_* arrays must be non-empty, and its length must be
-# equal to the number of triangles (NavCels) in the NavMap message.
+# equal to the number of triangles (NavCels) in the NavMap message (or to indices).
 uint8[]   data_u8
 float32[] data_f32
 float64[] data_f64

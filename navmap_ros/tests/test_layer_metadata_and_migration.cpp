@@ -35,6 +35,7 @@
 #include "rclcpp/serialized_message.hpp"
 
 namespace fs = std::filesystem;
+using navmap::NavCelId;
 using navmap::NavMap;
 
 namespace
@@ -316,4 +317,70 @@ TEST(Links, TravelInMessagesAndFilesAndInvalidOnesAreDropped)
   ASSERT_TRUE(navmap_ros::io::load_from_file(dir + "_v1.navmap", old));
   EXPECT_TRUE(old.links().empty());
   fs::remove(dir + "_v1.navmap");
+}
+
+TEST(LayerUpdates, SparseWhenFewCellsChangedAndAppliedOnTheSameGeometry)
+{
+  NavMap src = small_map();
+  auto v = src.add_layer<float>("cost", "c", "", 0.0f);
+  NavMap dst = small_map();
+  navmap_ros::from_msg(navmap_ros::to_msg(src, "cost"), dst);
+  // A new layer: full update
+  auto m = navmap_ros::to_layer_update_msg(src, "cost");
+  EXPECT_TRUE(m.indices.empty());
+  EXPECT_EQ(m.data_f32.size(), src.navcels.size());
+  EXPECT_EQ(m.geometry_id, src.geometry_id());
+  v->clear_changes();
+  // Nothing changed: full (an empty sparse update would mean the whole layer)
+  EXPECT_TRUE(navmap_ros::to_layer_update_msg(src, "cost").indices.empty());
+  // One cell changed: sparse
+  src.layer_set<float>("cost", 5, 2.5f);
+  m = navmap_ros::to_layer_update_msg(src, "cost");
+  ASSERT_EQ(m.indices, (std::vector<uint32_t>{5}));
+  ASSERT_EQ(m.data_f32, (std::vector<float>{2.5f}));
+  dst.layers.get("cost")->clear_changes();  // the full load above marked the whole layer
+  navmap_ros::from_msg(m, dst);
+  EXPECT_FLOAT_EQ(dst.layer_get<float>("cost", 5), 2.5f);
+  EXPECT_FLOAT_EQ(dst.layer_get<float>("cost", 4), 0.0f);
+  EXPECT_EQ(dst.layers.get("cost")->changed(), (std::vector<NavCelId>{5}));
+  // More than the sparse fraction changed: full
+  for (NavCelId c = 0; c < 4; ++c) {
+    src.layer_set<float>("cost", c, 1.0f);
+                                                                          }
+  EXPECT_TRUE(navmap_ros::to_layer_update_msg(src, "cost", {}, 0.25f).indices.empty());
+  EXPECT_FALSE(navmap_ros::to_layer_update_msg(src, "cost", {}, 0.9f).indices.empty());
+}
+
+TEST(LayerUpdates, UpdatesForAnotherGeometryOrMalformedAreRejected)
+{
+  NavMap src = small_map();
+  src.add_layer<uint8_t>("occ", "", "", uint8_t{0});
+  src.layers.get("occ")->clear_changes();
+  src.layer_set<uint8_t>("occ", 1, 254);
+  const auto sparse = navmap_ros::to_layer_update_msg(src, "occ");
+  ASSERT_FALSE(sparse.indices.empty());
+  // Another geometry
+  NavMap other = small_map();
+  other.add_vertex({5.0f, 5.0f, 0.0f});
+  other.add_layer<uint8_t>("occ", "", "", uint8_t{0});
+  EXPECT_THROW(navmap_ros::from_msg(sparse, other), std::runtime_error);
+  EXPECT_THROW(navmap_ros::from_msg(navmap_ros::to_msg(src, "occ"), other), std::runtime_error);
+  // geometry_id 0 (an older publisher): accepted
+  auto anon = navmap_ros::to_msg(src, "occ");
+  anon.geometry_id = 0;
+  EXPECT_NO_THROW(navmap_ros::from_msg(anon, other));
+  // Sparse update of a missing layer, or of another type, or with mismatched sizes
+  NavMap same = small_map();
+  EXPECT_THROW(navmap_ros::from_msg(sparse, same), std::runtime_error);
+  same.add_layer<float>("occ", "", "", 0.0f);
+  EXPECT_THROW(navmap_ros::from_msg(sparse, same), std::runtime_error);
+  NavMap good = small_map();
+  good.add_layer<uint8_t>("occ", "", "", uint8_t{0});
+  auto bad = sparse;
+  bad.data_u8.push_back(7);
+  EXPECT_THROW(navmap_ros::from_msg(bad, good), std::runtime_error);
+  EXPECT_NO_THROW(navmap_ros::from_msg(sparse, good));
+  EXPECT_EQ(good.layer_get<uint8_t>("occ", 1), 254);
+  // The full map message carries the geometry id too
+  EXPECT_EQ(navmap_ros::to_msg(src).geometry_id, src.geometry_id());
 }

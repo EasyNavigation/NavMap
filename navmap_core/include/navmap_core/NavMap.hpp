@@ -601,6 +601,19 @@ public:
   bool has_same_geometry(const NavMap & other) const;
 
   /**
+   * \brief Fingerprint of the geometry (vertex positions and triangles), 64-bit FNV-1a.
+   *
+   * Equal maps have equal ids, so a layer update can name the geometry it belongs to. Recomputed
+   * lazily after add_vertex(), add_navcel() or rebuild_geometry_accels(); call the latter after
+   * editing positions or navcels directly.
+   */
+  std::uint64_t geometry_id() const
+  {
+    ensure_geometry_fingerprint_();
+    return geometry_fp_;
+  }
+
+  /**
    * \brief Build topological adjacency between neighboring NavCels.
    *
    * Two triangles are neighbors if they share an undirected edge and no other

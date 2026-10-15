@@ -131,3 +131,25 @@ TEST(Links, CopiesAndAssignmentsCarryTheLinks)
   NavMap moved(std::move(assigned));
   EXPECT_EQ(moved.links().size(), 1u);
 }
+
+TEST(GeometryId, EqualForEqualGeometryAndFollowsEdits)
+{
+  NavMap a = two_floors(), b = two_floors();
+  EXPECT_EQ(a.geometry_id(), b.geometry_id());
+  EXPECT_NE(a.geometry_id(), 0u);
+  NavMap copy(a);
+  EXPECT_EQ(copy.geometry_id(), a.geometry_id());
+  // Layers and links are not geometry
+  a.add_layer<float>("f", "", "", 1.0f);
+  a.add_link(0, 8);
+  EXPECT_EQ(a.geometry_id(), b.geometry_id());
+  // Editing the geometry changes it (the fingerprint used to go stale after a first query)
+  const auto before = b.geometry_id();
+  b.add_vertex({9.0f, 9.0f, 9.0f});
+  EXPECT_NE(b.geometry_id(), before);
+  NavMap c = two_floors();
+  const auto c0 = c.geometry_id();
+  c.positions.z[0] += 0.1f;
+  c.rebuild_geometry_accels();
+  EXPECT_NE(c.geometry_id(), c0);
+}

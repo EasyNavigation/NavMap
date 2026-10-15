@@ -439,6 +439,7 @@ inline float box_sq_dist(const AABB & box, const Vec3 & p)
 
 void NavMap::rebuild_geometry_accels()
 {
+  geometry_dirty_ = true;
   // Normals and areas.
   for (auto & c : navcels) {
     Vec3 a = positions.at(c.v[0]);
@@ -948,6 +949,7 @@ bool NavMap::remove_surface(std::size_t surface_index)
 
 uint32_t NavMap::add_vertex(const Eigen::Vector3f & p)
 {
+  geometry_dirty_ = true;
   positions.x.push_back(p.x());
   positions.y.push_back(p.y());
   positions.z.push_back(p.z());
@@ -956,6 +958,7 @@ uint32_t NavMap::add_vertex(const Eigen::Vector3f & p)
 
 NavCelId NavMap::add_navcel(uint32_t v0, uint32_t v1, uint32_t v2)
 {
+  geometry_dirty_ = true;
   NavCel t; t.v[0] = v0; t.v[1] = v1; t.v[2] = v2;
   navcels.push_back(t);
   return static_cast<NavCelId>(navcels.size() - 1);
