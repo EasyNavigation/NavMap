@@ -3,7 +3,7 @@ var searchData=
   ['o_0',['o',['../structnavmap_1_1Ray.html#a39bf78a4874a184484ae2a12923ce16d',1,'navmap::Ray::o'],['../structRay.html#a39bf78a4874a184484ae2a12923ce16d',1,'Ray::o']]],
   ['occupancy_1',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['occupancy_20hpp_2',['7c. Unknown values and log-odds occupancy (&lt;span class=&quot;tt&quot;&gt;Occupancy.hpp&lt;/span&gt;)',['../index.html#autotoc_md29',1,'']]],
-  ['occupancy_20mapping_3',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md61',1,'']]],
+  ['occupancy_20mapping_3',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md63',1,'']]],
   ['occupancy_20occupancy_20hpp_4',['7c. Unknown values and log-odds occupancy (&lt;span class=&quot;tt&quot;&gt;Occupancy.hpp&lt;/span&gt;)',['../index.html#autotoc_md29',1,'']]],
   ['occupancy_2ehpp_5',['Occupancy.hpp',['../Occupancy_8hpp.html',1,'']]],
   ['occupancylayer_6',['OccupancyLayer',['../classnavmap_1_1OccupancyLayer.html',1,'OccupancyLayer'],['../classOccupancyLayer.html',1,'OccupancyLayer'],['../classnavmap_1_1OccupancyLayer.html#a735ff296ee81f76c6ef154d16b296841',1,'navmap::OccupancyLayer::OccupancyLayer()'],['../classOccupancyLayer.html#a735ff296ee81f76c6ef154d16b296841',1,'OccupancyLayer::OccupancyLayer()']]],

@@ -1,7 +1,7 @@
 var searchData=
 [
   ['main_0',['main',['../navmap__bench_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'main(int argc, char **argv):&#160;navmap_bench.cpp'],['../slam__server__app_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97',1,'main(int argc, char *argv[]):&#160;slam_server_app.cpp']]],
-  ['mapping_1',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md61',1,'']]],
+  ['mapping_1',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md63',1,'']]],
   ['mark_2',['mark',['../classnavmap_1_1TraversalScratch.html#a915c252f0f4ffa6d6504e5cd53e61f5c',1,'navmap::TraversalScratch::mark()'],['../classTraversalScratch.html#a915c252f0f4ffa6d6504e5cd53e61f5c',1,'TraversalScratch::mark()']]],
   ['mark_5fall_5fchanged_3',['mark_all_changed',['../structnavmap_1_1LayerViewBase.html#a0e70664484443cd8b52589d6d9a92b8a',1,'navmap::LayerViewBase']]],
   ['mark_5fchanged_4',['mark_changed',['../structnavmap_1_1LayerViewBase.html#ad2592fe8d3a8028e68b2b4a1e4062c74',1,'navmap::LayerViewBase']]],
@@ -21,7 +21,7 @@ var searchData=
   ['max_5fnormal_5fchange_18',['max_normal_change',['../structnavmap_1_1SimplifyParams.html#a5580b471ca6c81d0b1a1b904aebafbdc',1,'navmap::SimplifyParams::max_normal_change'],['../structSimplifyParams.html#a5580b471ca6c81d0b1a1b904aebafbdc',1,'SimplifyParams::max_normal_change']]],
   ['max_5fslope_5fdeg_19',['max_slope_deg',['../structnavmap__ros_1_1BuildParams.html#a0ff349dd9350a87c621e936084ec2d1f',1,'navmap_ros::BuildParams']]],
   ['max_5fsurfaces_20',['max_surfaces',['../structnavmap__ros_1_1BuildParams.html#a6734abebd4b0cf51caa407b285928658',1,'navmap_ros::BuildParams']]],
-  ['messages_21',['8. Serialize to / from ROS messages',['../index.html#autotoc_md41',1,'']]],
+  ['messages_21',['8. Serialize to / from ROS messages',['../index.html#autotoc_md43',1,'']]],
   ['metric_22',['Metric',['../namespacenavmap.html#abf74dfd688b4203cefa6d49f8d14403e',1,'navmap::Metric'],['../test__iterators_8cpp.html#abf74dfd688b4203cefa6d49f8d14403e',1,'Metric:&#160;Iterators.hpp']]],
   ['min_23',['MIN',['../namespacenavmap.html#a5f0aff0a3be02d25f4e4eaadaac1fff1ace31e2a082d17e038fcc6e3006166653',1,'navmap']]],
   ['min_24',['min',['../structnavmap_1_1AABB.html#a281c95909b643b5abda2fdd06e51ba30',1,'navmap::AABB::min'],['../structAABB.html#a281c95909b643b5abda2fdd06e51ba30',1,'AABB::min']]],

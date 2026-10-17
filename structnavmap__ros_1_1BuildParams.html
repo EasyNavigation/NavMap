@@ -114,7 +114,7 @@ Collaboration diagram for BuildParams:</div>
 <map name="aBuildParams_coll__map" id="aBuildParams_coll__map">
 <area shape="rect" title="Parameters controlling NavMap construction from point clouds." alt="" coords="122,305,217,331"/>
 <area shape="rect" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" title=" " alt="" coords="24,47,17,96,15,158,18,190,26,222,38,252,55,280,69,292,85,301,122,312,120,317,83,306,66,297,51,283,33,255,21,224,13,191,10,158,12,95,19,46"/>
+<area shape="poly" title=" " alt="" coords="25,47,17,96,16,158,19,190,26,222,39,252,56,280,70,292,86,301,122,312,121,317,84,306,66,296,52,283,34,255,21,224,14,191,11,158,12,95,19,46"/>
 <area shape="rect" title=" " alt="" coords="150,5,189,31"/>
 <area shape="poly" title=" " alt="" coords="172,47,172,305,167,305,167,47"/>
 <area shape="rect" title=" " alt="" coords="267,5,312,31"/>
@@ -124,6 +124,16 @@ Collaboration diagram for BuildParams:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a1e534a3611572272b87287459a0c082f" id="r_a1e534a3611572272b87287459a0c082f"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a1e534a3611572272b87287459a0c082f">carve_free_space</a> = true</td></tr>
+<tr class="memdesc:a1e534a3611572272b87287459a0c082f"><td class="mdescLeft">&#160;</td><td class="mdescRight">With viewpoints: drop the points in space that rays went through (people, noise).  <br /></td></tr>
+<tr class="memitem:ae75f83475db4149feb2285136632736b" id="r_ae75f83475db4149feb2285136632736b"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ae75f83475db4149feb2285136632736b">carve_max_range</a> = 20.0f</td></tr>
+<tr class="memdesc:ae75f83475db4149feb2285136632736b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rays carve only their first carve_max_range meters.  <br /></td></tr>
+<tr class="memitem:a2d18f60182be26c3d84f12ae47131910" id="r_a2d18f60182be26c3d84f12ae47131910"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a2d18f60182be26c3d84f12ae47131910">carve_ratio</a> = 1.0f</td></tr>
+<tr class="memdesc:a2d18f60182be26c3d84f12ae47131910"><td class="mdescLeft">&#160;</td><td class="mdescRight">A voxel is carved when rays went through it more than carve_ratio times its hits.  <br /></td></tr>
+<tr class="memitem:ae57edc3ce4bd58c113e0974d280ac361" id="r_ae57edc3ce4bd58c113e0974d280ac361"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ae57edc3ce4bd58c113e0974d280ac361">carve_voxel</a> = 0.0f</td></tr>
+<tr class="memdesc:ae57edc3ce4bd58c113e0974d280ac361"><td class="mdescLeft">&#160;</td><td class="mdescRight">Voxel size (meters) of the free-space carving (0 = max(0.1, resolution / 2)).  <br /></td></tr>
+<tr class="memitem:af055227c88bee0e499647810dd6cc31f" id="r_af055227c88bee0e499647810dd6cc31f"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#af055227c88bee0e499647810dd6cc31f">drop_seen_from_below</a> = true</td></tr>
+<tr class="memdesc:af055227c88bee0e499647810dd6cc31f"><td class="mdescLeft">&#160;</td><td class="mdescRight">With viewpoints: drop the faces only seen from below (ceilings, slab undersides).  <br /></td></tr>
 <tr class="memitem:a6756d66b9752cff73a41c607d4572ae0" id="r_a6756d66b9752cff73a41c607d4572ae0"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a6756d66b9752cff73a41c607d4572ae0">k_neighbors</a> = 20</td></tr>
 <tr class="memdesc:a6756d66b9752cff73a41c607d4572ae0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alternative to radius: number of nearest neighbors (k-NN).  <br /></td></tr>
 <tr class="memitem:a8c2901c184925044a9bd4e62b6b0a79b" id="r_a8c2901c184925044a9bd4e62b6b0a79b"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a8c2901c184925044a9bd4e62b6b0a79b">max_dz</a> = 0.25f</td></tr>
@@ -155,6 +165,86 @@ Public Attributes</h2></td></tr>
 <div class="textblock"><p>Parameters controlling <a class="el" href="classNavMap.html">NavMap</a> construction from point clouds. </p>
 <p><a class="el" href="namespacenavmap__ros.html#a731ad13a79c7d061fba796add4aea852" title="Build a NavMap from an unorganized point cloud (multi-level grid triangulation).">from_points()</a> uses resolution, max_dz, max_slope_deg, min_area, min_clearance, max_surfaces, min_surface_area and max_hole_area. max_edge_len, neighbor_radius, k_neighbors, use_radius and min_angle_deg are kept for API compatibility and ignored. For voxelized clouds, use a resolution of at least twice the voxel size. </p>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
+<a id="a1e534a3611572272b87287459a0c082f" name="a1e534a3611572272b87287459a0c082f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e534a3611572272b87287459a0c082f">&#9670;&#160;</a></span>carve_free_space</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool carve_free_space = true</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>With viewpoints: drop the points in space that rays went through (people, noise). </p>
+
+</div>
+</div>
+<a id="ae75f83475db4149feb2285136632736b" name="ae75f83475db4149feb2285136632736b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae75f83475db4149feb2285136632736b">&#9670;&#160;</a></span>carve_max_range</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float carve_max_range = 20.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Rays carve only their first carve_max_range meters. </p>
+
+</div>
+</div>
+<a id="a2d18f60182be26c3d84f12ae47131910" name="a2d18f60182be26c3d84f12ae47131910"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d18f60182be26c3d84f12ae47131910">&#9670;&#160;</a></span>carve_ratio</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float carve_ratio = 1.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A voxel is carved when rays went through it more than carve_ratio times its hits. </p>
+
+</div>
+</div>
+<a id="ae57edc3ce4bd58c113e0974d280ac361" name="ae57edc3ce4bd58c113e0974d280ac361"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae57edc3ce4bd58c113e0974d280ac361">&#9670;&#160;</a></span>carve_voxel</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float carve_voxel = 0.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Voxel size (meters) of the free-space carving (0 = max(0.1, resolution / 2)). </p>
+
+</div>
+</div>
+<a id="af055227c88bee0e499647810dd6cc31f" name="af055227c88bee0e499647810dd6cc31f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af055227c88bee0e499647810dd6cc31f">&#9670;&#160;</a></span>drop_seen_from_below</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool drop_seen_from_below = true</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>With viewpoints: drop the faces only seen from below (ceilings, slab undersides). </p>
+
+</div>
+</div>
 <a id="a6756d66b9752cff73a41c607d4572ae0" name="a6756d66b9752cff73a41c607d4572ae0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6756d66b9752cff73a41c607d4572ae0">&#9670;&#160;</a></span>k_neighbors</h2>
 

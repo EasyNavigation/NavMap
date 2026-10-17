@@ -114,6 +114,8 @@ Namespaces</h2></td></tr>
 Classes</h2></td></tr>
 <tr class="memitem:BuildParams" id="r_BuildParams"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters controlling <a class="el" href="classNavMap.html">NavMap</a> construction from point clouds.  <a href="structnavmap__ros_1_1BuildParams.html#details">More...</a><br /></td></tr>
+<tr class="memitem:ViewpointFilterStats" id="r_ViewpointFilterStats"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap__ros_1_1ViewpointFilterStats.html">ViewpointFilterStats</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Points removed by <a class="el" href="#a52a5af01e3ba3d589471e71dfce5de65" title="Clean a cloud with the sensor position of each point (vp_x, vp_y, vp_z).">filter_with_viewpoints()</a>.  <a href="structnavmap__ros_1_1ViewpointFilterStats.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-typedef-members" class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -122,6 +124,8 @@ Typedefs</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a0a05354967c19acb4e9cb8675a0c251d" id="r_a0a05354967c19acb4e9cb8675a0c251d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a0a05354967c19acb4e9cb8675a0c251d">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt)</td></tr>
+<tr class="memitem:a52a5af01e3ba3d589471e71dfce5de65" id="r_a52a5af01e3ba3d589471e71dfce5de65"><td class="memItemLeft">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a52a5af01e3ba3d589471e71dfce5de65">filter_with_viewpoints</a> (const pcl::PointCloud&lt; pcl::PointWithViewpoint &gt; &amp;input_points, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;params, <a class="el" href="structnavmap__ros_1_1ViewpointFilterStats.html">ViewpointFilterStats</a> *stats=nullptr)</td></tr>
+<tr class="memdesc:a52a5af01e3ba3d589471e71dfce5de65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean a cloud with the sensor position of each point (<span class="tt">vp_x</span>, <span class="tt">vp_y</span>, <span class="tt">vp_z</span>).  <br /></td></tr>
 <tr class="memitem:a9835bd4485202df104ab38cb5cdc1ed8" id="r_a9835bd4485202df104ab38cb5cdc1ed8"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a9835bd4485202df104ab38cb5cdc1ed8">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg)</td></tr>
 <tr class="memitem:aa9519c921a7499b39e2cbe21304b2b64" id="r_aa9519c921a7499b39e2cbe21304b2b64"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa9519c921a7499b39e2cbe21304b2b64">from_msg</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;msg, std_msgs::msg::Header &amp;header)</td></tr>
 <tr class="memitem:ac70f12eb1f059a42b6993cb612720ea0" id="r_ac70f12eb1f059a42b6993cb612720ea0"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac70f12eb1f059a42b6993cb612720ea0">from_msg</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
@@ -138,6 +142,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:afffebef87c724021d5e855c6bebfaff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> from a <span class="tt">nav_msgs::msg::OccupancyGrid</span> using a regular triangular surface with shared vertices.  <br /></td></tr>
 <tr class="memitem:af1d0f450cee491ef385215a317c6876a" id="r_af1d0f450cee491ef385215a317c6876a"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#af1d0f450cee491ef385215a317c6876a">from_pointcloud2</a> (const sensor_msgs::msg::PointCloud2 &amp;pc2, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
 <tr class="memdesc:af1d0f450cee491ef385215a317c6876a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html">NavMap</a> surface from a ROS <span class="tt">sensor_msgs::msg::PointCloud2</span>.  <br /></td></tr>
+<tr class="memitem:aee9f6b96eb3e8420f6265e6ee1211066" id="r_aee9f6b96eb3e8420f6265e6ee1211066"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#aee9f6b96eb3e8420f6265e6ee1211066">from_points</a> (const pcl::PointCloud&lt; pcl::PointWithViewpoint &gt; &amp;input_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
+<tr class="memdesc:aee9f6b96eb3e8420f6265e6ee1211066"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html">NavMap</a> from a cloud with the sensor position of each point.  <br /></td></tr>
 <tr class="memitem:a731ad13a79c7d061fba796add4aea852" id="r_a731ad13a79c7d061fba796add4aea852"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#a731ad13a79c7d061fba796add4aea852">from_points</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;input_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
 <tr class="memdesc:a731ad13a79c7d061fba796add4aea852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a <a class="el" href="classNavMap.html">NavMap</a> from an unorganized point cloud (multi-level grid triangulation).  <br /></td></tr>
 <tr class="memitem:ad865ae66bd00fdd94fac6609b436cf02" id="r_ad865ae66bd00fdd94fac6609b436cf02"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ad865ae66bd00fdd94fac6609b436cf02">from_regular_grid</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;grid_points, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> params)</td></tr>
@@ -221,6 +227,38 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a52a5af01e3ba3d589471e71dfce5de65" name="a52a5af01e3ba3d589471e71dfce5de65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52a5af01e3ba3d589471e71dfce5de65">&#9670;&#160;</a></span>filter_with_viewpoints()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pcl::PointCloud&lt; pcl::PointXYZ &gt; filter_with_viewpoints </td>
+          <td>(</td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointWithViewpoint &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>input_points</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>params</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structnavmap__ros_1_1ViewpointFilterStats.html">ViewpointFilterStats</a> *</td>          <td class="paramname"><span class="paramname"><em>stats</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clean a cloud with the sensor position of each point (<span class="tt">vp_x</span>, <span class="tt">vp_y</span>, <span class="tt">vp_z</span>). </p>
+<ul>
+<li>Free-space carving (carve_free_space): each ray counts a pass in the occupied voxels it crosses under their highest point, from its viewpoint up to a margin before its point that grows as the ray grazes (v / sin(elevation), at most for 15 degrees). Passes along a planar voxel (under 15 degrees, a wall) do not count. Voxels with at least two passes and more than carve_ratio passes per hit are dropped.</li>
+<li>Seen from below (drop_seen_from_below): in each XY cell and thin level (as in from_points; up to two steps tall: a ceiling, a slab), a point whose ray climbs both the level's plane and the horizontal by more than 1 degree is seen from below. Walls, faces steeper than max_slope_deg and tall levels (a slope's face, a table over a floor) are left out. It is dropped unless the level has something not seen from below under it, as it still takes free height. A level seen only from below is dropped when most of it lies over a lower level of its cell (a ceiling over the floor it was seen from); otherwise it stays (the crest of a slope seen from its foot). </li>
+</ul>
 
 </div>
 </div>
@@ -504,8 +542,37 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="aee9f6b96eb3e8420f6265e6ee1211066" name="aee9f6b96eb3e8420f6265e6ee1211066"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee9f6b96eb3e8420f6265e6ee1211066">&#9670;&#160;</a></span>from_points() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> from_points </td>
+          <td>(</td>
+          <td class="paramtype">const pcl::PointCloud&lt; pcl::PointWithViewpoint &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>input_points</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">navmap_ros_interfaces::msg::NavMap &amp;</td>          <td class="paramname"><span class="paramname"><em>out_msg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a></td>          <td class="paramname"><span class="paramname"><em>params</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Build a <a class="el" href="classNavMap.html">NavMap</a> from a cloud with the sensor position of each point. </p>
+<p>Same as the PointXYZ overload, on the cloud cleaned by <a class="el" href="#a52a5af01e3ba3d589471e71dfce5de65" title="Clean a cloud with the sensor position of each point (vp_x, vp_y, vp_z).">filter_with_viewpoints()</a>. </p>
+
+</div>
+</div>
 <a id="a731ad13a79c7d061fba796add4aea852" name="a731ad13a79c7d061fba796add4aea852"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a731ad13a79c7d061fba796add4aea852">&#9670;&#160;</a></span>from_points()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a731ad13a79c7d061fba796add4aea852">&#9670;&#160;</a></span>from_points() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

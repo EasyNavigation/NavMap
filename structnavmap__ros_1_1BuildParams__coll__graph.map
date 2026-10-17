@@ -1,7 +1,7 @@
 <map id="BuildParams" name="BuildParams">
 <area shape="rect" id="Node000001" title="Parameters controlling NavMap construction from point clouds." alt="" coords="122,305,217,331"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="24,47,17,96,15,158,18,190,26,222,38,252,55,280,69,292,85,301,122,312,120,317,83,306,66,297,51,283,33,255,21,224,13,191,10,158,12,95,19,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="25,47,17,96,16,158,19,190,26,222,39,252,56,280,70,292,86,301,122,312,121,317,84,306,66,296,52,283,34,255,21,224,14,191,11,158,12,95,19,46"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="150,5,189,31"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,47,172,305,167,305,167,47"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="267,5,312,31"/>

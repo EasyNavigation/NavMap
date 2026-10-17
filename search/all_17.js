@@ -7,7 +7,7 @@ var searchData=
   ['p_5fmin_4',['p_min',['../structnavmap_1_1OccupancyParams.html#ab3f04db518812dd2cf4071e07ee5936a',1,'navmap::OccupancyParams::p_min'],['../structOccupancyParams.html#ab3f04db518812dd2cf4071e07ee5936a',1,'OccupancyParams::p_min']]],
   ['p_5fmiss_5',['p_miss',['../structnavmap_1_1OccupancyParams.html#a6bdcaf8d280eac661d971e69f3922fe9',1,'navmap::OccupancyParams::p_miss'],['../structOccupancyParams.html#a6bdcaf8d280eac661d971e69f3922fe9',1,'OccupancyParams::p_miss']]],
   ['p_5foccupied_6',['p_occupied',['../structnavmap_1_1OccupancyParams.html#a5e1b9a2e782a40324eb1a4ce982a4eb7',1,'navmap::OccupancyParams::p_occupied'],['../structOccupancyParams.html#a5e1b9a2e782a40324eb1a4ce982a4eb7',1,'OccupancyParams::p_occupied']]],
-  ['package_7',['📦 Usage (Examples package)',['../index.html#autotoc_md49',1,'']]],
+  ['package_7',['📦 Usage (Examples package)',['../index.html#autotoc_md51',1,'']]],
   ['patch_8',['patch',['../test__layer__metadata__and__migration_8cpp.html#a087e6d92f76771ac3a21d7c3462d9143',1,'test_layer_metadata_and_migration.cpp']]],
   ['per_20navcel_20layer_20cost_20or_20occupancy_9',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['per_5fcell_10',['per_cell',['../structnavmap_1_1LayerMeta.html#a613b72a6d524268b27910caec7645e16',1,'navmap::LayerMeta']]],
@@ -22,11 +22,12 @@ var searchData=
   ['position_19',['position',['../index.html#autotoc_md19',1,'4. Locate the NavCel corresponding to a 3D position'],['../index.html#autotoc_md21',1,'5. Sample a layer at a world position']]],
   ['positions_20',['Positions',['../structnavmap_1_1Positions.html',1,'navmap']]],
   ['positions_21',['positions',['../classnavmap_1_1NavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'navmap::NavMap::positions'],['../classNavMap.html#abf1f84c70542a19818af0ec43f2086cc',1,'NavMap::positions']]],
-  ['prim_5findices_22',['prim_indices',['../structnavmap_1_1Surface.html#afa2adca8a80850f7f7e108220b96e529',1,'navmap::Surface::prim_indices'],['../structSurface.html#afa2adca8a80850f7f7e108220b96e529',1,'Surface::prim_indices']]],
-  ['probability_23',['probability',['../classnavmap_1_1OccupancyLayer.html#a43df948feb1be7f8c6425aa1a86ca4a6',1,'navmap::OccupancyLayer::probability()'],['../classOccupancyLayer.html#a43df948feb1be7f8c6425aa1a86ca4a6',1,'OccupancyLayer::probability()']]],
-  ['probability_5fof_24',['probability_of',['../classnavmap_1_1OccupancyLayer.html#a0c4a29baa16ada55e77f032f6e81fe92',1,'navmap::OccupancyLayer::probability_of()'],['../classOccupancyLayer.html#a0c4a29baa16ada55e77f032f6e81fe92',1,'OccupancyLayer::probability_of()']]],
-  ['processmessage_25',['processMessage',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8bc06d0f3a205ba74048a6e77df137ff',1,'navmap_rviz_plugin::NavMapDisplay']]],
-  ['processmouseevent_26',['processMouseEvent',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a50dd0167085c80160a5d92b201536966',1,'navmap_rviz_plugin::NavMapPoseTool']]],
-  ['projection_5ffinder_5f_27',['projection_finder_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a55e6cddce189c4da6d12b9c4791d06b2',1,'navmap_rviz_plugin::NavMapPoseTool']]],
-  ['provenance_28',['provenance',['../structnavmap_1_1CombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4',1,'navmap::CombineOptions::provenance'],['../structCombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4',1,'CombineOptions::provenance']]]
+  ['positions_20from_5fpoints_20with_20viewpoints_22',['7i. Clouds with sensor positions (&lt;span class=&quot;tt&quot;&gt;from_points&lt;/span&gt; with viewpoints)',['../index.html#autotoc_md41',1,'']]],
+  ['prim_5findices_23',['prim_indices',['../structnavmap_1_1Surface.html#afa2adca8a80850f7f7e108220b96e529',1,'navmap::Surface::prim_indices'],['../structSurface.html#afa2adca8a80850f7f7e108220b96e529',1,'Surface::prim_indices']]],
+  ['probability_24',['probability',['../classnavmap_1_1OccupancyLayer.html#a43df948feb1be7f8c6425aa1a86ca4a6',1,'navmap::OccupancyLayer::probability()'],['../classOccupancyLayer.html#a43df948feb1be7f8c6425aa1a86ca4a6',1,'OccupancyLayer::probability()']]],
+  ['probability_5fof_25',['probability_of',['../classnavmap_1_1OccupancyLayer.html#a0c4a29baa16ada55e77f032f6e81fe92',1,'navmap::OccupancyLayer::probability_of()'],['../classOccupancyLayer.html#a0c4a29baa16ada55e77f032f6e81fe92',1,'OccupancyLayer::probability_of()']]],
+  ['processmessage_26',['processMessage',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8bc06d0f3a205ba74048a6e77df137ff',1,'navmap_rviz_plugin::NavMapDisplay']]],
+  ['processmouseevent_27',['processMouseEvent',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a50dd0167085c80160a5d92b201536966',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['projection_5ffinder_5f_28',['projection_finder_',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a55e6cddce189c4da6d12b9c4791d06b2',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['provenance_29',['provenance',['../structnavmap_1_1CombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4',1,'navmap::CombineOptions::provenance'],['../structCombineOptions.html#a41ea8708157b1e6aab18d4700d9972c4',1,'CombineOptions::provenance']]]
 ];

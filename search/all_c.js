@@ -12,7 +12,7 @@ var searchData=
   ['descriptors_20hpp_9',['7e. Geometric descriptors (&lt;span class=&quot;tt&quot;&gt;Descriptors.hpp&lt;/span&gt;)',['../index.html#autotoc_md33',1,'']]],
   ['descriptors_2ecpp_10',['Descriptors.cpp',['../Descriptors_8cpp.html',1,'']]],
   ['descriptors_2ehpp_11',['Descriptors.hpp',['../Descriptors_8hpp.html',1,'']]],
-  ['disk_12',['9. Save and load from disk',['../index.html#autotoc_md45',1,'']]],
+  ['disk_12',['9. Save and load from disk',['../index.html#autotoc_md47',1,'']]],
   ['dist_13',['dist',['../classnavmap_1_1TraversalScratch.html#af1bb20ac12a3a93d4841c049a880cf0e',1,'navmap::TraversalScratch::dist'],['../classTraversalScratch.html#af1bb20ac12a3a93d4841c049a880cf0e',1,'TraversalScratch::dist']]],
   ['distance_5ffield_14',['distance_field',['../classnavmap_1_1NavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'navmap::NavMap::distance_field()'],['../classNavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'NavMap::distance_field()']]],
   ['distancefield_15',['DistanceField',['../classDistanceField.html',1,'DistanceField'],['../classnavmap_1_1DistanceField.html',1,'DistanceField'],['../classnavmap_1_1DistanceField.html#a38f49c368efa958aa133507d2227bcdb',1,'navmap::DistanceField::DistanceField()'],['../classDistanceField.html#a38f49c368efa958aa133507d2227bcdb',1,'DistanceField::DistanceField()']]],
@@ -20,5 +20,6 @@ var searchData=
   ['distancefield_2ecpp_17',['DistanceField.cpp',['../DistanceField_8cpp.html',1,'']]],
   ['distancefield_2ehpp_18',['DistanceField.hpp',['../DistanceField_8hpp.html',1,'']]],
   ['distances_19',['distances',['../classnavmap_1_1DistanceField.html#a74841e381ea34a9920556316fa7388f9',1,'navmap::DistanceField::distances()'],['../classDistanceField.html#a74841e381ea34a9920556316fa7388f9',1,'DistanceField::distances()']]],
-  ['door_20',['DOOR',['../namespacenavmap.html#a80f357f44615e61f34b3a588af18d783a37ce845535b7c13f529505fdfdb04942',1,'navmap']]]
+  ['door_20',['DOOR',['../namespacenavmap.html#a80f357f44615e61f34b3a588af18d783a37ce845535b7c13f529505fdfdb04942',1,'navmap']]],
+  ['drop_5fseen_5ffrom_5fbelow_21',['drop_seen_from_below',['../structnavmap__ros_1_1BuildParams.html#af055227c88bee0e499647810dd6cc31f',1,'navmap_ros::BuildParams']]]
 ];

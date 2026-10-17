@@ -8,7 +8,7 @@ var searchData=
   ['box_5',['box',['../structnavmap_1_1BVHNode.html#afff68641770f3d674dcaa50303f54cdb',1,'navmap::BVHNode']]],
   ['boxes_5foverlap_6',['boxes_overlap',['../namespacenavmap_1_1detail.html#a106a663ef75864dbc3339465527ad41f',1,'navmap::detail']]],
   ['brute_7',['brute',['../test__incremental_8cpp.html#ae0828b6e87f48749c130a4ddaebd7588',1,'test_incremental.cpp']]],
-  ['build_8',['Build',['../index.html#autotoc_md50',1,'']]],
+  ['build_8',['Build',['../index.html#autotoc_md52',1,'']]],
   ['build_9',['ROS 2 colcon build',['../index.html#autotoc_md8',1,'']]],
   ['build_20instructions_10',['⚙️ Build instructions',['../index.html#autotoc_md7',1,'']]],
   ['build_5fadjacency_11',['build_adjacency',['../classnavmap_1_1NavMap.html#ad4ba9fe2a96dc6cd1b613de3b3c73511',1,'navmap::NavMap::build_adjacency()'],['../classNavMap.html#ad4ba9fe2a96dc6cd1b613de3b3c73511',1,'NavMap::build_adjacency()']]],
