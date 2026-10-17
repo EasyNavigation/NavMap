@@ -457,9 +457,50 @@ void NavMap::rebuild_geometry_accels()
     build_surface_bvh(s);
   }
   build_navcel_surface_index_();
+  build_surface_tree_();
 
   // NOTE: Layers are per-NavCel; if navcels size changed, caller may
   // choose to call layers.resize_all(navcels.size()) externally.
+}
+
+void NavMap::build_surface_tree_()
+{
+  surface_tree_.clear();
+  surface_tree_prims_.clear();
+  surface_tree_surfaces_ = surfaces.size();
+  std::vector<std::uint32_t> & prims = surface_tree_prims_;
+  for (std::size_t s = 0; s < surfaces.size(); ++s) {
+    if (!surfaces[s].bvh.empty()) {prims.push_back(static_cast<std::uint32_t>(s));}
+  }
+  if (prims.empty()) {return;}
+  surface_tree_.reserve(2 * prims.size());
+  auto centre = [&](std::uint32_t s, int axis) {
+      return 0.5f * (surfaces[s].aabb.min[axis] + surfaces[s].aabb.max[axis]);
+    };
+  std::function<int(int, int)> build = [&](int begin, int end) -> int {
+      BVHNode node;
+      for (int i = begin; i < end; ++i) {
+        node.box.expand(surfaces[prims[i]].aabb);
+      }
+      const int idx = static_cast<int>(surface_tree_.size());
+      surface_tree_.push_back(node);
+      if (end - begin <= 2) {
+        surface_tree_[idx].start = begin;
+        surface_tree_[idx].count = end - begin;
+        return idx;
+      }
+      const int axis = surface_tree_[idx].box.longest_axis();
+      const int mid = (begin + end) / 2;
+      std::nth_element(
+        prims.begin() + begin, prims.begin() + mid, prims.begin() + end,
+        [&](std::uint32_t a, std::uint32_t b) {return centre(a, axis) < centre(b, axis);});
+      const int left = build(begin, mid);
+      const int right = build(mid, end);
+      surface_tree_[idx].left = left;
+      surface_tree_[idx].right = right;
+      return idx;
+    };
+  build(0, static_cast<int>(prims.size()));
 }
 
 // -----------------------------------------------------------------------------
@@ -547,10 +588,30 @@ bool NavMap::closest_hit_(const Vec3 & o, const Vec3 & d, float t_max, RayHit & 
     order = heap_buf.data();
   }
   std::size_t n = 0;
-  for (std::size_t s = 0; s < surfaces.size(); ++s) {
-    float t_in;
-    if (!surfaces[s].bvh.empty() && ray_box_entry(surfaces[s].aabb, o, d, t_max, t_in)) {
-      order[n++] = {t_in, static_cast<std::uint32_t>(s)};
+  if (surface_tree_valid_()) {
+    // Only the surfaces whose boxes the ray enters
+    NodeStack stack;
+    stack.push(0);
+    while (!stack.empty()) {
+      const BVHNode & node = surface_tree_[stack.pop()];
+      float t_in;
+      if (!ray_box_entry(node.box, o, d, t_max, t_in)) {continue;}
+      if (!node.is_leaf()) {
+        stack.push(node.left);
+        stack.push(node.right);
+        continue;
+      }
+      for (int i = node.start; i < node.start + node.count; ++i) {
+        const std::uint32_t s = surface_tree_prims_[i];
+        if (ray_box_entry(surfaces[s].aabb, o, d, t_max, t_in)) {order[n++] = {t_in, s};}
+      }
+    }
+  } else {
+    for (std::size_t s = 0; s < surfaces.size(); ++s) {
+      float t_in;
+      if (!surfaces[s].bvh.empty() && ray_box_entry(surfaces[s].aabb, o, d, t_max, t_in)) {
+        order[n++] = {t_in, static_cast<std::uint32_t>(s)};
+      }
     }
   }
   std::sort(order, order + n);
@@ -871,6 +932,40 @@ bool NavMap::closest_navcel(
   if (restrict_surface >= 0) {
     s_begin = static_cast<size_t>(restrict_surface);
     s_end = static_cast<size_t>(restrict_surface + 1);
+  }
+
+  if (restrict_surface < 0 && surface_tree_valid_()) {
+    // Nearest boxes first, pruning boxes farther than the best so far
+    NodeStack stack;
+    stack.push(0);
+    while (!stack.empty()) {
+      const BVHNode & node = surface_tree_[stack.pop()];
+      if (box_sq_dist(node.box, p_world) > best_sq) {continue;}
+      if (!node.is_leaf()) {
+        const bool left_first = box_sq_dist(surface_tree_[node.left].box, p_world) <=
+          box_sq_dist(surface_tree_[node.right].box, p_world);
+        stack.push(left_first ? node.right : node.left);
+        stack.push(left_first ? node.left : node.right);
+        continue;
+      }
+      for (int i = node.start; i < node.start + node.count; ++i) {
+        const std::uint32_t s = surface_tree_prims_[i];
+        if (box_sq_dist(surfaces[s].aabb, p_world) > best_sq) {continue;}
+        NavCelId cid_s = 0;
+        Vec3 q_s(0.0f, 0.0f, 0.0f);
+        float best_sq_s = best_sq;
+        if (surface_closest_navcel(surfaces[s], p_world, cid_s, q_s, best_sq_s) &&
+          best_sq_s < best_sq)
+        {
+          best_sq = best_sq_s;
+          best_q = q_s;
+          best_cid = cid_s;
+          best_s = s;
+          any = true;
+        }
+      }
+    }
+    s_end = s_begin;  // done: skip the linear loop
   }
 
   for (size_t s = s_begin; s < s_end; ++s) {
