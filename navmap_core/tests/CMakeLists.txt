@@ -87,3 +87,8 @@ ament_add_gtest(test_simplify test_simplify.cpp)
 target_link_libraries(test_simplify
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_surface_tree test_surface_tree.cpp)
+target_link_libraries(test_surface_tree
+  ${PROJECT_NAME}
+)

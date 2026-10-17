@@ -1306,6 +1306,18 @@ private:
 
   // Owning surface per NavCel, built in rebuild_geometry_accels().
   std::vector<std::uint32_t> navcel_surface_;
+
+  // BVH over the surfaces' boxes (leaves index surface_tree_prims_), built in
+  // rebuild_geometry_accels(); queries visit only the surfaces it reaches. Stale (surfaces added
+  // since) means the queries go through every surface, as without it.
+  std::vector<BVHNode> surface_tree_;
+  std::vector<std::uint32_t> surface_tree_prims_;
+  std::size_t surface_tree_surfaces_{0};
+  void build_surface_tree_();
+  bool surface_tree_valid_() const
+  {
+    return !surface_tree_.empty() && surface_tree_surfaces_ == surfaces.size();
+  }
   std::vector<SurfaceLink> links_;
   mutable std::vector<std::vector<std::uint32_t>> link_index_;
   mutable bool link_index_dirty_{true};
