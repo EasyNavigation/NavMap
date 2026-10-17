@@ -19,6 +19,8 @@ find_package(std_srvs REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common io kdtree search)
 find_package(pcl_conversions REQUIRED)
 find_package(ZLIB REQUIRED)
+# Optional: parallel ray traversal of the free-space carving (serial without it)
+find_package(OpenMP)
 
 add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}/conversions.cpp
@@ -42,6 +44,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   ${PCL_LIBRARIES}
   ZLIB::ZLIB
 )
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC
   rclcpp::rclcpp
   navmap_core::navmap_core

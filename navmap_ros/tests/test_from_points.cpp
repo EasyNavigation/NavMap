@@ -758,3 +758,344 @@ TEST(FromPoints, PotholeIsNotLiftedToTheFloor)
   expect_clean_mesh(nm);
   EXPECT_FALSE(has_cell_near(nm, 4.8f, 4.8f, 0.0f, 0.05f));
 }
+
+// ----------------- Clouds with viewpoints -----------------
+
+namespace
+{
+
+using VpCloud = pcl::PointCloud<pcl::PointWithViewpoint>;
+
+pcl::PointWithViewpoint vp_point(const Eigen::Vector3f & p, const Eigen::Vector3f & o)
+{
+  pcl::PointWithViewpoint q;
+  q.x = p.x(); q.y = p.y(); q.z = p.z();
+  q.vp_x = o.x(); q.vp_y = o.y(); q.vp_z = o.z();
+  return q;
+}
+
+// Dense samples (0.1 m) of the plane z over a box, each seen from o (or from o + offset per x).
+void sample_vp(
+  VpCloud & cloud, float x0, float x1, float y0, float y1, float z,
+  const std::function<Eigen::Vector3f(float, float)> & origin)
+{
+  for (float x = x0 + 0.05f; x < x1; x += 0.1f) {
+    for (float y = y0 + 0.05f; y < y1; y += 0.1f) {
+      cloud.push_back(vp_point({x, y, z}, origin(x, y)));
+    }
+  }
+}
+
+Cloud xyz(const VpCloud & c)
+{
+  Cloud out;
+  for (const auto & p : c) {
+    out.push_back({p.x, p.y, p.z});
+  }
+  return out;
+}
+
+NavMap build_vp(
+  const VpCloud & cloud, navmap_ros::BuildParams p = params(),
+  navmap_ros::ViewpointFilterStats * st = nullptr)
+{
+  navmap_ros_interfaces::msg::NavMap msg;
+  if (st) {navmap_ros::filter_with_viewpoints(cloud, p, st);}
+  return navmap_ros::from_points(cloud, msg, p);
+}
+
+// Lidar rings over the plane z = 0 from a sensor at o: the real geometry of grazing returns.
+void floor_scan(VpCloud & cloud, const Eigen::Vector3f & o, float max_range, unsigned seed)
+{
+  std::mt19937 rng(seed);
+  std::normal_distribution<float> N(0.0f, 0.02f);
+  for (float el = -15.0f; el <= -1.0f; el += 1.0f) {
+    const float e = el * static_cast<float>(M_PI) / 180.0f;
+    for (float az = 0.0f; az < 360.0f; az += 0.4f) {
+      const float a = az * static_cast<float>(M_PI) / 180.0f;
+      const Eigen::Vector3f d(std::cos(e) * std::cos(a), std::cos(e) * std::sin(a), std::sin(e));
+      const float t = -o.z() / d.z();
+      if (t * std::cos(e) > max_range) {continue;}
+      cloud.push_back(vp_point(o + (t + N(rng)) * d, o));
+    }
+  }
+}
+
+}  // namespace
+
+TEST(FromPointsViewpoints, CeilingSeenFromBelowIsDropped)
+{
+  VpCloud c;
+  auto robot = [](float x, float y) {return Eigen::Vector3f(x - 1.0f, y, 0.8f);};
+  sample_vp(c, 0, 10, 0, 6, 0.0f, robot);
+  sample_vp(c, 0, 10, 0, 6, 2.5f, robot);
+  EXPECT_EQ(build(xyz(c)).surfaces.size(), 2u);  // the ceiling is a phantom floor
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap nm = build_vp(c, params(), &st);
+  ASSERT_EQ(nm.surfaces.size(), 1u);
+  EXPECT_EQ(st.seen_from_below, 6000u);
+  EXPECT_EQ(st.carved, 0u);
+  for (NavCelId cid = 0; cid < nm.navcels.size(); ++cid) {
+    EXPECT_LT(std::fabs(nm.navcel_centroid(cid).z()), 0.05f);
+  }
+}
+
+TEST(FromPointsViewpoints, FarCeilingSeenByGrazingRaysIsDropped)
+{
+  // The upward rings (2.5 to 4.5 degrees) hit a ceiling 1.6 m above the sensor, 20 to 37 m away,
+  // over a floor seen from above (by the robot on its way)
+  VpCloud c;
+  const Eigen::Vector3f o(0.0f, 0.0f, 0.8f);
+  for (float x = -39.9f; x < 40.0f; x += 0.2f) {
+    for (float y = -39.9f; y < 40.0f; y += 0.2f) {
+      c.push_back(vp_point({x, y, 0.0f}, {x - 2.0f, y, 0.8f}));
+    }
+  }
+  const std::size_t floor = c.size();
+  for (float el = 2.5f; el <= 4.5f; el += 1.0f) {
+    const float e = el * static_cast<float>(M_PI) / 180.0f;
+    for (float az = 0.0f; az < 360.0f; az += 0.4f) {
+      const float a = az * static_cast<float>(M_PI) / 180.0f;
+      const Eigen::Vector3f d(std::cos(e) * std::cos(a), std::cos(e) * std::sin(a), std::sin(e));
+      c.push_back(vp_point(o + (1.6f / d.z()) * d, o));
+    }
+  }
+  navmap_ros::ViewpointFilterStats st;
+  navmap_ros::filter_with_viewpoints(c, params(), &st);
+  // Almost all: a ring crossing a cell's corner over little floor is kept, to be safe
+  EXPECT_GE(st.seen_from_below, (c.size() - floor) * 95 / 100);
+  EXPECT_LT(st.seen_from_below, c.size() - floor + floor / 1000);
+}
+
+TEST(FromPointsViewpoints, CrestSeenFromTheFootOfItsSlopeIsKept)
+{
+  // A pit (z = 0, x < 5) and a terrace (z = 2, x > 5) with a vertical face between: from the pit,
+  // the rays climb to the terrace's edge, which is seen from below with only rock under it
+  VpCloud c;
+  auto pit = [](float, float y) {return Eigen::Vector3f(1.0f, y, 0.8f);};
+  sample_vp(c, 0, 5, 0, 6, 0.0f, pit);
+  sample_vp(c, 5, 5.5f, 0, 6, 2.0f, pit);
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap nm = build_vp(c, params(), &st);
+  EXPECT_EQ(st.seen_from_below, 0u);
+  EXPECT_NEAR(total_area(nm), total_area(build(xyz(c))), 1e-3f);
+}
+
+TEST(FromPointsViewpoints, UpperFloorStandsOnItsTopFace)
+{
+  // A 0.3 m slab: its top seen from the upper floor, its underside from the lower one.
+  VpCloud c;
+  sample_vp(c, 0, 10, 0, 6, 0.0f, [](float x, float y) {return Eigen::Vector3f(x - 1, y, 0.8f);});
+  sample_vp(c, 0, 10, 0, 6, 2.7f, [](float x, float y) {return Eigen::Vector3f(x - 1, y, 0.8f);});
+  // The top is seen sparsely (every other sample), so the faces have similar weight
+  VpCloud top;
+  sample_vp(top, 0, 10, 0, 6, 3.0f, [](float x, float y) {return Eigen::Vector3f(x - 1, y, 3.8f);});
+  for (std::size_t k = 0; k < top.size(); k += 2) {
+    c.push_back(top[k]);
+  }
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap nm = build_vp(c, params(), &st);
+  ASSERT_EQ(nm.surfaces.size(), 2u);
+  EXPECT_EQ(st.seen_from_below, 6000u);
+  std::size_t upper = 0;
+  for (NavCelId cid = 0; cid < nm.navcels.size(); ++cid) {
+    if (nm.navcel_centroid(cid).z() > 1.0f) {
+      ++upper;
+      EXPECT_NEAR(nm.navcel_centroid(cid).z(), 3.0f, 0.02f);
+    }
+  }
+  EXPECT_GT(upper, 0u);
+}
+
+TEST(FromPointsViewpoints, TableUndersideStillBlocksTheFloor)
+{
+  // Floor seen from above; a table top at 0.7 m seen only from below, from the floor's side.
+  VpCloud c;
+  auto robot = [](float x, float y) {return Eigen::Vector3f(x < 5 ? 1.0f : 9.0f, y, 0.3f);};
+  sample_vp(c, 0, 10, 0, 6, 0.0f, robot);
+  VpCloud table;
+  sample_vp(table, 4, 6, 2, 4, 0.7f, robot);
+  c += table;
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap with = build_vp(c, params(), &st);
+  const NavMap without = build(xyz(c));
+  EXPECT_EQ(st.seen_from_below, 0u);
+  EXPECT_NEAR(total_area(with), total_area(without), 1e-3f);
+  EXPECT_LT(total_area(with), 60.0f - 2.0f);  // a hole under the table
+}
+
+TEST(FromPointsViewpoints, PersonSeenThroughIsCarved)
+{
+  // A person (0.4 x 0.4 x 1.7 m) seen in one scan, then the floor behind it seen from far away
+  // through where it stood. Its feet left floor points around it.
+  VpCloud c;
+  const Eigen::Vector3f first(0.0f, 3.0f, 0.8f);
+  for (float x = 3.05f; x < 3.45f; x += 0.1f) {
+    for (float y = 2.85f; y < 3.25f; y += 0.1f) {
+      for (float z = 0.05f; z < 1.7f; z += 0.1f) {
+        c.push_back(vp_point({x, y, z}, first));
+      }
+    }
+  }
+  // Later scans: the floor, and the upward rings on a wall at x = 8
+  for (float ox = 0.0f; ox <= 1.0f; ox += 0.25f) {
+    const Eigen::Vector3f o(ox, 3.0f, 0.8f);
+    floor_scan(c, o, 8.0f, static_cast<unsigned>(ox * 4 + 1));
+    for (float el = 1.0f; el <= 15.0f; el += 1.0f) {
+      const float e = el * static_cast<float>(M_PI) / 180.0f;
+      for (float az = -30.0f; az <= 30.0f; az += 0.4f) {
+        const float a = az * static_cast<float>(M_PI) / 180.0f;
+        const Eigen::Vector3f d(std::cos(e) * std::cos(a), std::cos(e) * std::sin(a), std::sin(e));
+        c.push_back(vp_point(o + ((8.0f - ox) / d.x()) * d, o));
+      }
+    }
+  }
+  const NavMap without = build(xyz(c));
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap with = build_vp(c, params(), &st);
+  EXPECT_GE(st.carved, 4u * 4u * 17u);
+  // Without carving the person is an obstacle; carved, the floor there is walkable
+  auto floor_at = [](const NavMap & nm, float x, float y) {
+      navmap::NavCelId cid;
+      float t;
+      Eigen::Vector3f hit;
+      return nm.raycast({x, y, 3.0f}, {0.0f, 0.0f, -1.0f}, cid, t, hit) && hit.z() < 0.05f;
+    };
+  EXPECT_TRUE(floor_at(with, 3.25f, 3.05f));
+  EXPECT_FALSE(floor_at(without, 3.25f, 3.05f));
+}
+
+TEST(FromPointsViewpoints, GrazingRaysDoNotEatTheFloor)
+{
+  VpCloud c;
+  for (int k = 0; k < 5; ++k) {
+    floor_scan(c, {2.0f * k, 0.0f, 0.8f}, 25.0f, static_cast<unsigned>(k + 1));
+  }
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap with = build_vp(c, params(), &st);
+  EXPECT_LT(st.carved, c.size() / 100);
+  EXPECT_LT(st.seen_from_below, c.size() / 1000);  // a few noisy returns
+  EXPECT_GT(total_area(with), 0.98f * total_area(build(xyz(c))));
+}
+
+TEST(FromPointsViewpoints, RampSeenFromItsFootIsKept)
+{
+  // A 20 degree ramp seen from its foot: the rays climb, but less than the ramp
+  VpCloud c;
+  const float s = std::tan(20.0f * static_cast<float>(M_PI) / 180.0f);
+  const Eigen::Vector3f o(-1.0f, 3.0f, 0.8f);
+  for (float x = 0.05f; x < 8.0f; x += 0.1f) {
+    for (float y = 0.05f; y < 6.0f; y += 0.1f) {
+      c.push_back(vp_point({x, y, s * x}, o));
+    }
+  }
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap with = build_vp(c, params(), &st);
+  EXPECT_EQ(st.seen_from_below, 0u);
+  EXPECT_EQ(st.carved, 0u);
+  EXPECT_NEAR(total_area(with), total_area(build(xyz(c))), 1e-3f);
+}
+
+TEST(FromPointsViewpoints, DescendingRaysNeverSeeFromBelow)
+{
+  // Sparse noisy floor cells (3 points) whose fitted plane tilts more than the rays
+  VpCloud c;
+  std::mt19937 rng(3);
+  std::uniform_real_distribution<float> U(-0.2f, 0.2f), N(-0.03f, 0.03f);
+  for (int i = 0; i < 20; ++i) {
+    for (int j = 0; j < 12; ++j) {
+      for (int k = 0; k < 3; ++k) {
+        const Eigen::Vector3f p(i * kRes + 0.25f + U(rng), j * kRes + 0.25f + U(rng), N(rng));
+        c.push_back(vp_point(p, {p.x() - 15.0f, p.y(), 0.8f}));  // 3 degrees down
+      }
+    }
+  }
+  navmap_ros::ViewpointFilterStats st;
+  navmap_ros::filter_with_viewpoints(c, params(), &st);
+  EXPECT_EQ(st.seen_from_below, 0u);
+}
+
+TEST(FromPointsViewpoints, WallSeenByUpwardRingsIsKept)
+{
+  // A wall from 1.2 to 3 m (its foot hidden), seen from a robot on the floor in front of it
+  VpCloud c;
+  auto robot = [](float, float y) {return Eigen::Vector3f(1.0f, y, 0.8f);};
+  sample_vp(c, 0, 10, 0, 6, 0.0f, robot);
+  for (float y = 0.05f; y < 6.0f; y += 0.1f) {
+    for (float z = 1.25f; z < 3.0f; z += 0.1f) {
+      c.push_back(vp_point({5.02f, y, z}, robot(0, y)));
+    }
+  }
+  navmap_ros::ViewpointFilterStats st;
+  build_vp(c, params(), &st);
+  EXPECT_EQ(st.seen_from_below, 0u);
+  EXPECT_EQ(st.carved, 0u);
+}
+
+TEST(FromPointsViewpoints, FilterIsDeterministic)
+{
+  // Many voxels (the index grows) and rays crossing the same voxels from several threads
+  VpCloud c;
+  for (int k = 0; k < 6; ++k) {
+    floor_scan(c, {3.0f * k, 1.0f * k, 0.8f}, 25.0f, static_cast<unsigned>(k + 1));
+  }
+  for (float x = 5.05f; x < 5.45f; x += 0.1f) {
+    for (float z = 0.05f; z < 1.7f; z += 0.1f) {
+      c.push_back(vp_point({x, 2.0f, z}, {0.0f, 2.0f, 0.8f}));
+    }
+  }
+  navmap_ros::ViewpointFilterStats a, b;
+  const Cloud fa = navmap_ros::filter_with_viewpoints(c, params(), &a);
+  const Cloud fb = navmap_ros::filter_with_viewpoints(c, params(), &b);
+  EXPECT_EQ(a.carved, b.carved);
+  EXPECT_EQ(a.seen_from_below, b.seen_from_below);
+  ASSERT_EQ(fa.size(), fb.size());
+  for (std::size_t k = 0; k < fa.size(); ++k) {
+    ASSERT_EQ(fa[k].x, fb[k].x);
+    ASSERT_EQ(fa[k].z, fb[k].z);
+  }
+}
+
+TEST(FromPointsViewpoints, DisabledFiltersMatchThePlainCloud)
+{
+  VpCloud c;
+  auto robot = [](float x, float y) {return Eigen::Vector3f(x - 1.0f, y, 0.8f);};
+  sample_vp(c, 0, 10, 0, 6, 0.0f, robot);
+  sample_vp(c, 0, 10, 0, 6, 2.5f, robot);
+  auto p = params();
+  p.carve_free_space = false;
+  p.drop_seen_from_below = false;
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap a = build_vp(c, p, &st);
+  const NavMap b = build(xyz(c));
+  EXPECT_EQ(st.carved + st.seen_from_below, 0u);
+  EXPECT_EQ(st.input, c.size());
+  EXPECT_EQ(a.navcels.size(), b.navcels.size());
+  EXPECT_EQ(a.surfaces.size(), b.surfaces.size());
+}
+
+TEST(FromPointsViewpoints, PointsWithoutViewpointAreKept)
+{
+  VpCloud c;
+  const float nan = std::numeric_limits<float>::quiet_NaN();
+  sample_vp(c, 0, 10, 0, 6, 0.0f, [&](float, float) {return Eigen::Vector3f(nan, nan, nan);});
+  sample_vp(c, 0, 10, 0, 6, 2.5f, [&](float, float) {return Eigen::Vector3f(nan, nan, nan);});
+  navmap_ros::ViewpointFilterStats st;
+  const NavMap nm = build_vp(c, params(), &st);
+  EXPECT_EQ(st.carved + st.seen_from_below, 0u);
+  EXPECT_EQ(nm.surfaces.size(), 2u);
+}
+
+TEST(FromPointsViewpoints, EmptyAndDegenerateInputs)
+{
+  navmap_ros::ViewpointFilterStats st;
+  EXPECT_TRUE(build_vp(VpCloud(), params(), &st).navcels.empty());
+  EXPECT_EQ(st.input, 0u);
+  VpCloud one;
+  one.push_back(vp_point({0, 0, 0}, {0, 0, 0}));  // viewpoint on the point
+  EXPECT_TRUE(build_vp(one, params(), &st).navcels.empty());
+  EXPECT_EQ(st.carved, 0u);
+  auto p = params();
+  p.resolution = 0.0f;
+  EXPECT_TRUE(build_vp(one, p, &st).navcels.empty());
+}

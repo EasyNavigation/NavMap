@@ -8,7 +8,8 @@ target_link_libraries(test_navmap_io
   ${PROJECT_NAME}
 )
 
-ament_add_gtest(test_from_points test_from_points.cpp)
+# Coverage builds (CI) are slow: the mesher and viewpoint tests take over a minute there
+ament_add_gtest(test_from_points test_from_points.cpp TIMEOUT 300)
 target_include_directories(test_from_points PRIVATE ${pcl_conversions_INCLUDE_DIRS})
 target_link_libraries(test_from_points
   ${PROJECT_NAME}

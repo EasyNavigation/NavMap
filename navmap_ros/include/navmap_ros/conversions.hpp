@@ -295,6 +295,29 @@ struct BuildParams
 
   /** @brief Enclosed empty regions up to this area (square meters) are filled (0 = none). */
   float max_hole_area = 1.0f;
+
+  /** @brief With viewpoints: drop the points in space that rays went through (people, noise). */
+  bool carve_free_space = true;
+
+  /** @brief With viewpoints: drop the faces only seen from below (ceilings, slab undersides). */
+  bool drop_seen_from_below = true;
+
+  /** @brief Voxel size (meters) of the free-space carving (0 = max(0.1, resolution / 2)). */
+  float carve_voxel = 0.0f;
+
+  /** @brief Rays carve only their first carve_max_range meters. */
+  float carve_max_range = 20.0f;
+
+  /** @brief A voxel is carved when rays went through it more than carve_ratio times its hits. */
+  float carve_ratio = 1.0f;
+};
+
+/** @brief Points removed by filter_with_viewpoints(). */
+struct ViewpointFilterStats
+{
+  std::size_t input = 0;
+  std::size_t carved = 0;        // in space that rays went through
+  std::size_t seen_from_below = 0;
 };
 
 /**
@@ -325,6 +348,39 @@ struct BuildParams
   */
 navmap::NavMap from_points(
   const  pcl::PointCloud<pcl::PointXYZ> & input_points,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  BuildParams params);
+
+/**
+ * @brief Clean a cloud with the sensor position of each point (`vp_x`, `vp_y`, `vp_z`).
+ *
+ * @details
+ *  - Free-space carving (carve_free_space): each ray counts a pass in the occupied voxels it
+ *    crosses under their highest point, from its viewpoint up to a margin before its point that
+ *    grows as the ray grazes (v / sin(elevation), at most for 15 degrees). Passes along a planar
+ *    voxel (under 15 degrees, a wall) do not count. Voxels with at least two passes and more
+ *    than carve_ratio passes per hit are dropped.
+ *  - Seen from below (drop_seen_from_below): in each XY cell and thin level (as in from_points;
+ *    up to two steps tall: a ceiling, a slab), a point whose ray climbs both the level's plane
+ *    and the horizontal by more than 1 degree is seen from below. Walls, faces steeper than
+ *    max_slope_deg and tall levels (a slope's face, a table over a floor) are left out. It is
+ *    dropped unless the level has something not seen from below under it, as it still takes
+ *    free height. A level seen only from below is dropped when most of it lies over a lower level
+ *    of its cell (a ceiling over the floor it was seen from); otherwise it stays (the crest of
+ *    a slope seen from its foot).
+ */
+pcl::PointCloud<pcl::PointXYZ> filter_with_viewpoints(
+  const pcl::PointCloud<pcl::PointWithViewpoint> & input_points,
+  const BuildParams & params,
+  ViewpointFilterStats * stats = nullptr);
+
+/**
+ * @brief Build a NavMap from a cloud with the sensor position of each point.
+ *
+ * Same as the PointXYZ overload, on the cloud cleaned by filter_with_viewpoints().
+ */
+navmap::NavMap from_points(
+  const pcl::PointCloud<pcl::PointWithViewpoint> & input_points,
   navmap_ros_interfaces::msg::NavMap & out_msg,
   BuildParams params);
 
