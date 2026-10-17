@@ -347,6 +347,25 @@ ros2 run navmap_tools navmap_simplify in.navmap out.navmap --max-error 0.02 \
 
 ---
 
+## 7i. Clouds with sensor positions (`from_points` with viewpoints)
+
+A cloud whose points keep the position of the sensor that saw them (`pcl::PointWithViewpoint`: `vp_x`, `vp_y`, `vp_z`) tells free space from occupied space, which a bare cloud cannot. `from_points` takes it and cleans the cloud before meshing (`filter_with_viewpoints`):
+
+- **Free-space carving** (`carve_free_space`): points in voxels that rays went through more often than they hit them are dropped: people walking during the mapping, noise, spikes. Rays grazing a floor or running along a wall do not carve it.
+- **Faces seen from below** (`drop_seen_from_below`): a ceiling or the underside of a slab is never a floor. Undersides over a floor (a table) stay, as they still take free height.
+
+```cpp
+pcl::PointCloud<pcl::PointWithViewpoint> cloud;  // each scan: its points and the sensor position
+navmap_ros::BuildParams p;
+p.resolution = 0.2;
+navmap_ros_interfaces::msg::NavMap msg;
+navmap::NavMap nm = navmap_ros::from_points(cloud, msg, p);
+```
+
+The ray traversal runs in parallel with OpenMP when it is available. On simulated lidar over the playgrounds' parking garage (0.2 m), the area of the map that is not floor (ceilings seen from below) goes from 15.5 % to 1.0 %; on the scans of a real two-floor building, the route the robot drove lies on one surface, against six from the bare cloud.
+
+---
+
 ## 8. Serialize to / from ROS messages
 
 Conversion functions are provided in `navmap_ros`:

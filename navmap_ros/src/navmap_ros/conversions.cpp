@@ -37,6 +37,7 @@
 #include "navmap_ros_interfaces/msg/nav_map_link.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 
+#include "Eigen/Eigenvalues"
 #include "pcl_conversions/pcl_conversions.h"
 #include "pcl/common/point_tests.h"
 
@@ -1528,6 +1529,379 @@ navmap::NavMap from_regular_grid(
 
   out_msg = std::move(msg_tmp);
   return from_msg(out_msg);
+}
+
+// ----------------- Clouds with viewpoints -----------------
+
+namespace
+{
+
+constexpr int64_t kVoxOff = 1 << 20;
+
+inline uint64_t voxel_key(int64_t x, int64_t y, int64_t z)
+{
+  return static_cast<uint64_t>(x + kVoxOff) | (static_cast<uint64_t>(y + kVoxOff) << 21) |
+         (static_cast<uint64_t>(z + kVoxOff) << 42);
+}
+
+// Open-addressing hash of voxel keys (linear probing): far faster than std::unordered_map for
+// the many lookups of ray traversal, and safe to read from several threads.
+class VoxelIndex
+{
+public:
+  static constexpr uint64_t kEmpty = ~0ULL;
+  static constexpr int64_t kNone = -1;
+
+  explicit VoxelIndex(std::size_t expected) {resize(std::max<std::size_t>(16, 2 * expected));}
+
+  // Index of key, inserting value if absent (fresh tells which).
+  uint32_t emplace(uint64_t key, uint32_t value, bool & fresh)
+  {
+    if (2 * (size_ + 1) > keys_.size()) {resize(2 * keys_.size());}
+    for (std::size_t s = slot(key); ; s = (s + 1) & mask_) {
+      if (keys_[s] == key) {fresh = false; return values_[s];}
+      if (keys_[s] == kEmpty) {
+        keys_[s] = key;
+        values_[s] = value;
+        ++size_;
+        fresh = true;
+        return value;
+      }
+    }
+  }
+
+  int64_t find(uint64_t key) const
+  {
+    for (std::size_t s = slot(key); ; s = (s + 1) & mask_) {
+      if (keys_[s] == key) {return values_[s];}
+      if (keys_[s] == kEmpty) {return kNone;}
+    }
+  }
+
+private:
+  std::size_t slot(uint64_t key) const
+  {
+    return static_cast<std::size_t>((key * 0x9E3779B97F4A7C15ULL) >> shift_);
+  }
+
+  void resize(std::size_t want)
+  {
+    std::size_t cap = 16;
+    while (cap < want) {cap <<= 1;}
+    std::vector<uint64_t> old_keys(cap, kEmpty);
+    std::vector<uint32_t> old_values(cap);
+    old_keys.swap(keys_);
+    old_values.swap(values_);
+    mask_ = cap - 1;
+    shift_ = 64;
+    for (std::size_t c = cap; c > 1; c >>= 1) {--shift_;}
+    for (std::size_t s = 0; s < old_keys.size(); ++s) {
+      if (old_keys[s] == kEmpty) {continue;}
+      std::size_t t = slot(old_keys[s]);
+      while (keys_[t] != kEmpty) {t = (t + 1) & mask_;}
+      keys_[t] = old_keys[s];
+      values_[t] = old_values[s];
+    }
+  }
+
+  std::vector<uint64_t> keys_;
+  std::vector<uint32_t> values_;
+  std::size_t mask_ = 0, size_ = 0;
+  int shift_ = 64;
+};
+
+struct CarveVoxel
+{
+  uint32_t hits = 0;
+  uint32_t passes = 0;
+  float z_max = -std::numeric_limits<float>::infinity();
+  bool planar = false;
+  Eigen::Vector3f sum = Eigen::Vector3f::Zero();
+  Eigen::Matrix3f sq = Eigen::Matrix3f::Zero();
+  Eigen::Vector3f normal = Eigen::Vector3f::UnitZ();
+};
+
+// Free-space carving: keep[k] = false for points in voxels that rays went through.
+std::size_t carve(
+  const pcl::PointCloud<pcl::PointWithViewpoint> & pts, const BuildParams & P,
+  std::vector<char> & keep)
+{
+  const float v = P.carve_voxel > 0.0f ? P.carve_voxel : std::max(0.1f, 0.5f * P.resolution);
+  const float inv = 1.0f / v;
+  auto cell = [&](float c) {return static_cast<int64_t>(std::floor(c * inv));};
+  VoxelIndex index(pts.size() / 8 + 1);
+  std::vector<CarveVoxel> vox;
+  std::vector<uint32_t> of(pts.size(), std::numeric_limits<uint32_t>::max());
+  for (std::size_t k = 0; k < pts.size(); ++k) {
+    if (!keep[k]) {continue;}
+    const auto & p = pts[k];
+    bool fresh;
+    const uint32_t id = index.emplace(
+      voxel_key(cell(p.x), cell(p.y), cell(p.z)), static_cast<uint32_t>(vox.size()), fresh);
+    if (fresh) {vox.emplace_back();}
+    auto & c = vox[id];
+    const Eigen::Vector3f q(p.x, p.y, p.z);
+    ++c.hits;
+    c.z_max = std::max(c.z_max, p.z);
+    c.sum += q;
+    c.sq += q * q.transpose();
+    of[k] = id;
+  }
+  for (auto & c : vox) {
+    if (c.hits < 5) {continue;}
+    const Eigen::Vector3f m = c.sum / static_cast<float>(c.hits);
+    const Eigen::Matrix3f C = c.sq / static_cast<float>(c.hits) - m * m.transpose();
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> es(C);
+    const auto & w = es.eigenvalues();
+    c.planar = w.sum() > 0.0f && w[0] < 0.05f * w.sum();
+    c.normal = es.eigenvectors().col(0);
+  }
+
+  // Passes: 3D DDA from the viewpoint, stopping short of the point by more the more the ray
+  // grazes (it runs inside the floor's voxels for v / sin(elevation)). A pass counts when the
+  // ray goes under the top of what the voxel holds (through it, not over a floor) and does not
+  // run along a planar voxel (a wall).
+  const float graze = std::sin(15.0f * static_cast<float>(M_PI) / 180.0f);
+  const auto n_pts = static_cast<int64_t>(pts.size());
+  #pragma omp parallel for schedule(dynamic, 4096)
+  for (int64_t k = 0; k < n_pts; ++k) {
+    if (!keep[k]) {continue;}
+    const auto & p = pts[k];
+    const Eigen::Vector3f o(p.vp_x, p.vp_y, p.vp_z);
+    Eigen::Vector3f d = Eigen::Vector3f(p.x, p.y, p.z) - o;
+    const float len = d.norm();
+    if (!(len > 2.0f * v) || !o.allFinite()) {continue;}
+    d /= len;
+    const float margin = v * (1.0f + 1.0f / std::max(std::fabs(d.z()), graze));
+    const float t_end = std::min(len - margin, P.carve_max_range);
+    int64_t c[3];
+    float t_max[3], t_delta[3];
+    int step[3];
+    for (int a = 0; a < 3; ++a) {
+      c[a] = cell(o[a]);
+      if (d[a] > 0.0f) {
+        step[a] = 1;
+        t_delta[a] = v / d[a];
+        t_max[a] = ((static_cast<float>(c[a]) + 1.0f) * v - o[a]) / d[a];
+      } else if (d[a] < 0.0f) {
+        step[a] = -1;
+        t_delta[a] = -v / d[a];
+        t_max[a] = (static_cast<float>(c[a]) * v - o[a]) / d[a];
+      } else {
+        step[a] = 0;
+        t_delta[a] = t_max[a] = std::numeric_limits<float>::infinity();
+      }
+    }
+    for (float t = 0.0f; t < t_end; ) {
+      const int a = t_max[0] < t_max[1] ? (t_max[0] < t_max[2] ? 0 : 2) :
+        (t_max[1] < t_max[2] ? 1 : 2);
+      const int64_t id = index.find(voxel_key(c[0], c[1], c[2]));
+      if (id != VoxelIndex::kNone) {
+        auto & cv = vox[id];
+        const float z_mid = o.z() + 0.5f * (t + std::min(t_max[a], t_end)) * d.z();
+        if (z_mid < cv.z_max && (!cv.planar || std::fabs(cv.normal.dot(d)) >= graze)) {
+          #pragma omp atomic
+          ++cv.passes;
+        }
+      }
+      t = t_max[a];
+      t_max[a] += t_delta[a];
+      c[a] += step[a];
+    }
+  }
+  std::size_t carved = 0;
+  for (std::size_t k = 0; k < pts.size(); ++k) {
+    if (!keep[k]) {continue;}
+    const auto & cv = vox[of[k]];
+    if (cv.passes >= 2 && static_cast<float>(cv.passes) > P.carve_ratio * cv.hits) {
+      keep[k] = 0;
+      ++carved;
+    }
+  }
+  return carved;
+}
+
+// Faces seen from below, by cell and level as in from_points.
+std::size_t drop_from_below(
+  const pcl::PointCloud<pcl::PointWithViewpoint> & pts, const BuildParams & P,
+  std::vector<char> & keep)
+{
+  const float res = P.resolution;
+  const float step = P.max_dz > 0.0f ? P.max_dz : 0.30f;
+  const float gap = std::max(step, P.min_clearance);
+  const double cos_slope = std::cos(P.max_slope_deg * M_PI / 180.0);
+  float min_x = std::numeric_limits<float>::infinity();
+  float min_y = std::numeric_limits<float>::infinity();
+  for (std::size_t k = 0; k < pts.size(); ++k) {
+    if (keep[k]) {min_x = std::min(min_x, pts[k].x); min_y = std::min(min_y, pts[k].y);}
+  }
+  min_x -= 0.5f * res;
+  min_y -= 0.5f * res;
+  struct Item
+  {
+    uint64_t key;
+    float z;
+    uint32_t idx;
+  };
+  std::vector<Item> items;
+  items.reserve(pts.size());
+  for (std::size_t k = 0; k < pts.size(); ++k) {
+    if (!keep[k]) {continue;}
+    const auto i = static_cast<int32_t>(std::floor((pts[k].x - min_x) / res));
+    const auto j = static_cast<int32_t>(std::floor((pts[k].y - min_y) / res));
+    items.push_back({cell_key(i, j), pts[k].z, static_cast<uint32_t>(k)});
+  }
+  std::sort(
+    items.begin(), items.end(), [](const Item & a, const Item & b) {
+      return a.key != b.key ? a.key < b.key : a.z < b.z;
+    });
+  std::size_t dropped = 0;
+  std::vector<char> side;  // 1 = seen from below
+  std::array<float, 4> below_box;  // XY box of the cell's lower levels: x0, x1, y0, y1
+  auto level = [&](std::size_t b, std::size_t e, bool lowest) {
+      // Only thin levels: a ceiling or a slab (one or two flat faces). A tall one holds a wall,
+      // a slope's face or a table over a floor, and none of them is a floor seen from below.
+      if (items[e - 1].z - items[b].z > 2.0f * step) {return;}
+      Eigen::Vector3d n(0.0, 0.0, 1.0);  // up; few points: a flat level
+      if (e - b >= 3) {
+        // Plane z = a x + b y + c, normal (-a, -b, 1). A wall (on a line in XY) or a face
+        // steeper than the walkable slope (never a floor) has no "below"; a flat line (a scan
+        // ring) is level, and so is a steep fit over two faces (a slab cut at a cell's edge).
+        Eigen::Matrix3d A = Eigen::Matrix3d::Zero();
+        Eigen::Vector3d r = Eigen::Vector3d::Zero();
+        for (std::size_t q = b; q < e; ++q) {
+          const auto & p = pts[items[q].idx];
+          const Eigen::Vector3d u(p.x, p.y, 1.0);
+          A += u * u.transpose();
+          r += u * p.z;
+        }
+        const double cnt = static_cast<double>(e - b);
+        Eigen::Matrix2d C;
+        C << A(0, 0) / cnt - std::pow(A(0, 2) / cnt, 2),
+          A(0, 1) / cnt - A(0, 2) * A(1, 2) / (cnt * cnt),
+          A(0, 1) / cnt - A(0, 2) * A(1, 2) / (cnt * cnt),
+          A(1, 1) / cnt - std::pow(A(1, 2) / cnt, 2);
+        const bool line = Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d>(C).eigenvalues()[0] <
+          0.05 * res * res / 12.0;
+        if (line) {
+          if (items[e - 1].z - items[b].z > 0.5f * step) {return;}
+        } else {
+          const Eigen::Vector3d abc = A.ldlt().solve(r);
+          if (!abc.allFinite()) {return;}
+          n = Eigen::Vector3d(-abc[0], -abc[1], 1.0).normalized();
+          if (n.z() < cos_slope) {
+            std::vector<double> rz;
+            rz.reserve(e - b);
+            for (std::size_t q = b; q < e; ++q) {
+              const auto & p = pts[items[q].idx];
+              rz.push_back(p.z - (abc[0] * p.x + abc[1] * p.y + abc[2]));
+            }
+            std::sort(rz.begin(), rz.end());
+            const double spread = rz[(rz.size() * 9) / 10] - rz[rz.size() / 10];
+            if (spread <= 0.5 * step) {return;}
+            n = Eigen::Vector3d(0.0, 0.0, 1.0);
+          }
+        }
+      }
+      // Rays within 1 degree of the plane are neither: kept. A far ceiling is seen by rays that
+      // climb a little, a far floor by rays that descend.
+      const double graze = std::sin(1.0 * M_PI / 180.0);
+      side.assign(e - b, 0);
+      // A point seen from below stays only over something that is not (a table over a floor)
+      float z_low = std::numeric_limits<float>::infinity();
+      for (std::size_t q = b; q < e; ++q) {
+        const auto & p = pts[items[q].idx];
+        const Eigen::Vector3d d(p.x - p.vp_x, p.y - p.vp_y, p.z - p.vp_z);
+        const double c = d.allFinite() && d.norm() > 0.0 ? d.dot(n) / d.norm() : -1.0;
+        // It climbs the plane and the horizontal: a descending ray never sees an underside
+        // (a plane fitted to few points can tilt a lot)
+        if (c > graze && d.z() > graze * d.norm()) {
+          side[q - b] = 1;
+        } else {
+          z_low = std::min(z_low, p.z);
+        }
+      }
+      // Seen only from below: a ceiling over the floor it was seen from, or the crest of a slope
+      // seen from its foot, which stays: nothing under it in its cell, or only beside it (the
+      // foot of a vertical face)
+      if (std::isinf(z_low)) {
+        if (lowest) {return;}
+        std::size_t over = 0;
+        const float m = 0.25f * res;  // sampling gaps of the floor under it
+        for (std::size_t q = b; q < e; ++q) {
+          const auto & p = pts[items[q].idx];
+          over += p.x >= below_box[0] - m && p.x <= below_box[1] + m &&
+            p.y >= below_box[2] - m && p.y <= below_box[3] + m;
+        }
+        if (2 * over < e - b) {return;}
+      }
+      for (std::size_t q = b; q < e; ++q) {
+        if (side[q - b] && !(items[q].z > z_low + 0.5f * step)) {
+          keep[items[q].idx] = 0;
+          ++dropped;
+        }
+      }
+    };
+  for (std::size_t k = 0; k < items.size(); ) {
+    std::size_t b = k;
+    bool lowest = true;
+    for (++k; ; ++k) {
+      const bool cell_end = k == items.size() || items[k].key != items[b].key;
+      if (cell_end || items[k].z - items[k - 1].z > gap) {
+        if (lowest) {
+          below_box = {std::numeric_limits<float>::infinity(),
+            -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
+            -std::numeric_limits<float>::infinity()};
+        }
+        level(b, k, lowest);
+        for (std::size_t q = b; q < k; ++q) {
+          const auto & p = pts[items[q].idx];
+          below_box = {std::min(below_box[0], p.x), std::max(below_box[1], p.x),
+            std::min(below_box[2], p.y), std::max(below_box[3], p.y)};
+        }
+        lowest = false;
+        b = k;
+      }
+      if (cell_end) {break;}
+    }
+  }
+  return dropped;
+}
+
+}  // namespace
+
+pcl::PointCloud<pcl::PointXYZ> filter_with_viewpoints(
+  const pcl::PointCloud<pcl::PointWithViewpoint> & input_points,
+  const BuildParams & params,
+  ViewpointFilterStats * stats)
+{
+  std::vector<char> keep(input_points.size(), 0);
+  for (std::size_t k = 0; k < input_points.size(); ++k) {
+    keep[k] = pcl::isFinite(input_points[k]);
+  }
+  ViewpointFilterStats st;
+  st.input = input_points.size();
+  if (params.resolution > 0.0f) {
+    if (params.carve_free_space) {st.carved = carve(input_points, params, keep);}
+    if (params.drop_seen_from_below) {
+      st.seen_from_below = drop_from_below(input_points, params, keep);
+    }
+  }
+  pcl::PointCloud<pcl::PointXYZ> out;
+  out.reserve(input_points.size());
+  for (std::size_t k = 0; k < input_points.size(); ++k) {
+    if (keep[k]) {out.push_back({input_points[k].x, input_points[k].y, input_points[k].z});}
+  }
+  if (stats) {*stats = st;}
+  return out;
+}
+
+navmap::NavMap from_points(
+  const pcl::PointCloud<pcl::PointWithViewpoint> & input_points,
+  navmap_ros_interfaces::msg::NavMap & out_msg,
+  BuildParams params)
+{
+  return from_points(filter_with_viewpoints(input_points, params), out_msg, params);
 }
 
 // ----------------- ROS PointCloud2 entry -----------------
