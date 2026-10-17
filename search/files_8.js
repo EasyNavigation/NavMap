@@ -21,5 +21,6 @@ var searchData=
   ['test_5fnavmap_5fproperties_2ecpp_18',['test_navmap_properties.cpp',['../test__navmap__properties_8cpp.html',1,'']]],
   ['test_5fnavmap_5funiform_5fand_5fclosest_2ecpp_19',['test_navmap_uniform_and_closest.cpp',['../test__navmap__uniform__and__closest_8cpp.html',1,'']]],
   ['test_5fraycast_5fmany_2ecpp_20',['test_raycast_many.cpp',['../test__raycast__many_8cpp.html',1,'']]],
-  ['test_5fsimplify_2ecpp_21',['test_simplify.cpp',['../test__simplify_8cpp.html',1,'']]]
+  ['test_5fsimplify_2ecpp_21',['test_simplify.cpp',['../test__simplify_8cpp.html',1,'']]],
+  ['test_5fsurface_5ftree_2ecpp_22',['test_surface_tree.cpp',['../test__surface__tree_8cpp.html',1,'']]]
 ];
