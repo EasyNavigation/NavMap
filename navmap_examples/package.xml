@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>navmap_examples</name>
-  <version>0.6.0</version>
+  <version>0.7.0</version>
   <description>Examples related to navmap_core y navmap_ros.</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
 
@@ -19,6 +19,8 @@
   <depend>rclcpp</depend>
 
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>navmap_rviz_plugin</exec_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>

@@ -32,3 +32,63 @@ ament_add_gtest(test_navmap_assign test_navmap_assign.cpp)
 target_link_libraries(test_navmap_assign
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_locate_multisurface test_locate_multisurface.cpp)
+target_link_libraries(test_locate_multisurface
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_navmap_properties test_navmap_properties.cpp)
+target_link_libraries(test_navmap_properties
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_adjacency test_adjacency.cpp)
+target_link_libraries(test_adjacency
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_distance_field test_distance_field.cpp)
+target_link_libraries(test_distance_field
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_iterators test_iterators.cpp)
+target_link_libraries(test_iterators
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_layers_unknown_occupancy test_layers_unknown_occupancy.cpp)
+target_link_libraries(test_layers_unknown_occupancy
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_incremental test_incremental.cpp)
+target_link_libraries(test_incremental
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_descriptors test_descriptors.cpp)
+target_link_libraries(test_descriptors
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_links test_links.cpp)
+target_link_libraries(test_links
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_combine test_combine.cpp)
+target_link_libraries(test_combine
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_simplify test_simplify.cpp)
+target_link_libraries(test_simplify
+  ${PROJECT_NAME}
+)
+
+ament_add_gtest(test_surface_tree test_surface_tree.cpp)
+target_link_libraries(test_surface_tree
+  ${PROJECT_NAME}
+)

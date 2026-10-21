@@ -14,10 +14,11 @@
 // limitations under the License.
 
 
+#include <cmath>
 #include <iostream>
 #include <cstdint>
-#include <Eigen/Core>
 
+#include "Eigen/Core"
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
@@ -26,7 +27,6 @@ using Eigen::Vector3f;
 using std::cout; using std::endl;
 
 // 06_area_marking: set_area CIRCULAR y RECTANGULAR sobre una malla 1x1 de 2 tris
-#include <cmath>
 int main()
 {
   NavMap nm;

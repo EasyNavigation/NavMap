@@ -23,7 +23,11 @@
 
 #include "navmap_core/NavMap.hpp"
 
-using namespace navmap;
+using navmap::LayerType;
+using navmap::LayerView;
+using navmap::NavCelId;
+using navmap::NavMap;
+using navmap::PointId;
 
 namespace
 {

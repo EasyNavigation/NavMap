@@ -2,6 +2,11 @@
 Changelog for package navmap_ros_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.0 (2026-10-21)
+------------------
+* Messages for unknown values, int16 layers, links, geometry ids and sparse layer updates
+* Contributors: Francisco Martín Rico
+
 0.6.0 (2026-10-08)
 ------------------
 * Conda packages with pixi (pixi-build-ros)

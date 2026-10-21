@@ -16,8 +16,8 @@
 
 #include <iostream>
 #include <cstdint>
-#include <Eigen/Core>
 
+#include "Eigen/Core"
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
@@ -44,7 +44,7 @@ int main()
   nm.layer_set<float>("cost", c0, 5.5f);
 
   auto names = nm.list_layers();
-  cout << "Layers:"; for (auto & n:names) {
+  cout << "Layers:"; for (auto & n : names) {
     cout << " " << n;
   }
   cout << endl;
