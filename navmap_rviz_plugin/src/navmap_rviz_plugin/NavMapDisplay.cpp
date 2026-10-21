@@ -14,6 +14,7 @@
 // limitations under the License.
 
 
+#include <algorithm>
 #include <cmath>
 
 #include <OgreSceneManager.h>
@@ -76,6 +77,18 @@ inline Ogre::ColourValue colorFromU8(uint8_t v, float alpha)
   return Ogre::ColourValue(c, c, c, alpha);
 }
 
+// Occupancy log-odds (int16, 1/1000): grey 1 - p, as U8 occupancy (free light, occupied black).
+inline Ogre::ColourValue colorFromLogodds(int16_t v, float alpha)
+{
+  const float p = 1.0f / (1.0f + std::exp(-static_cast<float>(v) / 1000.0f));
+  return Ogre::ColourValue(1.0f - p, 1.0f - p, 1.0f - p, alpha);
+}
+
+inline bool isLogoddsLayer(const navmap_ros_interfaces::msg::NavMapLayer & L)
+{
+  return L.type == navmap_ros_interfaces::msg::NavMapLayer::I16 && L.unit == "1/1000 log-odds";
+}
+
 inline Ogre::ColourValue colorFromHeat(float value, float max_value, float alpha)
 {
   if (max_value <= 1e-9f) {return Ogre::ColourValue(0.0f, 1.0f, 0.0f, alpha);}
@@ -83,7 +96,7 @@ inline Ogre::ColourValue colorFromHeat(float value, float max_value, float alpha
   return Ogre::ColourValue(t, 1.0f - t, 0.0f, alpha);
 }
 
-} // namespace
+}  // namespace
 
 namespace navmap_rviz_plugin
 {
@@ -111,6 +124,10 @@ NavMapDisplay::NavMapDisplay()
 
   draw_normals_property_ = new rviz_common::properties::BoolProperty(
     "Draw Normals", false, "Draw one normal per triangle.", this, SLOT(onDrawNormalsChanged()));
+  draw_links_property_ = new rviz_common::properties::BoolProperty(
+    "Draw Links", true,
+    "Draw the links between non-adjacent NavCels (stairs, elevators, doors...), coloured by type.",
+    this, SLOT(onDrawLinksChanged()));
 
   normal_scale_property_ = new rviz_common::properties::FloatProperty(
     "Normal Scale", 0.15f, "Scale of the per-triangle normal arrow/line.",
@@ -129,6 +146,11 @@ NavMapDisplay::NavMapDisplay()
 
 NavMapDisplay::~NavMapDisplay()
 {
+  if (links_obj_) {
+    links_obj_->detachFromParent();
+    context_->getSceneManager()->destroyManualObject(links_obj_);
+    links_obj_ = nullptr;
+  }
   if (normals_obj_) {
     normals_obj_->detachFromParent();
     context_->getSceneManager()->destroyManualObject(normals_obj_);
@@ -157,6 +179,11 @@ void NavMapDisplay::onInitialize()
   }
 
   // Prepare normals object
+  if (!links_obj_) {
+    links_obj_ = context_->getSceneManager()->createManualObject();
+    links_obj_->setDynamic(true);
+    root_node_->attachObject(links_obj_);
+  }
   if (!normals_obj_) {
     normals_obj_ = context_->getSceneManager()->createManualObject();
     normals_obj_->setDynamic(true);
@@ -183,6 +210,7 @@ void NavMapDisplay::reset()
 
   destroyMesh_();
   updateNormals_();
+  updateLinks_();
 }
 
 void NavMapDisplay::onEnable()
@@ -246,6 +274,7 @@ void NavMapDisplay::processMessage(const NavMapMsg::ConstSharedPtr msg)
   ensureMeshBuilt_();
   updateColorsOnly_();
   updateNormals_();
+  updateLinks_();
 
   context_->queueRender();
 }
@@ -317,18 +346,67 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
     return;
   }
 
+  if (msg->geometry_id != 0 && last_msg_->geometry_id != 0 &&
+    msg->geometry_id != last_msg_->geometry_id)
+  {
+    setStatus(rviz_common::properties::StatusProperty::Warn, "Layer Update",
+      QString("Ignored \"%1\": it belongs to another geometry").arg(
+        QString::fromStdString(msg->name)));
+    return;
+  }
+
+  // Sparse update: patch the cached layer of the same name and type
+  if (!msg->indices.empty()) {
+    NavMapLayerMsg * cached = nullptr;
+    for (auto & L : last_msg_->layers) {
+      if (L.name == msg->name && L.type == msg->type) {cached = &L;}
+    }
+    auto patch = [&](auto & dst, const auto & src) {
+        if (src.size() != msg->indices.size()) {return false;}
+        for (size_t k = 0; k < msg->indices.size(); ++k) {
+          if (msg->indices[k] < dst.size()) {dst[msg->indices[k]] = src[k];}
+        }
+        return true;
+      };
+    bool ok = cached != nullptr;
+    if (ok) {
+      switch (msg->type) {
+        case NavMapLayerMsg::U8: ok = patch(cached->data_u8, msg->data_u8); break;
+        case NavMapLayerMsg::F32: ok = patch(cached->data_f32, msg->data_f32); break;
+        case NavMapLayerMsg::F64: ok = patch(cached->data_f64, msg->data_f64); break;
+        case NavMapLayerMsg::I16: ok = patch(cached->data_i16, msg->data_i16); break;
+        default: ok = false;
+      }
+    }
+    if (!ok) {
+      setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
+        QString("Sparse update of \"%1\" does not match a received layer").arg(
+          QString::fromStdString(msg->name)));
+      return;
+    }
+    ++layer_update_count_;
+    if (currentSelectedLayer_() == msg->name) {updateColorsOnly_();}
+    setStatus(rviz_common::properties::StatusProperty::Ok, "Layer Update",
+      QString("OK — updates: %1 | last: \"%2\" (sparse, %3 cells)")
+      .arg(qulonglong(layer_update_count_)).arg(QString::fromStdString(msg->name))
+      .arg(qulonglong(msg->indices.size())));
+    context_->queueRender();
+    return;
+  }
+
   const size_t n_tris = last_msg_->navcels_v0.size();
   const size_t n_u8 = msg->data_u8.size();
   const size_t n_f32 = msg->data_f32.size();
   const size_t n_f64 = msg->data_f64.size();
-  const int non_empty = (n_u8 ? 1 : 0) + (n_f32 ? 1 : 0) + (n_f64 ? 1 : 0);
+  const size_t n_i16 = msg->data_i16.size();
+  const int non_empty = (n_u8 ? 1 : 0) + (n_f32 ? 1 : 0) + (n_f64 ? 1 : 0) + (n_i16 ? 1 : 0);
 
   if (non_empty != 1) {
     setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
-      "Exactly one of data_u8 / data_f32 / data_f64 must be non-empty.");
+      "Exactly one of data_u8 / data_f32 / data_f64 / data_i16 must be non-empty.");
     return;
   }
-  const size_t eff_len = n_u8 ? n_u8 : (n_f32 ? n_f32 : n_f64);
+  const size_t eff_len = n_u8 ? n_u8 : (n_f32 ? n_f32 : (n_f64 ? n_f64 : n_i16));
   if (eff_len != n_tris) {
     setStatus(rviz_common::properties::StatusProperty::Error, "Layer Update",
       QString("Layer size (%1) does not match number of triangles (%2)")
@@ -344,11 +422,10 @@ void NavMapDisplay::incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg)
   const char * type_str =
     (msg->type == navmap_ros_interfaces::msg::NavMapLayer::U8) ? "U8" :
     (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F32) ? "F32" :
-    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F64) ? "F64" : "UNKNOWN";
+    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::F64) ? "F64" :
+    (msg->type == navmap_ros_interfaces::msg::NavMapLayer::I16) ? "I16" : "UNKNOWN";
 
-  const size_t len = !msg->data_u8.empty() ? msg->data_u8.size() :
-    !msg->data_f32.empty() ? msg->data_f32.size() :
-    msg->data_f64.size();
+  const size_t len = eff_len;
 
   QString line = QString("OK — updates: %1 | last: \"%2\" (%3, len=%4)")
     .arg(qulonglong(layer_update_count_))
@@ -547,7 +624,7 @@ void NavMapDisplay::ensureMeshBuilt_()
 #else
     // Fallback: rebuild declaration without VES_DIFFUSE
     Ogre::VertexDeclaration * newDecl = context_->getSceneManager()->createVertexDeclaration();
-    for (unsigned short s = 0; s < decl->getElementCount(); ++s) {
+    for (uint16_t s = 0; s < decl->getElementCount(); ++s) {
       const Ogre::VertexElement & e = decl->getElement(s);
       if (e.getSemantic() == Ogre::VES_DIFFUSE) {continue;}
       newDecl->addElement(e.getSource(), e.getOffset(), e.getType(), e.getSemantic(), e.getIndex());
@@ -558,16 +635,16 @@ void NavMapDisplay::ensureMeshBuilt_()
   }
 
   // Choose a free binding source for colours (avoid clashing with positions/normals)
-  unsigned short COLOR_SRC = 1;
+  uint16_t COLOR_SRC = 1;
   while (bind->isBufferBound(COLOR_SRC)) {++COLOR_SRC;}
 
   // Create the dynamic colour buffer (one 32-bit colour per vertex)
-  const Ogre::VertexElementType col_type = Ogre::VET_COLOUR_ARGB; // we'll pack ARGB
+  const Ogre::VertexElementType col_type = Ogre::VET_COLOUR_ARGB;  // we'll pack ARGB
   decl->addElement(COLOR_SRC, /*offset=*/0, col_type, Ogre::VES_DIFFUSE);
 
   Ogre::HardwareVertexBufferSharedPtr colour_vbuf =
     Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
-      Ogre::VertexElement::getTypeSize(col_type), // should be 4
+      Ogre::VertexElement::getTypeSize(col_type),  // should be 4
       vertex_count,
       Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
@@ -624,27 +701,28 @@ void NavMapDisplay::updateColorsOnly_()
       last_msg_->colors_b.size() == last_msg_->positions_x.size();
   }
 
-  float max_val = 0.0f;
+  float max_val = 0.0f, min_val = 0.0f;
   bool is_u8 = false;
   if (selected_layer) {
-    if (selected_layer->type == NavMapLayerMsg::U8 &&
-      selected_layer->data_u8.size() == V0.size())
-    {
+    const auto & L = *selected_layer;
+    if (L.type == NavMapLayerMsg::U8 && L.data_u8.size() == V0.size()) {
       is_u8 = true;
-    } else if (selected_layer->type == NavMapLayerMsg::F32 &&
-      selected_layer->data_f32.size() == V0.size())
-    {
-      for (float v : selected_layer->data_f32) {
+    } else if (L.type == NavMapLayerMsg::I16 && L.data_i16.size() == V0.size()) {
+      if (!L.data_i16.empty()) {
+        const auto [lo, hi] = std::minmax_element(L.data_i16.begin(), L.data_i16.end());
+        min_val = *lo;
+        max_val = *hi;
+      }
+    } else if (L.type == NavMapLayerMsg::F32 && L.data_f32.size() == V0.size()) {
+      for (float v : L.data_f32) {
         max_val = std::max(max_val, v);
       }
-    } else if (selected_layer->type == NavMapLayerMsg::F64 &&
-      selected_layer->data_f64.size() == V0.size())
-    {
-      for (double v : selected_layer->data_f64) {
+    } else if (L.type == NavMapLayerMsg::F64 && L.data_f64.size() == V0.size()) {
+      for (double v : L.data_f64) {
         max_val = std::max(max_val, static_cast<float>(v));
       }
     } else {
-      selected_layer = nullptr; // fallback to neutral grey
+      selected_layer = nullptr;  // fallback to neutral grey
     }
   }
 
@@ -712,7 +790,18 @@ void NavMapDisplay::updateColorsOnly_()
         const uint32_t packed = packARGB(col);
         *p++ = packed; *p++ = packed; *p++ = packed;
       }
-    } else { // F64
+    } else if (selected_layer->type == NavMapLayerMsg::I16) {
+      const bool logodds = isLogoddsLayer(*selected_layer);
+      for (size_t t = 0; t < V0.size(); ++t) {
+        const int16_t v = selected_layer->data_i16[t];
+        const float shifted = static_cast<float>(v) - min_val;  // the scales start at 0
+        const Ogre::ColourValue col = logodds ? colorFromLogodds(v, alpha) :
+          (use_rainbow ? colorFromRainbow(shifted, max_val - min_val, alpha) :
+          colorFromHeat(shifted, max_val - min_val, alpha));
+        const uint32_t packed = packARGB(col);
+        *p++ = packed; *p++ = packed; *p++ = packed;
+      }
+    } else {  // F64
       for (size_t t = 0; t < V0.size(); ++t) {
         const float v = static_cast<float>(selected_layer->data_f64[t]);
         const Ogre::ColourValue col = use_rainbow ?
@@ -720,6 +809,23 @@ void NavMapDisplay::updateColorsOnly_()
           colorFromHeat   (v, max_val, alpha);
         const uint32_t packed = packARGB(col);
         *p++ = packed; *p++ = packed; *p++ = packed;
+      }
+    }
+    // Cells holding the layer's unknown value: translucent grey (U8 keeps its own mapping)
+    if (!is_u8 && selected_layer->has_unknown) {
+      const double u = selected_layer->unknown_value;
+      const uint32_t grey = packARGB(Ogre::ColourValue(0.5f, 0.5f, 0.5f, 0.35f * alpha));
+      uint32_t * q = reinterpret_cast<uint32_t *>(base);
+      for (size_t t = 0; t < V0.size(); ++t, q += 3) {
+        double v = 0.0;
+        if (selected_layer->type == NavMapLayerMsg::I16) {
+          v = selected_layer->data_i16[t];
+        } else if (selected_layer->type == NavMapLayerMsg::F32) {
+          v = selected_layer->data_f32[t];
+        } else {
+          v = selected_layer->data_f64[t];
+        }
+        if ((std::isnan(u) && std::isnan(v)) || v == u) {q[0] = q[1] = q[2] = grey;}
       }
     }
   } else {
@@ -782,6 +888,57 @@ void NavMapDisplay::updateNormals_()
   normals_obj_->end();
 }
 
+void NavMapDisplay::onDrawLinksChanged()
+{
+  updateLinks_();
+  context_->queueRender();
+}
+
+// Links between non-adjacent NavCels: a line between their centroids, raised in the middle so a
+// link between stacked NavCels stays visible, coloured by type.
+void NavMapDisplay::updateLinks_()
+{
+  if (!context_ || !last_msg_ || !links_obj_) {return;}
+  links_obj_->clear();
+  if (!draw_links_property_->getBool() || last_msg_->links.empty()) {return;}
+
+  const auto & X = last_msg_->positions_x;
+  const auto & Y = last_msg_->positions_y;
+  const auto & Z = last_msg_->positions_z;
+  const auto & V0 = last_msg_->navcels_v0;
+  const auto & V1 = last_msg_->navcels_v1;
+  const auto & V2 = last_msg_->navcels_v2;
+  auto centroid = [&](uint32_t t) {
+      return Ogre::Vector3(
+        (X[V0[t]] + X[V1[t]] + X[V2[t]]) / 3.0f, (Y[V0[t]] + Y[V1[t]] + Y[V2[t]]) / 3.0f,
+        (Z[V0[t]] + Z[V1[t]] + Z[V2[t]]) / 3.0f);
+    };
+  auto colour = [](uint8_t type) {
+      switch (type) {
+        case navmap_ros_interfaces::msg::NavMapLink::RAMP: return Ogre::ColourValue(0, 0.8f, 0, 1);
+        case navmap_ros_interfaces::msg::NavMapLink::STAIRS: return Ogre::ColourValue(1, 0.5f, 0,
+          1);
+        case navmap_ros_interfaces::msg::NavMapLink::ELEVATOR:
+          return Ogre::ColourValue(0.6f, 0, 1, 1);
+        case navmap_ros_interfaces::msg::NavMapLink::DOOR: return Ogre::ColourValue(0, 0.6f, 1, 1);
+        default: return Ogre::ColourValue(1, 1, 0, 1);
+      }
+    };
+
+  links_obj_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+  for (const auto & l : last_msg_->links) {
+    if (l.from_navcel >= V0.size() || l.to_navcel >= V0.size()) {continue;}
+    const Ogre::Vector3 a = centroid(l.from_navcel), b = centroid(l.to_navcel);
+    const Ogre::Vector3 mid = 0.5f * (a + b) + Ogre::Vector3(0, 0, 0.25f * (a - b).length());
+    const Ogre::ColourValue c = colour(l.type);
+    links_obj_->position(a); links_obj_->colour(c);
+    links_obj_->position(mid); links_obj_->colour(c);
+    links_obj_->position(mid); links_obj_->colour(c);
+    links_obj_->position(b); links_obj_->colour(c);
+  }
+  links_obj_->end();
+}
+
 void NavMapDisplay::updateColorSchemeOptions_()
 {
   const QString prev = color_scheme_property_->getString();
@@ -792,7 +949,7 @@ void NavMapDisplay::updateColorSchemeOptions_()
 
   if (it != layers_by_name_.end()) {
     const auto * L = it->second;
-    if (L->type == navmap_ros_interfaces::msg::NavMapLayer::U8) {
+    if (L->type == navmap_ros_interfaces::msg::NavMapLayer::U8 || isLogoddsLayer(*L)) {
       color_scheme_property_->addOption("Occupancy");
       color_scheme_property_->setString("Occupancy");
       color_scheme_property_->setDescription(
