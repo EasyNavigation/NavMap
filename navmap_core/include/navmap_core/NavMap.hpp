@@ -1,25 +1,20 @@
 // Copyright 2025 Intelligent Robotics Lab
 //
 // This file is part of the project Easy Navigation (EasyNav in short)
-// licensed under the GNU General Public License v3.0.
-// See <http://www.gnu.org/licenses/> for details.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// Easy Navigation program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3.0, or
-// (at your option) any later version.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-
-#ifndef NAVMAP_CORE__NAVMAP_HPP
-#define NAVMAP_CORE__NAVMAP_HPP
+#ifndef NAVMAP_CORE__NAVMAP_HPP_
+#define NAVMAP_CORE__NAVMAP_HPP_
 
 /**
  * \file
@@ -50,8 +45,9 @@
 #include <type_traits>
 #include <deque>
 #include <algorithm>
+#include <utility>
 
-#include <Eigen/Core>
+#include "Eigen/Core"
 #include "navmap_core/Geometry.hpp"
 
 namespace navmap
@@ -118,7 +114,7 @@ struct Colors
  *
  * The registry currently supports: 8-bit unsigned, 32-bit float, 64-bit double.
  */
-enum class LayerType : uint8_t { U8 = 0, F32 = 1, F64 = 2 };
+enum class LayerType : uint8_t { U8 = 0, F32 = 1, F64 = 2, I16 = 3 };
 
 /**
  * \brief Non-templated base for runtime layer handling.
@@ -144,9 +140,55 @@ struct LayerViewBase
   /// @brief Mark content dirty (forces hash recompute on next query).
   void mark_dirty() const noexcept {hash_dirty_ = true;}
 
+  /// @brief Independent copy of this layer (data, name, type, cached hash and pending changes).
+  virtual std::shared_ptr<LayerViewBase> clone() const = 0;
+
+  // ---- Change tracking (for incremental consumers: inflation, publication...) ----
+  // Cells written since the last clear_changes(): recorded by NavMap::layer_set(), OccupancyLayer
+  // and mark_changed(). Bulk writes (set_data, layer_clear, copies) mark the whole layer, and so
+  // does creating it. Direct writes through data() must call mark_changed() themselves.
+
+  /// @brief Record that cell @p cid changed (deduplicated).
+  void mark_changed(NavCelId cid) const
+  {
+    hash_dirty_ = true;
+    if (all_changed_) {return;}
+    const std::size_t word = cid / 64;
+    if (changed_bits_.size() <= word) {
+      changed_bits_.resize(std::max(word + 1, (size() + 63) / 64));
+    }
+    const std::uint64_t bit = std::uint64_t{1} << (cid % 64);
+    if (!(changed_bits_[word] & bit)) {
+      changed_bits_[word] |= bit;
+      changed_.push_back(cid);
+    }
+  }
+
+  /// @brief Record that the whole layer changed.
+  void mark_all_changed() const noexcept {hash_dirty_ = true; all_changed_ = true;}
+
+  /// @brief Whether the whole layer changed (then changed() is not meaningful).
+  bool all_changed() const noexcept {return all_changed_;}
+
+  /// @brief Cells changed one by one since the last clear_changes(), in order of first change.
+  const std::vector<NavCelId> & changed() const noexcept {return changed_;}
+
+  bool has_changes() const noexcept {return all_changed_ || !changed_.empty();}
+
+  /// @brief Forget the recorded changes (call it once every consumer has seen them).
+  void clear_changes() const
+  {
+    for (const NavCelId c : changed_) {changed_bits_[c / 64] &= ~(std::uint64_t{1} << (c % 64));}
+    changed_.clear();
+    all_changed_ = false;
+  }
+
 protected:
   mutable bool hash_dirty_{true};
   mutable std::uint64_t hash_cache_{0};
+  mutable bool all_changed_{true};               // a new layer is all new
+  mutable std::vector<NavCelId> changed_;
+  mutable std::vector<std::uint64_t> changed_bits_;  // allocated on the first single change
 };
 
 /**
@@ -192,8 +234,13 @@ struct LayerView : LayerViewBase
   {
     hash_dirty_ = true; return const_cast<std::vector<T> &>(data_);
   }
-  void set_data(const std::vector<T> & v) {data_ = v; hash_dirty_ = true;}
+  void set_data(const std::vector<T> & v) {data_ = v; mark_all_changed();}
   std::uint64_t content_hash() const override;
+
+  std::shared_ptr<LayerViewBase> clone() const override
+  {
+    return std::make_shared<LayerView<T>>(*this);
+  }
   ///@}
 };
 
@@ -241,6 +288,27 @@ std::uint64_t LayerView<T>::content_hash() const
 class LayerRegistry
 {
 public:
+  LayerRegistry() = default;
+  LayerRegistry(LayerRegistry &&) noexcept = default;
+  LayerRegistry & operator=(LayerRegistry &&) noexcept = default;
+
+  /// Copies are deep: each copy owns its layers (writes never reach the original).
+  LayerRegistry(const LayerRegistry & other)
+  {
+    for (const auto & [name, view] : other.layers_) {
+      layers_.emplace(name, view ? view->clone() : nullptr);
+    }
+  }
+
+  LayerRegistry & operator=(const LayerRegistry & other)
+  {
+    if (this != &other) {
+      LayerRegistry tmp(other);
+      layers_.swap(tmp.layers_);
+    }
+    return *this;
+  }
+
   /**
    * \brief Add a new typed layer or return an existing one with the same name.
    *
@@ -314,17 +382,22 @@ public:
     for (auto & kv : layers_) {
       if (auto v = std::dynamic_pointer_cast<LayerView<uint8_t>>(kv.second)) {
         v->data_.resize(nitems);
-        kv.second->mark_dirty();
+        kv.second->mark_all_changed();
         continue;
       }
       if (auto v = std::dynamic_pointer_cast<LayerView<float>>(kv.second)) {
         v->data_.resize(nitems);
-        kv.second->mark_dirty();
+        kv.second->mark_all_changed();
         continue;
       }
       if (auto v = std::dynamic_pointer_cast<LayerView<double>>(kv.second)) {
         v->data_.resize(nitems);
-        kv.second->mark_dirty();
+        kv.second->mark_all_changed();
+        continue;
+      }
+      if (auto v = std::dynamic_pointer_cast<LayerView<int16_t>>(kv.second)) {
+        v->data_.resize(nitems);
+        kv.second->mark_all_changed();
         continue;
       }
     }
@@ -344,6 +417,7 @@ struct LayerMeta
   std::string description;   ///< Human-readable description
   std::string unit;          ///< Physical unit (e.g., "m", "deg", "%")
   bool per_cell{true};       ///< true for per-NavCel layers (current behavior)
+  std::optional<double> unknown;  ///< Value meaning "not observed" (NaN allowed), if any
 };
 
 // -----------------------------------------------------------------------------
@@ -440,6 +514,7 @@ template<typename T> inline constexpr LayerType layer_type_tag();
 template<> inline constexpr LayerType layer_type_tag<uint8_t>() {return LayerType::U8;}
 template<> inline constexpr LayerType layer_type_tag<float>() {return LayerType::F32;}
 template<> inline constexpr LayerType layer_type_tag<double>() {return LayerType::F64;}
+template<> inline constexpr LayerType layer_type_tag<int16_t>() {return LayerType::I16;}
 
 /**
  * \brief Shape selector for area-writing APIs.
@@ -464,6 +539,24 @@ enum class AreaShape { CIRCULAR, RECTANGULAR };
  *  - Create layers via \ref LayerRegistry::add_or_get() sized to navcels.size().
  *  - Query with \ref locate_navcel(), \ref raycast(), or \ref closest_navcel().
  */
+/// Kind of a link between NavCels that are not adjacent in the mesh.
+enum class LinkType : uint8_t { GENERIC = 0, RAMP = 1, STAIRS = 2, ELEVATOR = 3, DOOR = 4 };
+
+/**
+ * \brief Connection between two NavCels that do not share an edge (stairs, an elevator, a door
+ *        between surfaces that are not welded...).
+ *
+ * The map only records it; whether a robot can take it, and at which cost, is up to the planner.
+ */
+struct SurfaceLink
+{
+  NavCelId from{0};
+  NavCelId to{0};
+  LinkType type{LinkType::GENERIC};
+  float length{0.0f};          ///< Travel length (m)
+  bool bidirectional{true};    ///< Also from `to` to `from`
+};
+
 class NavMap
 {
 public:
@@ -508,12 +601,29 @@ public:
   bool has_same_geometry(const NavMap & other) const;
 
   /**
+   * \brief Fingerprint of the geometry (vertex positions and triangles), 64-bit FNV-1a.
+   *
+   * Equal maps have equal ids, so a layer update can name the geometry it belongs to. Recomputed
+   * lazily after add_vertex(), add_navcel() or rebuild_geometry_accels(); call the latter after
+   * editing positions or navcels directly.
+   */
+  std::uint64_t geometry_id() const
+  {
+    ensure_geometry_fingerprint_();
+    return geometry_fp_;
+  }
+
+  /**
    * \brief Build topological adjacency between neighboring NavCels.
    *
-   * Two triangles are neighbors if they share an undirected edge.
+   * Two triangles are neighbors if they share an undirected edge and no other
+   * triangle uses it; edges shared by more than two (non-manifold) stay open.
    * Called by \ref rebuild_geometry_accels().
    */
   void build_adjacency();
+
+  /// \brief Edges shared by more than two NavCels in the last adjacency build.
+  std::size_t nonmanifold_edges() const {return nonmanifold_edges_;}
 
   /**
    * \brief Mark a vertex as updated (reserved for future cache invalidation).
@@ -699,6 +809,54 @@ public:
   /// \brief Return up to 3 neighbor cell ids (skips invalid entries).
   std::vector<NavCelId> navcel_neighbors(NavCelId cid) const;
 
+  // ---- Links between NavCels that are not adjacent (SurfaceLink) ----
+
+  /// Value returned by add_link() when a NavCel id is out of range.
+  static constexpr std::size_t kInvalidLink = std::numeric_limits<std::size_t>::max();
+
+  /**
+   * \brief Add a link from \p from to \p to. A negative \p length takes the distance between
+   *        their centroids.
+   * \return Index of the link, or kInvalidLink if an id is out of range or from == to.
+   */
+  std::size_t add_link(
+    NavCelId from, NavCelId to, LinkType type = LinkType::GENERIC, float length = -1.0f,
+    bool bidirectional = true);
+
+  /// \brief Remove link \p index (the last link takes its index). False if out of range.
+  bool remove_link(std::size_t index);
+
+  void clear_links();
+
+  const std::vector<SurfaceLink> & links() const {return links_;}
+
+  /// \brief Indices of the links that can be taken from \p cid (both ends of bidirectional ones).
+  const std::vector<std::uint32_t> & links_from(NavCelId cid) const;
+
+  /**
+   * \brief Distance (m, 3D) from each NavCel centroid to the nearest seed.
+   *
+   * Seeds are the centroids of \p seed_cells and, if \p from_boundary, the open edges of the
+   * mesh (edges without a neighbor: walls, drops, unmapped space). The nearest seed is
+   * propagated over adjacency and the distance is measured straight to it, so it never jumps
+   * between disconnected surfaces (e.g. stacked floors).
+   *
+   * \param seed_cells    Seed NavCels (out-of-range ids are ignored).
+   * \param from_boundary Also seed the open edges.
+   * \param max_distance  Stop beyond this distance; farther or unreachable cells get +inf.
+   * \return One distance per NavCel.
+   */
+  std::vector<float> distance_field(
+    const std::vector<NavCelId> & seed_cells, bool from_boundary,
+    float max_distance = std::numeric_limits<float>::infinity()) const;
+
+  /// \brief Value returned by \ref surface_of() for a NavCel in no surface.
+  static constexpr std::size_t kNoSurface = std::numeric_limits<std::size_t>::max();
+
+  /// \brief Index of the surface owning \p cid, or \ref kNoSurface.
+  /// \note O(1) after \ref rebuild_geometry_accels().
+  std::size_t surface_of(NavCelId cid) const;
+
   // ---- Layers (per-NavCel) convenience ----
 
   /**
@@ -722,11 +880,16 @@ public:
     const std::string & unit = {},
     T default_value = T{})
   {
+    const bool existed = has_layer(name);
     auto v = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
-    if (v->data().size() != navcels.size()) {
+    if (!existed || v->data().size() != navcels.size()) {  // new layers start at default_value
       v->data().assign(navcels.size(), default_value);
+      v->mark_all_changed();
     }
-    layer_meta[name] = LayerMeta{description, unit, true};
+    auto & meta = layer_meta[name];
+    meta.description = description;
+    meta.unit = unit;
+    meta.per_cell = true;
     return v;
   }
 
@@ -752,7 +915,7 @@ public:
     auto view = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     if (static_cast<size_t>(cid) < view->data().size()) {
       view->data()[cid] = value;
-      view->mark_dirty();
+      view->mark_changed(cid);
     }
   }
 
@@ -765,7 +928,7 @@ public:
    *
    * Si la capa no existe o \p cid está fuera de rango, devuelve \p def.
    *
-   * \tparam T uint8_t, float, or double
+   * \tparam T uint8_t, int16_t, float, or double
    * \param name Layer name
    * \param cid  Triangle id
    * \param def  Default value on failure
@@ -798,6 +961,10 @@ public:
         const auto & buf = vd->data();
         if (static_cast<size_t>(cid) >= buf.size()) {return def;}
         v = buf[cid];
+      } else if (auto vi = std::dynamic_pointer_cast<LayerView<int16_t>>(base)) {
+        const auto & buf = vi->data();
+        if (static_cast<size_t>(cid) >= buf.size()) {return def;}
+        v = static_cast<double>(buf[cid]);
       } else {
         return def;
       }
@@ -808,8 +975,8 @@ public:
     if constexpr (std::is_floating_point_v<T>) {
       return static_cast<T>(v);
     } else if constexpr (std::is_integral_v<T>) {
-      double lo = 0.0;
-      double hi = static_cast<double>(std::numeric_limits<T>::max());
+      const double lo = static_cast<double>(std::numeric_limits<T>::lowest());
+      const double hi = static_cast<double>(std::numeric_limits<T>::max());
       double vv = v < lo ? lo : (v > hi ? hi : v);
       return static_cast<T>(std::llround(vv));
     } else {
@@ -823,6 +990,15 @@ public:
    * \return Optional metadata if available.
    */
   std::optional<LayerMeta> get_layer_meta(const std::string & name) const;
+
+  /**
+   * \brief Declare the value of layer \p name that means "not observed" (NaN allowed).
+   *        Travels with the map (message and file) and is kept by add_layer().
+   */
+  void set_layer_unknown(const std::string & name, double value);
+
+  /// \brief Whether layer \p name holds its unknown value at \p cid (false if it has none).
+  bool is_unknown(const std::string & name, NavCelId cid) const;
 
   /**
    * \brief List all layer names currently stored.
@@ -856,7 +1032,7 @@ public:
   {
     auto view = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     std::fill(view->data().begin(), view->data().end(), value);
-    view->mark_dirty();
+    view->mark_all_changed();
   }
 
   /**
@@ -881,7 +1057,7 @@ public:
     auto src_base = layers.get(src);
     auto src_view = std::dynamic_pointer_cast<LayerView<T>>(src_base);
     if (!src_view) {
-      return false; // source layer missing or wrong type
+      return false;  // source layer missing or wrong type
     }
 
     // Ensure destination exists with correct length (navcels.size())
@@ -906,7 +1082,7 @@ public:
     // Hash-based skip: O(1) if cached, O(n) only on first compute (then cached)
     const bool same_hash = (src_view->content_hash() == dst_view->content_hash());
     if (same_hash) {
-      return true; // identical content → avoid copy
+      return true;  // identical content → avoid copy
     }
 
     // Copy only when different. set_data() marks hash as dirty for dst.
@@ -941,7 +1117,10 @@ public:
     if (dst->data().size() != navcels.size()) {
       dst->data().assign(navcels.size(), T{});
     }
-    layer_meta[name] = LayerMeta{description, unit, true};
+    auto & meta = layer_meta[name];
+    meta.description = description;
+    meta.unit = unit;
+    meta.per_cell = true;
 
     if (!has_layer(src_layer)) {
       return dst;
@@ -959,8 +1138,8 @@ public:
       if constexpr (std::is_floating_point_v<T>) {
         dst->data()[cid] = static_cast<T>(v);
       } else if constexpr (std::is_integral_v<T>) {
-        double lo = 0.0;
-        double hi = static_cast<double>(std::numeric_limits<T>::max());
+        const double lo = static_cast<double>(std::numeric_limits<T>::lowest());
+        const double hi = static_cast<double>(std::numeric_limits<T>::max());
         if (v < lo) {v = lo;}
         if (v > hi) {v = hi;}
         dst->data()[cid] = static_cast<T>(std::llround(v));
@@ -995,7 +1174,7 @@ public:
    * Efficiency: BFS from the seed NavCel with XY AABB pruning against the
    * circumscribed square of the area. Inclusion test by triangle centroid.
    *
-   * \tparam T uint8_t, float, or double
+   * \tparam T uint8_t, int16_t, float, or double
    * \param p_world 3D point in world coordinates (projected to ground)
    * \param value Value to set in the layer
    * \param layer_name Target layer name
@@ -1118,6 +1297,32 @@ private:
   mutable bool geometry_dirty_{true};
   mutable std::uint64_t geometry_fp_{0};
 
+  // Closest hit over all surfaces with t < t_max, nearest surfaces first.
+  bool closest_hit_(
+    const Eigen::Vector3f & o, const Eigen::Vector3f & d, float t_max,
+    RayHit & out) const;
+
+  std::size_t nonmanifold_edges_{0};
+
+  // Owning surface per NavCel, built in rebuild_geometry_accels().
+  std::vector<std::uint32_t> navcel_surface_;
+
+  // BVH over the surfaces' boxes (leaves index surface_tree_prims_), built in
+  // rebuild_geometry_accels(); queries visit only the surfaces it reaches. Stale (surfaces added
+  // since) means the queries go through every surface, as without it.
+  std::vector<BVHNode> surface_tree_;
+  std::vector<std::uint32_t> surface_tree_prims_;
+  std::size_t surface_tree_surfaces_{0};
+  void build_surface_tree_();
+  bool surface_tree_valid_() const
+  {
+    return !surface_tree_.empty() && surface_tree_surfaces_ == surfaces.size();
+  }
+  std::vector<SurfaceLink> links_;
+  mutable std::vector<std::vector<std::uint32_t>> link_index_;
+  mutable bool link_index_dirty_{true};
+  void build_navcel_surface_index_();
+
   // Builders and traversal helpers.
 
   /**
@@ -1134,6 +1339,7 @@ private:
    * \param[out] hit_cid  Triangle id on hit.
    * \param[out] t_out    Distance along ray.
    * \param[out] hit_pt   Intersection point (world).
+   * \param t_max     Only hits closer than this count (prunes the BVH).
    * \return true if any triangle was hit.
    */
   bool surface_raycast(
@@ -1142,7 +1348,8 @@ private:
     const Eigen::Vector3f & d,
     NavCelId & hit_cid,
     float & t_out,
-    Eigen::Vector3f & hit_pt) const;
+    Eigen::Vector3f & hit_pt,
+    float t_max = std::numeric_limits<float>::infinity()) const;
 
   /**
    * \brief Walk across neighbors starting from \p start_cid to locate \p p.
@@ -1193,4 +1400,4 @@ inline bool NavMap::locate_navcel(
 
 }  // namespace navmap
 
-#endif  // NAVMAP_CORE__NAVMAP_HPP
+#endif  // NAVMAP_CORE__NAVMAP_HPP_

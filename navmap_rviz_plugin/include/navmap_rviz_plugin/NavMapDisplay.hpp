@@ -14,33 +14,28 @@
 // limitations under the License.
 
 
-#ifndef NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
-#define NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
+#ifndef NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
+#define NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_
 
 #include <cstdint>
 #include <string>
 #include <unordered_map>
 
-#include <QObject>
-
-#include <OgreHardwareVertexBuffer.h>
-#include <OgreMesh.h>
-
-#include <rclcpp/qos.hpp>
-#include <rclcpp/subscription.hpp>
-
-#include <rviz_common/message_filter_display.hpp>
-#include <rviz_common/properties/bool_property.hpp>
-#include <rviz_common/properties/enum_property.hpp>
-#include <rviz_common/properties/float_property.hpp>
-#include <rviz_common/properties/qos_profile_property.hpp>
-#include <rviz_common/properties/ros_topic_property.hpp>
-#include <rviz_common/properties/string_property.hpp>
-#include <rviz_common/display_context.hpp>
-
-#include <navmap_ros_interfaces/msg/nav_map.hpp>
-#include <navmap_ros_interfaces/msg/nav_map_layer.hpp>
-
+#include "QObject"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreMesh.h"
+#include "rclcpp/qos.hpp"
+#include "rclcpp/subscription.hpp"
+#include "rviz_common/message_filter_display.hpp"
+#include "rviz_common/properties/bool_property.hpp"
+#include "rviz_common/properties/enum_property.hpp"
+#include "rviz_common/properties/float_property.hpp"
+#include "rviz_common/properties/qos_profile_property.hpp"
+#include "rviz_common/properties/ros_topic_property.hpp"
+#include "rviz_common/properties/string_property.hpp"
+#include "rviz_common/display_context.hpp"
+#include "navmap_ros_interfaces/msg/nav_map.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "navmap_core/NavMap.hpp"
 
 #if defined _WIN32 || defined __CYGWIN__
@@ -104,6 +99,7 @@ private Q_SLOTS:
   void updateLayerUpdateTopic();
   void onLayerSelectionChanged();
   void onDrawNormalsChanged();
+  void onDrawLinksChanged();
   void onAlphaChanged();
   void onNormalScaleChanged();
   void onColorSchemeChanged();
@@ -123,6 +119,7 @@ private:
   // Rendering
   void updateGeometry_();            // Build geometry (first time) and update colors.
   void updateNormals_();             // Rebuild normals debug object.
+  void updateLinks_();               // Rebuild the links between non-adjacent NavCels.
   void updateColorSchemeOptions_();  // Refresh color-scheme choices for current layer.
 
   // Mesh/Entity path (Option B)
@@ -137,6 +134,7 @@ private:
   rviz_common::properties::QosProfileProperty * layer_profile_property_{nullptr};
   rviz_common::properties::EnumProperty * color_scheme_property_{nullptr};
   rviz_common::properties::BoolProperty * draw_normals_property_{nullptr};
+  rviz_common::properties::BoolProperty * draw_links_property_{nullptr};
   rviz_common::properties::FloatProperty * normal_scale_property_{nullptr};
   rviz_common::properties::FloatProperty * alpha_property_{nullptr};
   rviz_common::properties::StringProperty * info_property_{nullptr};
@@ -159,15 +157,16 @@ private:
   // ---- OGRE scene objects ----
   Ogre::SceneNode * root_node_{nullptr};
   Ogre::ManualObject * normals_obj_{nullptr};
+  Ogre::ManualObject * links_obj_{nullptr};
 
   // Option B: static mesh + entity + dynamic colour buffer
   Ogre::Entity * entity_{nullptr};
   Ogre::SharedPtr<Ogre::Mesh> mesh_;  // Ogre::MeshPtr
   Ogre::HardwareVertexBufferSharedPtr colour_vbuf_;
-  unsigned short colour_vbuf_source_{0};   // which stream holds VES_DIFFUSE
+  uint16_t colour_vbuf_source_{0};   // which stream holds VES_DIFFUSE
   bool mesh_built_{false};
 };
 
 }  // namespace navmap_rviz_plugin
 
-#endif  // NAVMAP_RVIZ_PLUGIN__NAVMAP_DISPLAY_HPP_
+#endif  // NAVMAP_RVIZ_PLUGIN__NAVMAPDISPLAY_HPP_

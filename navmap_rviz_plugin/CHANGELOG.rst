@@ -2,6 +2,12 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.0 (2026-10-21)
+------------------
+* Display of the new layer types, links and sparse layer updates
+* Enable cpplint and copyright linters
+* Contributors: Francisco Martín Rico
+
 0.6.0 (2026-10-08)
 ------------------
 * Builds with the same Qt as rviz (Qt5 up to Kilted, Qt6 from Lyrical), taken from rviz_common

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>navmap_ros</name>
-  <version>0.6.0</version>
+  <version>0.7.0</version>
   <description>Conversions between navmap_core and ROS messages</description>
   <maintainer email="fmrico@gmail.com">Francisco Martín Rico</maintainer>
 
@@ -20,6 +20,7 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>zlib</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>

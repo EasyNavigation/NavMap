@@ -23,3 +23,9 @@ navmap_ros_interfaces/NavMapSurface[] surfaces
 
 # Per-NavCel layers
 navmap_ros_interfaces/NavMapLayer[] layers
+
+# Fingerprint of the geometry (NavMap::geometry_id(); 0 = unspecified), as in NavMapLayer
+uint64 geometry_id
+
+# Links between NavCels that are not adjacent (file format version 2)
+navmap_ros_interfaces/NavMapLink[] links

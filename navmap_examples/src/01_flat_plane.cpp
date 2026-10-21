@@ -17,8 +17,8 @@
 #include <iostream>
 #include <vector>
 #include <cstdint>
-#include <Eigen/Core>
 
+#include "Eigen/Core"
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
@@ -59,7 +59,7 @@ int main()
   cout << "locate=" << ok << " sidx=" << sidx << " cid=" << cid << " hit=(" << hit.x() << "," <<
     hit.y() << "," << hit.z() << ")\n";
   if (ok) {
-    cout << "occ at cid: " << (int)nm.navcel_value<uint8_t>(cid, *occ) << endl;
+    cout << "occ at cid: " << static_cast<int>(nm.navcel_value<uint8_t>(cid, *occ)) << endl;
   }
   return 0;
 }

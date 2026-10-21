@@ -17,14 +17,12 @@
 #include <functional>
 #include <limits>
 
-#include <gtest/gtest.h>
-#include <nav_msgs/msg/occupancy_grid.hpp>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-
+#include "gtest/gtest.h"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
 #include "std_msgs/msg/header.hpp"
-
 #include "navmap_ros/conversions.hpp"
 #include "navmap_core/NavMap.hpp"
 
@@ -402,7 +400,7 @@ TEST(TestConversions, TriangleIndicesFollowPattern0)
 
 static pcl::PointCloud<pcl::PointXYZ> make_organized_grid(
   int W, int H, double spacing,
-  const std::function<float(int, int)> & z_fn = [](int, int) {return 0.0f;})
+  const std::function<float(int, int)> & z_fn = [] (int, int) {return 0.0f;})
 {
   pcl::PointCloud<pcl::PointXYZ> cloud;
   cloud.width = static_cast<uint32_t>(W);
