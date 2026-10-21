@@ -17,8 +17,8 @@
 #include <iostream>
 #include <vector>
 #include <cstdint>
-#include <Eigen/Core>
 
+#include "Eigen/Core"
 #include "navmap_core/NavMap.hpp"
 
 using navmap::NavMap;
@@ -50,7 +50,7 @@ int main()
   dst = src;
   auto names_after = dst.list_layers();
   std::cout << "assign equal geom ok; layers after:";
-  for (auto & n:names_after) {
+  for (auto & n : names_after) {
     std::cout << " " << n;
   }
   std::cout << "\n";

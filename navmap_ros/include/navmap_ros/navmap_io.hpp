@@ -26,15 +26,15 @@
  *  2) **Core-level (optional)**: save/load `navmap::NavMap` if the core headers
  *     are available, using `navmap_ros::to_msg` / `navmap_ros::from_msg`.
  *
- * @par File format
- *  A small binary envelope followed by the ROS 2-serialized payload:
- *  - Magic header
- *  - Version (uint32)
- *  - Payload size (uint64, little-endian)
- *  - Serialized message payload (CDR)
+ * @par File format (version 2)
+ *  A small binary envelope followed by the ROS 2-serialized payload (little endian):
+ *  - Magic "NAVMAP\0\0"
+ *  - Version (uint32), codec (uint32: 0 none, 1 zlib)
+ *  - Raw (CDR) size and stored size (uint64 each)
+ *  - Payload: the CDR message, compressed by the codec
  *
- *  If the magic header is not present, the loader falls back to interpreting the whole file
- *  as a raw CDR payload.
+ *  Version 1 files (magic, version, size, CDR; or a bare CDR payload) are migrated on load, with a
+ *  deprecation warning, and rewritten in the current format.
  */
 
 #include <string>
@@ -51,15 +51,16 @@
 namespace navmap_ros::io
 {
 
-/**
- * @brief Save options.
- *
- * @note Currently a placeholder for future extensions (e.g., compression).
- */
+/// Payload compression. zlib is available on every ROS distro and platform, and in Python.
+enum class Compression { NONE, ZLIB };
+
+/// Save options.
 struct SaveOptions
 {
-  /// If @c true, save in binary (CDR). Reserved for future options.
+  /// Unused (always binary CDR); kept for source compatibility.
   bool binary{true};
+  Compression compression{Compression::ZLIB};
+  int level{6};  ///< zlib level, 1 (fast) to 9 (small)
 };
 
 /**
@@ -69,7 +70,7 @@ struct SaveOptions
  *
  * @param[in] msg   Message to save.
  * @param[in] path  Destination file path.
- * @param[in] options  Save options (currently unused, reserved).
+ * @param[in] options  Save options (compression).
  * @param[out] ec   Optional error code; if not null, it will be set on failure.
  * @return @c true on success, @c false otherwise (and @p ec is set if provided).
  *
@@ -104,7 +105,7 @@ bool load_msg_from_file(
  *
  * @param[in] map    Core map to save.
  * @param[in] path   Destination file path.
- * @param[in] options Save options (currently unused, reserved).
+ * @param[in] options Save options (compression).
  * @param[out] ec    Optional error code; if not null, it will be set on failure.
  * @return @c true on success, @c false otherwise.
  *

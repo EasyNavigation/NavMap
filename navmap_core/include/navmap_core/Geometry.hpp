@@ -26,14 +26,15 @@
  *  - Closest point on triangle and point–triangle distance.
  */
 
-#ifndef NAVMAP_CORE__GEOMETRY_HPP
-#define NAVMAP_CORE__GEOMETRY_HPP
+#ifndef NAVMAP_CORE__GEOMETRY_HPP_
+#define NAVMAP_CORE__GEOMETRY_HPP_
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <limits>
 #include <cmath>
 #include <algorithm>
+#include <utility>
 
 namespace navmap
 {
@@ -112,6 +113,8 @@ inline bool ray_triangle_intersect(
   float & v)
 {
   const float kEps = 1e-8f;
+  // Barycentric slack, relative: a ray through a shared edge hits both NavCels, never neither
+  const float kBary = 1e-5f;
   Vec3 e1 = v1 - v0;
   Vec3 e2 = v2 - v0;
   Vec3 pvec = dir.cross(e2);
@@ -122,12 +125,12 @@ inline bool ray_triangle_intersect(
   float inv_det = 1.0f / det;
   Vec3 tvec = orig - v0;
   u = tvec.dot(pvec) * inv_det;
-  if (u < -kEps || u > 1.0f + kEps) {
+  if (u < -kBary || u > 1.0f + kBary) {
     return false;
   }
   Vec3 qvec = tvec.cross(e1);
   v = dir.dot(qvec) * inv_det;
-  if (v < -kEps || (u + v) > 1.0f + kEps) {
+  if (v < -kBary || (u + v) > 1.0f + kBary) {
     return false;
   }
   t = e2.dot(qvec) * inv_det;
@@ -137,6 +140,17 @@ inline bool ray_triangle_intersect(
 // -----------------------------------------------------------------------------
 // Axis-aligned bounding box (AABB)
 // -----------------------------------------------------------------------------
+
+/**
+ * @brief Distance from point @p p to segment [@p a, @p b] (a point if a == b).
+ */
+inline float point_segment_distance(const Vec3 & p, const Vec3 & a, const Vec3 & b)
+{
+  const Vec3 ab = b - a;
+  const float len2 = ab.squaredNorm();
+  const float t = len2 > 0.0f ? std::clamp((p - a).dot(ab) / len2, 0.0f, 1.0f) : 0.0f;
+  return (p - (a + t * ab)).norm();
+}
 
 /**
  * @brief Axis-aligned bounding box.
@@ -376,4 +390,4 @@ inline float point_triangle_squared_distance(
 
 }  // namespace navmap
 
-#endif  // NAVMAP_CORE__GEOMETRY_HPP
+#endif  // NAVMAP_CORE__GEOMETRY_HPP_

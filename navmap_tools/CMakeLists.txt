@@ -45,16 +45,25 @@ target_link_libraries(navmap_publisher
   ${navmap_ros_interfaces_TARGETS}
 )
 
+add_executable(navmap_simplify src/navmap_simplify.cpp)
+target_link_libraries(navmap_simplify
+  navmap_core::navmap_core
+  navmap_ros::navmap_ros
+)
+
 install(TARGETS
   pointcloud_to_navmap
   navmap_publisher
+  navmap_simplify
   DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  set(ament_cmake_copyright_FOUND TRUE)
-  set(ament_cmake_cpplint_FOUND TRUE)
+  # Humble's ament_copyright does not recognize the license with the EasyNav line in the header
+  if("$ENV{ROS_DISTRO}" STREQUAL "humble")
+    list(APPEND AMENT_LINT_AUTO_EXCLUDE ament_cmake_copyright)
+  endif()
   ament_lint_auto_find_test_dependencies()
 
   find_package(ament_cmake_pytest REQUIRED)
