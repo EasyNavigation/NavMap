@@ -2,8 +2,8 @@
 Changelog for package navmap_rviz_plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2026-10-21)
+------------------
 * Display of the new layer types, links and sparse layer updates
 * Enable cpplint and copyright linters
 * Contributors: Francisco Martín Rico

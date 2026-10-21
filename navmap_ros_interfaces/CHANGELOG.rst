@@ -2,8 +2,8 @@
 Changelog for package navmap_ros_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2026-10-21)
+------------------
 * Messages for unknown values, int16 layers, links, geometry ids and sparse layer updates
 * Contributors: Francisco Martín Rico
 

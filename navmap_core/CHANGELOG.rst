@@ -2,8 +2,8 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2026-10-21)
+------------------
 * Rewrite from_points as a multi-level grid mesher
 * BVH over the surfaces for raycast, locate and closest queries; locate_navcel fixed on multi-surface maps
 * Rays through a shared edge always hit a NavCel

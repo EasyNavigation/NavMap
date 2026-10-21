@@ -2,8 +2,8 @@
 Changelog for package navmap_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2026-10-21)
+------------------
 * Mesh simplification keeping the layers
 * .navmap files compressed with zlib
 * Support for unknown values, int16 layers and log-odds occupancy

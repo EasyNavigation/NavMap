@@ -2,8 +2,8 @@
 Changelog for package navmap_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2026-10-21)
+------------------
 * Examples of unknown values, int16 layers and log-odds occupancy
 * Enable cpplint and copyright linters
 * Contributors: Francisco Martín Rico

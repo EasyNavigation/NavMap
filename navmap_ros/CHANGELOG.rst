@@ -2,8 +2,8 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2026-10-21)
+------------------
 * from_points with viewpoints: free-space carving and faces seen from below
 * .navmap files compressed with zlib (file format version 2)
 * Conversions for the new layer types, links, geometry ids and sparse layer updates
