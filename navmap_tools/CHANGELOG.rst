@@ -2,6 +2,14 @@
 Changelog for package navmap_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Mesh simplification keeping the layers
+* .navmap files compressed with zlib
+* Support for unknown values, int16 layers and log-odds occupancy
+* Enable cpplint and copyright linters
+* Contributors: Francisco Martín Rico
+
 0.6.0 (2026-10-08)
 ------------------
 * First release

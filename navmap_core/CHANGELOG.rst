@@ -2,6 +2,21 @@
 Changelog for package navmap_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Rewrite from_points as a multi-level grid mesher
+* BVH over the surfaces for raycast, locate and closest queries; locate_navcel fixed on multi-surface maps
+* Rays through a shared edge always hit a NavCel
+* Unknown values, int16 layers and log-odds occupancy
+* Layers combined with explicit operators and provenance; deep copy of layers
+* Geometry ids, sparse layer updates and layer change tracking
+* Distance field, incremental distance field and per-NavCel geometric descriptors
+* Links between non-adjacent NavCels
+* NavCel iterators
+* Mesh simplification keeping the layers
+* Enable cpplint and copyright linters
+* Contributors: Francisco Martín Rico
+
 0.6.0 (2026-10-08)
 ------------------
 * Conda packages with pixi (pixi-build-ros)

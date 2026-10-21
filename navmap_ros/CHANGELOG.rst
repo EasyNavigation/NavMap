@@ -2,6 +2,14 @@
 Changelog for package navmap_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* from_points with viewpoints: free-space carving and faces seen from below
+* .navmap files compressed with zlib (file format version 2)
+* Conversions for the new layer types, links, geometry ids and sparse layer updates
+* Enable cpplint and copyright linters
+* Contributors: Francisco Martín Rico
+
 0.6.0 (2026-10-08)
 ------------------
 * Tools to generate a simulated world and its NavMap from satellite imagery

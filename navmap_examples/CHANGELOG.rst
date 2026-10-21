@@ -2,6 +2,12 @@
 Changelog for package navmap_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Examples of unknown values, int16 layers and log-odds occupancy
+* Enable cpplint and copyright linters
+* Contributors: Francisco Martín Rico
+
 0.6.0 (2026-10-08)
 ------------------
 * Conda packages with pixi (pixi-build-ros)
