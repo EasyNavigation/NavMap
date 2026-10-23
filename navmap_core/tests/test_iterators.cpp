@@ -233,21 +233,25 @@ TEST(Iterators, DiscEdgeValues)
   const NavCelId seed = seed_at(nm, c);
   for (const Metric m : {Metric::EUCLIDEAN, Metric::GEODESIC}) {
     // Radius 0, or below the seed's centroid: just the seed
-    EXPECT_EQ(collect([&](auto f) {return navmap::for_each_in_disc(nm, seed, c, 0.0f, f, m);}),
+    EXPECT_EQ(
+      collect([&](auto f) {return navmap::for_each_in_disc(nm, seed, c, 0.0f, f, m);}),
       std::set<NavCelId>{seed});
     // Negative or NaN radius, bad seed: nothing
     EXPECT_EQ(navmap::for_each_in_disc(nm, seed, c, -1.0f, [](NavCelId) {}, m), 0u);
     EXPECT_EQ(navmap::for_each_in_disc(nm, seed, c, NAN, [](NavCelId) {}, m), 0u);
     EXPECT_EQ(navmap::for_each_in_disc(nm, NavCelId{100000}, c, 1.0f, [](NavCelId) {}, m), 0u);
     // Off the map: nothing
-    EXPECT_EQ(navmap::for_each_in_disc(nm, Eigen::Vector3f(50, 50, 0), 3.0f, [](NavCelId) {}, m),
+    EXPECT_EQ(
+      navmap::for_each_in_disc(nm, Eigen::Vector3f(50, 50, 0), 3.0f, [](NavCelId) {}, m),
       0u);
     // Early stop
     int calls = 0;
-    EXPECT_EQ(navmap::for_each_in_disc(nm, seed, c, 3.0f, [&](NavCelId) {return ++calls < 5;}, m),
+    EXPECT_EQ(
+      navmap::for_each_in_disc(nm, seed, c, 3.0f, [&](NavCelId) {return ++calls < 5;}, m),
       5u);
   }
-  EXPECT_EQ(navmap::for_each_in_disc(NavMap{}, Eigen::Vector3f(0, 0, 0), 1.0f, [](NavCelId) {}),
+  EXPECT_EQ(
+    navmap::for_each_in_disc(NavMap{}, Eigen::Vector3f(0, 0, 0), 1.0f, [](NavCelId) {}),
     0u);
 }
 
@@ -276,7 +280,7 @@ TEST(Iterators, GeodesicDiscDoesNotCrossAWallThatEuclideanSees)
   EXPECT_FALSE(g_far.count(b));
   for (NavCelId x : g_far) {
     EXPECT_TRUE(e_far.count(x)) << x;
-                                                             }  // geodesic >= Euclidean
+  }                                                             // geodesic >= Euclidean
 }
 
 TEST(Iterators, GeodesicDistanceAroundAWallIsTheShortestDetour)
@@ -289,7 +293,8 @@ TEST(Iterators, GeodesicDistanceAroundAWallIsTheShortestDetour)
   const Eigen::Vector3f c(4.75f, 2.0f, 0.0f);
   const NavCelId seed = seed_at(nm, c), b = seed_at(nm, {5.75f, 2.0f, 0.0f});
   float db = -1.0f;
-  navmap::for_each_by_distance(nm, seed, c, 30.0f, [&](NavCelId x, float d) {
+  navmap::for_each_by_distance(
+    nm, seed, c, 30.0f, [&](NavCelId x, float d) {
       if (x == b) {db = d;}
     });
   const Eigen::Vector3f pb = nm.navcel_centroid(b);
@@ -308,7 +313,8 @@ TEST(Iterators, RingIsTheDiscMinusItsInnerPartAndCrossesIt)
     const auto ring = collect(
       [&](auto f) {return navmap::for_each_in_ring(nm, seed, c, 2.0f, 3.0f, f, m);});
     std::set<NavCelId> want;
-    navmap::for_each_by_distance(nm, seed, c, 3.0f, [&](NavCelId x, float d) {
+    navmap::for_each_by_distance(
+      nm, seed, c, 3.0f, [&](NavCelId x, float d) {
         if (m == Metric::GEODESIC ? d >= 2.0f : (nm.navcel_centroid(x) - c).norm() >= 2.0f) {
           want.insert(x);
         }
@@ -336,9 +342,10 @@ TEST(Iterators, ByDistanceIsOrderedCompleteAndNeverShorterThanAStraightLine)
   const Eigen::Vector3f c(3.3f, 6.1f, 0.0f);
   const NavCelId seed = seed_at(nm, c);
   std::vector<std::pair<NavCelId, float>> seq;
-  const std::size_t n = navmap::for_each_by_distance(nm, seed, c, 4.0f, [&](NavCelId x, float d) {
-        seq.emplace_back(x, d);
-      });
+  const std::size_t n = navmap::for_each_by_distance(
+    nm, seed, c, 4.0f, [&](NavCelId x, float d) {
+      seq.emplace_back(x, d);
+    });
   ASSERT_EQ(n, seq.size());
   ASSERT_FALSE(seq.empty());
   EXPECT_EQ(seq.front().first, seed);
@@ -362,9 +369,11 @@ TEST(Iterators, ByDistanceIsOrderedCompleteAndNeverShorterThanAStraightLine)
     if ((nm.navcel_centroid(x) - c).norm() <= 3.0f) {EXPECT_TRUE(ids.count(x)) << x;}
   }
   int calls = 0;
-  EXPECT_EQ(navmap::for_each_by_distance(nm, seed, c, 4.0f, [&](NavCelId, float) {
-      return ++calls < 3;
-    }), 3u);
+  EXPECT_EQ(
+    navmap::for_each_by_distance(
+      nm, seed, c, 4.0f, [&](NavCelId, float) {
+        return ++calls < 3;
+      }), 3u);
 }
 
 TEST(Iterators, ByDistanceOnASlopeMeasuresAlongTheSurface)
@@ -377,7 +386,8 @@ TEST(Iterators, ByDistanceOnASlopeMeasuresAlongTheSurface)
   const Eigen::Vector3f c(1.0f, 0.5f, k * 1.0f), far(5.0f, 0.5f, k * 5.0f);
   const NavCelId seed = seed_at(nm, c), target = seed_at(nm, far);
   float d_target = -1.0f;
-  navmap::for_each_by_distance(nm, seed, c, 10.0f, [&](NavCelId x, float d) {
+  navmap::for_each_by_distance(
+    nm, seed, c, 10.0f, [&](NavCelId x, float d) {
       if (x == target) {d_target = d;}
     });
   const float straight = (nm.navcel_centroid(target) - c).norm();
@@ -414,9 +424,10 @@ TEST(Iterators, PolygonStaysOnTheSeedLevelAndHandlesDegenerateInput)
   const NavMap nm = two_floors();
   const std::vector<Eigen::Vector2f> sq{{2, 2}, {6, 2}, {6, 6}, {2, 6}};
   for (const float z : {0.0f, 3.0f}) {
-    const auto got = collect([&](auto f) {
-          return navmap::for_each_in_polygon(nm, Eigen::Vector3f(4, 4, z), sq, f);
-        });
+    const auto got = collect(
+      [&](auto f) {
+        return navmap::for_each_in_polygon(nm, Eigen::Vector3f(4, 4, z), sq, f);
+      });
     EXPECT_EQ(got.size(), 2u * 8u * 8u);
     for (NavCelId x : got) {
       EXPECT_NEAR(nm.navcel_centroid(x).z(), z, 1e-5f);
@@ -426,9 +437,11 @@ TEST(Iterators, PolygonStaysOnTheSeedLevelAndHandlesDegenerateInput)
   EXPECT_EQ(navmap::for_each_in_polygon(nm, seed, {{0, 0}, {1, 1}}, [](NavCelId) {}), 0u);
   EXPECT_EQ(navmap::for_each_in_polygon(nm, seed, {}, [](NavCelId) {}), 0u);
   // A polygon away from the seed is not reached (regions grow from the seed)
-  EXPECT_EQ(navmap::for_each_in_polygon(
+  EXPECT_EQ(
+    navmap::for_each_in_polygon(
       nm, seed, {{8, 8}, {9, 8}, {9, 9}, {8, 9}}, [](NavCelId) {}), 0u);
-  EXPECT_EQ(navmap::for_each_in_polygon(
+  EXPECT_EQ(
+    navmap::for_each_in_polygon(
       nm, Eigen::Vector3f(50, 50, 0), sq, [](NavCelId) {}), 0u);
   int calls = 0;
   EXPECT_EQ(navmap::for_each_in_polygon(nm, seed, sq, [&](NavCelId) {return ++calls < 4;}), 4u);
@@ -448,9 +461,10 @@ struct Walk
 Walk walk(const NavMap & nm, const Eigen::Vector3f & a, const Eigen::Vector3f & b)
 {
   Walk w;
-  w.reached = navmap::for_each_on_segment(nm, a, b, [&](NavCelId c, float t0, float t1) {
-        w.cells.emplace_back(c, t0, t1);
-      });
+  w.reached = navmap::for_each_on_segment(
+    nm, a, b, [&](NavCelId c, float t0, float t1) {
+      w.cells.emplace_back(c, t0, t1);
+    });
   return w;
 }
 
@@ -537,8 +551,10 @@ TEST(Iterators, SegmentWalkStopsAtBordersAndHoles)
   EXPECT_FALSE(walk(nm, {-3, 1, 0}, {2, 1, 0}).reached);
   // Early stop
   int calls = 0;
-  EXPECT_FALSE(navmap::for_each_on_segment(nm, Eigen::Vector3f(1, 1, 0), Eigen::Vector3f(9, 1, 0),
-    [&](NavCelId, float, float) {return ++calls < 3;}));
+  EXPECT_FALSE(
+    navmap::for_each_on_segment(
+      nm, Eigen::Vector3f(1, 1, 0), Eigen::Vector3f(9, 1, 0),
+      [&](NavCelId, float, float) {return ++calls < 3;}));
   EXPECT_EQ(calls, 3);
 }
 

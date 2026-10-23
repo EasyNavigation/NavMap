@@ -265,8 +265,8 @@ std::size_t grow(
       sc.heap.push_back(e);
       std::push_heap(sc.heap.begin(), sc.heap.end(), cmp);
     };
-  auto visible = [&](NavCelId from, const Eigen::Vector3f & p, const Eigen::Vector3f & q,
-    NavCelId target) {
+  using V3 = Eigen::Vector3f;
+  auto visible = [&](NavCelId from, const V3 & p, const V3 & q, NavCelId target) {
       NavCelId last = kNoCel;
       const bool reached = for_each_on_segment_impl(
         nm, from, p, q, [&](NavCelId x, float, float) {last = x;});

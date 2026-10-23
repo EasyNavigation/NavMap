@@ -187,7 +187,7 @@ TEST(Occupancy, SequencesClampAndClassify)
   // Saturation both ways, and recovery from saturation takes a bounded number of updates
   for (int k = 0; k < 100; ++k) {
     occ.hit(2);
-                                            }
+  }
   EXPECT_EQ(nm.layer_get<int16_t>(occ.name(), 2), 3476);
   EXPECT_NEAR(occ.probability(2), 0.97f, 1e-3f);
   int misses = 0;
@@ -195,7 +195,7 @@ TEST(Occupancy, SequencesClampAndClassify)
   EXPECT_EQ(misses, (3476 + 405 + 404) / 405);  // from the top to <= -405
   for (int k = 0; k < 100; ++k) {
     occ.miss(4);
-                                             }
+  }
   EXPECT_EQ(nm.layer_get<int16_t>(occ.name(), 4), -1992);
   // Reset and out-of-range cells
   occ.reset(4);
