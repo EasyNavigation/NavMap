@@ -79,7 +79,7 @@ TEST(Links, AddQueryAndDefaultLength)
   // Links do not change the mesh adjacency
   for (NavCelId n : nm.navcel_neighbors(0)) {
     EXPECT_LT(n, 8u);
-                                                              }
+  }
 }
 
 TEST(Links, InvalidLinksAreRejected)
