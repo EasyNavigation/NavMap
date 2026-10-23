@@ -106,8 +106,9 @@ std::vector<float> heights_at(const NavMap & nm, float x, float y)
   const Eigen::Vector3f o(x, y, kTopZ), d(0.0f, 0.0f, -1.0f);
   for (NavCelId cid = 0; cid < nm.navcels.size(); ++cid) {
     float t, u, v;
-    if (navmap::ray_triangle_intersect(o, d, vtx(nm, cid, 0), vtx(nm, cid, 1), vtx(nm, cid, 2),
-      t, u, v))
+    if (navmap::ray_triangle_intersect(
+        o, d, vtx(nm, cid, 0), vtx(nm, cid, 1), vtx(nm, cid, 2),
+        t, u, v))
     {
       out.push_back(o.z() - t);
     }
@@ -122,8 +123,9 @@ std::optional<float> brute_raycast(
   std::optional<float> best;
   for (NavCelId cid = 0; cid < nm.navcels.size(); ++cid) {
     float t, u, v;
-    if (navmap::ray_triangle_intersect(o, d, vtx(nm, cid, 0), vtx(nm, cid, 1), vtx(nm, cid, 2),
-      t, u, v) && (!best || t < *best))
+    if (navmap::ray_triangle_intersect(
+        o, d, vtx(nm, cid, 0), vtx(nm, cid, 1), vtx(nm, cid, 2),
+        t, u, v) && (!best || t < *best))
     {
       best = t;
     }
