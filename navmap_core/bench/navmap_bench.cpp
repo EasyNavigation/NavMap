@@ -190,44 +190,58 @@ int main(int argc, char ** argv)
         const double us = median_us(R, n, body);
         std::snprintf(col[ci++], sizeof(col[0]), "%.1f (%zu)", us, cells / (R * n));
       };
-    run(M, [&](int k) {
-        navmap::for_each_in_disc(nm, seeds[k], pts[k], 0.5f, count,
-        navmap::Metric::EUCLIDEAN, &sc);
-                                        });
-    run(M / 10, [&](int k) {
-        navmap::for_each_in_disc(nm, seeds[k], pts[k], 2.0f, count,
-        navmap::Metric::EUCLIDEAN, &sc);
-                                        });
-    run(M, [&](int k) {
-        navmap::for_each_in_disc(nm, seeds[k], pts[k], 0.5f, count,
-        navmap::Metric::GEODESIC, &sc);
-                                       });
-    run(M / 10, [&](int k) {
-        navmap::for_each_in_disc(nm, seeds[k], pts[k], 2.0f, count,
-        navmap::Metric::GEODESIC, &sc);
-                                       });
-    run(M, [&](int k) {
+    run(
+      M, [&](int k) {
+        navmap::for_each_in_disc(
+          nm, seeds[k], pts[k], 0.5f, count,
+          navmap::Metric::EUCLIDEAN, &sc);
+      });
+    run(
+      M / 10, [&](int k) {
+        navmap::for_each_in_disc(
+          nm, seeds[k], pts[k], 2.0f, count,
+          navmap::Metric::EUCLIDEAN, &sc);
+      });
+    run(
+      M, [&](int k) {
+        navmap::for_each_in_disc(
+          nm, seeds[k], pts[k], 0.5f, count,
+          navmap::Metric::GEODESIC, &sc);
+      });
+    run(
+      M / 10, [&](int k) {
+        navmap::for_each_in_disc(
+          nm, seeds[k], pts[k], 2.0f, count,
+          navmap::Metric::GEODESIC, &sc);
+      });
+    run(
+      M, [&](int k) {
         navmap::AABB b;
         b.expand(pts[k] - Eigen::Vector3f(1, 1, 1));
         b.expand(pts[k] + Eigen::Vector3f(1, 1, 1));
         navmap::for_each_in_aabb(nm, b, count, &sc);
       });
-    run(M, [&](int k) {
+    run(
+      M, [&](int k) {
         const float x = pts[k].x(), y = pts[k].y();
         navmap::for_each_in_polygon(
           nm, seeds[k], {{x - 0.5f, y - 0.5f}, {x + 0.5f, y - 0.5f}, {x + 0.5f, y + 0.5f},
             {x - 0.5f, y + 0.5f}}, count, &sc);
       });
-    run(M, [&](int k) {
-        navmap::for_each_on_segment(nm, seeds[k], pts[k],
-        pts[(k + 1) % M].head<2>().isZero() ? pts[k] :
-        Eigen::Vector3f(pts[k] + 5.0f * (pts[(k + 1) % M] - pts[k]).normalized()),
-        [&](NavCelId, float, float) {++cells;});
+    run(
+      M, [&](int k) {
+        navmap::for_each_on_segment(
+          nm, seeds[k], pts[k],
+          pts[(k + 1) % M].head<2>().isZero() ? pts[k] :
+          Eigen::Vector3f(pts[k] + 5.0f * (pts[(k + 1) % M] - pts[k]).normalized()),
+          [&](NavCelId, float, float) {++cells;});
       });
-    run(M / 10, [&](int k) {
-        navmap::for_each_by_distance(nm, seeds[k], pts[k], 2.0f,
-        [&](NavCelId, float) {++cells;}, &sc);
-                                              });
+    run(
+      M / 10, [&](int k) {
+        navmap::for_each_by_distance(
+          nm, seeds[k], pts[k], 2.0f,
+          [&](NavCelId, float) {++cells;}, &sc);
+      });
     std::printf("%9zu", nm.navcels.size());
     for (auto & c : col) {
       std::printf(" %16s", c);

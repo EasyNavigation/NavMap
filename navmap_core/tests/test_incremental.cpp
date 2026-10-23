@@ -61,10 +61,11 @@ void add_grid(
 std::vector<NavMap> maps()
 {
   std::vector<NavMap> out(3);
-  add_grid(out[0], 20, 20, 0.5f, [](float, float) {return 0.0f;},
+  add_grid(
+    out[0], 20, 20, 0.5f, [](float, float) {return 0.0f;},
     [](int i, int j) {
       return (i == 8 && j > 3 && j < 15) || (i > 12 && i < 15 && j > 12 && j < 15);
-      });
+    });
   add_grid(out[1], 16, 16, 0.5f, [](float, float) {return 0.0f;});
   add_grid(out[1], 16, 16, 0.5f, [](float, float) {return 3.0f;});
   add_grid(out[2], 30, 6, 0.4f, [](float x, float) {return 0.25f * x;});
@@ -106,7 +107,8 @@ std::vector<float> brute(
     for (NavCelId c = 0; c < nm.navcels.size(); ++c) {
       for (int e = 0; e < 3; ++e) {
         if (nm.navcels[c].neighbor[e] != std::numeric_limits<NavCelId>::max()) {continue;}
-        all.push_back({nm.positions.at(nm.navcels[c].v[e]),
+        all.push_back(
+          {nm.positions.at(nm.navcels[c].v[e]),
             nm.positions.at(nm.navcels[c].v[(e + 1) % 3]), c});
       }
     }
@@ -240,7 +242,7 @@ TEST(DistanceFieldIncremental, AddingAndRemovingTheSameCellAndEdgeIds)
   df.update({}, {5});
   for (float d : df.distances()) {
     EXPECT_TRUE(std::isinf(d));
-                                                             }
+  }
   // A seed on the upper floor never reaches the lower one
   NavCelId upper = 0;
   for (NavCelId c = 0; c < nm.navcels.size(); ++c) {

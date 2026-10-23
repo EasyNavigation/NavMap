@@ -94,7 +94,7 @@ TEST(NavMap_Adjacency, OnlyTheNonManifoldEdgeIsAffected)
   const NavCelId t3 = nm.add_navcel(b, f, c);  // regular neighbor of t0 on b-c
   for (auto t : {t0, t1, t2, t3}) {
     nm.add_navcel_to_surface(s, t);
-                                                                  }
+  }
   nm.rebuild_geometry_accels();
 
   EXPECT_EQ(nm.nonmanifold_edges(), 1u);
@@ -159,7 +159,7 @@ TEST(NavMap_Adjacency, LargeGridIsManifoldAndSymmetric)
   std::size_t links = 0;
   for (NavCelId cid = 0; cid < nm.navcels.size(); ++cid) {
     links += nm.navcel_neighbors(cid).size();
-                                                                                                   }
+  }
   // Interior edges: 3 n^2 - 2 n, each linked from both sides.
   EXPECT_EQ(links, 2u * (3u * n * n - 2u * n));
 }
