@@ -48,8 +48,9 @@ NavMap strip(std::size_t n)
   }
   for (std::size_t k = 0; k < n; ++k) {
     const uint32_t i = static_cast<uint32_t>(k / 2) * 2;
-    const NavCelId c = (k % 2 == 0) ? nm.add_navcel(i, i + 2, i + 3) : nm.add_navcel(i, i + 3,
-        i + 1);
+    const NavCelId c = (k % 2 == 0) ? nm.add_navcel(i, i + 2, i + 3) : nm.add_navcel(
+      i, i + 3,
+      i + 1);
     nm.add_navcel_to_surface(s, c);
   }
   nm.rebuild_geometry_accels();
@@ -148,7 +149,8 @@ TEST(Combine, OnlyTheGivenCells)
 {
   CombineOptions o;
   o.cells = {1, 3, 99};  // out of range ids are ignored
-  EXPECT_EQ(cost({0, 0, 0, 0}, {9, 9, 9, 9}, CombineOp::OVERWRITE, o),
+  EXPECT_EQ(
+    cost({0, 0, 0, 0}, {9, 9, 9, 9}, CombineOp::OVERWRITE, o),
     (std::vector<uint8_t>{0, 9, 0, 9}));
 }
 

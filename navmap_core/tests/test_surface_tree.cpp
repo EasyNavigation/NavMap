@@ -114,8 +114,9 @@ float brute_closest_sq(const NavMap & nm, const Eigen::Vector3f & p)
 {
   float best = std::numeric_limits<float>::infinity();
   for (const auto & cel : nm.navcels) {
-    const Eigen::Vector3f q = closest_on_tri(p, nm.positions.at(cel.v[0]),
-        nm.positions.at(cel.v[1]), nm.positions.at(cel.v[2]));
+    const Eigen::Vector3f q = closest_on_tri(
+      p, nm.positions.at(cel.v[0]),
+      nm.positions.at(cel.v[1]), nm.positions.at(cel.v[2]));
     best = std::min(best, (p - q).squaredNorm());
   }
   return best;

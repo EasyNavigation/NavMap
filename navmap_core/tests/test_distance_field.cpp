@@ -125,7 +125,7 @@ TEST(NavMap_DistanceField, SeedCellsGiveStraightLineDistance)
   }
   for (NavCelId s : seeds) {
     EXPECT_FLOAT_EQ(d[s], 0.0f);
-                                                        }
+  }
 
   // Seeds and boundary together: the nearest of both.
   const auto both = nm.distance_field(seeds, true);
@@ -162,10 +162,10 @@ TEST(NavMap_DistanceField, StackedFloorsDoNotSeeEachOther)
   const auto d = nm.distance_field({low}, false);
   for (auto c : nm.surfaces[1].navcels) {
     EXPECT_EQ(d[c], kInf);
-                                                               }
+  }
   for (auto c : nm.surfaces[0].navcels) {
     EXPECT_LT(d[c], kInf);
-                                                               }
+  }
 
   // Boundary of the upper floor only reaches the upper floor's own cells.
   const NavCelId high = cell_near(nm, 2.6f, 2.6f, 2.5f);
@@ -199,7 +199,7 @@ TEST(NavMap_DistanceField, InteriorHoleEdgesAreBoundary)
   const auto ref = brute(nm, {}, true);
   for (NavCelId c = 0; c < nm.navcels.size(); ++c) {
     EXPECT_NEAR(d[c], ref[c], 1e-4f) << c;
-                                                                                          }
+  }
   // Next to the 1x1 m hole (x, y in [4.5, 5.5]).
   EXPECT_LT(d[cell_near(nm, 4.2f, 5.0f, 0.0f)], 0.31f);
 }
@@ -244,11 +244,11 @@ TEST(NavMap_DistanceField, DegenerateInputs)
   nm.rebuild_geometry_accels();
   for (float v : nm.distance_field({}, false)) {
     EXPECT_EQ(v, kInf);
-                                                                   }
+  }
   const auto d = nm.distance_field({9999}, false);  // out of range: ignored
   for (float v : d) {
     EXPECT_EQ(v, kInf);
-                                        }
+  }
   const auto z = nm.distance_field({0}, false, 0.0f);  // only the seed itself
   EXPECT_FLOAT_EQ(z[0], 0.0f);
   EXPECT_EQ(std::count_if(z.begin(), z.end(), [](float v) {return v < kInf;}), 1);
