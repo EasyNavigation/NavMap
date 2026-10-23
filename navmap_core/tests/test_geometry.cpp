@@ -156,15 +156,18 @@ TEST(Geometry_RayTriangle, RaysThroughASharedEdgeAlwaysHit) {
   for (const float off : {0.0f, 5.0f, 100.0f, 1000.0f}) {
     for (const float size : {0.1f, 3.0f, 30.0f}) {
       const Vec3 a(off, off, 4.7f), b(off + size, off - 0.3f * size, 4.7f);
-      const Vec3 c(off + 0.4f * size, off + 0.9f * size, 4.701f), d(off + 1.3f * size, off + size,
+      const Vec3 c(off + 0.4f * size, off + 0.9f * size, 4.701f), d(
+        off + 1.3f * size, off + size,
         4.702f);
       for (int i = 1; i < 500; ++i) {
         const float s = i / 500.0f;
         const Vec3 p = b + s * (c - b);  // on the shared edge b-c
         float t, u, v;
-        const bool h1 = navmap::ray_triangle_intersect(p + Vec3(0, 0, 1), Vec3(0, 0, -1), a, b, c,
+        const bool h1 = navmap::ray_triangle_intersect(
+          p + Vec3(0, 0, 1), Vec3(0, 0, -1), a, b, c,
           t, u, v);
-        const bool h2 = navmap::ray_triangle_intersect(p + Vec3(0, 0, 1), Vec3(0, 0, -1), b, d, c,
+        const bool h2 = navmap::ray_triangle_intersect(
+          p + Vec3(0, 0, 1), Vec3(0, 0, -1), b, d, c,
           t, u, v);
         ASSERT_TRUE(h1 || h2) << "offset " << off << " size " << size << " s " << s;
       }

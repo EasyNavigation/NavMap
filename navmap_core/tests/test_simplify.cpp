@@ -35,8 +35,8 @@ using navmap::SimplifyParams;
 namespace
 {
 
-using Height = std::function<float(float, float)>;
-using Keep = std::function<bool(int, int)>;
+using Height = std::function<float (float, float)>;
+using Keep = std::function<bool (int, int)>;
 
 // nx x ny cells of side res (two NavCels each) at offset z, cells where keep(i, j); one surface
 void add_grid(
@@ -120,8 +120,8 @@ void expect_same_values(
   for (const auto & p : probes) {
     ASSERT_TRUE(a.locate_navcel(p, s, ca, bary, nullptr)) << p.transpose();
     ASSERT_TRUE(b.locate_navcel(p, s, cb, bary, nullptr)) << p.transpose();
-    ASSERT_EQ(a.layer_get<T>(layer, ca), b.layer_get<T>(layer, cb))   << layer << " at "
-                                                                      << p.transpose();
+    ASSERT_EQ(a.layer_get<T>(layer, ca), b.layer_get<T>(layer, cb)) << layer << " at "
+                                                                    << p.transpose();
   }
 }
 
@@ -196,7 +196,8 @@ TEST(Simplify, WithoutLayersAFlatSquareBecomesAFewNavCels)
   for (std::size_t i = 0; i < nm.positions.size(); ++i) {
     const float x = nm.positions.x[i], y = nm.positions.y[i];
     // The square's outline stays: every vertex on its border (no interior vertex needed)
-    EXPECT_TRUE(std::abs(x) < 1e-4f || std::abs(x - 3.0f) < 1e-4f ||
+    EXPECT_TRUE(
+      std::abs(x) < 1e-4f || std::abs(x - 3.0f) < 1e-4f ||
       std::abs(y) < 1e-4f || std::abs(y - 3.0f) < 1e-4f) << x << " " << y;
   }
 }
@@ -259,7 +260,8 @@ TEST(Simplify, CurvedTerrainStaysWithinTheErrorAndZeroErrorKeepsIt)
       worst = std::max(worst, std::abs(hit.z() - q.z()));
     }
     EXPECT_LE(worst, 1.5f * e) << e;
-    std::printf("max_error %.3f: worst %.4f m, %zu -> %zu NavCels\n", e, worst,
+    std::printf(
+      "max_error %.3f: worst %.4f m, %zu -> %zu NavCels\n", e, worst,
       orig.navcels.size(), nm.navcels.size());
   }
   NavMap nm = orig;
@@ -273,10 +275,11 @@ TEST(Simplify, HolesAndStackedFloorsAreKept)
 {
   NavMap orig;
   // Ground floor with a 1 x 1 m hole (a stairwell), and a full floor 3 m above
-  add_grid(orig, 40, 40, 0.1f, flat, [](int i, int j) {
-      return !(i >= 15 && i < 25 && j >= 15 &&
-             j < 25);
-            });
+  add_grid(
+    orig, 40, 40, 0.1f, flat, [](int i, int j) {
+      const bool hole = i >= 15 && i < 25 && j >= 15 && j < 25;
+      return !hole;
+    });
   add_grid(orig, 40, 40, 0.1f, [](float, float) {return 3.0f;});
   orig.rebuild_geometry_accels();
   const int64_t chi = euler(orig);
@@ -384,8 +387,9 @@ TEST(Simplify, DegenerateInputsAreSafe)
   NavMap one;
   const auto s = one.create_surface("map");
   one.add_navcel_to_surface(
-    s, one.add_navcel(one.add_vertex({0, 0, 0}), one.add_vertex({1, 0, 0}),
-    one.add_vertex({0, 1, 0})));
+    s, one.add_navcel(
+      one.add_vertex({0, 0, 0}), one.add_vertex({1, 0, 0}),
+      one.add_vertex({0, 1, 0})));
   one.rebuild_geometry_accels();
   navmap::simplify(one);
   EXPECT_EQ(one.navcels.size(), 1u);
