@@ -25,12 +25,14 @@ find_package(Qt${qt_major} REQUIRED COMPONENTS Widgets)
 qt_wrap_cpp(NAVMAP_MOC_SRCS
     include/navmap_rviz_plugin/NavMapDisplay.hpp
     include/navmap_rviz_plugin/navmap_goal_tool.hpp
+    include/navmap_rviz_plugin/goal_3d_tool.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED
   src/navmap_rviz_plugin/NavMapDisplay.cpp
   src/navmap_rviz_plugin/navmap_goal_tool.cpp
   src/navmap_rviz_plugin/navmap_pose_tool.cpp
+  src/navmap_rviz_plugin/goal_3d_tool.cpp
   ${NAVMAP_MOC_SRCS}
 )
 target_link_libraries(navmap_rviz_plugin PUBLIC

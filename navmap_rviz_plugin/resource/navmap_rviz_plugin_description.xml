@@ -16,4 +16,15 @@
     </description>
   </class>
 
+  <class
+    name="navmap_rviz_plugin/Goal3D"
+    type="navmap_rviz_plugin::Goal3DTool"
+    base_class_type="rviz_common::Tool"
+  >
+    <description>
+      Publish a goal pose anywhere in space (aerial robots): on the line from the camera through
+      the cursor, at a distance set with the mouse wheel; drag to set its yaw.
+    </description>
+  </class>
+
 </library>
