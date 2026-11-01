@@ -1,0 +1,5 @@
+<map id="Goal3DTool" name="Goal3DTool">
+<area shape="rect" id="Node000001" title="A goal anywhere in space (aerial robots): on the line from the camera through the cursor,..." alt="" coords="5,79,95,105"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="27,5,73,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="53,46,53,79,47,79,47,46"/>
+</map>

@@ -11,7 +11,7 @@ var searchData=
   ['aabb_8',['AABB',['../structAABB.html',1,'AABB'],['../structnavmap_1_1AABB.html',1,'AABB']]],
   ['aabb_9',['aabb',['../structnavmap_1_1Surface.html#a95046b5339e3da4ec2390999706ff853',1,'navmap::Surface::aabb'],['../structSurface.html#a95046b5339e3da4ec2390999706ff853',1,'Surface::aabb']]],
   ['acknowledgements_10',['🙏 Acknowledgements',['../index.html#autotoc_md62',1,'']]],
-  ['activate_11',['activate',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a845dfaf49190e87b0c29ed0bd5948c5b',1,'navmap_rviz_plugin::NavMapPoseTool']]],
+  ['activate_11',['activate',['../classnavmap__rviz__plugin_1_1Goal3DTool.html#a845dfaf49190e87b0c29ed0bd5948c5b',1,'navmap_rviz_plugin::Goal3DTool::activate()'],['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a845dfaf49190e87b0c29ed0bd5948c5b',1,'navmap_rviz_plugin::NavMapPoseTool::activate()']]],
   ['add_12',['ADD',['../namespacenavmap.html#a5f0aff0a3be02d25f4e4eaadaac1fff1a9eeb52badb613229884838847294b90d',1,'navmap']]],
   ['add_13',['add',['../classnavmap_1_1OccupancyLayer.html#af700a6056f7f62e9250f2c7525721b66',1,'navmap::OccupancyLayer::add()'],['../classOccupancyLayer.html#af700a6056f7f62e9250f2c7525721b66',1,'OccupancyLayer::add()']]],
   ['add_20a_20per_20navcel_20layer_20cost_20or_20occupancy_14',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],

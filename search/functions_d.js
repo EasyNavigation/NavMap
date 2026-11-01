@@ -6,5 +6,5 @@ var searchData=
   ['probability_3',['probability',['../classnavmap_1_1OccupancyLayer.html#a43df948feb1be7f8c6425aa1a86ca4a6',1,'navmap::OccupancyLayer::probability()'],['../classOccupancyLayer.html#a43df948feb1be7f8c6425aa1a86ca4a6',1,'OccupancyLayer::probability()']]],
   ['probability_5fof_4',['probability_of',['../classnavmap_1_1OccupancyLayer.html#a0c4a29baa16ada55e77f032f6e81fe92',1,'navmap::OccupancyLayer::probability_of()'],['../classOccupancyLayer.html#a0c4a29baa16ada55e77f032f6e81fe92',1,'OccupancyLayer::probability_of()']]],
   ['processmessage_5',['processMessage',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html#a8bc06d0f3a205ba74048a6e77df137ff',1,'navmap_rviz_plugin::NavMapDisplay']]],
-  ['processmouseevent_6',['processMouseEvent',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a50dd0167085c80160a5d92b201536966',1,'navmap_rviz_plugin::NavMapPoseTool']]]
+  ['processmouseevent_6',['processMouseEvent',['../classnavmap__rviz__plugin_1_1Goal3DTool.html#a50dd0167085c80160a5d92b201536966',1,'navmap_rviz_plugin::Goal3DTool::processMouseEvent()'],['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html#a50dd0167085c80160a5d92b201536966',1,'navmap_rviz_plugin::NavMapPoseTool::processMouseEvent()']]]
 ];

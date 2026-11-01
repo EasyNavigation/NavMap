@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['occupancylayer_0',['OccupancyLayer',['../classnavmap_1_1OccupancyLayer.html',1,'OccupancyLayer'],['../classOccupancyLayer.html',1,'OccupancyLayer']]],
-  ['occupancyparams_1',['OccupancyParams',['../structnavmap_1_1OccupancyParams.html',1,'OccupancyParams'],['../structOccupancyParams.html',1,'OccupancyParams']]]
+  ['navcel_0',['NavCel',['../structnavmap_1_1NavCel.html',1,'navmap']]],
+  ['navmap_1',['NavMap',['../classNavMap.html',1,'NavMap'],['../classnavmap_1_1NavMap.html',1,'NavMap']]],
+  ['navmapdisplay_2',['NavMapDisplay',['../classnavmap__rviz__plugin_1_1NavMapDisplay.html',1,'navmap_rviz_plugin']]],
+  ['navmapgoaltool_3',['NavMapGoalTool',['../classnavmap__rviz__plugin_1_1NavMapGoalTool.html',1,'navmap_rviz_plugin']]],
+  ['navmapposetool_4',['NavMapPoseTool',['../classnavmap__rviz__plugin_1_1NavMapPoseTool.html',1,'navmap_rviz_plugin']]]
 ];

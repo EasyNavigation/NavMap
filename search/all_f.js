@@ -10,6 +10,9 @@ var searchData=
   ['get_5flayer_5fmeta_7',['get_layer_meta',['../classnavmap_1_1NavMap.html#ab392f27bbb2bc9c3c4bfe1b43aa5d758',1,'navmap::NavMap::get_layer_meta()'],['../classNavMap.html#ab392f27bbb2bc9c3c4bfe1b43aa5d758',1,'NavMap::get_layer_meta()']]],
   ['get_5fneighbors_8',['get_neighbors',['../classnavmap_1_1NavMap.html#a02fe28789e1ccec8efd955bee4f894d2',1,'navmap::NavMap::get_neighbors()'],['../classNavMap.html#a02fe28789e1ccec8efd955bee4f894d2',1,'NavMap::get_neighbors()']]],
   ['given_20navcel_9',['3. Read a layer value for a given NavCel',['../index.html#autotoc_md17',1,'']]],
-  ['grid_5fmap_10',['grid_map',['../test__layer__metadata__and__migration_8cpp.html#a71c086a659b5b48bb3a47cfa9fb6fd18',1,'test_layer_metadata_and_migration.cpp']]],
-  ['grow_11',['grow',['../namespacenavmap_1_1detail.html#a477f37ac3286642f1559dafdd509bbd0',1,'navmap::detail']]]
+  ['goal3dtool_10',['Goal3DTool',['../classnavmap__rviz__plugin_1_1Goal3DTool.html',1,'Goal3DTool'],['../classnavmap__rviz__plugin_1_1Goal3DTool.html#a9a9ee3664f29c500f6006f1a236f4a4f',1,'navmap_rviz_plugin::Goal3DTool::Goal3DTool()']]],
+  ['goal_5f3d_5ftool_2ecpp_11',['goal_3d_tool.cpp',['../goal__3d__tool_8cpp.html',1,'']]],
+  ['goal_5f3d_5ftool_2ehpp_12',['goal_3d_tool.hpp',['../goal__3d__tool_8hpp.html',1,'']]],
+  ['grid_5fmap_13',['grid_map',['../test__layer__metadata__and__migration_8cpp.html#a71c086a659b5b48bb3a47cfa9fb6fd18',1,'test_layer_metadata_and_migration.cpp']]],
+  ['grow_14',['grow',['../namespacenavmap_1_1detail.html#a477f37ac3286642f1559dafdd509bbd0',1,'navmap::detail']]]
 ];
