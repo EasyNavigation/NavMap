@@ -294,3 +294,75 @@ def test_load_imagery_mosaic_auto_fallback_disabled_keeps_requested_zoom(
     bbox = BBox(west=-0.01, south=-0.01, east=0.01, north=0.01)
     mosaic = load_imagery_mosaic(bbox, cache=None, zoom=20, auto_fallback=False)
     assert mosaic.zoom == 20
+
+
+# ---------------------------------------------------------------------------
+# XYZ tiles of any server (url_template)
+# ---------------------------------------------------------------------------
+
+def test_xyz_url_template_is_filled_and_cached_apart_from_esri(monkeypatch, tmp_path):
+    from navmap_tools.geo.cache import DiskCache
+
+    urls = []
+
+    def fake_get(url, dest, timeout, allow_404=False):
+        urls.append(url)
+        from PIL import Image
+        Image.fromarray(np.zeros((256, 256, 3), dtype=np.uint8)).save(dest, format='JPEG')
+        return True
+
+    monkeypatch.setattr(imagery_mod, 'get_to_file', fake_get)
+    cache = DiskCache(tmp_path)
+    template = 'https://tiles.example.org/{z}/{x}/{y}.jpg'
+    imagery_mod._fetch_tile_path(7, 3, 5, cache, url_template=template)
+    imagery_mod._fetch_tile_path(7, 3, 5, cache)   # Esri's, same tile: a different cache entry
+    assert urls[0] == 'https://tiles.example.org/7/3/5.jpg'
+    assert 'arcgisonline' in urls[1]
+    imagery_mod._fetch_tile_path(7, 3, 5, cache, url_template=template)
+    assert len(urls) == 2   # the repeat came from the cache
+
+
+def test_xyz_mosaic_skips_esri_placeholder_probe(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_fetch(z, x, y, cache, force=False, url_template=None):
+        calls.append(url_template)
+        from PIL import Image
+        path = tmp_path / f'{z}_{x}_{y}.png'
+        Image.fromarray(np.zeros((256, 256, 3), dtype=np.uint8)).save(path)
+        return path
+
+    def no_probe(*args, **kwargs):
+        raise AssertionError('the Esri placeholder probe must not run for a custom server')
+
+    monkeypatch.setattr(imagery_mod, '_fetch_tile_path', fake_fetch)
+    monkeypatch.setattr(imagery_mod, 'find_available_zoom', no_probe)
+    bbox = BBox(west=-0.01, south=-0.01, east=0.01, north=0.01)
+    mosaic = load_imagery_mosaic(
+        bbox, cache=None, zoom=15, url_template='https://tiles.example.org/{z}/{x}/{y}.jpg')
+    assert mosaic.zoom == 15
+    assert set(calls) == {'https://tiles.example.org/{z}/{x}/{y}.jpg'}
+
+
+def test_sample_array_agrees_with_the_scalar_sample():
+    from navmap_tools.geo.pnoa import PnoaMosaic
+
+    rng = np.random.default_rng(1)
+    image = rng.integers(0, 256, size=(40, 40, 3), dtype=np.uint8)
+    mosaic = ImageryMosaic(image=image, zoom=15, tile_x0=16384, tile_y0=12380)
+    lon = np.array([-0.0001, 0.0, 0.0001]) + 0.0
+    lat = np.array([40.4, 40.4001, 40.3999])
+    lon, lat = lon - 3.7, lat
+    from navmap_tools.geo.imagery import lonlat_to_tile
+    x0, y0 = lonlat_to_tile(lon[0], lat[0], 15)
+    mosaic = ImageryMosaic(image=image, zoom=15, tile_x0=int(x0) - 0, tile_y0=int(y0) - 0)
+    got = mosaic.sample_array(lon, lat)
+    for k in range(3):
+        assert got[k] == pytest.approx(mosaic.sample(lon[k], lat[k]), abs=0.51)
+    pnoa = PnoaMosaic(image=image, origin_x=-411000.0, origin_y=4930000.0, pixel_size_m=1.0)
+    from navmap_tools.geo import pnoa as pnoa_mod
+    mx, my = pnoa_mod._TO_WEB_MERCATOR.transform(lon, lat)
+    pnoa = PnoaMosaic(image=image, origin_x=mx[0] - 10, origin_y=my[0] + 10, pixel_size_m=1.0)
+    got = pnoa.sample_array(lon, lat)
+    for k in range(3):
+        assert got[k] == pytest.approx(pnoa.sample(lon[k], lat[k]), abs=0.51)

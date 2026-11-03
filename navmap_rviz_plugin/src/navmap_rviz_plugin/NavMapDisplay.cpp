@@ -14,6 +14,8 @@
 // limitations under the License.
 
 
+#include <OgreRoot.h>
+#include <OgreRenderSystem.h>
 #include <algorithm>
 #include <cmath>
 
@@ -53,6 +55,12 @@ inline void hsv2rgb(float H, float S, float V, float & R, float & G, float & B)
   } else if (H < 300.f) {r1 = X; g1 = 0.f; b1 = C;} else {r1 = C; g1 = 0.f; b1 = X;}
 
   R = r1 + m; G = g1 + m; B = b1 + m;
+}
+
+inline Ogre::VertexElementType nativeColourType_()
+{
+  const auto * rs = Ogre::Root::getSingleton().getRenderSystem();
+  return rs ? rs->getColourVertexElementType() : Ogre::VET_COLOUR_ARGB;
 }
 
 inline Ogre::ColourValue colorFromRainbow(float value, float max_value, float alpha)
@@ -639,7 +647,9 @@ void NavMapDisplay::ensureMeshBuilt_()
   while (bind->isBufferBound(COLOR_SRC)) {++COLOR_SRC;}
 
   // Create the dynamic colour buffer (one 32-bit colour per vertex)
-  const Ogre::VertexElementType col_type = Ogre::VET_COLOUR_ARGB;  // we'll pack ARGB
+  // the render system's own packing (ABGR with OpenGL, ARGB with D3D): a fixed ARGB swaps red and
+  // blue where it is not the native one
+  const Ogre::VertexElementType col_type = nativeColourType_();
   decl->addElement(COLOR_SRC, /*offset=*/0, col_type, Ogre::VES_DIFFUSE);
 
   Ogre::HardwareVertexBufferSharedPtr colour_vbuf =
@@ -748,8 +758,8 @@ void NavMapDisplay::updateColorsOnly_()
   uint32_t * p = reinterpret_cast<uint32_t *>(base);
 
   auto packARGB = [&](const Ogre::ColourValue & c) -> uint32_t {
-    // Pack into ARGB to match VET_COLOUR_ARGB used at creation
-      return Ogre::VertexElement::convertColourValue(c, Ogre::VET_COLOUR_ARGB);
+    // Pack in the render system's colour format, the one the buffer was created with
+      return Ogre::VertexElement::convertColourValue(c, nativeColourType_());
     };
 
   if (vertex_color_mode) {

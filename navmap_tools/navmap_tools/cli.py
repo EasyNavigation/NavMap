@@ -23,6 +23,8 @@ path -- which is why the two outputs line up even run separately.
 """
 
 import argparse
+import math
+from pathlib import Path
 import subprocess
 import sys
 
@@ -30,13 +32,20 @@ import numpy as np
 
 from .geo.cache import default_cache_dir, DiskCache
 from .geo.dem import load_dem_grid
+from .geo.dem_file import (
+    add_imagery, build_local_dem, DemSource, read_dem_file, SyntheticDem, SyntheticImagery,
+    write_dem_file,
+)
 from .geo.google import (
     API_KEY_ENV_VAR as GOOGLE_API_KEY_ENV_VAR, get_api_key as get_google_api_key,
     load_google_mosaic,
 )
+from .geo.ign import load_ign_dem
 from .geo.imagery import DEFAULT_ZOOM, load_imagery_mosaic, native_resolution_m_per_px
+from .geo.mesh_dem import hole_cells, load_stl_triangles, MeshDem, MeshHeightfield
 from .geo.pnoa import DEFAULT_RESOLUTION_M as PNOA_DEFAULT_RESOLUTION_M, load_pnoa_mosaic
 from .geo.projection import LocalProjection
+from .geo.terrain_export import write_gazebo_terrain, write_world_from_template
 from .mesh_export import write_dae, write_stl, write_texture_png
 from .pcd_writer import write_colors_csv, write_pcd_xyz
 from .scaffold import scaffold_world_package
@@ -108,6 +117,43 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument('--gazebo', action='store_true', help='emit a Gazebo world + models')
     parser.add_argument('--navmap', action='store_true', help='emit a .navmap file')
     parser.add_argument(
+        '--dem-out', default=None, metavar='FILE',
+        help=(
+            'write the elevation as the local height-grid file bigmap_maps_manager reads '
+            "(BigMap's DemGrid: terrain.dem_file). Can be the only output; the grid is "
+            '--resolution metres, --size wide, centred on --center'
+        ))
+    parser.add_argument(
+        '--dem-data-resolution', type=float, default=0.0, metavar='METERS',
+        help=(
+            '--dem-out: spacing at which the source is sampled, bicubically interpolated to '
+            '--resolution when coarser (0: what the source supports: 5 ign, 30 copernicus30)'
+        ))
+    parser.add_argument(
+        '--reference-altitude', type=float, default=None, metavar='METERS',
+        help='--dem-out: altitude above sea level that is z = 0 (default: the height at --center)')
+    parser.add_argument(
+        '--dem-imagery', action='store_true',
+        help='--dem-out: also store the imagery colour of every node')
+    parser.add_argument(
+        '--terrain-out', default=None, metavar='DIR',
+        help=(
+            '--dem-out: also write the grid as a Gazebo terrain in DIR (terrain.stl for the '
+            'collision, terrain.obj/.mtl/.png for the visual), in the map frame: x east, y north, '
+            'z from the reference altitude'
+        ))
+    parser.add_argument(
+        '--terrain-resolution', type=float, default=4.0, metavar='METERS',
+        help='--terrain-out: spacing of the collision mesh, coarser than the grid (default: 4)')
+    parser.add_argument(
+        '--world-template', default=None, metavar='FILE',
+        help=(
+            '--terrain-out: a world with @LATITUDE@, @LONGITUDE@, @ELEVATION@ (m above sea level '
+            'of z = 0) and @TERRAIN_DIR@ placeholders, filled in and written to --world-out'
+        ))
+    parser.add_argument(
+        '--world-out', default=None, metavar='FILE', help='--world-template: where the world goes')
+    parser.add_argument(
         '--resolution', type=float, default=1.0, metavar='METERS',
         help=(
             'grid sampling resolution in meters, shared by --gazebo geometry '
@@ -130,12 +176,38 @@ def build_arg_parser() -> argparse.ArgumentParser:
         '--cache-dir', default=None,
         help='GIS download cache directory (default: platformdirs cache dir)')
     parser.add_argument(
-        '--dem-source', choices=['copernicus30'], default='copernicus30',
-        help='elevation data source (default: %(default)s)')
-    parser.add_argument(
-        '--imagery-source', choices=['esri', 'pnoa', 'google'], default='esri',
+        '--dem-source', choices=['copernicus30', 'ign', 'mesh', 'synthetic'],
+        default='copernicus30',
         help=(
-            'imagery data source: esri (worldwide, keyless), pnoa (Spain '
+            'elevation data source: copernicus30 (worldwide, 30 m, keyless), ign (Spain only, '
+            "5 m, keyless: IGN's national terrain model), mesh (an STL of your own survey, "
+            'see --mesh-file) or synthetic (an offline test terrain) (default: %(default)s)'
+        ))
+    parser.add_argument(
+        '--mesh-file', default=None, metavar='STL',
+        help=(
+            '--dem-source mesh: STL in the local frame of --center (x east, y north, metres); '
+            'its top surface is the terrain'
+        ))
+    parser.add_argument(
+        '--dem-holes-mesh', default=None, metavar='STL',
+        help=(
+            '--dem-out: STL in the local frame of --center (buildings, walls); the cells its '
+            'triangles touch (seen from above) have no ground in the DEM: holes, as the walls of '
+            'a NavMap. Use it with a --mesh-file of the ground alone'
+        ))
+    parser.add_argument(
+        '--mesh-world-elevation', type=float, default=None, metavar='METERS',
+        help='--dem-source mesh: altitude above sea level of the mesh z = 0 (default: 0)')
+    parser.add_argument(
+        '--mesh-cell', type=float, default=0.5, metavar='METERS',
+        help='--dem-source mesh: cell of the height grid the mesh is rasterised to (0.5)')
+    parser.add_argument(
+        '--imagery-source', choices=['esri', 'pnoa', 'google', 'xyz', 'synthetic'],
+        default='esri',
+        help=(
+            'imagery data source: esri (worldwide, keyless), xyz (tiles of any server, see '
+            '--imagery-url), synthetic (an offline chessboard), pnoa (Spain '
             "only -- IGN's national aerial survey, keyless, CC BY 4.0, up to "
             '25 cm/px native and often sharper than esri in rural Spain), or '
             'google (worldwide, paid -- requires a Google Maps Platform API '
@@ -144,6 +216,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
             'caching/licensing caveat specific to this source) '
             '(default: %(default)s)'
         ))
+    parser.add_argument(
+        '--imagery-url', default=None, metavar='TEMPLATE',
+        help=(
+            '--imagery-source xyz: tile URL with {z}, {x} and {y}, e.g. '
+            "'https://tile.example.org/{z}/{x}/{y}.jpg' (Web Mercator tiles, as OSM and Esri)"
+        ))
+    parser.add_argument(
+        '--imagery-resolution', type=float, default=PNOA_DEFAULT_RESOLUTION_M, metavar='M_PER_PX',
+        help='pnoa only: metres per pixel requested (default: %(default)s, its native best)')
     parser.add_argument(
         '--zoom', type=int, default=DEFAULT_ZOOM,
         help=(
@@ -169,8 +250,8 @@ def run(argv=None) -> int:
     parser = build_arg_parser()
     args = parser.parse_args(argv)
 
-    if not args.gazebo and not args.navmap:
-        parser.error('at least one of --gazebo/--navmap is required')
+    if not args.gazebo and not args.navmap and not args.dem_out:
+        parser.error('at least one of --gazebo/--navmap/--dem-out is required')
     if args.size <= 0:
         parser.error('--size must be positive')
     if args.resolution <= 0:
@@ -184,9 +265,29 @@ def run(argv=None) -> int:
             get_google_api_key()
         except RuntimeError as e:
             parser.error(str(e))
+    if args.imagery_source == 'xyz' and not args.imagery_url:
+        parser.error('--imagery-source xyz needs --imagery-url')
+    if args.dem_source == 'mesh' and not args.mesh_file:
+        parser.error('--dem-source mesh needs --mesh-file')
+    if args.dem_holes_mesh and not args.dem_out:
+        parser.error('--dem-holes-mesh needs --dem-out')
+    if args.dem_source == 'mesh' and args.mesh_cell <= 0:
+        parser.error('--mesh-cell must be positive')
+    if args.dem_data_resolution < 0:
+        parser.error('--dem-data-resolution must be >= 0')
+    if (args.terrain_out or args.world_template) and not args.dem_out:
+        parser.error('--terrain-out and --world-template need --dem-out')
+    if args.world_template and not (args.terrain_out and args.world_out):
+        parser.error('--world-template needs --terrain-out and --world-out')
+    if args.terrain_resolution <= 0:
+        parser.error('--terrain-resolution must be positive')
+    if args.imagery_resolution <= 0:
+        parser.error('--imagery-resolution must be positive')
 
+    # the world / NavMap sampling loop is pure Python; --dem-out alone is vectorised
+    needs_grid = args.gazebo or args.navmap
     n_per_side = round(args.size / args.resolution) + 1
-    if n_per_side * n_per_side > _MAX_GRID_POINTS:
+    if needs_grid and n_per_side * n_per_side > _MAX_GRID_POINTS:
         parser.error(
             f'--size {args.size} / --resolution {args.resolution} would sample '
             f'{n_per_side * n_per_side} grid points (a {n_per_side}x{n_per_side} grid), '
@@ -206,41 +307,14 @@ def run(argv=None) -> int:
     projection = LocalProjection(lat, lon)
     bbox = projection.square_bbox(args.size)
 
-    print(f'[navmap_gis_tool] fetching DEM ({args.dem_source}) over {bbox} ...')
-    dem = load_dem_grid(bbox, cache, force=args.force_refresh)
+    if not needs_grid:
+        return _run_dem_only(args, bbox, cache)
 
-    if args.imagery_source == 'esri':
-        print(f'[navmap_gis_tool] fetching imagery (esri, zoom={args.zoom}) ...')
-        imagery = load_imagery_mosaic(bbox, cache, zoom=args.zoom, force=args.force_refresh)
-        resolution_m_per_px = native_resolution_m_per_px(imagery.zoom, lat)
-        imagery_desc = (
-            f'Esri World Imagery, zoom {imagery.zoom} '
-            f'(~{resolution_m_per_px:.2f} m/px at this latitude)'
-        )
-        imagery_attribution = (
-            'Imagery (c) Esri, Maxar, Earthstar Geographics, and the GIS User Community.'
-        )
-    elif args.imagery_source == 'pnoa':
-        print(
-            f'[navmap_gis_tool] fetching imagery (pnoa, '
-            f'{PNOA_DEFAULT_RESOLUTION_M} m/px) ...')
-        imagery = load_pnoa_mosaic(
-            bbox, cache, resolution_m_per_px=PNOA_DEFAULT_RESOLUTION_M, force=args.force_refresh)
-        resolution_m_per_px = imagery.pixel_size_m
-        imagery_desc = f'PNOA (IGN Spain), {resolution_m_per_px:.2f} m/px'
-        imagery_attribution = (
-            'Contains PNOA orthoimagery (c) Instituto Geografico Nacional de Espana, '
-            'CC BY 4.0.'
-        )
-    else:
-        print(f'[navmap_gis_tool] fetching imagery (google, zoom={args.zoom}) ...')
-        imagery = load_google_mosaic(bbox, cache, zoom=args.zoom, force=args.force_refresh)
-        resolution_m_per_px = native_resolution_m_per_px(imagery.zoom, lat)
-        imagery_desc = (
-            f'Google Maps Platform satellite, zoom {imagery.zoom} '
-            f'(~{resolution_m_per_px:.2f} m/px at this latitude)'
-        )
-        imagery_attribution = 'Imagery (c) Google.'
+    print(f'[navmap_gis_tool] fetching DEM ({args.dem_source}) over {bbox} ...')
+    dem = _load_dem(args, bbox, cache)
+
+    imagery, resolution_m_per_px, imagery_desc, imagery_attribution = _load_imagery(
+        args, bbox, cache, lat)
 
     dem_native_m = dem.pixel_size_lat * _METERS_PER_DEGREE
     if args.resolution < dem_native_m / 2:
@@ -248,6 +322,9 @@ def run(argv=None) -> int:
             f'[navmap_gis_tool] warning: --resolution {args.resolution} m is much finer '
             f"than the DEM's native ~{dem_native_m:.1f} m resolution; elevation detail "
             'below that will be smoothly interpolated, not real', file=sys.stderr)
+
+    if args.dem_out:
+        _write_dem(args, dem, imagery, lat, lon)
     grid = build_terrain_grid(projection, dem, imagery, args.size, args.resolution)
 
     paths = scaffold_world_package(
@@ -294,6 +371,184 @@ def run(argv=None) -> int:
 
     print(f'[navmap_gis_tool] done: {paths.root}')
     return 0
+
+
+def _load_dem(args, bbox, cache):
+    """Load the terrain model of --dem-source: something with sample(lon, lat) -> metres."""
+    if args.dem_source == 'ign':
+        return load_ign_dem(bbox, cache, force=args.force_refresh)
+    if args.dem_source == 'mesh':
+        field = MeshHeightfield.load_stl(args.mesh_file, args.mesh_cell)
+        print(
+            f'[navmap_gis_tool] mesh {args.mesh_file}: {field.coverage:.0%} of its footprint '
+            'is covered by triangles (the rest is filled from the neighbours)')
+        return MeshDem(field, args.center[0], args.center[1], args.mesh_world_elevation or 0.0)
+    if args.dem_source == 'synthetic':
+        return SyntheticDem(args.center[0], args.center[1])
+    return load_dem_grid(bbox, cache, force=args.force_refresh)
+
+
+def _load_imagery(args, bbox, cache, lat):
+    """Load the --imagery-source mosaic; also its metres per pixel, a description, a credit."""
+    if args.imagery_source in ('esri', 'xyz'):
+        url = args.imagery_url if args.imagery_source == 'xyz' else None
+        print(f'[navmap_gis_tool] fetching imagery ({args.imagery_source}, zoom={args.zoom}) ...')
+        imagery = load_imagery_mosaic(
+            bbox, cache, zoom=args.zoom, force=args.force_refresh, url_template=url)
+        resolution_m_per_px = native_resolution_m_per_px(imagery.zoom, lat)
+        if url is None:
+            desc = (
+                f'Esri World Imagery, zoom {imagery.zoom} '
+                f'(~{resolution_m_per_px:.2f} m/px at this latitude)'
+            )
+            attribution = (
+                'Imagery (c) Esri, Maxar, Earthstar Geographics, and the GIS User Community.'
+            )
+        else:
+            desc = (
+                f'XYZ tiles {url}, zoom {imagery.zoom} '
+                f'(~{resolution_m_per_px:.2f} m/px at this latitude)'
+            )
+            attribution = 'Imagery: see the terms of the tile server that was used.'
+        return imagery, resolution_m_per_px, desc, attribution
+    if args.imagery_source == 'synthetic':
+        return (
+            SyntheticImagery(args.center[0], args.center[1]), 1.0,
+            'synthetic chessboard', 'Offline test imagery.')
+    if args.imagery_source == 'pnoa':
+        print(
+            f'[navmap_gis_tool] fetching imagery (pnoa, '
+            f'{args.imagery_resolution} m/px) ...')
+        imagery = load_pnoa_mosaic(
+            bbox, cache, resolution_m_per_px=args.imagery_resolution, force=args.force_refresh)
+        resolution_m_per_px = imagery.pixel_size_m
+        return (
+            imagery, resolution_m_per_px,
+            f'PNOA (IGN Spain), {resolution_m_per_px:.2f} m/px',
+            'Contains PNOA orthoimagery (c) Instituto Geografico Nacional de Espana, '
+            'CC BY 4.0.')
+    print(f'[navmap_gis_tool] fetching imagery (google, zoom={args.zoom}) ...')
+    imagery = load_google_mosaic(bbox, cache, zoom=args.zoom, force=args.force_refresh)
+    resolution_m_per_px = native_resolution_m_per_px(imagery.zoom, lat)
+    return (
+        imagery, resolution_m_per_px,
+        f'Google Maps Platform satellite, zoom {imagery.zoom} '
+        f'(~{resolution_m_per_px:.2f} m/px at this latitude)',
+        'Imagery (c) Google.')
+
+
+_DEM_SOURCE_IDS = {
+    'copernicus30': DemSource.COPERNICUS, 'ign': DemSource.IGN, 'mesh': DemSource.MESH,
+    'synthetic': DemSource.SYNTHETIC,
+}
+_DEM_NATIVE_M = {'copernicus30': 30.0, 'ign': 5.0, 'mesh': 0.0, 'synthetic': 0.0}
+
+
+def _source_id(args):
+    """Return the id of --dem-source that the DEM file records."""
+    return _DEM_SOURCE_IDS[args.dem_source]
+
+
+def _dem_geometry(args):
+    """Return the radius, requested reference altitude and data resolution of --dem-out."""
+    radius = args.size / 2.0
+    reference = args.reference_altitude
+    mesh = None
+    if args.dem_source == 'mesh':
+        mesh = MeshHeightfield.load_stl(args.mesh_file, args.mesh_cell)
+        # the DEM cannot show more than the mesh: cap the area to its footprint
+        reach = math.ceil(max(abs(mesh.x_min), abs(mesh.x_max), abs(mesh.y_min), abs(mesh.y_max)))
+        if reach < radius:
+            print(
+                f'[navmap_gis_tool] mesh {args.mesh_file} covers up to {reach:.0f} m from the '
+                f'origin: radius {radius:.0f} -> {reach:.0f}')
+            radius = float(reach)
+        if reference is None and args.mesh_world_elevation is not None:
+            reference = args.mesh_world_elevation   # z = 0 is the world's elevation
+    data_res = args.dem_data_resolution or _DEM_NATIVE_M[args.dem_source]
+    return radius, reference, data_res, mesh
+
+
+def _run_dem_only(args, bbox, cache) -> int:
+    """--dem-out without a world or a NavMap: reuse the file if it is the same, else build it."""
+    lat, lon = args.center
+    radius, reference, data_res, mesh = _dem_geometry(args)
+    grid = None
+    if not args.force_refresh and Path(args.dem_out).is_file():
+        try:
+            old = read_dem_file(args.dem_out)
+        except (OSError, ValueError):
+            old = None
+        if old is not None and _is_the_same(old, args, lat, lon, radius, reference, data_res):
+            print(f'[navmap_gis_tool] using the DEM {args.dem_out} (same configuration)')
+            grid = old
+    if grid is None:
+        print(f'[navmap_gis_tool] fetching DEM ({args.dem_source}) over {bbox} ...')
+        dem = (MeshDem(mesh, lat, lon, args.mesh_world_elevation or 0.0) if mesh is not None
+               else _load_dem(args, bbox, cache))
+        imagery = None
+        if args.dem_imagery:
+            try:
+                imagery = _load_imagery(args, bbox, cache, lat)[0]
+            except Exception as e:   # the terrain is still usable without colours
+                print(f'[navmap_gis_tool] imagery unavailable ({e}): no colours', file=sys.stderr)
+        grid = build_local_dem(
+            dem, lat, lon, radius=radius, resolution=args.resolution,
+            source=_source_id(args), reference_altitude=reference, data_resolution=data_res)
+        if imagery is not None:
+            add_imagery(grid, imagery, args.zoom)
+        _add_holes(grid, args)
+        write_dem_file(grid, args.dem_out)
+        print(
+            f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
+            f'{grid.resolution} m, sampled every {grid.data_resolution} m, '
+            f'reference altitude {grid.reference_altitude:.1f} m)')
+    if args.terrain_out:
+        write_gazebo_terrain(grid, args.terrain_out, args.terrain_resolution)
+        print(f'[navmap_gis_tool] wrote the Gazebo terrain in {args.terrain_out}')
+    if args.world_template:
+        write_world_from_template(grid, args.world_template, args.world_out, args.terrain_out)
+        print(f'[navmap_gis_tool] wrote the world {args.world_out}')
+    return 0
+
+
+def _is_the_same(old, args, lat, lon, radius, reference, data_res) -> bool:
+    """Whether the DEM file on disk is what these arguments would make."""
+    if not old.matches(lat, lon, radius, args.resolution, _source_id(args), reference, data_res):
+        return False
+    if bool(args.dem_holes_mesh) != (old.cell_valid is not None):
+        return False
+    return not args.dem_imagery or (old.rgb is not None and old.imagery_zoom == args.zoom)
+
+
+def _add_holes(grid, args) -> None:
+    """--dem-holes-mesh: the cells its triangles touch have no ground."""
+    if not args.dem_holes_mesh:
+        return
+    holes = hole_cells(load_stl_triangles(args.dem_holes_mesh), grid.side, grid.resolution)
+    grid.cell_valid = (~holes).astype(np.uint8)
+    print(f'[navmap_gis_tool] holes from {args.dem_holes_mesh}: {holes.sum()} of {holes.size} '
+          f'cells without ground')
+
+
+def _write_dem(args, dem, imagery, lat, lon) -> None:
+    """--dem-out next to a world / NavMap: the local height grid that bigmap_maps_manager reads."""
+    radius, reference, data_res, _ = _dem_geometry(args)
+    grid = build_local_dem(
+        dem, lat, lon, radius=radius, resolution=args.resolution,
+        source=_source_id(args), reference_altitude=reference, data_resolution=data_res)
+    if imagery is not None:
+        add_imagery(grid, imagery, getattr(imagery, 'zoom', 1))
+    _add_holes(grid, args)
+    write_dem_file(grid, args.dem_out)
+    print(
+        f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
+        f'{grid.resolution} m, sampled every {grid.data_resolution} m, '
+        f'reference altitude {grid.reference_altitude:.1f} m)')
+    if args.terrain_out:
+        write_gazebo_terrain(grid, args.terrain_out, args.terrain_resolution)
+    if args.world_template:
+        write_world_from_template(grid, args.world_template, args.world_out, args.terrain_out)
 
 
 def _find_tool_executable(name: str) -> str:

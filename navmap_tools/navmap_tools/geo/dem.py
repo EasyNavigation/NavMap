@@ -99,6 +99,21 @@ class DemGrid:
         bot = v10 * (1 - fc) + v11 * fc
         return float(top * (1 - fr) + bot * fr)
 
+    def sample_array(self, lon, lat) -> np.ndarray:
+        """Bilinearly sample elevations (m) at arrays of lon, lat; clamps to the grid edge."""
+        rows, cols = self.elevation.shape
+        col = np.clip((np.asarray(lon, dtype=np.float64) - self.west) / self.pixel_size_lon,
+                      0.0, cols - 1.0)
+        row = np.clip((self.north - np.asarray(lat, dtype=np.float64)) / self.pixel_size_lat,
+                      0.0, rows - 1.0)
+        c0, r0 = np.floor(col).astype(int), np.floor(row).astype(int)
+        c1, r1 = np.minimum(c0 + 1, cols - 1), np.minimum(r0 + 1, rows - 1)
+        fc, fr = col - c0, row - r0
+        z = self.elevation
+        top = z[r0, c0] * (1 - fc) + z[r0, c1] * fc
+        bot = z[r1, c0] * (1 - fc) + z[r1, c1] * fc
+        return top * (1 - fr) + bot * fr
+
 
 def _read_tile_array(path) -> Tuple[np.ndarray, float, float, float, float]:
     # Pillow decodes via libtiff, which handles Copernicus' floating-point predictor

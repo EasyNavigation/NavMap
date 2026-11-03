@@ -100,6 +100,14 @@ class PnoaMosaic:
         r, g, b = (int(round(v)) for v in rgb)
         return r, g, b
 
+    def sample_array(self, lon, lat) -> np.ndarray:
+        """Bilinear colours (..., 3) at lon, lat arrays (float, 0-255); clamps to the edge."""
+        from .imagery import _bilinear_rgb
+        mx, my = _TO_WEB_MERCATOR.transform(np.asarray(lon), np.asarray(lat))
+        return _bilinear_rgb(
+            self.image, (np.asarray(mx) - self.origin_x) / self.pixel_size_m,
+            (self.origin_y - np.asarray(my)) / self.pixel_size_m)
+
 
 def _fetch_chunk(
     x0: float, y0: float, x1: float, y1: float, width_px: int, height_px: int,
