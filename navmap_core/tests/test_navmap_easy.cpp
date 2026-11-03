@@ -484,3 +484,30 @@ TEST(NavMap_SetArea_Systematic, CircularNearBoundary)
     nm, "obstacles", static_cast<uint8_t>(180),
     [&](const Eigen::Vector3f & cc) {return centroid_inside_circle(cc, cx, cy, r);});
 }
+
+TEST(NavMap_SetArea_Systematic, TheWrittenNavCelsAreRecordedAsChangedForIncrementalConsumers)
+{
+  // An incremental consumer (an inflation filter) reads the layer's changed() list: set_area
+  // records there exactly the NavCels it wrote, as layer_set does
+  NavMap nm;
+  make_grid(nm, /*nx=*/ 20, /*ny=*/ 20);
+  nm.add_layer<uint8_t>("obstacles", "occupancy obstacles", "%", 0);
+  const auto view =
+    std::dynamic_pointer_cast<navmap::LayerView<uint8_t>>(nm.layers.get("obstacles"));
+  ASSERT_TRUE(view);
+  view->clear_changes();
+  const float cx = 0.5f, cy = 0.5f, r = 0.22f;
+  ASSERT_TRUE(nm.set_area<uint8_t>(
+      Eigen::Vector3f(cx, cy, 1.0f), static_cast<uint8_t>(254), "obstacles",
+      navmap::AreaShape::CIRCULAR, r));
+  std::vector<navmap::NavCelId> written;
+  for (navmap::NavCelId c = 0; c < nm.navcels.size(); ++c) {
+    if (nm.layer_get<uint8_t>("obstacles", c, 0) == 254) {written.push_back(c);}
+  }
+  ASSERT_FALSE(written.empty());
+  std::vector<navmap::NavCelId> changed = view->changed();
+  std::sort(changed.begin(), changed.end());
+  changed.erase(std::unique(changed.begin(), changed.end()), changed.end());
+  EXPECT_EQ(changed, written);
+  EXPECT_TRUE(view->has_changes());
+}

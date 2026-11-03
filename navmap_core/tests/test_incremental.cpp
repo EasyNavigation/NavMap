@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <functional>
@@ -60,7 +61,7 @@ void add_grid(
 
 std::vector<NavMap> maps()
 {
-  std::vector<NavMap> out(3);
+  std::vector<NavMap> out(4);
   add_grid(
     out[0], 20, 20, 0.5f, [](float, float) {return 0.0f;},
     [](int i, int j) {
@@ -69,6 +70,17 @@ std::vector<NavMap> maps()
   add_grid(out[1], 16, 16, 0.5f, [](float, float) {return 0.0f;});
   add_grid(out[1], 16, 16, 0.5f, [](float, float) {return 3.0f;});
   add_grid(out[2], 30, 6, 0.4f, [](float x, float) {return 0.25f * x;});
+  // Coarse cells (4 m) with holes, turned 30 deg: long diagonal open edges, as the far NavCels of
+  // a level-of-detail mesh (the seed index samples along them, see DistanceField::index_seed)
+  add_grid(
+    out[3], 12, 12, 4.0f, [](float, float) {return 0.0f;},
+    [](int i, int j) {return (i * 7 + j * 3) % 5 == 0;});
+  const float c = std::cos(0.5236f), s = std::sin(0.5236f);
+  for (std::size_t v = 0; v < out[3].positions.x.size(); ++v) {
+    const float x = out[3].positions.x[v], y = out[3].positions.y[v];
+    out[3].positions.x[v] = c * x - s * y;
+    out[3].positions.y[v] = s * x + c * y;
+  }
   for (auto & m : out) {
     m.rebuild_geometry_accels();
   }
@@ -277,6 +289,46 @@ TEST(DistanceFieldIncremental, AnUpdateOnlyTouchesItsNeighbourhood)
   for (NavCelId x = 0; x < nm.navcels.size(); ++x) {
     ASSERT_TRUE(std::isinf(df[x]) || df[x] <= 0.5f);
   }
+}
+
+TEST(DistanceFieldIncremental, LongDiagonalOpenEdgesCostAboutAsMuchAsShortOnes)
+{
+  // The same mesh (a grid with 20 % holes) with cells of 0.5 m and of 16 m, turned 45 deg: only the
+  // length of the open edges changes. Indexed by their bounding boxes, the 16 m one took ~600
+  // times longer; sampled along them, it is within a small factor.
+  auto build = [](float res) {
+      NavMap nm;
+      std::mt19937 rng(9);
+      std::vector<char> hole(120 * 120);
+      for (auto & h : hole) {
+        h = rng() % 5 == 0;
+      }
+      add_grid(
+        nm, 120, 120, res, [](float, float) {return 0.0f;},
+        [&hole](int i, int j) {return hole[static_cast<std::size_t>(j) * 120 + i] != 0;});
+      const float c = std::cos(0.7854f), s = std::sin(0.7854f);
+      for (std::size_t v = 0; v < nm.positions.x.size(); ++v) {
+        const float x = nm.positions.x[v], y = nm.positions.y[v];
+        nm.positions.x[v] = c * x - s * y;
+        nm.positions.y[v] = s * x + c * y;
+      }
+      nm.rebuild_geometry_accels();
+      return nm;
+    };
+  auto seconds = [](const NavMap & nm) {
+      double best = 1e9;
+      for (int k = 0; k < 3; ++k) {
+        const auto t0 = std::chrono::steady_clock::now();
+        DistanceField df(nm, true, 0.6f);
+        df.compute({});
+        best = std::min(
+          best, std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count());
+      }
+      return best;
+    };
+  const NavMap fine = build(0.5f), coarse = build(16.0f);
+  const double t_fine = seconds(fine), t_coarse = seconds(coarse);
+  EXPECT_LT(t_coarse, 25.0 * t_fine + 0.01) << "fine " << t_fine << " s, coarse " << t_coarse;
 }
 
 // ------------------------------------------------------------------ layer change tracking

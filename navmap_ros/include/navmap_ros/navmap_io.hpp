@@ -61,7 +61,17 @@ struct SaveOptions
   bool binary{true};
   Compression compression{Compression::ZLIB};
   int level{6};  ///< zlib level, 1 (fast) to 9 (small)
+  /// The largest message (serialised CDR bytes) the saver attempts. The CDR serialiser of ROS 2
+  /// (Fast-CDR) cannot hold more than 4 GiB: a bigger map is refused before anything is
+  /// allocated, with std::errc::file_too_large (about 180 million NavCels with one layer).
+  std::uint64_t max_serialized_bytes{(std::uint64_t{1} << 32) - (std::uint64_t{1} << 20)};
 };
+
+/**
+ * @brief A close upper estimate of the CDR size of @p msg (bytes), without serialising it: the
+ *        arrays and their length prefixes, plus a fixed allowance for the headers and strings.
+ */
+std::uint64_t estimated_serialized_size(const navmap_ros_interfaces::msg::NavMap & msg);
 
 /**
  * @brief Save a `NavMap` message to disk using ROS 2 CDR serialization.

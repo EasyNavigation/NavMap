@@ -53,6 +53,33 @@ inline void set_error(std::error_code * ec, int ev = EIO)
 
 }  // namespace
 
+std::uint64_t estimated_serialized_size(const navmap_ros_interfaces::msg::NavMap & msg)
+{
+  // each sequence: its elements (with alignment) and a 4-byte length; strings and headers: a
+  // generous fixed allowance each
+  auto seq = [](std::size_t n, std::size_t elem) {
+      return static_cast<std::uint64_t>(n) * elem + 4 + 8;
+    };
+  constexpr std::uint64_t kSmall = 512;
+  std::uint64_t n = kSmall;   // header, scalars
+  n += seq(msg.positions_x.size(), 4) + seq(msg.positions_y.size(), 4) +
+    seq(msg.positions_z.size(), 4);
+  n += seq(msg.colors_r.size(), 1) + seq(msg.colors_g.size(), 1) + seq(msg.colors_b.size(), 1) +
+    seq(msg.colors_a.size(), 1);
+  n += seq(msg.navcels_v0.size(), 4) + seq(msg.navcels_v1.size(), 4) +
+    seq(msg.navcels_v2.size(), 4);
+  for (const auto & s : msg.surfaces) {
+    n += kSmall + s.frame_id.size() + seq(s.navcels.size(), 4);
+  }
+  for (const auto & l : msg.layers) {
+    n += kSmall + l.name.size() + l.description.size() + l.unit.size() +
+      seq(l.indices.size(), 4) + seq(l.data_u8.size(), 1) + seq(l.data_f32.size(), 4) +
+      seq(l.data_f64.size(), 8) + seq(l.data_i16.size(), 2);
+  }
+  n += static_cast<std::uint64_t>(msg.links.size()) * kSmall;
+  return n;
+}
+
 bool save_msg_to_file(
   const navmap_ros_interfaces::msg::NavMap & msg,
   const std::string & path,
@@ -60,6 +87,18 @@ bool save_msg_to_file(
   std::error_code * ec)
 {
   using MsgT = navmap_ros_interfaces::msg::NavMap;
+  // Beyond what the CDR serialiser holds: refused before allocating gigabytes, with the cause
+  // (it threw a non-std exception from deep inside, reported as a bare I/O error)
+  const std::uint64_t estimate = estimated_serialized_size(msg);
+  if (estimate > options.max_serialized_bytes) {
+    RCLCPP_ERROR(
+      rclcpp::get_logger("navmap_io"),
+      "cannot save %s: the map serialises to about %.2f GB, more than the %.2f GB a ROS 2 (CDR) "
+      "message holds; save it in pieces or coarser", path.c_str(), estimate / 1e9,
+      options.max_serialized_bytes / 1e9);
+    set_error(ec, EFBIG);
+    return false;
+  }
   try {
     rclcpp::SerializedMessage serialized;
     rclcpp::Serialization<MsgT> ser;

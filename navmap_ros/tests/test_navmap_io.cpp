@@ -315,3 +315,52 @@ TEST(NavMapIoCore, RoundtripViaCoreAndMsgCompare)
 
   std::filesystem::remove(path);
 }
+
+TEST(NavMapIoMsg, TheSizeEstimateIsCloseAboveTheSerialisedSize)
+{
+  navmap_ros_interfaces::msg::NavMap msg;
+  msg.header.frame_id = "map";
+  const std::size_t nv = 20000, nc = 39000;
+  msg.positions_x.assign(nv, 1.0f);
+  msg.positions_y.assign(nv, 2.0f);
+  msg.positions_z.assign(nv, 3.0f);
+  msg.navcels_v0.assign(nc, 1);
+  msg.navcels_v1.assign(nc, 2);
+  msg.navcels_v2.assign(nc, 3);
+  msg.surfaces.resize(1);
+  msg.surfaces[0].frame_id = "map";
+  msg.surfaces[0].navcels.assign(nc, 0);
+  navmap_ros_interfaces::msg::NavMapLayer l;
+  l.name = "obstacles";
+  l.type = 0;
+  l.data_u8.assign(nc, 0);
+  msg.layers = {l};
+  rclcpp::SerializedMessage s;
+  rclcpp::Serialization<navmap_ros_interfaces::msg::NavMap>().serialize_message(&msg, &s);
+  const auto real = s.get_rcl_serialized_message().buffer_length;
+  const auto estimate = navmap_ros::io::estimated_serialized_size(msg);
+  EXPECT_GE(estimate, real);
+  EXPECT_LE(estimate, real + 4096);
+}
+
+TEST(NavMapIoMsg, AMapBeyondWhatAMessageHoldsIsRefusedAsTooLargeAndNothingIsWritten)
+{
+  // The real limit is 4 GiB (Fast-CDR): a lower one stands in for it, so that the test needs
+  // no gigabytes. Before, such a map got a bare EIO from deep inside the serialiser.
+  navmap_ros_interfaces::msg::NavMap msg;
+  msg.positions_x.assign(1000, 0.0f);
+  msg.positions_y.assign(1000, 0.0f);
+  msg.positions_z.assign(1000, 0.0f);
+  const std::string path = (std::filesystem::temp_directory_path() /
+    ("too_large_" + std::to_string(::getpid()) + ".navmap")).string();
+  std::filesystem::remove(path);
+  navmap_ros::io::SaveOptions o;
+  o.max_serialized_bytes = 1000;
+  std::error_code ec;
+  EXPECT_FALSE(navmap_ros::io::save_msg_to_file(msg, path, o, &ec));
+  EXPECT_EQ(ec, std::errc::file_too_large) << ec.message();
+  EXPECT_FALSE(std::filesystem::exists(path));
+  // the default limit takes it
+  EXPECT_TRUE(navmap_ros::io::save_msg_to_file(msg, path, {}, &ec)) << ec.message();
+  std::filesystem::remove(path);
+}

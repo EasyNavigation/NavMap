@@ -36,6 +36,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <optional>
 #include <string>
 #include <array>
@@ -1172,7 +1173,11 @@ public:
    * cannot be determined, returns false. Supports U8/F32/F64 layers.
    *
    * Efficiency: BFS from the seed NavCel with XY AABB pruning against the
-   * circumscribed square of the area. Inclusion test by triangle centroid.
+   * circumscribed square of the area. Inclusion test by triangle centroid. The work and the
+   * memory are those of the area, not of the map.
+   *
+   * Every NavCel written is recorded as changed in the layer (as layer_set() does), so that the
+   * incremental consumers of the layer (e.g. an inflation filter) see the new values.
    *
    * \tparam T uint8_t, int16_t, float, or double
    * \param p_world 3D point in world coordinates (projected to ground)
@@ -1252,10 +1257,10 @@ public:
         }
       };
 
-    std::vector<char> visited(navcels.size(), 0);
+    // visited: only the NavCels of the area (a per-map vector cost O(map) on every call)
+    std::unordered_set<NavCelId> visited{start_cid};
     std::deque<NavCelId> q;
     q.push_back(start_cid);
-    visited[static_cast<std::size_t>(start_cid)] = 1;
 
     auto & data = layer->mutable_data();
 
@@ -1269,14 +1274,13 @@ public:
       const Eigen::Vector3f c = navcel_centroid(cid);
       if (inside_area(c)) {
         data[static_cast<std::size_t>(cid)] = value;
+        layer->mark_changed(cid);
       }
 
       for (const auto ncid : navcel_neighbors(cid)) {
         const std::size_t nidx = static_cast<std::size_t>(ncid);
-        if (nidx < navcels.size() && !visited[nidx] && tri_aabb_intersects_box(ncid)) {
-          visited[nidx] = 1;
-          q.push_back(ncid);
-        }
+        if (nidx >= navcels.size() || !tri_aabb_intersects_box(ncid)) {continue;}
+        if (visited.insert(ncid).second) {q.push_back(ncid);}
       }
     }
 

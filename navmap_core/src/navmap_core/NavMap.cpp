@@ -144,6 +144,11 @@ NavMap & NavMap::operator=(const NavMap & other)
     for (const auto & name : other.layers.list()) {
       auto src_base = other.layers.get(name);
       if (!src_base) {continue;}
+      // A layer of the same name and another type (re-created by the source): replaced, not
+      // synchronised (add_or_get would give no view for the new type)
+      if (const auto old = layers.get(name); old && old->type() != src_base->type()) {
+        layers.remove(name);
+      }
 
       switch (src_base->type()) {
         case LayerType::U8: {

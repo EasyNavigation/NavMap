@@ -284,3 +284,26 @@ TEST(NavMapAssign, CopiesNeverShareLayerData)
   EXPECT_EQ(moved.layer_get<uint8_t>("occ", 0), 1);
   EXPECT_FLOAT_EQ(moved.layer_get<float>("extra", 0), 3.0f);
 }
+
+TEST(NavMapAssign, ALayerReCreatedWithAnotherTypeIsReplacedNotDereferencedAsNull)
+{
+  // The source has "occ" as F32 where the destination (same geometry) has it as U8: the copy
+  // is a F32 layer. Before, operator= asked the destination for a F32 view of its U8 layer, got
+  // none and crashed (NavState::set of a map copied, edited and set back).
+  NavMap dst;
+  fill_one_tri_map(dst);
+  NavMap src = dst;
+  src.layers.remove("occ");
+  src.layer_set<float>("occ", 0, 3.5f);
+  dst = src;
+  ASSERT_TRUE(dst.layers.get("occ"));
+  EXPECT_EQ(dst.layers.get("occ")->type(), navmap::LayerType::F32);
+  EXPECT_FLOAT_EQ(dst.layer_get<float>("occ", 0, 0.0f), 3.5f);
+  // and back to U8
+  NavMap again = dst;
+  again.layers.remove("occ");
+  again.layer_set<uint8_t>("occ", 0, 7);
+  dst = again;
+  EXPECT_EQ(dst.layers.get("occ")->type(), navmap::LayerType::U8);
+  EXPECT_EQ(dst.layer_get<uint8_t>("occ", 0, 0), 7);
+}
