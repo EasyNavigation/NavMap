@@ -3,6 +3,18 @@ project(navmap_rviz_plugin)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+# Use the same Qt as rviz (Qt5 up to Kilted, Qt6 from Lyrical): mixing both breaks the plugin.
+# Read it from rviz_common's exported dependencies before find_package(rviz_common): a Qt5 rviz
+# looks for Qt6 first if installed and then fails to find Qt5, so Qt6 must be disabled.
+find_file(RVIZ_COMMON_DEPS_FILE ament_cmake_export_dependencies-extras.cmake
+  PATHS ENV AMENT_PREFIX_PATH PATH_SUFFIXES share/rviz_common/cmake NO_DEFAULT_PATH)
+file(READ "${RVIZ_COMMON_DEPS_FILE}" rviz_common_deps)
+if(rviz_common_deps MATCHES "Qt6")
+  set(qt_major 6)
+else()
+  set(qt_major 5)
+  set(CMAKE_DISABLE_FIND_PACKAGE_Qt6 TRUE)
+endif()
 find_package(rviz_common REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
@@ -12,14 +24,6 @@ find_package(navmap_ros_interfaces REQUIRED)
 find_package(navmap_ros REQUIRED)
 find_package(navmap_core REQUIRED)
 
-# Same Qt as rviz (Qt5 up to Kilted, Qt6 from Lyrical): mixing both breaks loading the plugin.
-# Ask rviz_common: other deps (e.g. VTK via PCL) may bring the other Qt along
-get_target_property(rviz_common_libs rviz_common::rviz_common INTERFACE_LINK_LIBRARIES)
-if("${rviz_common_libs}" MATCHES "Qt6::")
-  set(qt_major 6)
-else()
-  set(qt_major 5)
-endif()
 find_package(Qt${qt_major} REQUIRED COMPONENTS Widgets)
 
 qt_wrap_cpp(NAVMAP_MOC_SRCS
