@@ -144,7 +144,7 @@ NavMap & NavMap::operator=(const NavMap & other)
     for (const auto & name : other.layers.list()) {
       auto src_base = other.layers.get(name);
       if (!src_base) {continue;}
-
+      // (a layer of the same name and another type is replaced by add_or_get)
       switch (src_base->type()) {
         case LayerType::U8: {
             auto src = std::dynamic_pointer_cast<LayerView<uint8_t>>(src_base);

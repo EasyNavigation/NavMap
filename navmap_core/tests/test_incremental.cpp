@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <functional>
@@ -60,7 +61,7 @@ void add_grid(
 
 std::vector<NavMap> maps()
 {
-  std::vector<NavMap> out(3);
+  std::vector<NavMap> out(4);
   add_grid(
     out[0], 20, 20, 0.5f, [](float, float) {return 0.0f;},
     [](int i, int j) {
@@ -69,6 +70,17 @@ std::vector<NavMap> maps()
   add_grid(out[1], 16, 16, 0.5f, [](float, float) {return 0.0f;});
   add_grid(out[1], 16, 16, 0.5f, [](float, float) {return 3.0f;});
   add_grid(out[2], 30, 6, 0.4f, [](float x, float) {return 0.25f * x;});
+  // Coarse cells (4 m) with holes, turned 30 deg: long diagonal open edges, as the far NavCels of
+  // a level-of-detail mesh (the seed index samples along them, see DistanceField::index_seed)
+  add_grid(
+    out[3], 12, 12, 4.0f, [](float, float) {return 0.0f;},
+    [](int i, int j) {return (i * 7 + j * 3) % 5 == 0;});
+  const float c = std::cos(0.5236f), s = std::sin(0.5236f);
+  for (std::size_t v = 0; v < out[3].positions.x.size(); ++v) {
+    const float x = out[3].positions.x[v], y = out[3].positions.y[v];
+    out[3].positions.x[v] = c * x - s * y;
+    out[3].positions.y[v] = s * x + c * y;
+  }
   for (auto & m : out) {
     m.rebuild_geometry_accels();
   }
@@ -276,6 +288,70 @@ TEST(DistanceFieldIncremental, AnUpdateOnlyTouchesItsNeighbourhood)
   EXPECT_EQ(df.changed().size(), df.changed().size());
   for (NavCelId x = 0; x < nm.navcels.size(); ++x) {
     ASSERT_TRUE(std::isinf(df[x]) || df[x] <= 0.5f);
+  }
+}
+
+TEST(DistanceFieldIncremental, LongDiagonalOpenEdgesAreIndexedBySamplesNotBoundingBoxes)
+{
+  // The same mesh (a grid with 20 % holes) with cells of 0.5 m and of 16 m, turned 45 deg: only the
+  // length of the open edges changes. Indexed by their bounding boxes, a 16 m edge went into
+  // ~(16 / 0.6)^2 buckets; sampled along it, into ~16 / 0.6 (counted, so that no timing is needed)
+  auto build = [](float res) {
+      NavMap nm;
+      std::mt19937 rng(9);
+      std::vector<char> hole(120 * 120);
+      for (auto & h : hole) {
+        h = rng() % 5 == 0;
+      }
+      add_grid(
+        nm, 120, 120, res, [](float, float) {return 0.0f;},
+        [&hole](int i, int j) {return hole[static_cast<std::size_t>(j) * 120 + i] != 0;});
+      const float c = std::cos(0.7854f), s = std::sin(0.7854f);
+      for (std::size_t v = 0; v < nm.positions.x.size(); ++v) {
+        const float x = nm.positions.x[v], y = nm.positions.y[v];
+        nm.positions.x[v] = c * x - s * y;
+        nm.positions.y[v] = s * x + c * y;
+      }
+      nm.rebuild_geometry_accels();
+      return nm;
+    };
+  auto entries = [](const NavMap & nm) {
+      DistanceField df(nm, true, 0.6f);
+      df.compute({});
+      return df.index_entries();
+    };
+  const NavMap fine = build(0.5f), coarse = build(16.0f);
+  const double e_fine = static_cast<double>(entries(fine));
+  const double e_coarse = static_cast<double>(entries(coarse));
+  ASSERT_GT(e_fine, 0.0);
+  EXPECT_LT(e_coarse, 40.0 * e_fine) << "fine " << e_fine << ", coarse " << e_coarse;
+}
+
+TEST(NavMapSetArea, SmallAndLargeAreasMarkExactlyTheNavCelsInsideThem)
+{
+  // A small area is followed with a hash set of visited NavCels, a large one with a flag per
+  // NavCel: both must mark the NavCels whose centroid is inside, and only them
+  NavMap nm;
+  add_grid(nm, 30, 30, 0.5f, [](float, float) {return 0.0f;});
+  nm.rebuild_geometry_accels();
+  nm.add_layer<uint8_t>("area", "", "", 0);
+  for (const float radius : {1.0f, 3.0f, 100.0f}) {
+    nm.layer_clear<uint8_t>("area", 0);
+    ASSERT_TRUE(
+      nm.set_area<uint8_t>(
+        Eigen::Vector3f(7.0f, 7.0f, 0.0f), static_cast<uint8_t>(1), "area",
+        navmap::AreaShape::CIRCULAR, radius));
+    std::size_t marked = 0, expected = 0;
+    for (std::size_t c = 0; c < nm.navcels.size(); ++c) {
+      const auto p = nm.navcel_centroid(static_cast<navmap::NavCelId>(c));
+      const bool inside = std::hypot(p.x() - 7.0f, p.y() - 7.0f) <= radius;
+      marked += nm.layer_get<uint8_t>("area", static_cast<navmap::NavCelId>(c), 0);
+      expected += inside ? 1 : 0;
+      EXPECT_EQ(nm.layer_get<uint8_t>("area", static_cast<navmap::NavCelId>(c), 0), inside ? 1 : 0)
+        << "radius " << radius << ", NavCel " << c;
+    }
+    EXPECT_GT(expected, 0u);
+    EXPECT_EQ(marked, expected);
   }
 }
 

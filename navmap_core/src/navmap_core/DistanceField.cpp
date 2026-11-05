@@ -134,34 +134,50 @@ void DistanceField::splat(std::uint32_t s)
     });
 }
 
+std::size_t DistanceField::index_entries() const
+{
+  std::size_t n = 0;
+  for (const auto & kv : buckets_) {
+    n += kv.second.size();
+  }
+  return n;
+}
+
 std::int64_t DistanceField::bucket_key(int bx, int by, int bz)
 {
   return (static_cast<std::int64_t>(bx) * 73856093) ^ (static_cast<std::int64_t>(by) * 19349663) ^
          (static_cast<std::int64_t>(bz) * 83492791);
 }
 
+// A seed goes into the buckets of points sampled along it every bucket_ metres (one bucket for a
+// point seed), not into every bucket of its bounding box: a long diagonal open edge (the coarse
+// NavCels of a level-of-detail mesh have edges of tens of metres) would otherwise fill hundreds
+// of buckets, and the index cost would grow with the square of its length. Every point of the
+// segment is then within bucket_ / 2 of a sample: the queries widen their range by that (see
+// update()).
 void DistanceField::index_seed(std::uint32_t s, bool insert)
 {
-  const Eigen::Vector3f lo = seeds_[s].a.cwiseMin(seeds_[s].b) / bucket_;
-  const Eigen::Vector3f hi = seeds_[s].a.cwiseMax(seeds_[s].b) / bucket_;
-  for (int bx = static_cast<int>(std::floor(lo.x())); bx <= static_cast<int>(std::floor(hi.x()));
-    ++bx)
-  {
-    for (int by = static_cast<int>(std::floor(lo.y())); by <= static_cast<int>(std::floor(hi.y()));
-      ++by)
-    {
-      for (int bz =
-        static_cast<int>(std::floor(lo.z())); bz <= static_cast<int>(std::floor(hi.z()));
-        ++bz)
-      {
-        auto & v = buckets_[bucket_key(bx, by, bz)];
-        if (insert) {
-          v.push_back(s);
-        } else {
-          const auto it = std::find(v.begin(), v.end(), s);
-          if (it != v.end()) {*it = v.back(); v.pop_back();}
-        }
-      }
+  const Eigen::Vector3f a = seeds_[s].a, b = seeds_[s].b;
+  const int steps = std::max(1, static_cast<int>(std::ceil((b - a).norm() / bucket_)));
+  auto & keys = keys_scratch_;
+  keys.clear();
+  keys.reserve(static_cast<std::size_t>(steps) + 1);
+  for (int k = 0; k <= steps; ++k) {
+    const Eigen::Vector3f p = (a + (b - a) * (static_cast<float>(k) / steps)) / bucket_;
+    keys.push_back(
+      bucket_key(
+        static_cast<int>(std::floor(p.x())), static_cast<int>(std::floor(p.y())),
+        static_cast<int>(std::floor(p.z()))));
+  }
+  std::sort(keys.begin(), keys.end());
+  keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
+  for (const auto key : keys) {
+    auto & v = buckets_[key];
+    if (insert) {
+      v.push_back(s);
+    } else {
+      const auto it = std::find(v.begin(), v.end(), s);
+      if (it != v.end()) {*it = v.back(); v.pop_back();}
     }
   }
 }
@@ -268,14 +284,16 @@ void DistanceField::update(
       });
     const Eigen::Vector3f p = seeds_[s].a;
     const float r2 = 2.0f * max_distance_;
-    const Eigen::Vector3f lo = (p.array() - r2).matrix() / bucket_;
-    const Eigen::Vector3f hi = (p.array() + r2).matrix() / bucket_;
-    for (int bx = static_cast<int>(std::floor(lo.x())); bx <= static_cast<int>(std::floor(hi.x()));
-      ++bx)
+    // a segment seed is indexed by samples along it, each within bucket_ / 2 of its points
+    // (index_seed): widen the range by that (a hair more, for the rounding of the samples)
+    const float reach = r2 + 0.51f * bucket_;
+    const Eigen::Vector3f lo = (p.array() - reach).matrix() / bucket_;
+    const Eigen::Vector3f hi = (p.array() + reach).matrix() / bucket_;
+    for (int bx = static_cast<int>(std::floor(lo.x()));
+      bx <= static_cast<int>(std::floor(hi.x())); ++bx)
     {
-      for (int by =
-        static_cast<int>(std::floor(lo.y())); by <= static_cast<int>(std::floor(hi.y()));
-        ++by)
+      for (int by = static_cast<int>(std::floor(lo.y()));
+        by <= static_cast<int>(std::floor(hi.y())); ++by)
       {
         for (int bz = static_cast<int>(std::floor(lo.z()));
           bz <= static_cast<int>(std::floor(hi.z())); ++bz)

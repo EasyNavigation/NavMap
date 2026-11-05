@@ -36,6 +36,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <optional>
 #include <string>
 #include <array>
@@ -312,8 +313,9 @@ public:
   /**
    * \brief Add a new typed layer or return an existing one with the same name.
    *
-   * If a layer with \p name already exists, it is returned (no resize).
-   * Otherwise a new layer is created with \p nitems elements.
+   * If a layer with \p name already exists with the type \p T, it is returned (no resize).
+   * Otherwise (none, or one of another type) a new layer is created with \p nitems elements; a
+   * layer of another type is replaced, and its data is lost.
    *
    * \tparam T Storage type (e.g., uint8_t, float, double).
    * \param name   Layer name (unique key).
@@ -329,7 +331,7 @@ public:
   {
     auto it = layers_.find(name);
     if (it != layers_.end()) {
-      return std::dynamic_pointer_cast<LayerView<T>>(it->second);
+      if (auto same = std::dynamic_pointer_cast<LayerView<T>>(it->second)) {return same;}
     }
     auto view = std::make_shared<LayerView<T>>(name, nitems, type);
     layers_[name] = view;
@@ -880,7 +882,8 @@ public:
     const std::string & unit = {},
     T default_value = T{})
   {
-    const bool existed = has_layer(name);
+    // a layer of another type is replaced by a new one (add_or_get)
+    const bool existed = std::dynamic_pointer_cast<LayerView<T>>(layers.get(name)) != nullptr;
     auto v = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     if (!existed || v->data().size() != navcels.size()) {  // new layers start at default_value
       v->data().assign(navcels.size(), default_value);
@@ -1172,7 +1175,11 @@ public:
    * cannot be determined, returns false. Supports U8/F32/F64 layers.
    *
    * Efficiency: BFS from the seed NavCel with XY AABB pruning against the
-   * circumscribed square of the area. Inclusion test by triangle centroid.
+   * circumscribed square of the area. Inclusion test by triangle centroid. The work and the
+   * memory are those of the area, not of the map.
+   *
+   * Every NavCel written is recorded as changed in the layer (as layer_set() does), so that the
+   * incremental consumers of the layer (e.g. an inflation filter) see the new values.
    *
    * \tparam T uint8_t, int16_t, float, or double
    * \param p_world 3D point in world coordinates (projected to ground)
@@ -1252,10 +1259,28 @@ public:
         }
       };
 
-    std::vector<char> visited(navcels.size(), 0);
+    // Visited NavCels: a hash set while the area is small (a vector per map would cost O(map) on
+    // every call), a flag per NavCel once it is large (a hash set costs ~50 bytes per NavCel)
+    std::unordered_set<NavCelId> seen;
+    std::vector<char> flags;
+    const std::size_t to_flags = navcels.size() / 32 + 1;
+    auto first_visit = [&](NavCelId c) -> bool {
+        if (!flags.empty()) {
+          if (flags[c]) {return false;}
+          flags[c] = 1;
+          return true;
+        }
+        if (!seen.insert(c).second) {return false;}
+        if (seen.size() > to_flags) {
+          flags.assign(navcels.size(), 0);
+          for (const auto s : seen) {flags[s] = 1;}
+          std::unordered_set<NavCelId>().swap(seen);
+        }
+        return true;
+      };
+    first_visit(start_cid);
     std::deque<NavCelId> q;
     q.push_back(start_cid);
-    visited[static_cast<std::size_t>(start_cid)] = 1;
 
     auto & data = layer->mutable_data();
 
@@ -1269,14 +1294,13 @@ public:
       const Eigen::Vector3f c = navcel_centroid(cid);
       if (inside_area(c)) {
         data[static_cast<std::size_t>(cid)] = value;
+        layer->mark_changed(cid);
       }
 
       for (const auto ncid : navcel_neighbors(cid)) {
         const std::size_t nidx = static_cast<std::size_t>(ncid);
-        if (nidx < navcels.size() && !visited[nidx] && tri_aabb_intersects_box(ncid)) {
-          visited[nidx] = 1;
-          q.push_back(ncid);
-        }
+        if (nidx >= navcels.size() || !tri_aabb_intersects_box(ncid)) {continue;}
+        if (first_visit(ncid)) {q.push_back(ncid);}
       }
     }
 
