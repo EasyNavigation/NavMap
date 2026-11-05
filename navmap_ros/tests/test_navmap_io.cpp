@@ -364,3 +364,38 @@ TEST(NavMapIoMsg, AMapBeyondWhatAMessageHoldsIsRefusedAsTooLargeAndNothingIsWrit
   EXPECT_TRUE(navmap_ros::io::save_msg_to_file(msg, path, {}, &ec)) << ec.message();
   std::filesystem::remove(path);
 }
+
+TEST(NavMapIoMsg, SaveToFileEstimatesFromTheMapAndRefusesBeforeBuildingTheMessage)
+{
+  navmap::NavMap nm;
+  const std::size_t s = nm.create_surface("map");
+  for (int k = 0; k < 20; ++k) {
+    const auto a = nm.add_vertex({static_cast<float>(k), 0.0f, 0.0f});
+    const auto b = nm.add_vertex({static_cast<float>(k), 1.0f, 0.0f});
+    const auto c = nm.add_vertex({static_cast<float>(k) + 1.0f, 1.0f, 0.0f});
+    nm.add_navcel_to_surface(s, nm.add_navcel(a, b, c));
+  }
+  nm.add_layer<uint8_t>("obstacles", "", "", 0);
+  nm.add_layer<float>("elevation", "", "m", 0.0f);
+
+  // the estimate from the map is that of its message: never below the real size, and close to it
+  rclcpp::SerializedMessage ser;
+  const auto msg = navmap_ros::to_msg(nm);
+  rclcpp::Serialization<navmap_ros_interfaces::msg::NavMap>().serialize_message(&msg, &ser);
+  const auto real = ser.get_rcl_serialized_message().buffer_length;
+  const auto estimate = navmap_ros::io::estimated_serialized_size(nm);
+  EXPECT_GE(estimate, real);
+  EXPECT_LE(estimate, real + 4096);
+
+  const std::string path = (std::filesystem::temp_directory_path() /
+    ("too_large_map_" + std::to_string(::getpid()) + ".navmap")).string();
+  std::filesystem::remove(path);
+  navmap_ros::io::SaveOptions o;
+  o.max_serialized_bytes = estimate - 1;
+  std::error_code ec;
+  EXPECT_FALSE(navmap_ros::io::save_to_file(nm, path, o, &ec));
+  EXPECT_EQ(ec, std::errc::file_too_large) << ec.message();
+  EXPECT_FALSE(std::filesystem::exists(path));
+  EXPECT_TRUE(navmap_ros::io::save_to_file(nm, path, {}, &ec)) << ec.message();
+  std::filesystem::remove(path);
+}

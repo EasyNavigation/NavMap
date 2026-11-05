@@ -313,8 +313,9 @@ public:
   /**
    * \brief Add a new typed layer or return an existing one with the same name.
    *
-   * If a layer with \p name already exists, it is returned (no resize).
-   * Otherwise a new layer is created with \p nitems elements.
+   * If a layer with \p name already exists with the type \p T, it is returned (no resize).
+   * Otherwise (none, or one of another type) a new layer is created with \p nitems elements; a
+   * layer of another type is replaced, and its data is lost.
    *
    * \tparam T Storage type (e.g., uint8_t, float, double).
    * \param name   Layer name (unique key).
@@ -330,7 +331,7 @@ public:
   {
     auto it = layers_.find(name);
     if (it != layers_.end()) {
-      return std::dynamic_pointer_cast<LayerView<T>>(it->second);
+      if (auto same = std::dynamic_pointer_cast<LayerView<T>>(it->second)) {return same;}
     }
     auto view = std::make_shared<LayerView<T>>(name, nitems, type);
     layers_[name] = view;
@@ -881,7 +882,8 @@ public:
     const std::string & unit = {},
     T default_value = T{})
   {
-    const bool existed = has_layer(name);
+    // a layer of another type is replaced by a new one (add_or_get)
+    const bool existed = std::dynamic_pointer_cast<LayerView<T>>(layers.get(name)) != nullptr;
     auto v = layers.add_or_get<T>(name, navcels.size(), layer_type_tag<T>());
     if (!existed || v->data().size() != navcels.size()) {  // new layers start at default_value
       v->data().assign(navcels.size(), default_value);
@@ -1257,8 +1259,26 @@ public:
         }
       };
 
-    // visited: only the NavCels of the area (a per-map vector cost O(map) on every call)
-    std::unordered_set<NavCelId> visited{start_cid};
+    // Visited NavCels: a hash set while the area is small (a vector per map would cost O(map) on
+    // every call), a flag per NavCel once it is large (a hash set costs ~50 bytes per NavCel)
+    std::unordered_set<NavCelId> seen;
+    std::vector<char> flags;
+    const std::size_t to_flags = navcels.size() / 32 + 1;
+    auto first_visit = [&](NavCelId c) -> bool {
+        if (!flags.empty()) {
+          if (flags[c]) {return false;}
+          flags[c] = 1;
+          return true;
+        }
+        if (!seen.insert(c).second) {return false;}
+        if (seen.size() > to_flags) {
+          flags.assign(navcels.size(), 0);
+          for (const auto s : seen) {flags[s] = 1;}
+          std::unordered_set<NavCelId>().swap(seen);
+        }
+        return true;
+      };
+    first_visit(start_cid);
     std::deque<NavCelId> q;
     q.push_back(start_cid);
 
@@ -1280,7 +1300,7 @@ public:
       for (const auto ncid : navcel_neighbors(cid)) {
         const std::size_t nidx = static_cast<std::size_t>(ncid);
         if (nidx >= navcels.size() || !tri_aabb_intersects_box(ncid)) {continue;}
-        if (visited.insert(ncid).second) {q.push_back(ncid);}
+        if (first_visit(ncid)) {q.push_back(ncid);}
       }
     }
 

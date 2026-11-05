@@ -77,6 +77,9 @@ public:
   /// Whether @p cid is currently a seed cell.
   bool is_seed(NavCelId cid) const {return cid < seed_of_.size() && seed_of_[cid] != kNoSeed;}
 
+  /// Entries of the spatial index of the seeds (a seed has one per bucket it is sampled in).
+  std::size_t index_entries() const;
+
 private:
   static constexpr std::uint32_t kNoSeed = std::numeric_limits<std::uint32_t>::max();
   struct Seed
@@ -102,6 +105,7 @@ private:
   float max_distance_;
   float bucket_{1.0f};
   std::unordered_map<std::int64_t, std::vector<std::uint32_t>> buckets_;  ///< seed index
+  std::vector<std::int64_t> keys_scratch_;     ///< index_seed()'s buckets, reused
   std::vector<Eigen::Vector3f> centroid_;
   std::vector<Seed> seeds_;                    ///< open-edge seeds first, then point seeds
   std::size_t n_boundary_{0};

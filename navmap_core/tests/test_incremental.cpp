@@ -291,11 +291,11 @@ TEST(DistanceFieldIncremental, AnUpdateOnlyTouchesItsNeighbourhood)
   }
 }
 
-TEST(DistanceFieldIncremental, LongDiagonalOpenEdgesCostAboutAsMuchAsShortOnes)
+TEST(DistanceFieldIncremental, LongDiagonalOpenEdgesAreIndexedBySamplesNotBoundingBoxes)
 {
   // The same mesh (a grid with 20 % holes) with cells of 0.5 m and of 16 m, turned 45 deg: only the
-  // length of the open edges changes. Indexed by their bounding boxes, the 16 m one took ~600
-  // times longer; sampled along them, it is within a small factor.
+  // length of the open edges changes. Indexed by their bounding boxes, a 16 m edge went into
+  // ~(16 / 0.6)^2 buckets; sampled along it, into ~16 / 0.6 (counted, so that no timing is needed)
   auto build = [](float res) {
       NavMap nm;
       std::mt19937 rng(9);
@@ -315,20 +315,44 @@ TEST(DistanceFieldIncremental, LongDiagonalOpenEdgesCostAboutAsMuchAsShortOnes)
       nm.rebuild_geometry_accels();
       return nm;
     };
-  auto seconds = [](const NavMap & nm) {
-      double best = 1e9;
-      for (int k = 0; k < 3; ++k) {
-        const auto t0 = std::chrono::steady_clock::now();
-        DistanceField df(nm, true, 0.6f);
-        df.compute({});
-        best = std::min(
-          best, std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count());
-      }
-      return best;
+  auto entries = [](const NavMap & nm) {
+      DistanceField df(nm, true, 0.6f);
+      df.compute({});
+      return df.index_entries();
     };
   const NavMap fine = build(0.5f), coarse = build(16.0f);
-  const double t_fine = seconds(fine), t_coarse = seconds(coarse);
-  EXPECT_LT(t_coarse, 25.0 * t_fine + 0.01) << "fine " << t_fine << " s, coarse " << t_coarse;
+  const double e_fine = static_cast<double>(entries(fine));
+  const double e_coarse = static_cast<double>(entries(coarse));
+  ASSERT_GT(e_fine, 0.0);
+  EXPECT_LT(e_coarse, 40.0 * e_fine) << "fine " << e_fine << ", coarse " << e_coarse;
+}
+
+TEST(NavMapSetArea, SmallAndLargeAreasMarkExactlyTheNavCelsInsideThem)
+{
+  // A small area is followed with a hash set of visited NavCels, a large one with a flag per
+  // NavCel: both must mark the NavCels whose centroid is inside, and only them
+  NavMap nm;
+  add_grid(nm, 30, 30, 0.5f, [](float, float) {return 0.0f;});
+  nm.rebuild_geometry_accels();
+  nm.add_layer<uint8_t>("area", "", "", 0);
+  for (const float radius : {1.0f, 3.0f, 100.0f}) {
+    nm.layer_clear<uint8_t>("area", 0);
+    ASSERT_TRUE(
+      nm.set_area<uint8_t>(
+        Eigen::Vector3f(7.0f, 7.0f, 0.0f), static_cast<uint8_t>(1), "area",
+        navmap::AreaShape::CIRCULAR, radius));
+    std::size_t marked = 0, expected = 0;
+    for (std::size_t c = 0; c < nm.navcels.size(); ++c) {
+      const auto p = nm.navcel_centroid(static_cast<navmap::NavCelId>(c));
+      const bool inside = std::hypot(p.x() - 7.0f, p.y() - 7.0f) <= radius;
+      marked += nm.layer_get<uint8_t>("area", static_cast<navmap::NavCelId>(c), 0);
+      expected += inside ? 1 : 0;
+      EXPECT_EQ(nm.layer_get<uint8_t>("area", static_cast<navmap::NavCelId>(c), 0), inside ? 1 : 0)
+        << "radius " << radius << ", NavCel " << c;
+    }
+    EXPECT_GT(expected, 0u);
+    EXPECT_EQ(marked, expected);
+  }
 }
 
 // ------------------------------------------------------------------ layer change tracking
