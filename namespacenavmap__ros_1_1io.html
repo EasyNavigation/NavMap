@@ -121,6 +121,10 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:af39411255b7d2a1205fe5b10de018e3d" id="r_af39411255b7d2a1205fe5b10de018e3d"><td class="memItemLeft">std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="#af39411255b7d2a1205fe5b10de018e3d">estimated_serialized_size</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;map)</td></tr>
+<tr class="memdesc:af39411255b7d2a1205fe5b10de018e3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The same estimate from a <a class="el" href="classNavMap.html">NavMap</a>, without building its message (<span class="tt"><a class="el" href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549" title="Convert a core navmap::NavMap into its compact ROS transport message.">to_msg</a></span> would hold the map a second time).  <br /></td></tr>
+<tr class="memitem:a4b5584123df92e73bc9cffb0445d59a3" id="r_a4b5584123df92e73bc9cffb0445d59a3"><td class="memItemLeft">std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="#a4b5584123df92e73bc9cffb0445d59a3">estimated_serialized_size</a> (const navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
+<tr class="memdesc:a4b5584123df92e73bc9cffb0445d59a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">A close upper estimate of the CDR size of <code class="param">msg</code> (bytes), without serialising it: the arrays and their length prefixes, plus a fixed allowance for the headers and strings.  <br /></td></tr>
 <tr class="memitem:acaf42fccfb899ffad41fa83d36c83b59" id="r_acaf42fccfb899ffad41fa83d36c83b59"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#acaf42fccfb899ffad41fa83d36c83b59">load_from_file</a> (const std::string &amp;path, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;out_map, std::error_code *ec=nullptr)</td></tr>
 <tr class="memdesc:acaf42fccfb899ffad41fa83d36c83b59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> by deserializing a message and converting to core.  <br /></td></tr>
 <tr class="memitem:a9de88efbe247d7153b1690430979baee" id="r_a9de88efbe247d7153b1690430979baee"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a9de88efbe247d7153b1690430979baee">load_msg_from_file</a> (const std::string &amp;path, navmap_ros_interfaces::msg::NavMap &amp;out_msg, std::error_code *ec=nullptr)</td></tr>
@@ -162,6 +166,44 @@ Functions</h2></td></tr>
 </div>
 </div>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="af39411255b7d2a1205fe5b10de018e3d" name="af39411255b7d2a1205fe5b10de018e3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af39411255b7d2a1205fe5b10de018e3d">&#9670;&#160;</a></span>estimated_serialized_size() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint64_t estimated_serialized_size </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>map</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The same estimate from a <a class="el" href="classNavMap.html">NavMap</a>, without building its message (<span class="tt"><a class="el" href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549" title="Convert a core navmap::NavMap into its compact ROS transport message.">to_msg</a></span> would hold the map a second time). </p>
+
+</div>
+</div>
+<a id="a4b5584123df92e73bc9cffb0445d59a3" name="a4b5584123df92e73bc9cffb0445d59a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b5584123df92e73bc9cffb0445d59a3">&#9670;&#160;</a></span>estimated_serialized_size() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint64_t estimated_serialized_size </td>
+          <td>(</td>
+          <td class="paramtype">const navmap_ros_interfaces::msg::NavMap &amp;</td>          <td class="paramname"><span class="paramname"><em>msg</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A close upper estimate of the CDR size of <code class="param">msg</code> (bytes), without serialising it: the arrays and their length prefixes, plus a fixed allowance for the headers and strings. </p>
+
+</div>
+</div>
 <a id="acaf42fccfb899ffad41fa83d36c83b59" name="acaf42fccfb899ffad41fa83d36c83b59"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acaf42fccfb899ffad41fa83d36c83b59">&#9670;&#160;</a></span>load_from_file()</h2>
 

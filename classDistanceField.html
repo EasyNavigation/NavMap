@@ -112,6 +112,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a5256da1d1df79e2498377ed03cbc4d0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Full computation from these seed cells.  <br /></td></tr>
 <tr class="memitem:a38f49c368efa958aa133507d2227bcdb" id="r_a38f49c368efa958aa133507d2227bcdb"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a38f49c368efa958aa133507d2227bcdb">DistanceField</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, bool from_boundary, float max_distance=std::numeric_limits&lt; float &gt;::infinity())</td></tr>
 <tr class="memitem:a74841e381ea34a9920556316fa7388f9" id="r_a74841e381ea34a9920556316fa7388f9"><td class="memItemLeft">const std::vector&lt; float &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a74841e381ea34a9920556316fa7388f9">distances</a> () const</td></tr>
+<tr class="memitem:a01ea80bda03d782cf2964c116b6f5892" id="r_a01ea80bda03d782cf2964c116b6f5892"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#a01ea80bda03d782cf2964c116b6f5892">index_entries</a> () const</td></tr>
+<tr class="memdesc:a01ea80bda03d782cf2964c116b6f5892"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entries of the spatial index of the seeds (a seed has one per bucket it is sampled in).  <br /></td></tr>
 <tr class="memitem:a550f960dcf7005c3086d76dd073bd08d" id="r_a550f960dcf7005c3086d76dd073bd08d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a550f960dcf7005c3086d76dd073bd08d">is_seed</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
 <tr class="memdesc:a550f960dcf7005c3086d76dd073bd08d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether <code class="param">cid</code> is currently a seed cell.  <br /></td></tr>
 <tr class="memitem:a156a6b46acb742ba187b9955dfbfcb58" id="r_a156a6b46acb742ba187b9955dfbfcb58"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a156a6b46acb742ba187b9955dfbfcb58">operator[]</a> (<a class="el" href="namespacenavmap.html#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> cid) const</td></tr>
@@ -210,6 +212,25 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a01ea80bda03d782cf2964c116b6f5892" name="a01ea80bda03d782cf2964c116b6f5892"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01ea80bda03d782cf2964c116b6f5892">&#9670;&#160;</a></span>index_entries()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t index_entries </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Entries of the spatial index of the seeds (a seed has one per bucket it is sampled in). </p>
 
 </div>
 </div>

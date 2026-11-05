@@ -229,7 +229,7 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 
 <p>Add a new typed layer or return an existing one with the same name. </p>
-<p>If a layer with <code class="param">name</code> already exists, it is returned (no resize). Otherwise a new layer is created with <code class="param">nitems</code> elements.</p>
+<p>If a layer with <code class="param">name</code> already exists with the type <code class="param">T</code>, it is returned (no resize). Otherwise (none, or one of another type) a new layer is created with <code class="param">nitems</code> elements; a layer of another type is replaced, and its data is lost.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>Storage type (e.g., uint8_t, float, double). </td></tr>

@@ -112,13 +112,15 @@ Collaboration diagram for SaveOptions:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap__ros_1_1io_1_1SaveOptions__coll__graph.png" border="0" usemap="#aSaveOptions_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aSaveOptions_coll__map" id="aSaveOptions_coll__map">
-<area shape="rect" title="Save options." alt="" coords="76,102,172,128"/>
+<area shape="rect" title="Save options." alt="" coords="132,102,228,128"/>
 <area shape="rect" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" title=" " alt="" coords="48,41,79,76,108,100,104,104,75,80,44,45"/>
+<area shape="poly" title=" " alt="" coords="44,43,58,61,74,76,102,91,132,101,130,106,100,96,71,80,54,64,40,46"/>
 <area shape="rect" title=" " alt="" coords="75,5,173,31"/>
-<area shape="poly" title=" " alt="" coords="127,46,127,101,121,101,121,46"/>
+<area shape="poly" title=" " alt="" coords="122,47,123,62,128,77,139,90,153,99,150,104,135,93,124,79,118,63,117,47"/>
 <area shape="rect" title=" " alt="" coords="218,5,257,31"/>
-<area shape="poly" title=" " alt="" coords="231,47,222,64,210,80,191,94,170,104,167,99,188,89,206,76,218,61,226,44"/>
+<area shape="poly" title=" " alt="" coords="228,47,210,79,193,103,188,100,206,77,223,44"/>
+<area shape="rect" title=" " alt="" coords="281,5,348,31"/>
+<area shape="poly" title=" " alt="" coords="299,46,263,80,218,104,215,99,260,76,295,42"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -129,6 +131,8 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a4d715fc2d1d542a901f2681ab924bcde" id="r_a4d715fc2d1d542a901f2681ab924bcde"><td class="memItemLeft"><a class="el" href="namespacenavmap__ros_1_1io.html#a56a83bf6847f4801f4205eb4be237ccf">Compression</a>&#160;</td><td class="memItemRight"><a class="el" href="#a4d715fc2d1d542a901f2681ab924bcde">compression</a> {<a class="el" href="namespacenavmap__ros_1_1io.html#a56a83bf6847f4801f4205eb4be237ccfa87c23ff88ac9b1c4390a679b63ea3b8c">Compression::ZLIB</a>}</td></tr>
 <tr class="memitem:acf4d33ee4cff36f69b924471174dcb11" id="r_acf4d33ee4cff36f69b924471174dcb11"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#acf4d33ee4cff36f69b924471174dcb11">level</a> {6}</td></tr>
 <tr class="memdesc:acf4d33ee4cff36f69b924471174dcb11"><td class="mdescLeft">&#160;</td><td class="mdescRight">zlib level, 1 (fast) to 9 (small)  <br /></td></tr>
+<tr class="memitem:a90bee30079b11917be827c861e2f2e49" id="r_a90bee30079b11917be827c861e2f2e49"><td class="memItemLeft">std::uint64_t&#160;</td><td class="memItemRight"><a class="el" href="#a90bee30079b11917be827c861e2f2e49">max_serialized_bytes</a> {(std::uint64_t{1} &lt;&lt; 32) - (std::uint64_t{1} &lt;&lt; 20)}</td></tr>
+<tr class="memdesc:a90bee30079b11917be827c861e2f2e49"><td class="mdescLeft">&#160;</td><td class="mdescRight">The largest message (serialised CDR bytes) the saver attempts.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Save options. </p>
@@ -176,6 +180,23 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>zlib level, 1 (fast) to 9 (small) </p>
+
+</div>
+</div>
+<a id="a90bee30079b11917be827c861e2f2e49" name="a90bee30079b11917be827c861e2f2e49"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90bee30079b11917be827c861e2f2e49">&#9670;&#160;</a></span>max_serialized_bytes</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint64_t max_serialized_bytes {(std::uint64_t{1} &lt;&lt; 32) - (std::uint64_t{1} &lt;&lt; 20)}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The largest message (serialised CDR bytes) the saver attempts. </p>
+<p>The CDR serialiser of ROS 2 (Fast-CDR) cannot hold more than 4 GiB: a bigger map is refused, with std::errc::file_too_large (about 180 million NavCels with one layer). save_to_file refuses it from the <a class="el" href="classNavMap.html">NavMap</a>'s size, before the message is built; save_msg_to_file, from the message's. </p>
 
 </div>
 </div>

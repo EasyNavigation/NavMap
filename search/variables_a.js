@@ -8,12 +8,13 @@ var searchData=
   ['max_5fhole_5farea_5',['max_hole_area',['../structnavmap__ros_1_1BuildParams.html#a69af246440c030d3a5d8d52d757a4d42',1,'navmap_ros::BuildParams']]],
   ['max_5fnon_5fobstacle_6',['MAX_NON_OBSTACLE',['../namespacenavmap.html#a3d75017364e2da8cf2dd9dd2cce2725d',1,'navmap::MAX_NON_OBSTACLE'],['../namespacenavmap__ros.html#a3d75017364e2da8cf2dd9dd2cce2725d',1,'navmap_ros::MAX_NON_OBSTACLE']]],
   ['max_5fnormal_5fchange_7',['max_normal_change',['../structnavmap_1_1SimplifyParams.html#a5580b471ca6c81d0b1a1b904aebafbdc',1,'navmap::SimplifyParams::max_normal_change'],['../structSimplifyParams.html#a5580b471ca6c81d0b1a1b904aebafbdc',1,'SimplifyParams::max_normal_change']]],
-  ['max_5fslope_5fdeg_8',['max_slope_deg',['../structnavmap__ros_1_1BuildParams.html#a0ff349dd9350a87c621e936084ec2d1f',1,'navmap_ros::BuildParams']]],
-  ['max_5fsurfaces_9',['max_surfaces',['../structnavmap__ros_1_1BuildParams.html#a6734abebd4b0cf51caa407b285928658',1,'navmap_ros::BuildParams']]],
-  ['min_10',['min',['../structnavmap_1_1AABB.html#a281c95909b643b5abda2fdd06e51ba30',1,'navmap::AABB::min'],['../structAABB.html#a281c95909b643b5abda2fdd06e51ba30',1,'AABB::min']]],
-  ['min_5fangle_5fdeg_11',['min_angle_deg',['../structnavmap__ros_1_1BuildParams.html#a7652613347524c6ec775068fd6c24ca9',1,'navmap_ros::BuildParams']]],
-  ['min_5farea_12',['min_area',['../structnavmap__ros_1_1BuildParams.html#ab6746f896b14d17115f0a020de06c4a7',1,'navmap_ros::BuildParams']]],
-  ['min_5fclearance_13',['min_clearance',['../structnavmap__ros_1_1BuildParams.html#a98805a5d18e84ea864ae85a606915f4f',1,'navmap_ros::BuildParams']]],
-  ['min_5fquality_14',['min_quality',['../structnavmap_1_1SimplifyParams.html#ab5ceefd8de1e95ddcd8a583b1050a2df',1,'navmap::SimplifyParams::min_quality'],['../structSimplifyParams.html#ab5ceefd8de1e95ddcd8a583b1050a2df',1,'SimplifyParams::min_quality']]],
-  ['min_5fsurface_5farea_15',['min_surface_area',['../structnavmap__ros_1_1BuildParams.html#aed65902bc007baa29c4c35d3832bb57a',1,'navmap_ros::BuildParams']]]
+  ['max_5fserialized_5fbytes_8',['max_serialized_bytes',['../structnavmap__ros_1_1io_1_1SaveOptions.html#a90bee30079b11917be827c861e2f2e49',1,'navmap_ros::io::SaveOptions']]],
+  ['max_5fslope_5fdeg_9',['max_slope_deg',['../structnavmap__ros_1_1BuildParams.html#a0ff349dd9350a87c621e936084ec2d1f',1,'navmap_ros::BuildParams']]],
+  ['max_5fsurfaces_10',['max_surfaces',['../structnavmap__ros_1_1BuildParams.html#a6734abebd4b0cf51caa407b285928658',1,'navmap_ros::BuildParams']]],
+  ['min_11',['min',['../structnavmap_1_1AABB.html#a281c95909b643b5abda2fdd06e51ba30',1,'navmap::AABB::min'],['../structAABB.html#a281c95909b643b5abda2fdd06e51ba30',1,'AABB::min']]],
+  ['min_5fangle_5fdeg_12',['min_angle_deg',['../structnavmap__ros_1_1BuildParams.html#a7652613347524c6ec775068fd6c24ca9',1,'navmap_ros::BuildParams']]],
+  ['min_5farea_13',['min_area',['../structnavmap__ros_1_1BuildParams.html#ab6746f896b14d17115f0a020de06c4a7',1,'navmap_ros::BuildParams']]],
+  ['min_5fclearance_14',['min_clearance',['../structnavmap__ros_1_1BuildParams.html#a98805a5d18e84ea864ae85a606915f4f',1,'navmap_ros::BuildParams']]],
+  ['min_5fquality_15',['min_quality',['../structnavmap_1_1SimplifyParams.html#ab5ceefd8de1e95ddcd8a583b1050a2df',1,'navmap::SimplifyParams::min_quality'],['../structSimplifyParams.html#ab5ceefd8de1e95ddcd8a583b1050a2df',1,'SimplifyParams::min_quality']]],
+  ['min_5fsurface_5farea_16',['min_surface_area',['../structnavmap__ros_1_1BuildParams.html#aed65902bc007baa29c4c35d3832bb57a',1,'navmap_ros::BuildParams']]]
 ];

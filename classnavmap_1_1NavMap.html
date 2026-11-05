@@ -1677,7 +1677,8 @@ template&lt;typename T&gt; </div>
 
 <p>Set a per-NavCel layer to a constant value over a 2D area. </p>
 <p>The center is the ground projection of <code class="param">p_world</code>. If the projected <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> cannot be determined, returns false. Supports U8/F32/F64 layers.</p>
-<p>Efficiency: BFS from the seed <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> with XY <a class="el" href="structnavmap_1_1AABB.html" title="Axis-aligned bounding box.">AABB</a> pruning against the circumscribed square of the area. Inclusion test by triangle centroid.</p>
+<p>Efficiency: BFS from the seed <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> with XY <a class="el" href="structnavmap_1_1AABB.html" title="Axis-aligned bounding box.">AABB</a> pruning against the circumscribed square of the area. Inclusion test by triangle centroid. The work and the memory are those of the area, not of the map.</p>
+<p>Every <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> written is recorded as changed in the layer (as <a class="el" href="#ac05b61577ba90c09afe640e2a05aa4df" title="Set a per-cell value (creates/retypes the layer if needed).">layer_set()</a> does), so that the incremental consumers of the layer (e.g. an inflation filter) see the new values.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">T</td><td>uint8_t, int16_t, float, or double </td></tr>
