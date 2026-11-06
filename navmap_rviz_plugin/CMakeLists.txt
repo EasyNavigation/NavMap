@@ -6,10 +6,14 @@ find_package(rclcpp REQUIRED)
 # Use the same Qt as rviz (Qt5 up to Kilted, Qt6 from Lyrical): mixing both breaks the plugin.
 # Read it from rviz_common's exported dependencies before find_package(rviz_common): a Qt5 rviz
 # looks for Qt6 first if installed and then fails to find Qt5, so Qt6 must be disabled.
-find_file(RVIZ_COMMON_DEPS_FILE ament_cmake_export_dependencies-extras.cmake
-  PATHS ENV AMENT_PREFIX_PATH PATH_SUFFIXES share/rviz_common/cmake NO_DEFAULT_PATH)
-file(READ "${RVIZ_COMMON_DEPS_FILE}" rviz_common_deps)
-if(rviz_common_deps MATCHES "Qt6")
+find_file(rviz_common_deps_file ament_cmake_export_dependencies-extras.cmake
+  PATHS ${CMAKE_PREFIX_PATH} ENV AMENT_PREFIX_PATH PATH_SUFFIXES share/rviz_common/cmake
+  NO_DEFAULT_PATH NO_CACHE)
+if(NOT rviz_common_deps_file)
+  message(FATAL_ERROR "rviz_common not found in CMAKE_PREFIX_PATH or AMENT_PREFIX_PATH")
+endif()
+file(READ "${rviz_common_deps_file}" rviz_common_deps)
+if(rviz_common_deps MATCHES "[\";]Qt6[\";]")
   set(qt_major 6)
 else()
   set(qt_major 5)
