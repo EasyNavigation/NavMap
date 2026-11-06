@@ -296,3 +296,203 @@ def test_grid_within_the_cap_passes_validation(monkeypatch):
     monkeypatch.setattr(cli_mod, 'load_dem_grid', fake_load_dem_grid)
     with pytest.raises(_Sentinel):
         cli_mod.run(['--center', '40.0,-3.0', '--size', '300', '--gazebo'])
+
+
+# ---------------------------------------------------------------------------
+# --dem-out, --dem-source ign / mesh, --imagery-source xyz
+# ---------------------------------------------------------------------------
+
+_BASE = ['--center', '40.4,-3.7', '--size', '40']
+
+
+def test_new_sources_are_accepted_and_have_defaults():
+    parser = build_arg_parser()
+    args = parser.parse_args(
+        _BASE + ['--dem-out', 'd.bin', '--dem-source', 'ign', '--imagery-source', 'xyz',
+                 '--imagery-url', 'https://t/{z}/{x}/{y}.jpg'])
+    assert args.dem_out == 'd.bin' and args.dem_source == 'ign'
+    assert args.imagery_source == 'xyz'
+    assert args.dem_data_resolution == 0.0
+    assert args.reference_altitude is None
+    assert args.dem_imagery is False
+    assert args.mesh_cell == 0.5 and args.mesh_world_elevation is None
+
+
+def test_dem_out_alone_is_a_valid_output():
+    from navmap_tools import cli as cli_mod
+
+    class Stop(Exception):
+        pass
+
+    def fake_load(args, bbox, cache):
+        raise Stop()
+
+    cli_mod_load = cli_mod._load_dem
+    cli_mod._load_dem = fake_load
+    try:
+        with pytest.raises(Stop):
+            cli_mod.run(_BASE + ['--dem-out', 'd.bin'])
+    finally:
+        cli_mod._load_dem = cli_mod_load
+
+
+@pytest.mark.parametrize('extra', [
+    ['--imagery-source', 'xyz'],                      # no --imagery-url
+    ['--dem-source', 'mesh'],                         # no --mesh-file
+    ['--dem-source', 'mesh', '--mesh-file', 'm.stl', '--mesh-cell', '0'],
+    ['--dem-data-resolution', '-1'],
+])
+def test_invalid_combinations_fail_fast(extra):
+    from navmap_tools.cli import run
+
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--dem-out', 'd.bin'] + extra)
+
+
+def test_dem_out_writes_the_file_from_a_mesh(tmp_path, capsys):
+    import struct
+
+    from navmap_tools.cli import run
+    from navmap_tools.geo.dem_file import DemSource, read_dem_file
+
+    stl = tmp_path / 'site.stl'
+    quads = [(-30, -30, 30, 30, 3.0)]
+    tris = []
+    for x0, y0, x1, y1, z in quads:
+        tris += [(x0, y0, z, x1, y0, z, x1, y1, z), (x0, y0, z, x1, y1, z, x0, y1, z)]
+    with open(stl, 'wb') as f:
+        f.write(b'\0' * 80 + struct.pack('<I', len(tris)))
+        for t in tris:
+            f.write(struct.pack('<12fH', 0, 0, 1, *t, 0))
+    out = tmp_path / 'dem.bin'
+    rc = run(_BASE + [
+        '--dem-out', str(out), '--dem-source', 'mesh', '--mesh-file', str(stl),
+        '--mesh-world-elevation', '675', '--resolution', '2', '--cache-dir', str(tmp_path / 'c')])
+    assert rc == 0
+    dem = read_dem_file(out)
+    assert dem.source == DemSource.MESH
+    assert dem.side == 21 and dem.resolution == 2.0
+    assert dem.reference_altitude == 675.0   # z = 0 is the world's elevation (as the simulator)
+    assert dem.z == pytest.approx(3.0, abs=1e-3)   # the flat mesh, 3 m above it
+    assert 'wrote' in capsys.readouterr().out
+
+
+def test_dem_holes_mesh_makes_the_cells_under_a_building_holes(tmp_path, capsys):
+    import struct
+
+    from navmap_tools.cli import run
+    from navmap_tools.geo.dem_file import read_dem_file
+
+    def write(path, quads):
+        tris = []
+        for x0, y0, x1, y1, z in quads:
+            tris += [(x0, y0, z, x1, y0, z, x1, y1, z), (x0, y0, z, x1, y1, z, x0, y1, z)]
+        with open(path, 'wb') as f:
+            f.write(b'\0' * 80 + struct.pack('<I', len(tris)))
+            for t in tris:
+                f.write(struct.pack('<12fH', 0, 0, 1, *t, 0))
+    ground, roof = tmp_path / 'ground.stl', tmp_path / 'roof.stl'
+    write(ground, [(-30, -30, 30, 30, 0.0)])
+    write(roof, [(5.0, -3.0, 9.0, 1.0, 12.0)])   # a 4 x 4 m building
+    out = tmp_path / 'dem.bin'
+    args = _BASE + ['--dem-out', str(out), '--dem-source', 'mesh', '--mesh-file', str(ground),
+                    '--resolution', '1', '--cache-dir', str(tmp_path / 'c')]
+    assert run(args + ['--dem-holes-mesh', str(roof)]) == 0
+    dem = read_dem_file(out)
+    assert dem.z == pytest.approx(0.0, abs=1e-3)   # the ground alone: no roof heights
+    half = (dem.side - 1) // 2
+    # cell (i, j) spans x i - half .. i - half + 1: x 5..9 -> i half+5..half+8, y -3..1 likewise;
+    # the roof's edges lie on cell borders, which the conservative rule counts: one more each way
+    holes = dem.cell_valid == 0
+    assert holes[half - 3:half + 1, half + 5:half + 9].all()
+    assert holes.sum() <= 6 * 6
+    assert not holes[half, half] and not holes[half + 10, half - 10]
+    assert 'cells without ground' in capsys.readouterr().out
+    # the same configuration without holes is another DEM: rebuilt, not reused
+    assert run(args) == 0
+    assert read_dem_file(out).cell_valid is None
+
+
+def _run_synthetic(tmp_path, *extra):
+    from navmap_tools.cli import run
+
+    out = tmp_path / 'dem.bin'
+    rc = run(_BASE + ['--dem-source', 'synthetic', '--resolution', '2', '--dem-out', str(out),
+                      '--cache-dir', str(tmp_path / 'c')] + list(extra))
+    assert rc == 0
+    return out
+
+
+def test_dem_out_with_terrain_and_world_from_the_synthetic_source(tmp_path):
+    from navmap_tools.geo.dem_file import DemSource, read_dem_file
+
+    template = tmp_path / 'w.in'
+    template.write_text('@LATITUDE@ @LONGITUDE@ @ELEVATION@ @TERRAIN_DIR@')
+    out = _run_synthetic(
+        tmp_path, '--dem-imagery', '--imagery-source', 'synthetic', '--zoom', '18',
+        '--terrain-out', str(tmp_path / 'terr'), '--terrain-resolution', '4',
+        '--world-template', str(template), '--world-out', str(tmp_path / 'world.sdf'))
+    dem = read_dem_file(out)
+    assert dem.source == DemSource.SYNTHETIC and dem.side == 21
+    assert dem.imagery_zoom == 18 and dem.rgb is not None
+    terrain = tmp_path / 'terr'
+    assert (terrain / 'terrain.stl').is_file() and (terrain / 'terrain.png').is_file()
+    assert str((tmp_path / 'terr').resolve()) in (tmp_path / 'world.sdf').read_text()
+
+
+def test_the_dem_is_reused_when_nothing_changed_and_rebuilt_when_it_did(tmp_path, capsys):
+    out = _run_synthetic(tmp_path)
+    first = out.read_bytes()
+    capsys.readouterr()
+    _run_synthetic(tmp_path)
+    assert 'same configuration' in capsys.readouterr().out
+    assert out.read_bytes() == first
+    _run_synthetic(tmp_path, '--reference-altitude', '600')   # another configuration
+    assert out.read_bytes() != first
+
+
+def test_force_refresh_builds_the_dem_again(tmp_path, capsys):
+    _run_synthetic(tmp_path)
+    capsys.readouterr()
+    _run_synthetic(tmp_path, '--force-refresh')
+    assert 'same configuration' not in capsys.readouterr().out
+
+
+def test_a_dem_that_lacks_the_imagery_is_rebuilt_with_it(tmp_path):
+    from navmap_tools.geo.dem_file import read_dem_file
+
+    out = _run_synthetic(tmp_path)
+    assert read_dem_file(out).rgb is None
+    _run_synthetic(tmp_path, '--dem-imagery', '--imagery-source', 'synthetic', '--zoom', '18')
+    assert read_dem_file(out).rgb is not None
+
+
+def test_a_mesh_smaller_than_the_area_caps_the_radius(tmp_path, capsys):
+    import struct
+
+    from navmap_tools.cli import run
+    from navmap_tools.geo.dem_file import read_dem_file
+
+    stl = tmp_path / 'small.stl'
+    tris = [(-10, -10, 1, 10, -10, 1, 10, 10, 1), (-10, -10, 1, 10, 10, 1, -10, 10, 1)]
+    with open(stl, 'wb') as f:
+        f.write(b'\0' * 80 + struct.pack('<I', len(tris)))
+        for t in tris:
+            f.write(struct.pack('<12fH', 0, 0, 1, *t, 0))
+    out = tmp_path / 'dem.bin'
+    assert run(['--center', '40.4,-3.7', '--size', '200', '--resolution', '1',
+                '--dem-source', 'mesh', '--mesh-file', str(stl), '--mesh-world-elevation', '675',
+                '--dem-out', str(out), '--cache-dir', str(tmp_path / 'c')]) == 0
+    dem = read_dem_file(out)
+    assert dem.radius == 10.0 and dem.side == 21
+    assert dem.requested_reference == 675.0   # z = 0 is the world's elevation
+    assert 'radius 100 -> 10' in capsys.readouterr().out
+
+
+def test_terrain_options_need_dem_out():
+    from navmap_tools.cli import run
+
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--gazebo', '--terrain-out', 'x'])
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--dem-out', 'd.bin', '--world-template', 't.in'])   # no --terrain-out

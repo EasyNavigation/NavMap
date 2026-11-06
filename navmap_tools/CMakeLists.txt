@@ -28,14 +28,25 @@ install(PROGRAMS
 )
 
 # ---------------- C++ tools ----------------
-add_executable(pointcloud_to_navmap src/pointcloud_to_navmap.cpp)
-target_include_directories(pointcloud_to_navmap PRIVATE ${PCL_INCLUDE_DIRS})
-target_link_libraries(pointcloud_to_navmap
+# Streaming point cloud -> NavMap mesher (several floors, voxel reduction, hole closing)
+add_library(navmap_tools_cloud STATIC
+  src/pcd_stream.cpp
+  src/voxel_cloud.cpp
+  src/floor_holes.cpp
+  src/cloud_to_navmap.cpp)
+set_target_properties(navmap_tools_cloud PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(navmap_tools_cloud PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  ${PCL_INCLUDE_DIRS})
+target_link_libraries(navmap_tools_cloud PUBLIC
   navmap_core::navmap_core
   navmap_ros::navmap_ros
   ${navmap_ros_interfaces_TARGETS}
   ${PCL_LIBRARIES}
 )
+
+add_executable(pointcloud_to_navmap src/pointcloud_to_navmap.cpp)
+target_link_libraries(pointcloud_to_navmap navmap_tools_cloud)
 
 add_executable(navmap_publisher src/navmap_publisher.cpp)
 target_link_libraries(navmap_publisher
@@ -65,6 +76,12 @@ if(BUILD_TESTING)
     list(APPEND AMENT_LINT_AUTO_EXCLUDE ament_cmake_copyright)
   endif()
   ament_lint_auto_find_test_dependencies()
+
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_cloud_to_navmap test/test_cloud_to_navmap.cpp)
+  target_link_libraries(test_cloud_to_navmap navmap_tools_cloud)
+  ament_add_gtest(test_floor_holes test/test_floor_holes.cpp)
+  target_link_libraries(test_floor_holes navmap_tools_cloud)
 
   find_package(ament_cmake_pytest REQUIRED)
   ament_add_pytest_test(navmap_tools_pytest test

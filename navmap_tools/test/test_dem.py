@@ -270,3 +270,13 @@ def test_load_dem_grid_reads_real_tiles_from_disk(tmp_path, monkeypatch):
     assert grid.north == pytest.approx(1.0)
     assert grid.pixel_size_lon == pytest.approx(0.5)
     assert grid.pixel_size_lat == pytest.approx(0.5)
+
+
+def test_sample_array_agrees_with_the_scalar_sample():
+    grid = _grid_2x2()
+    lon = np.array([0.0, 0.25, 0.5, 1.0, 3.0, -2.0])
+    lat = np.array([1.0, 0.75, 0.5, 0.0, 0.5, 9.0])   # the last two clamp to the edge
+    got = grid.sample_array(lon, lat)
+    assert got.shape == (6,)
+    for k in range(6):
+        assert got[k] == pytest.approx(grid.sample(lon[k], lat[k]))
