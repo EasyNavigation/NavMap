@@ -36,7 +36,11 @@ bool VoxelCloud::add(float x, float y, float z, const std::uint8_t * rgb)
   const std::int64_t ix = static_cast<std::int64_t>(std::floor(x / vx_));
   const std::int64_t iy = static_cast<std::int64_t>(std::floor(y / vx_));
   const std::int64_t iz = static_cast<std::int64_t>(std::floor(z / vz_));
-  const std::int64_t kx = ix + kOffXY, ky = iy + kOffXY, kz = iz + kOffZ;
+  if (!anchored_) {   // a cloud far from (0, 0) (UTM) is in range around its own first point
+    bx_ = ix; by_ = iy; bz_ = iz;
+    anchored_ = true;
+  }
+  const std::int64_t kx = ix - bx_ + kOffXY, ky = iy - by_ + kOffXY, kz = iz - bz_ + kOffZ;
   if (kx < 0 || kx > kMaxXY || ky < 0 || ky > kMaxXY || kz < 0 || kz > kMaxZ) {
     ++dropped_;
     return false;
@@ -50,6 +54,7 @@ bool VoxelCloud::add(float x, float y, float z, const std::uint8_t * rgb)
   ++a.n;
   if (rgb) {
     a.r += rgb[0]; a.g += rgb[1]; a.b += rgb[2];
+    ++a.nc;
     coloured_ = true;
   }
   return true;
@@ -63,18 +68,19 @@ PointSet VoxelCloud::centroids(std::uint32_t min_points) const
   if (coloured_) {out.rgb.reserve(grid_.size() * 3);}
   for (const auto & [key, a] : grid_) {
     if (a.n < min_points) {continue;}
-    const std::int64_t ix = static_cast<std::int64_t>(key >> 43) - kOffXY;
-    const std::int64_t iy = static_cast<std::int64_t>((key >> 22) & kMaxXY) - kOffXY;
-    const std::int64_t iz = static_cast<std::int64_t>(key & kMaxZ) - kOffZ;
+    const std::int64_t ix = static_cast<std::int64_t>(key >> 43) - kOffXY + bx_;
+    const std::int64_t iy = static_cast<std::int64_t>((key >> 22) & kMaxXY) - kOffXY + by_;
+    const std::int64_t iz = static_cast<std::int64_t>(key & kMaxZ) - kOffZ + bz_;
     const float inv = 1.0f / static_cast<float>(a.n);
     out.xyz.push_back(static_cast<float>(ix) * vx_ + a.sx * inv);
     out.xyz.push_back(static_cast<float>(iy) * vx_ + a.sy * inv);
     out.xyz.push_back(static_cast<float>(iz) * vz_ + a.sz * inv);
     out.count.push_back(a.n);
-    if (coloured_) {
-      out.rgb.push_back(static_cast<std::uint8_t>(a.r / a.n));
-      out.rgb.push_back(static_cast<std::uint8_t>(a.g / a.n));
-      out.rgb.push_back(static_cast<std::uint8_t>(a.b / a.n));
+    if (coloured_) {   // the mean of the points with colour (a voxel of none: kNoColour)
+      const bool c = a.nc > 0;
+      out.rgb.push_back(c ? static_cast<std::uint8_t>(a.r / a.nc) : kNoColour);
+      out.rgb.push_back(c ? static_cast<std::uint8_t>(a.g / a.nc) : kNoColour);
+      out.rgb.push_back(c ? static_cast<std::uint8_t>(a.b / a.nc) : kNoColour);
     }
   }
   return out;

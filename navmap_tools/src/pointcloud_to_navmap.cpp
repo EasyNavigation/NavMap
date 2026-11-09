@@ -77,9 +77,9 @@ void usage()
     "  --min-clearance m     free height that separates two floors in a cell, the robot's (1.0)\n"
     "  --max-hole-area m2    enclosed empty regions up to this are interpolated (1.0)\n"
     "  --fill-holes m        close the holes in the floors up to this wide, between two bits\n"
-    "                        of the same floor (2.0; 0: leave them): a SLAM cloud has no floor\n"
-    "                        points where it did not see it, and ground the robot could drive\n"
-    "                        over is cut\n"
+    "                        of the same floor (0, the default: leave them). A SLAM cloud has\n"
+    "                        no floor points where it did not see it, and ground the robot\n"
+    "                        could drive over is cut; this adds synthetic floor there\n"
     "  --min-surface-area m2 drop pieces of the map smaller than this (0)\n"
     "  --max-surfaces n      keep only the n largest pieces (0: all)\n"
     "  --voxel m             pre-reduction voxel: automatic by default (none up to 5 million\n"
@@ -92,8 +92,8 @@ void usage()
     "                        in <map>.yaml as offset_x / offset_y): bigmap rasterises around its\n"
     "                        origin\n"
     "\n"
-    "The streaming path writes <map>.yaml next to the map (origin, resolution, offset), in the\n"
-    "format bigmap reads.\n";
+    "With --origin or --recenter, <map>.yaml is written next to the map (origin, resolution,\n"
+    "offset), in the format bigmap reads. Without them nothing but the map is written.\n";
 }
 
 bool numbers(const std::string & s, double * v, int n)
@@ -319,8 +319,9 @@ int run_streaming(Args & args)
       "\n";
     return 1;
   }
-  // <map>.yaml next to it, in the format bigmap reads: where the map's (0, 0, 0) is
-  {
+  // <map>.yaml next to it, in the format bigmap reads: where the map's (0, 0, 0) is. Only when
+  // there is something to say (an origin, a shift), so that no other <map>.yaml is overwritten
+  if (args.georef || opt.recenter) {
     std::string yaml = args.output;
     const auto dot = yaml.rfind('.');
     yaml = (dot == std::string::npos ? yaml : yaml.substr(0, dot)) + ".yaml";
@@ -336,6 +337,7 @@ int run_streaming(Args & args)
       << "# --recenter: x, y of the cloud + offset = x, y of this map\n"
       << "offset_x: " << rep.offset_x << "\n"
       << "offset_y: " << rep.offset_y << "\n";
+    std::cerr << "pointcloud_to_navmap: wrote " << yaml << "\n";
   }
   std::printf(
     "wrote %s: %zu vertices, %zu triangles, %.2f m%s%s in %.1f s\n", args.output.c_str(),

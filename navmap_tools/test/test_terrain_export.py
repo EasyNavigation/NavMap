@@ -127,3 +127,15 @@ def test_local_dem_height_and_cache_match():
     assert not dem.matches(40.4, -3.8, 8.0, 1.0, DemSource.MESH)        # another source
     assert not dem.matches(40.4, -3.8, 8.0, 1.0, DemSource.IGN, requested_reference=600.0)
     assert not dem.matches(40.4, -3.8, 8.0, 1.0, DemSource.IGN, data_resolution=5.0)
+
+
+def test_a_coarser_terrain_with_an_odd_number_of_strides_stays_on_the_dem(tmp_path):
+    # side 11 (radius 5 m at 1 m) and stride 2: 5 strides, so the origin is not a kept node. The
+    # mesh must still span -5..5 m with the DEM's heights, not be shifted by half a stride
+    dem = _dem(radius=5.0)
+    write_gazebo_terrain(dem, tmp_path, terrain_resolution=2.0)
+    v = _stl(tmp_path / 'terrain.stl')['v'].reshape(-1, 3)
+    assert v[:, 0].min() == pytest.approx(-5.0) and v[:, 0].max() == pytest.approx(5.0)
+    assert v[:, 1].min() == pytest.approx(-5.0) and v[:, 1].max() == pytest.approx(5.0)
+    for x, y, z in v:
+        assert z == pytest.approx(dem.height_at(float(x), float(y)), abs=1e-4)

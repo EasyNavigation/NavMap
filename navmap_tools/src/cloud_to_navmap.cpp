@@ -53,6 +53,27 @@ struct CellCount
 };
 }  // namespace
 
+std::string options_the_grid_mesher_ignores(const Options & opt)
+{
+  const Options d;
+  std::string out;
+  auto add = [&out](bool set, const char * name) {
+      if (set) {out += (out.empty() ? "" : ", ") + std::string(name);}
+    };
+  add(opt.crop, "crop");
+  add(opt.recenter, "recenter");
+  add(std::isfinite(opt.zmin) || std::isfinite(opt.zmax), "zmin/zmax");
+  add(opt.fill_holes > 0.0f, "fill_holes");
+  add(opt.voxel > 0.0f, "voxel");
+  add(opt.min_voxel_points > 1, "min_voxel_points");
+  add(opt.max_dz != d.max_dz, "max_dz");
+  add(opt.min_clearance != d.min_clearance, "min_clearance");
+  add(opt.max_hole_area != d.max_hole_area, "max_hole_area");
+  add(opt.min_surface_area != d.min_surface_area, "min_surface_area");
+  add(opt.max_surfaces != d.max_surfaces, "max_surfaces");
+  return out;
+}
+
 void colour_vertices(
   navmap_ros_interfaces::msg::NavMap & msg, const PointSet & pts, float res, float tol)
 {
@@ -122,8 +143,13 @@ Report cloud_to_navmap(
   say(sformat("%.1f million points in %.0f file(s)", rep.points_in_files / 1e6, inputs.size()));
 
   // An organised cloud (a grid, as navmap_tools' python side writes) has its connectivity: its
-  // own mesher, no reduction
-  if (infos.size() == 1 && infos[0].height > 1) {
+  // own mesher, no reduction. That mesher takes only the resolution and the slope: with any other
+  // option the grid is meshed as points, so that the option is applied
+  const auto grid_ignored = options_the_grid_mesher_ignores(opt);
+  if (infos.size() == 1 && infos[0].height > 1 && !grid_ignored.empty()) {
+    say("organised cloud meshed as points, for " + grid_ignored);
+  }
+  if (infos.size() == 1 && infos[0].height > 1 && grid_ignored.empty()) {
     rep.organised = true;
     pcl::PointCloud<pcl::PointXYZ> cloud;
     if (pcl::io::loadPCDFile<pcl::PointXYZ>(inputs[0], cloud) != 0) {
@@ -161,9 +187,17 @@ Report cloud_to_navmap(
             if (rep.voxelized) {
               vox.add(x, y, z, rgb);
             } else {
+              // rgb stays aligned with xyz: once a point has colour, the points without one
+              // (before and after it, from other files) get kNoColour
+              const std::size_t before = raw.count.size();
               raw.xyz.insert(raw.xyz.end(), {x, y, z});
               raw.count.push_back(1);
-              if (col) {raw.rgb.insert(raw.rgb.end(), {rgb[0], rgb[1], rgb[2]});}
+              if (col && raw.rgb.empty() && before > 0) {raw.rgb.assign(3 * before, kNoColour);}
+              if (col) {
+                raw.rgb.insert(raw.rgb.end(), {rgb[0], rgb[1], rgb[2]});
+              } else if (!raw.rgb.empty()) {
+                raw.rgb.insert(raw.rgb.end(), {kNoColour, kNoColour, kNoColour});
+              }
             }
           }
           seen += c.size();
@@ -178,6 +212,12 @@ Report cloud_to_navmap(
     PointSet pts = rep.voxelized ? vox.centroids(opt.min_voxel_points) : std::move(raw);
     rep.voxels = rep.voxelized ? vox.voxels() : 0;
     rep.dropped = vox.dropped();
+    if (rep.dropped > 0) {
+      rep.warnings.push_back(sformat(
+          "%.0f points were more than %.0f km from the first point read and were left out",
+          static_cast<double>(rep.dropped), std::ldexp(static_cast<double>(vox.voxel_xy()), 20) /
+          1e3));
+    }
     rep.points_meshed = pts.size();
     if (rep.voxelized) {
       say(sformat("voxels of %.3f m: %.1f million points -> %.2f million", voxel,
@@ -270,7 +310,7 @@ Report cloud_to_navmap(
             cloud.push_back(pcl::PointXYZ(c.x + d.first, c.y + d.second, c.z));
             pts.xyz.insert(pts.xyz.end(), {c.x + d.first, c.y + d.second, c.z});
             pts.count.push_back(1);
-            if (pts.coloured()) {pts.rgb.insert(pts.rgb.end(), {128, 128, 128});}
+            if (pts.coloured()) {pts.rgb.insert(pts.rgb.end(), {kNoColour, kNoColour, kNoColour});}
           }
         }
         say(sformat("%.0f cells of floor over holes of the map: meshing again",

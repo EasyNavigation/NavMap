@@ -17,6 +17,8 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <stdexcept>
+#include <string>
 
 #include "navmap_tools/floor_holes.hpp"
 
@@ -77,4 +79,21 @@ TEST(FloorHoles, ZeroWidthLeavesTheHoles)
   const auto cells = navmap_tools::floor_hole_cells(
     grid_floor(20, [](int i, int j) {return i == 10 && j == 10;}), 0.4f, 0.0f);
   EXPECT_TRUE(cells.empty());
+}
+
+TEST(FloorHoles, AMapTooFarFromTheOriginSaysToRecentreIt)
+{
+  // UTM: x = 440 km at cells of 0.25 m is past the 2^20 cells the index holds; before, the
+  // indices collided and floor was added at wrong places
+  auto nm = grid_floor(4, [](int, int) {return false;});
+  for (auto & x : nm.positions.x) {
+    x += 440000.0f;
+  }
+  nm.rebuild_geometry_accels();
+  try {
+    navmap_tools::floor_hole_cells(nm, 0.25f, 2.0f);
+    FAIL() << "no error";
+  } catch (const std::runtime_error & e) {
+    EXPECT_NE(std::string(e.what()).find("--recenter"), std::string::npos) << e.what();
+  }
 }

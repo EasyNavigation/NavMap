@@ -496,3 +496,115 @@ def test_terrain_options_need_dem_out():
         run(_BASE + ['--gazebo', '--terrain-out', 'x'])
     with pytest.raises(SystemExit):
         run(_BASE + ['--dem-out', 'd.bin', '--world-template', 't.in'])   # no --terrain-out
+
+
+def _write_flat_stl(path, z, half=30):
+    import struct
+
+    tris = [(-half, -half, z, half, -half, z, half, half, z),
+            (-half, -half, z, half, half, z, -half, half, z)]
+    with open(path, 'wb') as f:
+        f.write(b'\0' * 80 + struct.pack('<I', len(tris)))
+        for t in tris:
+            f.write(struct.pack('<12fH', 0, 0, 1, *t, 0))
+
+
+def test_a_dem_from_another_mesh_or_imagery_is_rebuilt_not_reused(tmp_path, capsys):
+    from navmap_tools.cli import run
+    from navmap_tools.geo.dem_file import read_dem_file
+
+    stl = tmp_path / 'site.stl'
+    _write_flat_stl(stl, 3.0)
+    out = tmp_path / 'dem.bin'
+    args = _BASE + ['--dem-out', str(out), '--dem-source', 'mesh', '--mesh-file', str(stl),
+                    '--resolution', '2', '--reference-altitude', '0',
+                    '--cache-dir', str(tmp_path / 'c')]
+    assert run(args) == 0
+    assert (tmp_path / 'dem.bin.inputs.json').is_file()
+    capsys.readouterr()
+    assert run(args) == 0
+    assert 'same configuration' in capsys.readouterr().out
+    # another mesh under the same name, same centre, size and resolution
+    _write_flat_stl(stl, 5.0)
+    assert run(args) == 0
+    assert 'same configuration' not in capsys.readouterr().out
+    assert read_dem_file(out).z == pytest.approx(5.0, abs=1e-3)
+    # another --mesh-world-elevation
+    assert run(args + ['--mesh-world-elevation', '10']) == 0
+    assert 'same configuration' not in capsys.readouterr().out
+    # a DEM without the record of what made it is rebuilt
+    (tmp_path / 'dem.bin.inputs.json').unlink()
+    assert run(args + ['--mesh-world-elevation', '10']) == 0
+    assert 'same configuration' not in capsys.readouterr().out
+
+
+def test_another_imagery_source_rebuilds_the_dem(tmp_path, capsys):
+    from navmap_tools import cli as cli_mod
+
+    out = _run_synthetic(
+        tmp_path, '--dem-imagery', '--imagery-source', 'synthetic', '--zoom', '18')
+    record = cli_mod._inputs_path(out).read_text()
+    capsys.readouterr()
+    _run_synthetic(tmp_path, '--dem-imagery', '--imagery-source', 'synthetic', '--zoom', '18')
+    assert 'same configuration' in capsys.readouterr().out
+    # the record says which imagery made it: another source does not match it
+    args = build_arg_parser().parse_args(
+        _BASE + ['--dem-source', 'synthetic', '--resolution', '2', '--dem-out', str(out),
+                 '--dem-imagery', '--imagery-source', 'pnoa', '--zoom', '18'])
+    assert cli_mod._dem_inputs(args)['imagery'] != __import__('json').loads(record)['imagery']
+
+
+def test_the_dem_next_to_a_world_has_imagery_only_when_asked_and_the_same_zoom(tmp_path, capsys):
+    from navmap_tools import cli as cli_mod
+    from navmap_tools.geo.dem_file import read_dem_file, SyntheticDem, SyntheticImagery
+
+    out = tmp_path / 'dem.bin'
+    base = _BASE + ['--dem-source', 'synthetic', '--imagery-source', 'synthetic',
+                    '--resolution', '2', '--dem-out', str(out), '--zoom', '18',
+                    '--cache-dir', str(tmp_path / 'c')]
+    dem, imagery = SyntheticDem(40.4, -3.7), SyntheticImagery(40.4, -3.7)
+    cli_mod._write_dem(build_arg_parser().parse_args(base + ['--gazebo']), dem, imagery,
+                       40.4, -3.7)
+    assert read_dem_file(out).rgb is None, 'no --dem-imagery: no colours'
+    cli_mod._write_dem(build_arg_parser().parse_args(base + ['--gazebo', '--dem-imagery']), dem,
+                       imagery, 40.4, -3.7)
+    assert read_dem_file(out).imagery_zoom == 18
+    # a DEM-only run with the same options takes it as it is
+    capsys.readouterr()
+    assert cli_mod.run(base + ['--dem-imagery']) == 0
+    assert 'same configuration' in capsys.readouterr().out
+
+
+def test_a_dem_out_bigger_than_the_memory_is_refused_before_building_it(monkeypatch):
+    from navmap_tools import cli as cli_mod
+
+    monkeypatch.setattr(cli_mod, '_available_memory_bytes', lambda: 1_000_000_000)
+    # 20 km at 1 m: 4e8 nodes, tens of GB
+    with pytest.raises(SystemExit):
+        cli_mod.run(['--center', '40.4,-3.7', '--size', '20000', '--resolution', '1',
+                     '--dem-source', 'synthetic', '--dem-out', 'd.bin'])
+    args = build_arg_parser().parse_args(_BASE + ['--dem-out', 'd.bin', '--resolution', '2'])
+    assert cli_mod._dem_memory_bytes(args) < 1_000_000
+
+
+def test_the_mesh_is_parsed_once_for_the_dem_and_the_world(tmp_path, monkeypatch):
+    from navmap_tools import cli as cli_mod
+    from navmap_tools.geo.mesh_dem import MeshHeightfield
+
+    stl = tmp_path / 'site.stl'
+    _write_flat_stl(stl, 3.0)
+    calls = []
+    original = MeshHeightfield.load_stl
+
+    def counting(path, cell):
+        calls.append(path)
+        return original(path, cell)
+
+    monkeypatch.setattr(MeshHeightfield, 'load_stl', staticmethod(counting))
+    cli_mod._mesh_heightfield.cache_clear()
+    args = build_arg_parser().parse_args(
+        _BASE + ['--dem-out', str(tmp_path / 'd.bin'), '--dem-source', 'mesh', '--mesh-file',
+                 str(stl), '--navmap'])
+    cli_mod._load_dem(args, None, None)     # the world's
+    cli_mod._dem_geometry(args)             # the DEM's
+    assert len(calls) == 1

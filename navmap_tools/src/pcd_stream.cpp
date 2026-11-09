@@ -265,11 +265,13 @@ PcdInfo read_pcd(
       c.xyz.insert(c.xyz.end(), {x, y, z});
       if (packed) {
         std::uint32_t u;
-        if (h.type[ic] == 'F') {
-          const float fv = static_cast<float>(v[tok[ic]]);
+        const double dv = v[tok[ic]];
+        if (h.type[ic] == 'F' && !(dv >= 0.0 && dv <= 4294967295.0 && dv == std::floor(dv))) {
+          // the float whose bits are the colour, as written by printing the float
+          const float fv = static_cast<float>(dv);
           std::memcpy(&u, &fv, 4);
-        } else {
-          u = static_cast<std::uint32_t>(v[tok[ic]]);
+        } else {   // an integer: the packed value itself (PCL's ASCII writer stores rgb so)
+          u = static_cast<std::uint32_t>(dv);
         }
         c.rgb.insert(c.rgb.end(), {static_cast<std::uint8_t>(u >> 16),
             static_cast<std::uint8_t>(u >> 8), static_cast<std::uint8_t>(u)});

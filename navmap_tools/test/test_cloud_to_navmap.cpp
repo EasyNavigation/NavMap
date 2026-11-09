@@ -39,16 +39,17 @@ std::string tmp(const std::string & name)
   return (std::filesystem::temp_directory_path() / ("navmap_tools_" + name)).string();
 }
 
+// height > 1: an organised cloud of pts.size() / height columns
 void write_pcd(
   const std::string & path, const std::vector<Pt> & pts, const std::string & data,
-  bool colour)
+  bool colour, std::size_t height = 1)
 {
   std::ofstream f(path, std::ios::binary | std::ios::trunc);
   f.precision(9);   // enough digits for a float to come back bit for bit (the packed colour is one)
   f << "# .PCD v0.7\nVERSION 0.7\nFIELDS x y z" << (colour ? " rgb" : "") << "\nSIZE 4 4 4"
     << (colour ? " 4" : "") << "\nTYPE F F F" << (colour ? " F" : "") << "\nCOUNT 1 1 1"
-    << (colour ? " 1" : "") << "\nWIDTH " << pts.size() <<
-    "\nHEIGHT 1\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS "
+    << (colour ? " 1" : "") << "\nWIDTH " << pts.size() / height <<
+    "\nHEIGHT " << height << "\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS "
     << pts.size() << "\nDATA " << data << "\n";
   for (const auto & p : pts) {
     const std::uint32_t u = (static_cast<std::uint32_t>(p.r) <<
@@ -394,4 +395,151 @@ TEST(CloudToNavmap, ASmallHoleInTheFloorIsClosedAndALargeOneIsNot)
   EXPECT_GT(triangles_in(closed, 10.4f, 11.6f, 10.4f, 12.6f), 0u) << "the small hole is closed";
   EXPECT_EQ(triangles_in(closed, 22.0f, 25.0f, 22.0f, 25.0f), 0u) << "the 7 m hole is a real void";
   std::filesystem::remove(path);
+}
+
+TEST(PcdStream, AnAsciiRgbOfTypeFWrittenAsAnIntegerIsThePackedValue)
+{
+  // PCL's ASCII writer stores a packed rgb of TYPE F as its uint32 value (pure red: 16711680, and
+  // with alpha 255: 4294901760); a printed float is the float whose bits are the colour
+  const auto path = tmp("rgb_int.pcd");
+  {
+    std::ofstream f(path);
+    f << "# .PCD v0.7\nVERSION 0.7\nFIELDS x y z rgb\nSIZE 4 4 4 4\nTYPE F F F F\n"
+      "COUNT 1 1 1 1\nWIDTH 3\nHEIGHT 1\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS 3\nDATA ascii\n"
+      "0 0 0 16711680\n1 0 0 4278255360\n2 0 0 9.183409486e-41\n";
+  }
+  std::vector<std::uint8_t> rgb;
+  navmap_tools::read_pcd(path, [&](const navmap_tools::PcdChunk & c) {
+      rgb.insert(rgb.end(), c.rgb.begin(), c.rgb.end());
+    });
+  ASSERT_EQ(rgb.size(), 9u);
+  EXPECT_EQ((std::vector<int>{rgb[0], rgb[1], rgb[2]}), (std::vector<int>{255, 0, 0}));
+  EXPECT_EQ((std::vector<int>{rgb[3], rgb[4], rgb[5]}), (std::vector<int>{0, 255, 0}));
+  // 9.183409486e-41 is the float of the bits 0x0000ffff: blue and green
+  EXPECT_EQ((std::vector<int>{rgb[6], rgb[7], rgb[8]}), (std::vector<int>{0, 255, 255}));
+  std::filesystem::remove(path);
+}
+
+TEST(VoxelCloud, TheColourOfAVoxelIsTheMeanOfItsPointsWithColour)
+{
+  navmap_tools::VoxelCloud v(1.0f, 1.0f);
+  const std::uint8_t red[3] = {200, 10, 10};
+  v.add(0.2f, 0.2f, 0.2f, red);
+  v.add(0.4f, 0.4f, 0.2f, red);
+  v.add(0.6f, 0.6f, 0.2f, nullptr);   // same voxel, no colour: it must not darken it
+  v.add(5.5f, 5.5f, 0.2f, nullptr);   // a voxel with no colour at all
+  const auto c = v.centroids();
+  ASSERT_EQ(c.size(), 2u);
+  ASSERT_EQ(c.rgb.size(), 6u);
+  for (std::size_t k = 0; k < c.size(); ++k) {
+    const bool first = c.xyz[3 * k] < 1.0f;
+    EXPECT_EQ(c.rgb[3 * k], first ? 200 : navmap_tools::kNoColour);
+    EXPECT_EQ(c.rgb[3 * k + 1], first ? 10 : navmap_tools::kNoColour);
+    EXPECT_EQ(c.count[k], first ? 3u : 1u);
+  }
+}
+
+TEST(VoxelCloud, ACloudFarFromTheOriginIsKept)
+{
+  // UTM coordinates: 440 km from (0, 0) is beyond 2^20 voxels of 0.25 m, but the index is
+  // relative to the first point
+  navmap_tools::VoxelCloud v(0.25f, 0.125f);
+  for (int i = 0; i < 100; ++i) {
+    EXPECT_TRUE(v.add(440000.0f + 0.1f * static_cast<float>(i), 4470000.0f, 650.0f, nullptr));
+  }
+  EXPECT_EQ(v.dropped(), 0u);
+  const auto c = v.centroids();
+  ASSERT_GT(c.size(), 0u);
+  EXPECT_NEAR(c.xyz[0], 440005.0f, 6.0f);
+  EXPECT_NEAR(c.xyz[1], 4470000.0f, 1.0f);
+  EXPECT_NEAR(c.xyz[2], 650.0f, 0.2f);
+}
+
+TEST(CloudToNavmap, FilesWithAndWithoutColourKeepEachPointsColour)
+{
+  // a floor: the half x < 15 m coloured (red) in one file, the other half without colour in
+  // another, in both orders and with and without the voxel reduction. Before, the colours of the
+  // raw path no longer lined up with the points (read past the end, or put on the wrong points)
+  std::vector<Pt> red, plain;
+  for (float x = 0; x < 30.0f; x += 0.25f) {
+    for (float y = 0; y < 20.0f; y += 0.25f) {
+      (x < 15.0f ? red : plain).push_back({x, y, 0.0f, 220, 20, 20});
+    }
+  }
+  const auto a = tmp("mixed_red.pcd"), b = tmp("mixed_plain.pcd");
+  write_pcd(a, red, "binary", true);
+  write_pcd(b, plain, "binary", false);
+  for (const bool red_first : {true, false}) {
+    for (const float voxel : {0.0f, 0.25f}) {
+      navmap_tools::Options opt;
+      opt.resolution = 1.0f;
+      opt.voxel = voxel;
+      navmap_ros_interfaces::msg::NavMap m;
+      const auto rep = navmap_tools::cloud_to_navmap(
+        red_first ? std::vector<std::string>{a, b} : std::vector<std::string>{b, a}, opt, m);
+      const std::string what = std::string(red_first ? "red first" : "plain first") +
+        (voxel > 0 ? ", voxels" : ", raw");
+      EXPECT_TRUE(rep.coloured) << what;
+      ASSERT_EQ(m.colors_r.size(), m.positions_x.size()) << what;
+      std::size_t n_red = 0, ok_red = 0, n_plain = 0, ok_plain = 0;
+      for (std::size_t v = 0; v < m.positions_x.size(); ++v) {
+        if (m.positions_x[v] < 13.0f) {
+          ++n_red; ok_red += m.colors_r[v] == 220 && m.colors_g[v] == 20;
+        } else if (m.positions_x[v] > 17.0f) {
+          ++n_plain;
+          ok_plain += m.colors_r[v] == navmap_tools::kNoColour &&
+            m.colors_g[v] == navmap_tools::kNoColour;
+        }
+      }
+      EXPECT_GT(n_red, 100u) << what;
+      EXPECT_GT(n_plain, 100u) << what;
+      EXPECT_EQ(ok_red, n_red) << what << ": the coloured half keeps its colour";
+      EXPECT_EQ(ok_plain, n_plain) << what << ": the half without colour is grey";
+    }
+  }
+  std::filesystem::remove(a);
+  std::filesystem::remove(b);
+}
+
+TEST(CloudToNavmap, AnOrganisedCloudWithPointOptionsIsMeshedAsPointsAndTheyApply)
+{
+  // a 30 x 30 m grid, organised (60 rows), far from the origin
+  std::vector<Pt> grid;
+  for (int j = 0; j < 60; ++j) {
+    for (int i = 0; i < 60; ++i) {
+      grid.push_back({500.0f + 0.5f * static_cast<float>(i),
+          1200.0f + 0.5f * static_cast<float>(j), 0.0f, 0, 0, 0});
+    }
+  }
+  const auto path = tmp("organised.pcd");
+  write_pcd(path, grid, "binary", false, 60);
+  navmap_tools::Options opt;
+  opt.resolution = 1.0f;
+  navmap_ros_interfaces::msg::NavMap whole;
+  EXPECT_TRUE(navmap_tools::cloud_to_navmap({path}, opt, whole).organised)
+    << "without options, the grid mesher";
+  EXPECT_EQ(navmap_tools::options_the_grid_mesher_ignores(opt), "");
+
+  opt.crop = true; opt.xmin = 500; opt.ymin = 1200; opt.xmax = 510; opt.ymax = 1210;
+  opt.recenter = true;
+  EXPECT_EQ(navmap_tools::options_the_grid_mesher_ignores(opt), "crop, recenter");
+  navmap_ros_interfaces::msg::NavMap m;
+  const auto rep = navmap_tools::cloud_to_navmap({path}, opt, m);
+  EXPECT_FALSE(rep.organised);
+  float x0 = 1e9f, x1 = -1e9f, y0 = 1e9f, y1 = -1e9f;
+  for (std::size_t v = 0; v < m.positions_x.size(); ++v) {
+    x0 = std::min(x0, m.positions_x[v]); x1 = std::max(x1, m.positions_x[v]);
+    y0 = std::min(y0, m.positions_y[v]); y1 = std::max(y1, m.positions_y[v]);
+  }
+  EXPECT_LT(x1 - x0, 11.5f) << "cropped to 10 m";
+  EXPECT_LT(y1 - y0, 11.5f);
+  EXPECT_NEAR(0.5 * (x0 + x1), 0.0, 1.5) << "recentred";
+  EXPECT_NEAR(rep.offset_x, -505.0, 1.5);
+  EXPECT_NEAR(rep.offset_y, -1205.0, 1.5);
+  std::filesystem::remove(path);
+}
+
+TEST(CloudToNavmap, HolesAreLeftOpenUnlessAskedFor)
+{
+  EXPECT_EQ(navmap_tools::Options().fill_holes, 0.0f);
 }

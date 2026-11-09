@@ -17,6 +17,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <stdexcept>
+#include <string>
 #include <unordered_map>
 #include <utility>
 
@@ -55,6 +57,12 @@ Columns raster_floors(const ::navmap::NavMap & map, float size)
     const int i1 = static_cast<int>(std::floor(std::max({x0, x1, x2}) / size));
     const int j0 = static_cast<int>(std::floor(std::min({y0, y1, y2}) / size));
     const int j1 = static_cast<int>(std::floor(std::max({y0, y1, y2}) / size));
+    if (std::min(i0, j0) < -kBias || std::max(i1, j1) >= kBias) {   // pack2's 21 bits
+      throw std::runtime_error(
+              "the map is too far from (0, 0) to close its holes (more than " +
+              std::to_string(static_cast<std::int64_t>(std::ldexp(size, 20))) +
+              " m at cells of this size): recentre it (--recenter)");
+    }
     for (int j = j0; j <= j1; ++j) {
       for (int i = i0; i <= i1; ++i) {
         const double x = (i + 0.5) * size, y = (j + 0.5) * size;

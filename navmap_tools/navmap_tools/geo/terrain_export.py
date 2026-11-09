@@ -69,7 +69,8 @@ def write_gazebo_terrain(dem: LocalDem, directory, terrain_resolution: float = 0
     n = z.shape[0]
     res = dem.resolution * stride
     n_tex = dem.side
-    coords = (np.arange(n) - (n - 1) // 2) * res
+    # node k of the subsampled grid is node k * stride of the DEM, whose centre is (side - 1) // 2
+    coords = (np.arange(n) * stride - (dem.side - 1) // 2) * dem.resolution
     gx, gy = np.meshgrid(coords, coords)
     verts = np.stack([gx.ravel(), gy.ravel(), z.ravel().astype(np.float64)], axis=1)
     verts = verts.astype(np.float32)

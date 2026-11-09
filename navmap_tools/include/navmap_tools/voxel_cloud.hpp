@@ -24,6 +24,9 @@ namespace navmap_tools
 {
 
 /// Points with the colour (3 bytes each, or empty) and how many raw points each one stands for.
+/// Colour given to a point without one (and to floor added over holes) when others have colour
+constexpr std::uint8_t kNoColour = 128;
+
 struct PointSet
 {
   std::vector<float> xyz;
@@ -43,11 +46,13 @@ class VoxelCloud
 public:
   VoxelCloud(float voxel_xy, float voxel_z);
 
-  /// `rgb`: 3 bytes, or nullptr for a point without colour. False if the voxel index overflows.
+  /// `rgb`: 3 bytes, or nullptr for a point without colour. False (the point is dropped) if its
+  /// voxel is more than 2^20 voxels away from the first point's in x or y (2^21 in z).
   bool add(float x, float y, float z, const std::uint8_t * rgb);
 
   std::size_t voxels() const {return grid_.size();}
   std::size_t dropped() const {return dropped_;}
+  float voxel_xy() const {return vx_;}
 
   /// Centroids of the voxels with at least `min_points` points
   PointSet centroids(std::uint32_t min_points = 1) const;
@@ -56,9 +61,11 @@ private:
   struct Acc
   {
     float sx{0}, sy{0}, sz{0};            // offsets from the voxel corner, summed
-    std::uint32_t n{0}, r{0}, g{0}, b{0};
+    std::uint32_t n{0}, nc{0}, r{0}, g{0}, b{0};   // nc: points with colour
   };
   float vx_, vz_;
+  bool anchored_{false};
+  std::int64_t bx_{0}, by_{0}, bz_{0};   // voxel of the first point: keys are relative to it
   bool coloured_{false};
   std::size_t dropped_{0};
   std::unordered_map<std::uint64_t, Acc> grid_;

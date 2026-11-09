@@ -23,6 +23,9 @@ path -- which is why the two outputs line up even run separately.
 """
 
 import argparse
+import functools
+import hashlib
+import json
 import math
 from pathlib import Path
 import subprocess
@@ -249,6 +252,7 @@ def run(argv=None) -> int:
     """Parse arguments and run the full pipeline; returns a process exit code."""
     parser = build_arg_parser()
     args = parser.parse_args(argv)
+    _mesh_heightfield.cache_clear()   # once per run: the file may have changed since the last
 
     if not args.gazebo and not args.navmap and not args.dem_out:
         parser.error('at least one of --gazebo/--navmap/--dem-out is required')
@@ -286,6 +290,14 @@ def run(argv=None) -> int:
 
     # the world / NavMap sampling loop is pure Python; --dem-out alone is vectorised
     needs_grid = args.gazebo or args.navmap
+    if args.dem_out:
+        need = _dem_memory_bytes(args)
+        available = _available_memory_bytes()
+        if available is not None and need > available:
+            parser.error(
+                f'--dem-out at --size {args.size} / --resolution {args.resolution} needs about '
+                f'{need / 1e9:.1f} GB to build and {available / 1e9:.1f} GB are available; '
+                'increase --resolution or reduce --size')
     n_per_side = round(args.size / args.resolution) + 1
     if needs_grid and n_per_side * n_per_side > _MAX_GRID_POINTS:
         parser.error(
@@ -373,12 +385,44 @@ def run(argv=None) -> int:
     return 0
 
 
+# Peak memory of build_local_dem per node of its two grids (the data and the output): measured
+# about 44 bytes, with a margin
+_DEM_BYTES_PER_NODE = 64
+
+
+def _dem_memory_bytes(args) -> int:
+    """Return about how much memory building the --dem-out grid takes (bytes)."""
+    radius = args.size / 2.0
+    side = 2 * math.ceil(radius / args.resolution) + 1
+    data_res = args.dem_data_resolution or _DEM_NATIVE_M[args.dem_source] or args.resolution
+    side_d = 2 * math.ceil(radius / max(data_res, args.resolution)) + 1
+    return _DEM_BYTES_PER_NODE * (side * side + side_d * side_d)
+
+
+def _available_memory_bytes():
+    """Return the memory available to a new process (bytes), or None where it is not known."""
+    try:
+        with open('/proc/meminfo') as f:
+            for line in f:
+                if line.startswith('MemAvailable:'):
+                    return int(line.split()[1]) * 1024
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
+@functools.lru_cache(maxsize=2)
+def _mesh_heightfield(path, cell):
+    """Return the MeshHeightfield of an STL, parsed once per run (it is slow: a Python loop)."""
+    return MeshHeightfield.load_stl(path, cell)
+
+
 def _load_dem(args, bbox, cache):
     """Load the terrain model of --dem-source: something with sample(lon, lat) -> metres."""
     if args.dem_source == 'ign':
         return load_ign_dem(bbox, cache, force=args.force_refresh)
     if args.dem_source == 'mesh':
-        field = MeshHeightfield.load_stl(args.mesh_file, args.mesh_cell)
+        field = _mesh_heightfield(args.mesh_file, args.mesh_cell)
         print(
             f'[navmap_gis_tool] mesh {args.mesh_file}: {field.coverage:.0%} of its footprint '
             'is covered by triangles (the rest is filled from the neighbours)')
@@ -455,7 +499,7 @@ def _dem_geometry(args):
     reference = args.reference_altitude
     mesh = None
     if args.dem_source == 'mesh':
-        mesh = MeshHeightfield.load_stl(args.mesh_file, args.mesh_cell)
+        mesh = _mesh_heightfield(args.mesh_file, args.mesh_cell)
         # the DEM cannot show more than the mesh: cap the area to its footprint
         reach = math.ceil(max(abs(mesh.x_min), abs(mesh.x_max), abs(mesh.y_min), abs(mesh.y_max)))
         if reach < radius:
@@ -498,7 +542,7 @@ def _run_dem_only(args, bbox, cache) -> int:
         if imagery is not None:
             add_imagery(grid, imagery, args.zoom)
         _add_holes(grid, args)
-        write_dem_file(grid, args.dem_out)
+        _write_dem_and_inputs(grid, args)
         print(
             f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
             f'{grid.resolution} m, sampled every {grid.data_resolution} m, '
@@ -512,13 +556,60 @@ def _run_dem_only(args, bbox, cache) -> int:
     return 0
 
 
+def _file_id(path):
+    """Return the name and the SHA-256 of a file (None for no file)."""
+    if not path:
+        return None
+    digest = hashlib.sha256()
+    with open(path, 'rb') as f:
+        for block in iter(lambda: f.read(1 << 20), b''):
+            digest.update(block)
+    return {'name': Path(path).name, 'sha256': digest.hexdigest()}
+
+
+def _dem_inputs(args) -> dict:
+    """Return what makes a DEM besides its geometry: the input files and options, the imagery."""
+    dem = {'dem_source': args.dem_source, 'holes_mesh': _file_id(args.dem_holes_mesh)}
+    if args.dem_source == 'mesh':
+        dem.update(mesh_file=_file_id(args.mesh_file), mesh_cell=args.mesh_cell,
+                   mesh_world_elevation=args.mesh_world_elevation)
+    imagery = None
+    if args.dem_imagery:
+        imagery = {'source': args.imagery_source, 'zoom': args.zoom}
+        if args.imagery_source == 'xyz':
+            imagery['url'] = args.imagery_url
+        if args.imagery_source == 'pnoa':
+            imagery['resolution'] = args.imagery_resolution
+    return {'dem': dem, 'imagery': imagery}
+
+
+def _inputs_path(dem_out) -> Path:
+    """Return the file next to a DEM that records what made it (_dem_inputs)."""
+    return Path(str(dem_out) + '.inputs.json')
+
+
+def _write_dem_and_inputs(grid, args) -> None:
+    """Write the DEM file, and next to it what made it (the binary format is BigMap's own)."""
+    write_dem_file(grid, args.dem_out)
+    _inputs_path(args.dem_out).write_text(json.dumps(_dem_inputs(args), indent=2) + '\n')
+
+
 def _is_the_same(old, args, lat, lon, radius, reference, data_res) -> bool:
     """Whether the DEM file on disk is what these arguments would make."""
     if not old.matches(lat, lon, radius, args.resolution, _source_id(args), reference, data_res):
         return False
     if bool(args.dem_holes_mesh) != (old.cell_valid is not None):
         return False
-    return not args.dem_imagery or (old.rgb is not None and old.imagery_zoom == args.zoom)
+    try:   # made from the same files and options (a DEM without this record is rebuilt)
+        recorded = json.loads(_inputs_path(args.dem_out).read_text())
+    except (OSError, ValueError):
+        return False
+    wanted = _dem_inputs(args)
+    if recorded.get('dem') != wanted['dem']:
+        return False
+    return not args.dem_imagery or (
+        old.rgb is not None and old.imagery_zoom == args.zoom and
+        recorded.get('imagery') == wanted['imagery'])
 
 
 def _add_holes(grid, args) -> None:
@@ -537,10 +628,10 @@ def _write_dem(args, dem, imagery, lat, lon) -> None:
     grid = build_local_dem(
         dem, lat, lon, radius=radius, resolution=args.resolution,
         source=_source_id(args), reference_altitude=reference, data_resolution=data_res)
-    if imagery is not None:
-        add_imagery(grid, imagery, getattr(imagery, 'zoom', 1))
+    if imagery is not None and args.dem_imagery:
+        add_imagery(grid, imagery, args.zoom)   # the zoom the DEM-only path compares with
     _add_holes(grid, args)
-    write_dem_file(grid, args.dem_out)
+    _write_dem_and_inputs(grid, args)
     print(
         f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
         f'{grid.resolution} m, sampled every {grid.data_resolution} m, '

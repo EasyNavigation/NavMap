@@ -42,8 +42,8 @@ struct Options
   /// A SLAM cloud has no points where it did not see the floor, and the mesher cannot invent them:
   /// a map of holes, and ground the robot could drive over is not connected. A stretch of empty
   /// cells up to this wide (m) between two bits of the same floor, in a row or a column, gets floor
-  /// points at the height in between and the cloud is meshed again (0: leave the holes)
-  float fill_holes{2.0f};
+  /// points at the height in between and the cloud is meshed again (0, the default: leave them)
+  float fill_holes{0.0f};
   float min_surface_area{0.0f};  ///< pieces of the map smaller than this (m^2) are dropped
   int max_surfaces{0};          ///< keep only this many pieces, the largest (0: all)
 
@@ -89,6 +89,10 @@ struct Report
   std::vector<std::pair<float, std::size_t>> levels;
   std::vector<std::string> warnings;
 };
+
+/// The options set in `opt` that the mesher of organised clouds (from_regular_grid) does not
+/// take, comma-separated ("" if none): with any of them an organised cloud is meshed as points.
+std::string options_the_grid_mesher_ignores(const Options & opt);
 
 /// The NavMap of one or several .pcd files (their points are joined) at `opt.resolution`.
 /// Streams the files, reduces by voxel when they are big, meshes with navmap_ros::from_points
