@@ -27,7 +27,7 @@ from dataclasses import dataclass
 import hashlib
 import math
 import sys
-from typing import Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 
@@ -130,9 +130,26 @@ def lonlat_to_tile(lon: float, lat: float, zoom: int) -> Tuple[float, float]:
     return x, y
 
 
-def _fetch_tile_path(z: int, x: int, y: int, cache: DiskCache, force: bool = False):
-    url = _URL_TEMPLATE.format(z=z, y=y, x=x)
-    key = f'imagery/esri/{z}/{x}/{y}'
+def _lonlat_to_tile_array(lon, lat, zoom: int):
+    lat = np.clip(np.asarray(lat, dtype=np.float64), -85.05112878, 85.05112878)
+    lat_rad = np.radians(lat)
+    n = 2.0 ** zoom
+    x = (np.asarray(lon, dtype=np.float64) + 180.0) / 360.0 * n
+    y = (1.0 - np.log(np.tan(lat_rad) + 1.0 / np.cos(lat_rad)) / math.pi) / 2.0 * n
+    return x, y
+
+
+def _fetch_tile_path(
+    z: int, x: int, y: int, cache: DiskCache, force: bool = False,
+    url_template: Optional[str] = None,
+):
+    if url_template is None:
+        url = _URL_TEMPLATE.format(z=z, y=y, x=x)
+        key = f'imagery/esri/{z}/{x}/{y}'
+    else:
+        url = url_template.replace('{z}', str(z)).replace('{x}', str(x)).replace('{y}', str(y))
+        digest = hashlib.sha1(url_template.encode('utf-8')).hexdigest()[:12]
+        key = f'imagery/xyz/{digest}/{z}/{x}/{y}'
     return cache.get_or_fetch(
         key, '.jpg', lambda dest: get_to_file(url, dest, _TIMEOUT_S), force=force)
 
@@ -167,10 +184,30 @@ class ImageryMosaic:
         r, g, b = (int(round(v)) for v in rgb)
         return r, g, b
 
+    def sample_array(self, lon, lat) -> np.ndarray:
+        """Bilinear colours (..., 3) at lon, lat arrays (float, 0-255); clamps to the edge."""
+        gx, gy = _lonlat_to_tile_array(lon, lat, self.zoom)
+        return _bilinear_rgb(
+            self.image, (gx - self.tile_x0) * _TILE_SIZE, (gy - self.tile_y0) * _TILE_SIZE)
+
+
+def _bilinear_rgb(image: np.ndarray, px: np.ndarray, py: np.ndarray) -> np.ndarray:
+    """Bilinear colours (..., 3) of a (H, W, 3) image at fractional pixels, clamped to it."""
+    h, w, _ = image.shape
+    px = np.clip(px, 0.0, w - 1.0)
+    py = np.clip(py, 0.0, h - 1.0)
+    x0, y0 = np.floor(px).astype(int), np.floor(py).astype(int)
+    x1, y1 = np.minimum(x0 + 1, w - 1), np.minimum(y0 + 1, h - 1)
+    fx, fy = (px - x0)[..., None], (py - y0)[..., None]
+    img = image.astype(np.float32)
+    top = img[y0, x0] * (1 - fx) + img[y0, x1] * fx
+    bot = img[y1, x0] * (1 - fx) + img[y1, x1] * fx
+    return top * (1 - fy) + bot * fy
+
 
 def load_imagery_mosaic(
     bbox: BBox, cache: DiskCache, zoom: int = DEFAULT_ZOOM, force: bool = False,
-    auto_fallback: bool = True,
+    auto_fallback: bool = True, url_template: Optional[str] = None,
 ) -> ImageryMosaic:
     """
     Fetch/mosaic (caching each tile) the imagery covering `bbox` at `zoom`.
@@ -179,6 +216,10 @@ def load_imagery_mosaic(
     `zoom` down until it finds real imagery instead of Esri's "not yet
     available" placeholder (see `find_available_zoom`) -- the mosaic is then
     fetched at that adjusted zoom, and `ImageryMosaic.zoom` reflects it.
+
+    `url_template` (with `{z}`, `{x}` and `{y}`) takes the tiles from any XYZ
+    server instead of Esri (the Web Mercator tile scheme is the same). The
+    placeholder probe is Esri's, so it does not run for a custom template.
     """
     if not 0 <= zoom <= 23:
         raise ValueError(f'zoom out of range [0, 23]: {zoom}')
@@ -203,7 +244,7 @@ def load_imagery_mosaic(
             'reduce --size or --zoom'
         )
 
-    if auto_fallback:
+    if auto_fallback and url_template is None:
         center_lon = (bbox.west + bbox.east) / 2.0
         center_lat = (bbox.south + bbox.north) / 2.0
         effective_zoom = find_available_zoom(center_lon, center_lat, cache, zoom, force=force)
@@ -220,7 +261,8 @@ def load_imagery_mosaic(
     mosaic = np.zeros((rows, cols, 3), dtype=np.uint8)
 
     def _fetch_and_place(tx: int, ty: int) -> None:
-        path = _fetch_tile_path(zoom, tx, ty, cache, force=force)
+        extra = {} if url_template is None else {'url_template': url_template}
+        path = _fetch_tile_path(zoom, tx, ty, cache, force=force, **extra)
         with Image.open(path) as im:
             tile_rgb = np.asarray(im.convert('RGB'))
         row_off = (ty - ty0) * _TILE_SIZE
