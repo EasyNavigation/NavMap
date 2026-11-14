@@ -50,6 +50,8 @@ This repository is organized into several ROS 2 packages:
   - Displays surfaces and layers.  
   - Optional per-cell normal rendering.  
   - Layer-based coloring.
+  - Optional NavCel edges (*Draw Edges*, *Edge Color*), to see the triangles of the mesh.
+  - Large maps drawn in chunks; geometry patches (*Patch Topic*) rebuild only the chunks they touch.
 
 - **`navmap_tools/`**  
   Tools and utilities for building and testing NavMaps (mesh import/export, conversions, etc.)
@@ -386,6 +388,21 @@ navmap::NavMap nm2 = navmap_ros::from_msg(msg);
 ### Layer updates
 
 `navmap_ros::to_layer_update_msg(nm, "obstacles")` publishes only what changed since the layer's last `clear_changes()`: a sparse `NavMapLayer` (`indices` + values) when few NavCels changed, the full layer otherwise. Every `NavMap` and `NavMapLayer` message carries the map's `geometry_id`, so `from_msg` (and RViz2) reject updates meant for another geometry.
+
+### Geometry patches
+
+A map whose geometry changes in a few places (e.g. a simplified copy that merges and splits NavCels) can send only those changes instead of the whole map. `navmap_ros::to_patch_msg(nm, base_geometry_id, first_vertex, navcels, surfaces)` builds a `NavMapPatch` with the new vertices (from `first_vertex` on), the rewritten NavCels (with their vertices and the value of every layer) and the replaced surfaces; links are always sent whole. The receiver applies it to the last map it has with `navmap_ros::apply_patch(patch, msg)`, which returns `false` and leaves `msg` untouched if `msg` is not the patch's base map (`geometry_id != base_geometry_id`) or the patch does not fit it: then it must wait for a full map. The RViz2 NavMap display subscribes to `<topic>_patch` by default (*Patch Topic*).
+
+```cpp
+// publisher: the whole map the first time, patches afterwards
+auto patch = navmap_ros::to_patch_msg(nm, last_sent_geometry_id, first_new_vertex,
+                                      changed_navcels, changed_surfaces, header);
+patch_pub->publish(patch);
+last_sent_geometry_id = nm.geometry_id();
+
+// receiver
+if (!navmap_ros::apply_patch(*patch, last_map_msg)) { /* wait for a full map */ }
+```
 
 ---
 

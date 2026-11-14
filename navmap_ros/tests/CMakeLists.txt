@@ -21,3 +21,6 @@ ament_add_gtest(test_layer_metadata_and_migration test_layer_metadata_and_migrat
 target_link_libraries(test_layer_metadata_and_migration
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_patch test_patch.cpp)
+target_link_libraries(test_patch ${PROJECT_NAME})

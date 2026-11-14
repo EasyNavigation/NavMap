@@ -584,6 +584,21 @@ public:
    */
   void rebuild_geometry_accels();
 
+  /**
+   * \brief As rebuild_geometry_accels(), keeping what the caller already filled.
+   *
+   * A builder that knows the topology or a hierarchy of its NavCels (a mesh made from a tree,
+   * say) can fill NavCel::neighbor and each Surface's aabb / bvh / prim_indices itself, in linear
+   * time, and skip the sorts of the generic builders.
+   * \param rebuild_adjacency false: NavCel::neighbor is kept as given.
+   * \param rebuild_bvh false: every Surface's aabb, bvh (root at index 0) and prim_indices are
+   *        kept as given.
+   * \param recompute_normals false: NavCel::normal and NavCel::area are kept as given (a builder
+   *        that edits a few NavCels of a big map sets theirs).
+   */
+  void rebuild_geometry_accels(
+    bool rebuild_adjacency, bool rebuild_bvh, bool recompute_normals = true);
+
 /**
  * \brief Copy assignment optimized to avoid geometry duplication.
  *
