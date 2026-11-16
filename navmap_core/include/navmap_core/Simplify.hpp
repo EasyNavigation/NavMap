@@ -23,6 +23,7 @@
 #define NAVMAP_CORE__SIMPLIFY_HPP_
 
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <string>
 #include <vector>
@@ -49,6 +50,12 @@ struct SimplifyParams
   /// Layers left out of the above (e.g. per-cell geometry such as "elevation"). They are carried
   /// from the NavCel that survives, so recompute them if they depend on its shape.
   std::vector<std::string> ignore_layers;
+  /// Optional: max_error at each point (m), e.g. growing with the distance to a robot, so the map
+  /// is exact near it and coarse far away. A collapse uses the smaller of the values at its two
+  /// vertices; a value that is not finite or is negative stands for max_error.
+  std::function<float(const Eigen::Vector3f &)> max_error_at;
+  /// Optional: max_edge_length at each point (m), the same way.
+  std::function<float(const Eigen::Vector3f &)> max_edge_length_at;
 };
 
 /// Sizes before and after simplify().

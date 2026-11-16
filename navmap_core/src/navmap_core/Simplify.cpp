@@ -218,10 +218,26 @@ private:
     return out;
   }
 
+  // The square of a bound at the collapse of u into v: the smaller of what `at` says at both
+  // vertices, `fallback` where it says nothing usable
+  double bound2(
+    const std::function<float(const Eigen::Vector3f &)> & at, uint32_t u, uint32_t v,
+    double fallback) const
+  {
+    if (!at) {return fallback * fallback;}
+    const float a = at(P_[u].cast<float>()), b = at(P_[v].cast<float>());
+    const bool ok_a = std::isfinite(a) && a >= 0.0f, ok_b = std::isfinite(b) && b >= 0.0f;
+    if (!ok_a && !ok_b) {return fallback * fallback;}
+    const double m = !ok_a ? b : (!ok_b ? a : std::min(a, b));
+    return m * m;
+  }
+
   // Whether collapsing u into v keeps layers, border, topology and quality; its quadric cost.
   bool valid(uint32_t u, uint32_t v, double & cost) const
   {
     if (locked_[u] || dead_[u] || dead_[v] || u == v) {return false;}
+    const double max_err2 = p_.max_error_at ?
+      bound2(p_.max_error_at, u, v, p_.max_error) : max_err2_;
     const auto & fan = VT_[u];
     for (const uint32_t t : fan) {
       if (cls_[t] != cls_[fan[0]] || surf_[t] != surf_[fan[0]]) {return false;}
@@ -243,7 +259,7 @@ private:
       if (len2 == 0.0) {return false;}
       const double s = (P_[u] - P_[v]).dot(d) / len2;
       if (s <= 0.0 || s >= 1.0) {return false;}
-      if ((P_[v] + s * d - P_[u]).squaredNorm() > max_err2_) {return false;}
+      if ((P_[v] + s * d - P_[u]).squaredNorm() > max_err2) {return false;}
     } else if (!open.empty() || et.size() != 2) {
       return false;
     }
@@ -255,7 +271,7 @@ private:
     }
     if (common != et.size()) {return false;}
     // The NavCels that stay, with v instead of u
-    const double max_edge2 = static_cast<double>(p_.max_edge_length) * p_.max_edge_length;
+    const double max_edge2 = bound2(p_.max_edge_length_at, u, v, p_.max_edge_length);
     bool any = false;
     double dev2 = std::numeric_limits<double>::infinity();
     for (const uint32_t t : fan) {
@@ -279,10 +295,10 @@ private:
           P_[u].cast<float>(), q[0].cast<float>(), q[1].cast<float>(), q[2].cast<float>())));
       any = true;
     }
-    if (!any || dev2 > max_err2_) {return false;}
+    if (!any || dev2 > max_err2) {return false;}
     const Eigen::Vector4d h(P_[v].x(), P_[v].y(), P_[v].z(), 1.0);
     cost = std::max(0.0, h.dot((Q_[u] + Q_[v]) * h));
-    return cost <= max_err2_;
+    return cost <= max_err2;
   }
 
   void push_best(uint32_t u)
