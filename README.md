@@ -347,6 +347,18 @@ ros2 run navmap_tools navmap_simplify in.navmap out.navmap --max-error 0.02 \
 
 ---
 
+## 7h-bis. A NavMap of any place, with its buildings (`navmap_gis_tool`)
+
+`navmap_gis_tool` samples the terrain of a square around a GPS point (IGN in Spain, Copernicus elsewhere) on a grid. `--navmap-out` writes it as a NavMap, two NavCels per cell, without the cells that have no ground or are steeper than `--max-slope-deg` (vectorised: tens of millions of cells in seconds). `--buildings` downloads the footprints of the buildings and leaves out every cell any part of a building is in: `catastro` (Spain, the Catastro INSPIRE WFS, building parts with floors above ground, patios kept as ground), `osm` (OpenStreetMap, anywhere) or `auto` (the Catastro in Spain, OpenStreetMap elsewhere or where the Catastro has none). The answers are cached on disk.
+
+```bash
+# 2 x 2 km around the Puerta del Sol (Madrid), cells of 0.5 m
+ros2 run navmap_tools navmap_gis_tool --center 40.41690,-3.70350 --size 2000 --resolution 0.5 \
+  --dem-source ign --buildings auto --navmap-out sol.navmap
+```
+
+---
+
 ## 7i. Clouds with sensor positions (`from_points` with viewpoints)
 
 A cloud whose points keep the position of the sensor that saw them (`pcl::PointWithViewpoint`: `vp_x`, `vp_y`, `vp_z`) tells free space from occupied space, which a bare cloud cannot. `from_points` takes it and cleans the cloud before meshing (`filter_with_viewpoints`):
