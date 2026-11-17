@@ -191,6 +191,9 @@ private:
         }
       }
     }
+    for (const PointId x : p_.keep_vertices) {
+      if (x < nv) {locked_[x] = 1;}
+    }
     for (uint32_t u = 0; u < nv; ++u) {
       if (VT_[u].empty()) {dead_[u] = 1;}
     }

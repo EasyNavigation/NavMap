@@ -49,6 +49,9 @@ struct SimplifyParams
   /// Layers left out of the above (e.g. per-cell geometry such as "elevation"). They are carried
   /// from the NavCel that survives, so recompute them if they depend on its shape.
   std::vector<std::string> ignore_layers;
+  /// Vertices (ids of the input map) that are never removed: other vertices may collapse onto
+  /// them, they never collapse. E.g. where the borders of maps simplified apart must meet.
+  std::vector<PointId> keep_vertices;
 };
 
 /// Sizes before and after simplify().
