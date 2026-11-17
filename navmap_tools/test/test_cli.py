@@ -608,3 +608,34 @@ def test_the_mesh_is_parsed_once_for_the_dem_and_the_world(tmp_path, monkeypatch
     cli_mod._load_dem(args, None, None)     # the world's
     cli_mod._dem_geometry(args)             # the DEM's
     assert len(calls) == 1
+
+
+def test_navmap_out_with_buildings_leaves_their_cells_out(tmp_path, monkeypatch):
+    import numpy as np
+
+    from navmap_tools import cli as cli_mod
+    from navmap_tools.cli import run
+    from navmap_tools.resample import read_navmap
+
+    def fake_buildings(source, lat, lon, radius, cache):
+        assert source == 'osm'
+        # edges inside cells (x, y in [-4.25, 4.25]): cells -5 .. 4 on each axis
+        square = np.array([[-4.25, -4.25], [4.25, -4.25], [4.25, 4.25], [-4.25, 4.25]])
+        return [(square, [])], 'OpenStreetMap'
+    monkeypatch.setattr(cli_mod, 'fetch_buildings', fake_buildings)
+    out = tmp_path / 'map.navmap'
+    args = _BASE + ['--dem-source', 'synthetic', '--resolution', '1', '--max-slope-deg', '89',
+                    '--cache-dir', str(tmp_path / 'c'), '--navmap-out', str(out)]
+    assert run(args) == 0
+    full = len(read_navmap(str(out)).navcels_v0)
+    assert full == 2 * 40 * 40
+    assert run(args + ['--buildings', 'osm']) == 0
+    # the building blocks every cell any part of it is in: 10 x 10
+    assert len(read_navmap(str(out)).navcels_v0) == full - 2 * 10 * 10
+
+
+def test_buildings_need_a_grid_output():
+    from navmap_tools.cli import run
+
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--gazebo', '--buildings', 'osm'])

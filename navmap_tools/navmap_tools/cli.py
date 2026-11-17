@@ -33,12 +33,14 @@ import sys
 
 import numpy as np
 
+from .geo.buildings import describe, fetch_buildings, footprint_cells
 from .geo.cache import default_cache_dir, DiskCache
 from .geo.dem import load_dem_grid
 from .geo.dem_file import (
     add_imagery, build_local_dem, DemSource, read_dem_file, SyntheticDem, SyntheticImagery,
     write_dem_file,
 )
+from .geo.dem_navmap import navmap_from_dem
 from .geo.google import (
     API_KEY_ENV_VAR as GOOGLE_API_KEY_ENV_VAR, get_api_key as get_google_api_key,
     load_google_mosaic,
@@ -51,6 +53,7 @@ from .geo.projection import LocalProjection
 from .geo.terrain_export import write_gazebo_terrain, write_world_from_template
 from .mesh_export import write_dae, write_stl, write_texture_png
 from .pcd_writer import write_colors_csv, write_pcd_xyz
+from .resample import write_navmap
 from .scaffold import scaffold_world_package
 from .terrain import build_terrain_grid, render_texture
 
@@ -195,9 +198,25 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         '--dem-holes-mesh', default=None, metavar='STL',
         help=(
-            '--dem-out: STL in the local frame of --center (buildings, walls); the cells its '
-            'triangles touch (seen from above) have no ground in the DEM: holes, as the walls of '
-            'a NavMap. Use it with a --mesh-file of the ground alone'
+            '--dem-out / --navmap-out: STL in the local frame of --center (buildings, walls); the '
+            'cells its triangles touch (seen from above) have no ground in the DEM: holes, as the '
+            'walls of a NavMap. Use it with a --mesh-file of the ground alone'
+        ))
+    parser.add_argument(
+        '--buildings', choices=('auto', 'catastro', 'osm'), default=None,
+        help=(
+            '--dem-out / --navmap-out: download the footprints of the buildings and leave their '
+            'cells without ground (a cell any part of a building is in): catastro (Spain, the '
+            'Catastro INSPIRE WFS), osm (OpenStreetMap, anywhere), auto (the Catastro in Spain, '
+            'OpenStreetMap elsewhere or where the Catastro has none)'
+        ))
+    parser.add_argument(
+        '--navmap-out', default=None, metavar='FILE',
+        help=(
+            'write the local height grid as a .navmap: two NavCels per cell of --resolution m, '
+            'without the cells that have no ground (--buildings, --dem-holes-mesh) or are steeper '
+            'than --max-slope-deg; vertex colours with --dem-imagery. Vectorised, for large areas '
+            '(unlike --navmap)'
         ))
     parser.add_argument(
         '--mesh-world-elevation', type=float, default=None, metavar='METERS',
@@ -254,8 +273,8 @@ def run(argv=None) -> int:
     args = parser.parse_args(argv)
     _mesh_heightfield.cache_clear()   # once per run: the file may have changed since the last
 
-    if not args.gazebo and not args.navmap and not args.dem_out:
-        parser.error('at least one of --gazebo/--navmap/--dem-out is required')
+    if not args.gazebo and not args.navmap and not args.dem_out and not args.navmap_out:
+        parser.error('at least one of --gazebo/--navmap/--dem-out/--navmap-out is required')
     if args.size <= 0:
         parser.error('--size must be positive')
     if args.resolution <= 0:
@@ -273,8 +292,8 @@ def run(argv=None) -> int:
         parser.error('--imagery-source xyz needs --imagery-url')
     if args.dem_source == 'mesh' and not args.mesh_file:
         parser.error('--dem-source mesh needs --mesh-file')
-    if args.dem_holes_mesh and not args.dem_out:
-        parser.error('--dem-holes-mesh needs --dem-out')
+    if (args.dem_holes_mesh or args.buildings) and not (args.dem_out or args.navmap_out):
+        parser.error('--dem-holes-mesh and --buildings need --dem-out or --navmap-out')
     if args.dem_source == 'mesh' and args.mesh_cell <= 0:
         parser.error('--mesh-cell must be positive')
     if args.dem_data_resolution < 0:
@@ -290,12 +309,13 @@ def run(argv=None) -> int:
 
     # the world / NavMap sampling loop is pure Python; --dem-out alone is vectorised
     needs_grid = args.gazebo or args.navmap
-    if args.dem_out:
+    if args.dem_out or args.navmap_out:
         need = _dem_memory_bytes(args)
         available = _available_memory_bytes()
         if available is not None and need > available:
             parser.error(
-                f'--dem-out at --size {args.size} / --resolution {args.resolution} needs about '
+                f'--dem-out/--navmap-out at --size {args.size} / --resolution {args.resolution} '
+                f'needs about '
                 f'{need / 1e9:.1f} GB to build and {available / 1e9:.1f} GB are available; '
                 'increase --resolution or reduce --size')
     n_per_side = round(args.size / args.resolution) + 1
@@ -335,8 +355,8 @@ def run(argv=None) -> int:
             f"than the DEM's native ~{dem_native_m:.1f} m resolution; elevation detail "
             'below that will be smoothly interpolated, not real', file=sys.stderr)
 
-    if args.dem_out:
-        _write_dem(args, dem, imagery, lat, lon)
+    if args.dem_out or args.navmap_out:
+        _write_dem(args, dem, imagery, lat, lon, cache)
     grid = build_terrain_grid(projection, dem, imagery, args.size, args.resolution)
 
     paths = scaffold_world_package(
@@ -518,7 +538,7 @@ def _run_dem_only(args, bbox, cache) -> int:
     lat, lon = args.center
     radius, reference, data_res, mesh = _dem_geometry(args)
     grid = None
-    if not args.force_refresh and Path(args.dem_out).is_file():
+    if args.dem_out and not args.force_refresh and Path(args.dem_out).is_file():
         try:
             old = read_dem_file(args.dem_out)
         except (OSError, ValueError):
@@ -541,12 +561,14 @@ def _run_dem_only(args, bbox, cache) -> int:
             source=_source_id(args), reference_altitude=reference, data_resolution=data_res)
         if imagery is not None:
             add_imagery(grid, imagery, args.zoom)
-        _add_holes(grid, args)
-        _write_dem_and_inputs(grid, args)
-        print(
-            f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
-            f'{grid.resolution} m, sampled every {grid.data_resolution} m, '
-            f'reference altitude {grid.reference_altitude:.1f} m)')
+        _add_holes(grid, args, cache)
+        if args.dem_out:
+            _write_dem_and_inputs(grid, args)
+            print(
+                f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
+                f'{grid.resolution} m, sampled every {grid.data_resolution} m, '
+                f'reference altitude {grid.reference_altitude:.1f} m)')
+    _write_navmap_out(grid, args)
     if args.terrain_out:
         write_gazebo_terrain(grid, args.terrain_out, args.terrain_resolution)
         print(f'[navmap_gis_tool] wrote the Gazebo terrain in {args.terrain_out}')
@@ -569,7 +591,8 @@ def _file_id(path):
 
 def _dem_inputs(args) -> dict:
     """Return what makes a DEM besides its geometry: the input files and options, the imagery."""
-    dem = {'dem_source': args.dem_source, 'holes_mesh': _file_id(args.dem_holes_mesh)}
+    dem = {'dem_source': args.dem_source, 'holes_mesh': _file_id(args.dem_holes_mesh),
+           'buildings': args.buildings}
     if args.dem_source == 'mesh':
         dem.update(mesh_file=_file_id(args.mesh_file), mesh_cell=args.mesh_cell,
                    mesh_world_elevation=args.mesh_world_elevation)
@@ -598,7 +621,7 @@ def _is_the_same(old, args, lat, lon, radius, reference, data_res) -> bool:
     """Whether the DEM file on disk is what these arguments would make."""
     if not old.matches(lat, lon, radius, args.resolution, _source_id(args), reference, data_res):
         return False
-    if bool(args.dem_holes_mesh) != (old.cell_valid is not None):
+    if bool(args.dem_holes_mesh or args.buildings) != (old.cell_valid is not None):
         return False
     try:   # made from the same files and options (a DEM without this record is rebuilt)
         recorded = json.loads(_inputs_path(args.dem_out).read_text())
@@ -612,30 +635,58 @@ def _is_the_same(old, args, lat, lon, radius, reference, data_res) -> bool:
         recorded.get('imagery') == wanted['imagery'])
 
 
-def _add_holes(grid, args) -> None:
-    """--dem-holes-mesh: the cells its triangles touch have no ground."""
-    if not args.dem_holes_mesh:
+def _add_holes(grid, args, cache=None) -> None:
+    """
+    Leave without ground the cells of the obstacles.
+
+    --dem-holes-mesh: the cells its triangles touch; --buildings: those of the footprints.
+    """
+    if not args.dem_holes_mesh and not args.buildings:
         return
-    holes = hole_cells(load_stl_triangles(args.dem_holes_mesh), grid.side, grid.resolution)
+    nc = grid.side - 1
+    holes = np.zeros((nc, nc), dtype=bool)
+    if args.dem_holes_mesh:
+        holes |= hole_cells(load_stl_triangles(args.dem_holes_mesh), grid.side, grid.resolution)
+        print(f'[navmap_gis_tool] holes from {args.dem_holes_mesh}: {holes.sum()} cells')
+    if args.buildings:
+        if cache is None:
+            cache = DiskCache(args.cache_dir or default_cache_dir())
+        footprints, source = fetch_buildings(
+            args.buildings, grid.origin_lat, grid.origin_lon, grid.radius, cache)
+        before = int(holes.sum())
+        footprint_cells(footprints, grid.side, grid.resolution, holes)
+        print(f'[navmap_gis_tool] buildings ({source}): {describe(footprints)}, '
+              f'{int(holes.sum()) - before} cells')
     grid.cell_valid = (~holes).astype(np.uint8)
-    print(f'[navmap_gis_tool] holes from {args.dem_holes_mesh}: {holes.sum()} of {holes.size} '
-          f'cells without ground')
+    print(f'[navmap_gis_tool] {int(holes.sum())} of {holes.size} cells without ground')
 
 
-def _write_dem(args, dem, imagery, lat, lon) -> None:
-    """--dem-out next to a world / NavMap: the local height grid that bigmap_maps_manager reads."""
+def _write_navmap_out(grid, args) -> None:
+    """--navmap-out: the local grid as a NavMap."""
+    if not args.navmap_out:
+        return
+    msg = navmap_from_dem(grid, args.max_slope_deg)
+    write_navmap(msg, args.navmap_out)
+    print(f'[navmap_gis_tool] wrote {args.navmap_out} ({len(msg.navcels_v0)} NavCels, '
+          f'{len(msg.positions_x)} vertices)')
+
+
+def _write_dem(args, dem, imagery, lat, lon, cache=None) -> None:
+    """--dem-out / --navmap-out next to a world / NavMap: the local height grid."""
     radius, reference, data_res, _ = _dem_geometry(args)
     grid = build_local_dem(
         dem, lat, lon, radius=radius, resolution=args.resolution,
         source=_source_id(args), reference_altitude=reference, data_resolution=data_res)
     if imagery is not None and args.dem_imagery:
         add_imagery(grid, imagery, args.zoom)   # the zoom the DEM-only path compares with
-    _add_holes(grid, args)
-    _write_dem_and_inputs(grid, args)
-    print(
-        f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
-        f'{grid.resolution} m, sampled every {grid.data_resolution} m, '
-        f'reference altitude {grid.reference_altitude:.1f} m)')
+    _add_holes(grid, args, cache)
+    if args.dem_out:
+        _write_dem_and_inputs(grid, args)
+        print(
+            f'[navmap_gis_tool] wrote {args.dem_out} ({grid.side}x{grid.side} nodes of '
+            f'{grid.resolution} m, sampled every {grid.data_resolution} m, '
+            f'reference altitude {grid.reference_altitude:.1f} m)')
+    _write_navmap_out(grid, args)
     if args.terrain_out:
         write_gazebo_terrain(grid, args.terrain_out, args.terrain_resolution)
     if args.world_template:
