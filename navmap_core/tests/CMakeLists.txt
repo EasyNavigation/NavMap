@@ -92,3 +92,8 @@ ament_add_gtest(test_surface_tree test_surface_tree.cpp)
 target_link_libraries(test_surface_tree
   ${PROJECT_NAME}
 )
+
+ament_add_gtest(test_subdivide test_subdivide.cpp)
+target_link_libraries(test_subdivide
+  ${PROJECT_NAME}
+)

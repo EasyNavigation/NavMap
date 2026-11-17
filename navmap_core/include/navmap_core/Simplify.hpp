@@ -56,6 +56,9 @@ struct SimplifyParams
   std::function<float(const Eigen::Vector3f &)> max_error_at;
   /// Optional: max_edge_length at each point (m), the same way.
   std::function<float(const Eigen::Vector3f &)> max_edge_length_at;
+  /// Vertices (ids of the input map) that are never removed: other vertices may collapse onto
+  /// them, they never collapse. E.g. where the borders of maps simplified apart must meet.
+  std::vector<PointId> keep_vertices;
 };
 
 /// Sizes before and after simplify().
