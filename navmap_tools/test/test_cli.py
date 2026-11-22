@@ -25,6 +25,7 @@ import argparse
 from navmap_tools.cli import (
     _default_package_name,
     _parse_center,
+    _parse_keep,
     _texture_pixels_for,
     build_arg_parser,
 )
@@ -411,6 +412,62 @@ def test_dem_holes_mesh_makes_the_cells_under_a_building_holes(tmp_path, capsys)
     # the same configuration without holes is another DEM: rebuilt, not reused
     assert run(args) == 0
     assert read_dem_file(out).cell_valid is None
+
+
+@pytest.mark.parametrize('value, expected', [
+    ('largest', 'largest'), ('1.5,-2', (1.5, -2.0)), (' 0 , 0 ', (0.0, 0.0))])
+def test_parse_keep(value, expected):
+    assert _parse_keep(value) == expected
+
+
+@pytest.mark.parametrize('value', ['', 'biggest', '1', '1,2,3', 'a,b', 'nan,0', '0,inf'])
+def test_parse_keep_rejects(value):
+    with pytest.raises(ValueError):
+        _parse_keep(value)
+
+
+def test_navmap_keep_leaves_out_the_roofs_of_a_mesh_with_buildings(tmp_path, capsys):
+    import struct
+
+    from navmap_tools.cli import run
+    from navmap_tools.resample import read_navmap
+
+    def write(path, quads):
+        tris = []
+        for x0, y0, x1, y1, z in quads:
+            tris += [(x0, y0, z, x1, y0, z, x1, y1, z), (x0, y0, z, x1, y1, z, x0, y1, z)]
+        with open(path, 'wb') as f:
+            f.write(b'\0' * 80 + struct.pack('<I', len(tris)))
+            for t in tris:
+                f.write(struct.pack('<12fH', 0, 0, 1, *t, 0))
+    world = tmp_path / 'world.stl'
+    # the ground and, over it, the flat roof of a 6 x 6 m building, 12 m high
+    write(world, [(-30, -30, 30, 30, 0.0), (5.0, -3.0, 11.0, 3.0, 12.0)])
+    out = tmp_path / 'place.navmap'
+    args = _BASE + ['--navmap-out', str(out), '--dem-source', 'mesh', '--mesh-file', str(world),
+                    '--resolution', '1', '--max-slope-deg', '25', '--cache-dir',
+                    str(tmp_path / 'c')]
+    assert run(args) == 0
+    every = read_navmap(str(out))
+    assert max(every.positions_z) == pytest.approx(12.0, abs=1e-3)   # the roof is in the map
+    assert run(args + ['--navmap-keep', '0,0']) == 0
+    kept = read_navmap(str(out))
+    assert max(kept.positions_z) == pytest.approx(0.0, abs=1e-3)     # only the ground
+    assert len(kept.navcels_v0) < len(every.navcels_v0)
+    assert 'left out, not connected' in capsys.readouterr().out
+    assert run(args + ['--navmap-keep', 'largest']) == 0
+    assert len(read_navmap(str(out)).navcels_v0) == len(kept.navcels_v0)
+
+
+def test_navmap_keep_needs_navmap_out_and_a_valid_value(tmp_path):
+    from navmap_tools.cli import run
+
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--dem-out', str(tmp_path / 'd.bin'), '--dem-source', 'synthetic',
+                     '--navmap-keep', 'largest'])
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--navmap-out', str(tmp_path / 'm.navmap'), '--dem-source', 'synthetic',
+                     '--navmap-keep', 'here'])
 
 
 def _run_synthetic(tmp_path, *extra):

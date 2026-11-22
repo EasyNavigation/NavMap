@@ -40,7 +40,7 @@ from .geo.dem_file import (
     add_imagery, build_local_dem, DemSource, read_dem_file, SyntheticDem, SyntheticImagery,
     write_dem_file,
 )
-from .geo.dem_navmap import navmap_from_dem
+from .geo.dem_navmap import ground_cells, navmap_from_dem
 from .geo.google import (
     API_KEY_ENV_VAR as GOOGLE_API_KEY_ENV_VAR, get_api_key as get_google_api_key,
     load_google_mosaic,
@@ -103,6 +103,22 @@ def _parse_center(value: str):
     except ValueError as e:
         raise argparse.ArgumentTypeError(f'--center must be "LAT,LON": {e}') from e
     return lat, lon
+
+
+def _parse_keep(value: str):
+    """--navmap-keep: 'largest', or 'X,Y' as two finite floats."""
+    if value.strip() == 'largest':
+        return 'largest'
+    parts = value.split(',')
+    try:
+        if len(parts) != 2:
+            raise ValueError
+        x, y = (float(v) for v in parts)
+    except ValueError:
+        raise ValueError(f'--navmap-keep must be X,Y (metres) or largest, not {value!r}') from None
+    if not (math.isfinite(x) and math.isfinite(y)):
+        raise ValueError(f'--navmap-keep must be finite, not {value!r}')
+    return (x, y)
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -219,6 +235,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
             '(unlike --navmap)'
         ))
     parser.add_argument(
+        '--navmap-keep', default=None, metavar='X,Y|largest',
+        help=(
+            '--navmap-out: keep only the NavCels connected to the point X,Y (metres in the local '
+            'frame of --center, e.g. where the robot starts; the nearest cell with ground is '
+            'taken), or to the largest connected part: what the robot can reach, without roofs '
+            'and closed patios (default: every cell with ground)'
+        ))
+    parser.add_argument(
         '--mesh-world-elevation', type=float, default=None, metavar='METERS',
         help='--dem-source mesh: altitude above sea level of the mesh z = 0 (default: 0)')
     parser.add_argument(
@@ -294,6 +318,13 @@ def run(argv=None) -> int:
         parser.error('--dem-source mesh needs --mesh-file')
     if (args.dem_holes_mesh or args.buildings) and not (args.dem_out or args.navmap_out):
         parser.error('--dem-holes-mesh and --buildings need --dem-out or --navmap-out')
+    if args.navmap_keep is not None:
+        if not args.navmap_out:
+            parser.error('--navmap-keep needs --navmap-out')
+        try:
+            args.navmap_keep = _parse_keep(args.navmap_keep)
+        except ValueError as e:
+            parser.error(str(e))
     if args.dem_source == 'mesh' and args.mesh_cell <= 0:
         parser.error('--mesh-cell must be positive')
     if args.dem_data_resolution < 0:
@@ -665,10 +696,16 @@ def _write_navmap_out(grid, args) -> None:
     """--navmap-out: the local grid as a NavMap."""
     if not args.navmap_out:
         return
-    msg = navmap_from_dem(grid, args.max_slope_deg)
+    keep = getattr(args, 'navmap_keep', None)
+    msg = navmap_from_dem(grid, args.max_slope_deg, keep=keep)
     write_navmap(msg, args.navmap_out)
+    kept = ''
+    if keep is not None:
+        total = 2 * int(ground_cells(grid, args.max_slope_deg).sum())
+        where = 'the largest part' if keep == 'largest' else 'the part at %g, %g' % keep
+        kept = f'; {where}: {total - len(msg.navcels_v0)} of {total} left out, not connected'
     print(f'[navmap_gis_tool] wrote {args.navmap_out} ({len(msg.navcels_v0)} NavCels, '
-          f'{len(msg.positions_x)} vertices)')
+          f'{len(msg.positions_x)} vertices{kept})')
 
 
 def _write_dem(args, dem, imagery, lat, lon, cache=None) -> None:

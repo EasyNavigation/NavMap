@@ -18,12 +18,14 @@ A local height grid (dem_file.LocalDem) as a NavMap.
 Two NavCels per cell with ground, on the nodes of the grid (x east, y north, z its height):
 the cells without ground (cell_valid, e.g. buildings) and those steeper than max_slope_deg are
 left out, as holes, so the NavMap's open edges are the borders of what the robot cannot be on.
+Optionally only the part connected to a point (or the largest part) is kept: what the robot can
+reach, without the roofs and the closed patios that are islands of the grid.
 Vectorised: a grid of tens of millions of cells is converted in seconds.
 """
 
 from array import array
 import math
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 from navmap_ros_interfaces.msg import NavMap, NavMapSurface
 import numpy as np
@@ -59,11 +61,79 @@ def ground_cells(dem: LocalDem, max_slope_deg: Optional[float] = None) -> np.nda
     return ok
 
 
+def connected_parts(ok: np.ndarray) -> np.ndarray:
+    """
+    Label the connected parts of the cells of `ok` (2D bool): an int per cell, -1 where False.
+
+    Cells that share an edge have the same label, and so do their NavCels, which share edges only
+    across those (two cells that touch at a corner share a vertex).
+
+    Union-find over the edges between neighbouring cells, every edge at once: each round hooks the
+    larger root of the two ends of an edge onto the smaller one and compresses the paths, until
+    both ends of every edge have the same root.
+    """
+    idx = np.full(ok.shape, -1, np.int64)
+    cells = np.flatnonzero(ok)
+    idx.flat[cells] = np.arange(len(cells))
+    right = ok[:, :-1] & ok[:, 1:]
+    up = ok[:-1, :] & ok[1:, :]
+    a = np.concatenate([idx[:, :-1][right], idx[:-1, :][up]])
+    b = np.concatenate([idx[:, 1:][right], idx[1:, :][up]])
+    parent = np.arange(len(cells))
+    while len(a):
+        pa, pb = parent[a], parent[b]
+        differ = pa != pb
+        if not differ.any():
+            break
+        a, b, pa, pb = a[differ], b[differ], pa[differ], pb[differ]
+        np.minimum.at(parent, np.maximum(pa, pb), np.minimum(pa, pb))
+        while True:
+            grand = parent[parent]
+            if np.array_equal(grand, parent):
+                break
+            parent = grand
+    labels = np.full(ok.shape, -1, np.int64)
+    labels.flat[cells] = parent
+    return labels
+
+
+def keep_connected(dem: LocalDem, ok: np.ndarray,
+                   keep: Union[str, Tuple[float, float]]) -> np.ndarray:
+    """
+    Return `ok` without the cells that are not connected to `keep`.
+
+    `keep`: a point (x, y) in the local frame, whose nearest cell of `ok` is taken (it may fall on
+    a hole), or 'largest', the part of most cells.
+    """
+    labels = connected_parts(ok)
+    if not ok.any():
+        return ok
+    if isinstance(keep, str):
+        if keep != 'largest':
+            raise ValueError("keep must be 'largest' or (x, y), not %r" % keep)
+        counts = np.bincount(labels[ok])
+        return labels == int(np.argmax(counts))
+    x, y = (float(v) for v in keep)
+    cj, ci = np.nonzero(ok)
+    half = dem.resolution / 2.0
+    d2 = (dem.x(ci) + half - x) ** 2 + (dem.y(cj) + half - y) ** 2
+    k = int(np.argmin(d2))
+    return labels == labels[cj[k], ci[k]]
+
+
 def navmap_from_dem(dem: LocalDem, max_slope_deg: Optional[float] = None,
-                    frame: str = 'map') -> NavMap:
-    """Build the NavMap message of a LocalDem (see the module docstring)."""
+                    frame: str = 'map',
+                    keep: Optional[Union[str, Tuple[float, float]]] = None) -> NavMap:
+    """
+    Build the NavMap message of a LocalDem (see the module docstring).
+
+    `keep`: None, every cell with ground; (x, y), only the part connected to that point (see
+    keep_connected); 'largest', the largest part.
+    """
     side = dem.side
     ok = ground_cells(dem, max_slope_deg)
+    if keep is not None:
+        ok = keep_connected(dem, ok, keep)
     cj, ci = np.nonzero(ok)
     a = cj * side + ci
     b = a + 1
