@@ -1,7 +1,9 @@
 <map id="SimplifyParams" name="SimplifyParams">
-<area shape="rect" id="Node000001" title="Parameters of simplify()." alt="" coords="50,163,163,189"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="23,47,19,92,22,116,31,138,44,151,60,160,57,165,40,155,27,140,17,117,13,92,18,46"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="118,5,253,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,47,179,93,170,117,158,141,146,154,132,165,129,160,142,150,154,137,166,115,174,91,181,46"/>
+<area shape="rect" id="Node000001" title="Parameters of simplify()." alt="" coords="129,178,242,204"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,13,51,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="28,54,32,104,40,130,55,152,71,165,89,175,129,185,128,190,87,180,68,170,51,156,36,132,27,105,23,54"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="118,13,253,38"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,54,188,177,183,177,183,54"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="278,5,416,46"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="337,62,314,110,297,134,276,156,256,170,234,180,232,175,253,165,273,152,293,131,309,107,333,59"/>
 </map>

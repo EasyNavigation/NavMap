@@ -112,11 +112,13 @@ Collaboration diagram for SimplifyParams:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnavmap_1_1SimplifyParams__coll__graph.png" border="0" usemap="#aSimplifyParams_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="aSimplifyParams_coll__map" id="aSimplifyParams_coll__map">
-<area shape="rect" title="Parameters of simplify()." alt="" coords="50,163,163,189"/>
-<area shape="rect" title=" " alt="" coords="5,5,51,31"/>
-<area shape="poly" title=" " alt="" coords="23,47,19,92,22,116,31,138,44,151,60,160,57,165,40,155,27,140,17,117,13,92,18,46"/>
-<area shape="rect" title=" " alt="" coords="118,5,253,31"/>
-<area shape="poly" title=" " alt="" coords="187,47,179,93,170,117,158,141,146,154,132,165,129,160,142,150,154,137,166,115,174,91,181,46"/>
+<area shape="rect" title="Parameters of simplify()." alt="" coords="129,178,242,204"/>
+<area shape="rect" title=" " alt="" coords="5,13,51,38"/>
+<area shape="poly" title=" " alt="" coords="28,54,32,104,40,130,55,152,71,165,89,175,129,185,128,190,87,180,68,170,51,156,36,132,27,105,23,54"/>
+<area shape="rect" title=" " alt="" coords="118,13,253,38"/>
+<area shape="poly" title=" " alt="" coords="188,54,188,177,183,177,183,54"/>
+<area shape="rect" title=" " alt="" coords="278,5,416,46"/>
+<area shape="poly" title=" " alt="" coords="337,62,314,110,297,134,276,156,256,170,234,180,232,175,253,165,273,152,293,131,309,107,333,59"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -128,8 +130,12 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a2004ffd2819e281743acbfdfcec5339d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layers whose values must not change anywhere; empty: all the layers of the map.  <br /></td></tr>
 <tr class="memitem:a31be7cd3f9d91f4caef160830e2ddb29" id="r_a31be7cd3f9d91f4caef160830e2ddb29"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a31be7cd3f9d91f4caef160830e2ddb29">max_edge_length</a> {std::numeric_limits&lt;float&gt;::infinity()}</td></tr>
 <tr class="memdesc:a31be7cd3f9d91f4caef160830e2ddb29"><td class="mdescLeft">&#160;</td><td class="mdescRight">No edge longer than this (m). Bounds the <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> size, e.g. to keep marking obstacles fine.  <br /></td></tr>
+<tr class="memitem:adca453531d07e54a693a98869c30d3cf" id="r_adca453531d07e54a693a98869c30d3cf"><td class="memItemLeft">std::function&lt; float(const Eigen::Vector3f &amp;)&gt;&#160;</td><td class="memItemRight"><a class="el" href="#adca453531d07e54a693a98869c30d3cf">max_edge_length_at</a></td></tr>
+<tr class="memdesc:adca453531d07e54a693a98869c30d3cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional: max_edge_length at each point (m), the same way.  <br /></td></tr>
 <tr class="memitem:a9c4ef69fc0c06678bdaf67649bbba09e" id="r_a9c4ef69fc0c06678bdaf67649bbba09e"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a9c4ef69fc0c06678bdaf67649bbba09e">max_error</a> {0.02f}</td></tr>
 <tr class="memdesc:a9c4ef69fc0c06678bdaf67649bbba09e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Geometric error (m): every vertex stays within this distance of the planes of the original NavCels it replaces (quadric error), and of the open edges it moves along.  <br /></td></tr>
+<tr class="memitem:a181c292e8612ab0835d6afe7886e9b5d" id="r_a181c292e8612ab0835d6afe7886e9b5d"><td class="memItemLeft">std::function&lt; float(const Eigen::Vector3f &amp;)&gt;&#160;</td><td class="memItemRight"><a class="el" href="#a181c292e8612ab0835d6afe7886e9b5d">max_error_at</a></td></tr>
+<tr class="memdesc:a181c292e8612ab0835d6afe7886e9b5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional: max_error at each point (m), e.g.  <br /></td></tr>
 <tr class="memitem:a5580b471ca6c81d0b1a1b904aebafbdc" id="r_a5580b471ca6c81d0b1a1b904aebafbdc"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a5580b471ca6c81d0b1a1b904aebafbdc">max_normal_change</a> {30.0f}</td></tr>
 <tr class="memdesc:a5580b471ca6c81d0b1a1b904aebafbdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum rotation (deg) of a <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a>'s normal with respect to the original one.  <br /></td></tr>
 <tr class="memitem:ab5ceefd8de1e95ddcd8a583b1050a2df" id="r_ab5ceefd8de1e95ddcd8a583b1050a2df"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ab5ceefd8de1e95ddcd8a583b1050a2df">min_quality</a> {0.15f}</td></tr>
@@ -187,6 +193,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="adca453531d07e54a693a98869c30d3cf" name="adca453531d07e54a693a98869c30d3cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adca453531d07e54a693a98869c30d3cf">&#9670;&#160;</a></span>max_edge_length_at</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;float(const Eigen::Vector3f &amp;)&gt; max_edge_length_at</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Optional: max_edge_length at each point (m), the same way. </p>
+
+</div>
+</div>
 <a id="a9c4ef69fc0c06678bdaf67649bbba09e" name="a9c4ef69fc0c06678bdaf67649bbba09e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9c4ef69fc0c06678bdaf67649bbba09e">&#9670;&#160;</a></span>max_error</h2>
 
@@ -200,6 +222,23 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Geometric error (m): every vertex stays within this distance of the planes of the original NavCels it replaces (quadric error), and of the open edges it moves along. </p>
+
+</div>
+</div>
+<a id="a181c292e8612ab0835d6afe7886e9b5d" name="a181c292e8612ab0835d6afe7886e9b5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a181c292e8612ab0835d6afe7886e9b5d">&#9670;&#160;</a></span>max_error_at</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::function&lt;float(const Eigen::Vector3f &amp;)&gt; max_error_at</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Optional: max_error at each point (m), e.g. </p>
+<p>growing with the distance to a robot, so the map is exact near it and coarse far away. A collapse uses the smaller of the values at its two vertices; a value that is not finite or is negative stands for max_error. </p>
 
 </div>
 </div>
