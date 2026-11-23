@@ -14,5 +14,6 @@ var searchData=
   ['is_5funknown_11',['is_unknown',['../classnavmap_1_1NavMap.html#a38d4dc9901779d73402088f17477bf68',1,'navmap::NavMap::is_unknown()'],['../classNavMap.html#a38d4dc9901779d73402088f17477bf68',1,'NavMap::is_unknown()']]],
   ['iterating_20over_20navcels_20iterators_20hpp_12',['7b. Iterating over NavCels (&lt;span class=&quot;tt&quot;&gt;Iterators.hpp&lt;/span&gt;)',['../index.html#autotoc_md27',1,'']]],
   ['iterators_20hpp_13',['7b. Iterating over NavCels (&lt;span class=&quot;tt&quot;&gt;Iterators.hpp&lt;/span&gt;)',['../index.html#autotoc_md27',1,'']]],
-  ['iterators_2ehpp_14',['Iterators.hpp',['../Iterators_8hpp.html',1,'']]]
+  ['iterators_2ehpp_14',['Iterators.hpp',['../Iterators_8hpp.html',1,'']]],
+  ['its_20buildings_20navmap_5fgis_5ftool_15',['7h-bis. A NavMap of any place, with its buildings (&lt;span class=&quot;tt&quot;&gt;navmap_gis_tool&lt;/span&gt;)',['../index.html#autotoc_md41',1,'']]]
 ];

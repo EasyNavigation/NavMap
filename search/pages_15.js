@@ -5,5 +5,7 @@ var searchData=
   ['navcel_20layer_20cost_20or_20occupancy_2',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['navcels_20iterators_20hpp_3',['7b. Iterating over NavCels (&lt;span class=&quot;tt&quot;&gt;Iterators.hpp&lt;/span&gt;)',['../index.html#autotoc_md27',1,'']]],
   ['navmap_4',['NavMap',['../index.html',1,'']]],
-  ['navmap_20single_20square_20floor_20with_20two_20triangles_5',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]]
+  ['navmap_20of_20any_20place_20with_20its_20buildings_20navmap_5fgis_5ftool_5',['7h-bis. A NavMap of any place, with its buildings (&lt;span class=&quot;tt&quot;&gt;navmap_gis_tool&lt;/span&gt;)',['../index.html#autotoc_md41',1,'']]],
+  ['navmap_20single_20square_20floor_20with_20two_20triangles_6',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]],
+  ['navmap_5fgis_5ftool_7',['7h-bis. A NavMap of any place, with its buildings (&lt;span class=&quot;tt&quot;&gt;navmap_gis_tool&lt;/span&gt;)',['../index.html#autotoc_md41',1,'']]]
 ];

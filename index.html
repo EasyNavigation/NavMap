@@ -397,6 +397,13 @@ Dependencies</h2>
 </table>
 <hr  />
 <h1 class="doxsection"><a class="anchor" id="autotoc_md41"></a>
+7h-bis. A NavMap of any place, with its buildings (<span class="tt">navmap_gis_tool</span>)</h1>
+<p><span class="tt">navmap_gis_tool</span> samples the terrain of a square around a GPS point (IGN in Spain, Copernicus elsewhere) on a grid. <span class="tt">--navmap-out</span> writes it as a <a class="el" href="classNavMap.html">NavMap</a>, two NavCels per cell, without the cells that have no ground or are steeper than <span class="tt">--max-slope-deg</span> (vectorised: tens of millions of cells in seconds). <span class="tt">--buildings</span> downloads the footprints of the buildings and leaves out every cell any part of a building is in: <span class="tt">catastro</span> (Spain, the Catastro INSPIRE WFS, building parts with floors above ground, patios kept as ground), <span class="tt">osm</span> (OpenStreetMap, anywhere) or <span class="tt">auto</span> (the Catastro in Spain, OpenStreetMap elsewhere or where the Catastro has none). The answers are cached on disk. <span class="tt">--navmap-keep X,Y</span> keeps only the NavCels connected to that point (metres in the local frame of <span class="tt">--center</span>, e.g. where the robot starts), and <span class="tt">--navmap-keep largest</span> the largest connected part: what the robot can reach, without the islands of the grid (the roofs of buildings when the terrain comes from a mesh with them, closed patios).</p>
+<div class="fragment"><div class="line"># 2 x 2 km around the Puerta del Sol (Madrid), cells of 0.5 m, only what is reachable from the centre</div>
+<div class="line">ros2 run navmap_tools navmap_gis_tool --center 40.41690,-3.70350 --size 2000 --resolution 0.5 \</div>
+<div class="line">  --dem-source ign --buildings auto --navmap-out sol.navmap --navmap-keep 0,0</div>
+</div><!-- fragment --><hr  />
+<h1 class="doxsection"><a class="anchor" id="autotoc_md43"></a>
 7i. Clouds with sensor positions (<span class="tt">from_points</span> with viewpoints)</h1>
 <p>A cloud whose points keep the position of the sensor that saw them (<span class="tt">pcl::PointWithViewpoint</span>: <span class="tt">vp_x</span>, <span class="tt">vp_y</span>, <span class="tt">vp_z</span>) tells free space from occupied space, which a bare cloud cannot. <span class="tt">from_points</span> takes it and cleans the cloud before meshing (<span class="tt">filter_with_viewpoints</span>):</p>
 <ul>
@@ -413,7 +420,7 @@ Dependencies</h2>
 <div class="ttc" id="astructnavmap__ros_1_1BuildParams_html_a4333d786c60465d20826583358b2798d"><div class="ttname"><a href="structnavmap__ros_1_1BuildParams.html#a4333d786c60465d20826583358b2798d">navmap_ros::BuildParams::resolution</a></div><div class="ttdeci">float resolution</div><div class="ttdoc">Target in-plane sampling resolution (meters) used by voxelization or gridding.</div><div class="ttdef"><b>Definition</b> conversions.hpp:261</div></div>
 </div><!-- fragment --><p>The ray traversal runs in parallel with OpenMP when it is available. On simulated lidar over the playgrounds' parking garage (0.2 m), the area of the map that is not floor (ceilings seen from below) goes from 15.5 % to 1.0 %; on the scans of a real two-floor building, the route the robot drove lies on one surface, against six from the bare cloud.</p>
 <hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md43"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md45"></a>
 8. Serialize to / from ROS messages</h1>
 <p>Conversion functions are provided in <span class="tt"><a class="el" href="namespacenavmap__ros.html" title="Conversions between core NavMap and ROS-level structures.">navmap_ros</a></span>:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="conversions_8hpp.html">navmap_ros/conversions.hpp</a>&gt;</span></div>
@@ -428,11 +435,11 @@ Dependencies</h2>
 <div class="ttc" id="anamespacenavmap__ros_html_a303bf3630b9cdc3b17180af1a76210cb"><div class="ttname"><a href="namespacenavmap__ros.html#a303bf3630b9cdc3b17180af1a76210cb">navmap_ros::from_msg</a></div><div class="ttdeci">navmap::NavMap from_msg(const navmap_ros_interfaces::msg::NavMap &amp;msg, std_msgs::msg::Header &amp;header)</div><div class="ttdoc">Reconstruct a core navmap::NavMap from the ROS transport message.</div></div>
 <div class="ttc" id="anamespacenavmap__ros_html_a498034a43d57cc22889b0b80b600c549"><div class="ttname"><a href="namespacenavmap__ros.html#a498034a43d57cc22889b0b80b600c549">navmap_ros::to_msg</a></div><div class="ttdeci">navmap_ros_interfaces::msg::NavMap to_msg(const navmap::NavMap &amp;nm, const std_msgs::msg::Header &amp;header)</div><div class="ttdoc">Convert a core navmap::NavMap into its compact ROS transport message.</div><div class="ttdef"><b>Definition</b> conversions.cpp:184</div></div>
 </div><!-- fragment --><hr  />
-<h2 class="doxsection"><a class="anchor" id="autotoc_md45"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md47"></a>
 Layer updates</h2>
 <p><span class="tt"><a class="el" href="namespacenavmap__ros.html#a3a16849e5d9ef3a6edc29afce784f47e" title="Layer update with only what changed since the layer&#39;s last clear_changes().">navmap_ros::to_layer_update_msg</a>(nm, "obstacles")</span> publishes only what changed since the layer's last <span class="tt">clear_changes()</span>: a sparse <span class="tt">NavMapLayer</span> (<span class="tt">indices</span> + values) when few NavCels changed, the full layer otherwise. Every <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> and <span class="tt">NavMapLayer</span> message carries the map's <span class="tt">geometry_id</span>, so <span class="tt">from_msg</span> (and RViz2) reject updates meant for another geometry.</p>
 <hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md47"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md49"></a>
 9. Save and load from disk</h1>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="navmap__io_8hpp.html">navmap_ros/navmap_io.hpp</a>&gt;</span></div>
 <div class="line"> </div>
@@ -446,7 +453,7 @@ Layer updates</h2>
 <blockquote class="doxtable">
 <p><b>File format.</b> <span class="tt">.<a class="el" href="namespacenavmap.html">navmap</a></span> files are version 2: the CDR-serialized <span class="tt"><a class="el" href="classNavMap.html">NavMap</a></span> message (layer metadata, int16 layers, links, geometry id), zlib-compressed by default (<span class="tt">SaveOptions::compression</span>, <span class="tt">level</span>). zlib is available on every ROS distro and in the Python standard library. Version 1 files, and files without header, still load: they are migrated with a deprecation warning and rewritten in place when the location is writable. </p>
 </blockquote>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md49"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md51"></a>
 10. Classic low-level API</h1>
 <p>For advanced control you can still access internal data directly:</p>
 <div class="fragment"><div class="line"><span class="comment">// Access vertex positions</span></div>
@@ -463,17 +470,17 @@ Layer updates</h2>
 <div class="ttc" id="aclassnavmap_1_1NavMap_html_abf1f84c70542a19818af0ec43f2086cc"><div class="ttname"><a href="classnavmap_1_1NavMap.html#abf1f84c70542a19818af0ec43f2086cc">navmap::NavMap::positions</a></div><div class="ttdeci">Positions positions</div><div class="ttdoc">Vertex positions (SoA).</div><div class="ttdef"><b>Definition</b> NavMap.hpp:565</div></div>
 <div class="ttc" id="astructnavmap_1_1Positions_html_a214dbfe7dd8c8f4ecffe7645b1b0b42a"><div class="ttname"><a href="structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a">navmap::Positions::at</a></div><div class="ttdeci">Eigen::Vector3f at(PointId id) const</div><div class="ttdoc">Returns vertex id as a 3D vector.</div><div class="ttdef"><b>Definition</b> NavMap.hpp:90</div></div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md51"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md53"></a>
 📦 Usage (Examples package)</h1>
 <p>In addition to the snippets above, the repository provides the package <span class="tt">navmap_examples</span> with ready-to-run executables.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md52"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md54"></a>
 Build</h2>
 <div class="fragment"><div class="line">colcon build --packages-select navmap_examples</div>
 </div><!-- fragment --><p>If your <span class="tt">navmap_core</span> / <span class="tt"><a class="el" href="namespacenavmap__ros.html" title="Conversions between core NavMap and ROS-level structures.">navmap_ros</a></span> do not yet export CMake targets, you can provide include paths:</p>
 <div class="fragment"><div class="line">colcon build --packages-select navmap_examples   --cmake-args -DNAVMAP_CORE_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_core/include                -DNAVMAP_ROS_INCLUDE_DIR=~/ros2_ws/src/NavMap/navmap_ros/include</div>
 </div><!-- fragment --><p>Disable ROS 2 examples:</p>
 <div class="fragment"><div class="line">colcon build --packages-select navmap_examples --cmake-args -DBUILD_ROS_EXAMPLES=OFF</div>
-</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md53"></a>
+</div><!-- fragment --><h2 class="doxsection"><a class="anchor" id="autotoc_md55"></a>
 Run core examples</h2>
 <div class="fragment"><div class="line">ros2 run navmap_examples 01_flat_plane</div>
 <div class="line">ros2 run navmap_examples 02_two_floors</div>
@@ -484,7 +491,7 @@ Run core examples</h2>
 <div class="line">ros2 run navmap_examples 07_raycast</div>
 <div class="line">ros2 run navmap_examples 08_copy_and_assign</div>
 </div><!-- fragment --><p>Each demonstrates a different feature: geometry creation, multi-surface, U8/F32 layers, centroids and neighbors, area marking, raycasting, and copy/assign semantics.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md54"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
 Run ROS 2 examples</h2>
 <p>If <span class="tt">BUILD_ROS_EXAMPLES=ON</span>:</p>
 <div class="fragment"><div class="line">ros2 run navmap_examples 01_from_occgrid</div>
@@ -493,25 +500,25 @@ Run ROS 2 examples</h2>
 </div><!-- fragment --><p>Or via launch:</p>
 <div class="fragment"><div class="line">ros2 launch navmap_examples navmap_to_occgrid.launch.py</div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
 🧪 Testing</h1>
 <p><a class="el" href="classNavMap.html">NavMap</a> provides unit tests with GTest. To run them:</p>
 <div class="fragment"><div class="line">colcon test --packages-select navmap_core navmap_ros</div>
 <div class="line">colcon test-result --verbose</div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
 🤝 Contributing</h1>
 <p>Contributions are welcome! Please open issues and pull requests on GitHub. <br  />
  Before submitting code, run the linters and tests:</p>
 <div class="fragment"><div class="line">colcon test</div>
 <div class="line">ament_lint_auto</div>
 </div><!-- fragment --><hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
 📜 License</h1>
 <p>This project is licensed under the <b>Apache 2 License</b>. <br  />
  See the [LICENSE](LICENSE) file for details.</p>
 <hr  />
-<h1 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
 🙏 Acknowledgements</h1>
 <p>Developed at the <b>Intelligent Robotics Lab (Universidad Rey Juan Carlos)</b>. <br  />
  Part of the Easy Navigation (EasyNav) project. </p>

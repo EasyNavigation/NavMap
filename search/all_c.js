@@ -12,7 +12,7 @@ var searchData=
   ['descriptors_20hpp_9',['7e. Geometric descriptors (&lt;span class=&quot;tt&quot;&gt;Descriptors.hpp&lt;/span&gt;)',['../index.html#autotoc_md33',1,'']]],
   ['descriptors_2ecpp_10',['Descriptors.cpp',['../Descriptors_8cpp.html',1,'']]],
   ['descriptors_2ehpp_11',['Descriptors.hpp',['../Descriptors_8hpp.html',1,'']]],
-  ['disk_12',['9. Save and load from disk',['../index.html#autotoc_md47',1,'']]],
+  ['disk_12',['9. Save and load from disk',['../index.html#autotoc_md49',1,'']]],
   ['dist_13',['dist',['../classnavmap_1_1TraversalScratch.html#af1bb20ac12a3a93d4841c049a880cf0e',1,'navmap::TraversalScratch::dist'],['../classTraversalScratch.html#af1bb20ac12a3a93d4841c049a880cf0e',1,'TraversalScratch::dist']]],
   ['distance_5ffield_14',['distance_field',['../classnavmap_1_1NavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'navmap::NavMap::distance_field()'],['../classNavMap.html#aaeb9d22ccea3b8ae3e94fc85ac4fcc14',1,'NavMap::distance_field()']]],
   ['distancefield_15',['DistanceField',['../classDistanceField.html',1,'DistanceField'],['../classnavmap_1_1DistanceField.html',1,'DistanceField'],['../classnavmap_1_1DistanceField.html#a38f49c368efa958aa133507d2227bcdb',1,'navmap::DistanceField::DistanceField()'],['../classDistanceField.html#a38f49c368efa958aa133507d2227bcdb',1,'DistanceField::DistanceField()']]],
