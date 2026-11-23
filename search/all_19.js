@@ -38,10 +38,13 @@ var searchData=
   ['step_5fradius_35',['step_radius',['../structnavmap_1_1DescriptorParams.html#ad8c186eb1951dd5a54e6bf8013d89809',1,'navmap::DescriptorParams::step_radius'],['../structDescriptorParams.html#ad8c186eb1951dd5a54e6bf8013d89809',1,'DescriptorParams::step_radius']]],
   ['stored_36',['stored',['../structEnvelope.html#a188b5c5803a883cf7a8001d920bbe95c',1,'Envelope']]],
   ['structure_37',['📂 Repository structure',['../index.html#autotoc_md5',1,'']]],
-  ['surface_38',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]],
-  ['surface_39',['surface',['../structnavmap_1_1RayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'navmap::RayHit::surface'],['../structRayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'RayHit::surface']]],
-  ['surface_5fof_40',['surface_of',['../classnavmap_1_1NavMap.html#a4eb38dc5b8b24bddfb955a5728c116cb',1,'navmap::NavMap::surface_of()'],['../classNavMap.html#a4eb38dc5b8b24bddfb955a5728c116cb',1,'NavMap::surface_of()']]],
-  ['surfacelink_41',['SurfaceLink',['../index.html#autotoc_md35',1,'7f. Links between surfaces (&lt;span class=&quot;tt&quot;&gt;SurfaceLink&lt;/span&gt;)'],['../structnavmap_1_1SurfaceLink.html',1,'SurfaceLink']]],
-  ['surfaces_42',['surfaces',['../classnavmap_1_1NavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'navmap::NavMap::surfaces'],['../classNavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'NavMap::surfaces']]],
-  ['surfaces_20surfacelink_43',['7f. Links between surfaces (&lt;span class=&quot;tt&quot;&gt;SurfaceLink&lt;/span&gt;)',['../index.html#autotoc_md35',1,'']]]
+  ['subdivide_2ecpp_38',['Subdivide.cpp',['../Subdivide_8cpp.html',1,'']]],
+  ['subdivide_2ehpp_39',['Subdivide.hpp',['../Subdivide_8hpp.html',1,'']]],
+  ['subdividestats_40',['SubdivideStats',['../structnavmap_1_1SubdivideStats.html',1,'navmap']]],
+  ['surface_41',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]],
+  ['surface_42',['surface',['../structnavmap_1_1RayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'navmap::RayHit::surface'],['../structRayHit.html#a8a80ebfdbccf9e762f823a6fad0dea92',1,'RayHit::surface']]],
+  ['surface_5fof_43',['surface_of',['../classnavmap_1_1NavMap.html#a4eb38dc5b8b24bddfb955a5728c116cb',1,'navmap::NavMap::surface_of()'],['../classNavMap.html#a4eb38dc5b8b24bddfb955a5728c116cb',1,'NavMap::surface_of()']]],
+  ['surfacelink_44',['SurfaceLink',['../index.html#autotoc_md35',1,'7f. Links between surfaces (&lt;span class=&quot;tt&quot;&gt;SurfaceLink&lt;/span&gt;)'],['../structnavmap_1_1SurfaceLink.html',1,'SurfaceLink']]],
+  ['surfaces_45',['surfaces',['../classnavmap_1_1NavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'navmap::NavMap::surfaces'],['../classNavMap.html#a95a6ee32fbf35d6fecc5a3ea2f1610f2',1,'NavMap::surfaces']]],
+  ['surfaces_20surfacelink_46',['7f. Links between surfaces (&lt;span class=&quot;tt&quot;&gt;SurfaceLink&lt;/span&gt;)',['../index.html#autotoc_md35',1,'']]]
 ];

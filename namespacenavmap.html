@@ -117,6 +117,8 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional per-vertex colors (RGBA, 8-bit per channel).  <a href="structnavmap_1_1Colors.html#details">More...</a><br /></td></tr>
 <tr class="memitem:CombineOptions" id="r_CombineOptions"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1CombineOptions.html">CombineOptions</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Options of <a class="el" href="#a9f147e5d7c1b5aecd5595b6c5f394e2c" title="Combine layer src into layer dst cell by cell with op.">combine_layer()</a>.  <a href="structnavmap_1_1CombineOptions.html#details">More...</a><br /></td></tr>
+<tr class="memitem:CutLines" id="r_CutLines"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1CutLines.html">CutLines</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lines in the map frame: x = xs[i] and y = ys[j] (m).  <a href="structnavmap_1_1CutLines.html#details">More...</a><br /></td></tr>
 <tr class="memitem:DescriptorParams" id="r_DescriptorParams"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1DescriptorParams.html">DescriptorParams</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which descriptors to compute, and over which neighbourhoods.  <a href="structnavmap_1_1DescriptorParams.html#details">More...</a><br /></td></tr>
 <tr class="memitem:DistanceField" id="r_DistanceField"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap_1_1DistanceField.html">DistanceField</a></td></tr>
@@ -146,6 +148,8 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters of <a class="el" href="#acf3a6f11cdca28b0a6336ea72a9777c3" title="Simplify nm in place by half-edge collapses, cheapest first.">simplify()</a>.  <a href="structnavmap_1_1SimplifyParams.html#details">More...</a><br /></td></tr>
 <tr class="memitem:SimplifyStats" id="r_SimplifyStats"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1SimplifyStats.html">SimplifyStats</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sizes before and after <a class="el" href="#acf3a6f11cdca28b0a6336ea72a9777c3" title="Simplify nm in place by half-edge collapses, cheapest first.">simplify()</a>.  <a href="structnavmap_1_1SimplifyStats.html#details">More...</a><br /></td></tr>
+<tr class="memitem:SubdivideStats" id="r_SubdivideStats"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1SubdivideStats.html">SubdivideStats</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sizes before and after a subdivision.  <a href="structnavmap_1_1SubdivideStats.html#details">More...</a><br /></td></tr>
 <tr class="memitem:Surface" id="r_Surface"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1Surface.html">Surface</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A connected set of NavCels in a common reference frame.  <a href="structnavmap_1_1Surface.html#details">More...</a><br /></td></tr>
 <tr class="memitem:SurfaceLink" id="r_SurfaceLink"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnavmap_1_1SurfaceLink.html">SurfaceLink</a></td></tr>
@@ -155,6 +159,8 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-typedef-members" class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:acfdfcc37e8dd62747ac2f469bf28c93d" id="r_acfdfcc37e8dd62747ac2f469bf28c93d"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#acfdfcc37e8dd62747ac2f469bf28c93d">EdgeSizeAt</a></td></tr>
+<tr class="memdesc:acfdfcc37e8dd62747ac2f469bf28c93d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The largest edge (m) a <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> with these vertices may have; not finite or &lt;= 0: no bound.  <br /></td></tr>
 <tr class="memitem:aa58a3ffe91264dc6f20df0cd2edd9cd0" id="r_aa58a3ffe91264dc6f20df0cd2edd9cd0"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> = uint32_t</td></tr>
 <tr class="memdesc:aa58a3ffe91264dc6f20df0cd2edd9cd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index of a triangle (<a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a>) within the global mesh.  <br /></td></tr>
 <tr class="memitem:ab6033fb29a33510706c3211b18a41e12" id="r_ab6033fb29a33510706c3211b18a41e12"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#ab6033fb29a33510706c3211b18a41e12">PointId</a> = uint32_t</td></tr>
@@ -213,6 +219,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:a9f147e5d7c1b5aecd5595b6c5f394e2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combine layer <code class="param">src</code> into layer <code class="param">dst</code> cell by cell with <code class="param">op</code>.  <br /></td></tr>
 <tr class="memitem:a01503d1831539f99e753927d836b039e" id="r_a01503d1831539f99e753927d836b039e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a01503d1831539f99e753927d836b039e">compute_descriptors</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const <a class="el" href="structDescriptorParams.html">DescriptorParams</a> &amp;params={})</td></tr>
 <tr class="memdesc:a01503d1831539f99e753927d836b039e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the selected descriptors as F32 layers of <code class="param">nm</code> (created or overwritten).  <br /></td></tr>
+<tr class="memitem:ac06994227a910559539760a405120b2d" id="r_ac06994227a910559539760a405120b2d"><td class="memItemLeft"><a class="el" href="structnavmap_1_1SubdivideStats.html">SubdivideStats</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac06994227a910559539760a405120b2d">cut_along_lines</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const <a class="el" href="structnavmap_1_1CutLines.html">CutLines</a> &amp;lines, float snap=1e-4f)</td></tr>
+<tr class="memdesc:ac06994227a910559539760a405120b2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Split the NavCels the lines cross, so that none crosses one.  <br /></td></tr>
 <tr class="memitem:ad3af88be08d02713dc025616cc831847" id="r_ad3af88be08d02713dc025616cc831847"><td class="memTemplParams" colspan="2">template&lt;class F&gt; </td></tr>
 <tr class="memitem:ad3af88be08d02713dc025616cc831847 template"><td class="memItemLeft">std::size_t&#160;</td><td class="memItemRight"><a class="el" href="#ad3af88be08d02713dc025616cc831847">for_each_by_distance</a> (const <a class="el" href="classNavMap.html">NavMap</a> &amp;nm, <a class="el" href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">NavCelId</a> seed, const Eigen::Vector3f &amp;center, float max_distance, F &amp;&amp;f, <a class="el" href="classTraversalScratch.html">TraversalScratch</a> *scratch=nullptr)</td></tr>
 <tr class="memdesc:ad3af88be08d02713dc025616cc831847"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits NavCels by geodesic distance from <code class="param">center</code>, up to <code class="param">max_distance:</code> a spiral over the surface (nearest free cell, local search...).  <br /></td></tr>
@@ -257,6 +265,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:a1e63337f4523878b0a7c1cea68a23a26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Squared distance between point and triangle, with optional closest pt.  <br /></td></tr>
 <tr class="memitem:a62d9baa8d9422826604fe3f1a86d9398" id="r_a62d9baa8d9422826604fe3f1a86d9398"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a62d9baa8d9422826604fe3f1a86d9398">ray_triangle_intersect</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;orig, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;dir, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;v0, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;v1, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;v2, float &amp;t, float &amp;u, float &amp;v)</td></tr>
 <tr class="memdesc:a62d9baa8d9422826604fe3f1a86d9398"><td class="mdescLeft">&#160;</td><td class="mdescRight">Möller–Trumbore ray–triangle intersection.  <br /></td></tr>
+<tr class="memitem:aa0092a610eea98d72776943ee9839e7a" id="r_aa0092a610eea98d72776943ee9839e7a"><td class="memItemLeft"><a class="el" href="structnavmap_1_1SubdivideStats.html">SubdivideStats</a>&#160;</td><td class="memItemRight"><a class="el" href="#aa0092a610eea98d72776943ee9839e7a">refine</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const <a class="el" href="#acfdfcc37e8dd62747ac2f469bf28c93d">EdgeSizeAt</a> &amp;max_edge_at)</td></tr>
+<tr class="memdesc:aa0092a610eea98d72776943ee9839e7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refine until no <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> has an edge longer than <code class="param">max_edge_at</code> says for it.  <br /></td></tr>
+<tr class="memitem:a12c411f6a6318c2f6633e1c33022e8b4" id="r_a12c411f6a6318c2f6633e1c33022e8b4"><td class="memItemLeft"><a class="el" href="structnavmap_1_1SubdivideStats.html">SubdivideStats</a>&#160;</td><td class="memItemRight"><a class="el" href="#a12c411f6a6318c2f6633e1c33022e8b4">refine</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const std::vector&lt; Eigen::Vector3f &gt; &amp;points, float max_edge)</td></tr>
+<tr class="memdesc:a12c411f6a6318c2f6633e1c33022e8b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refine the NavCels under <code class="param">points</code> until none of them has an edge longer than <code class="param">max_edge</code> (m).  <br /></td></tr>
 <tr class="memitem:acf3a6f11cdca28b0a6336ea72a9777c3" id="r_acf3a6f11cdca28b0a6336ea72a9777c3"><td class="memItemLeft"><a class="el" href="structnavmap_1_1SimplifyStats.html">SimplifyStats</a>&#160;</td><td class="memItemRight"><a class="el" href="#acf3a6f11cdca28b0a6336ea72a9777c3">simplify</a> (<a class="el" href="classNavMap.html">NavMap</a> &amp;nm, const <a class="el" href="structSimplifyParams.html">SimplifyParams</a> &amp;params={})</td></tr>
 <tr class="memdesc:acf3a6f11cdca28b0a6336ea72a9777c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simplify <code class="param">nm</code> in place by half-edge collapses, cheapest first.  <br /></td></tr>
 <tr class="memitem:a407e9ecaf6b96cdd89d265586ff5a3f9" id="r_a407e9ecaf6b96cdd89d265586ff5a3f9"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a407e9ecaf6b96cdd89d265586ff5a3f9">triangle_area</a> (const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;a, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;b, const <a class="el" href="#a2120d19c30c459cd97f49ff80421f7a6">Vec3</a> &amp;c)</td></tr>
@@ -278,6 +290,24 @@ Variables</h2></td></tr>
 <tr class="memdesc:a7094ff8c6514c9670856617147e52d7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown, not observed.  <br /></td></tr>
 </table>
 <a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Typedef Documentation</h2>
+<a id="acfdfcc37e8dd62747ac2f469bf28c93d" name="acfdfcc37e8dd62747ac2f469bf28c93d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfdfcc37e8dd62747ac2f469bf28c93d">&#9670;&#160;</a></span>EdgeSizeAt</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="#acfdfcc37e8dd62747ac2f469bf28c93d">EdgeSizeAt</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">std::function&lt;float(</div>
+<div class="line">     <span class="keyword">const</span> Eigen::Vector3f &amp;, <span class="keyword">const</span> Eigen::Vector3f &amp;, <span class="keyword">const</span> Eigen::Vector3f &amp;)&gt;</div>
+</div><!-- fragment -->
+<p>The largest edge (m) a <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> with these vertices may have; not finite or &lt;= 0: no bound. </p>
+
+</div>
+</div>
 <a id="aa58a3ffe91264dc6f20df0cd2edd9cd0" name="aa58a3ffe91264dc6f20df0cd2edd9cd0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa58a3ffe91264dc6f20df0cd2edd9cd0">&#9670;&#160;</a></span>NavCelId</h2>
 
@@ -628,6 +658,35 @@ Variables</h2></td></tr>
 
 <p>Compute the selected descriptors as F32 layers of <code class="param">nm</code> (created or overwritten). </p>
 <p>Discs grow over the mesh adjacency from each <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> (navmap/Iterators.hpp), so a descriptor never mixes floors. "clearance" casts a ray up from each centroid against every surface of the map: it is the room up to the next surface the map holds (the floor above), not to a ceiling that is not in the map; +inf when there is none within clearance_max. </p>
+
+</div>
+</div>
+<a id="ac06994227a910559539760a405120b2d" name="ac06994227a910559539760a405120b2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac06994227a910559539760a405120b2d">&#9670;&#160;</a></span>cut_along_lines()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structnavmap_1_1SubdivideStats.html">SubdivideStats</a> cut_along_lines </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnavmap_1_1CutLines.html">CutLines</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>lines</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>snap</em></span><span class="paramdefsep"> = </span><span class="paramdefval">1e-4f</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Split the NavCels the lines cross, so that none crosses one. </p>
+<p>E.g. to cut a map into tiles along a grid. A vertex within <code class="param">snap</code> (m) of a line is moved onto it, and the new vertices are put exactly on it: every vertex on a line has exactly the line's coordinate. A link keeps its ends on the first piece of each. </p>
 
 </div>
 </div>
@@ -1343,6 +1402,59 @@ template&lt;&gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if the ray intersects the triangle with t &gt; 0.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Numerical robustness depends on the geometry scale; <code>kEps</code> is set conservatively for typical mapping units (meters). </dd></dl>
+
+</div>
+</div>
+<a id="aa0092a610eea98d72776943ee9839e7a" name="aa0092a610eea98d72776943ee9839e7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0092a610eea98d72776943ee9839e7a">&#9670;&#160;</a></span>refine() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structnavmap_1_1SubdivideStats.html">SubdivideStats</a> refine </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="#acfdfcc37e8dd62747ac2f469bf28c93d">EdgeSizeAt</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>max_edge_at</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Refine until no <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> has an edge longer than <code class="param">max_edge_at</code> says for it. </p>
+<p>The same longest-edge bisection, for a region instead of points (e.g. every <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> within some distance of an obstacle, or a size that grows with the distance to a robot): the NavCels split are asked again, so the result meets the bound everywhere, in one pass over the map. If no <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> is too large the map is left as it is (its accelerations too). </p>
+
+</div>
+</div>
+<a id="a12c411f6a6318c2f6633e1c33022e8b4" name="a12c411f6a6318c2f6633e1c33022e8b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12c411f6a6318c2f6633e1c33022e8b4">&#9670;&#160;</a></span>refine() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structnavmap_1_1SubdivideStats.html">SubdivideStats</a> refine </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector3f &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>points</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>max_edge</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Refine the NavCels under <code class="param">points</code> until none of them has an edge longer than <code class="param">max_edge</code> (m). </p>
+<p>Longest-edge bisection: an edge is split at its middle in every <a class="el" href="structnavmap_1_1NavCel.html" title="Navigation cell (triangle) with geometry and adjacency.">NavCel</a> that has it, after splitting first, if needed, the longer edges of its neighbours (so the NavCels keep their shape and the mesh stays conforming). The refinement spreads a little around each point. Points off the map are ignored; NavCels at the end of a link are not split, nor any edge they have (the refinement stops short there). </p>
 
 </div>
 </div>

@@ -52,5 +52,7 @@ var searchData=
   ['count_49',['count',['../structnavmap_1_1BVHNode.html#ad43c3812e6d13e0518d9f8b8f463ffcf',1,'navmap::BVHNode']]],
   ['create_20a_20minimal_20navmap_20single_20square_20floor_20with_20two_20triangles_50',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]],
   ['create_5fsurface_51',['create_surface',['../classnavmap_1_1NavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'navmap::NavMap::create_surface()'],['../classNavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'NavMap::create_surface()']]],
-  ['create_5fsurface_5fobj_52',['create_surface_obj',['../classnavmap_1_1NavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'navmap::NavMap::create_surface_obj()'],['../classNavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'NavMap::create_surface_obj()']]]
+  ['create_5fsurface_5fobj_52',['create_surface_obj',['../classnavmap_1_1NavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'navmap::NavMap::create_surface_obj()'],['../classNavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'NavMap::create_surface_obj()']]],
+  ['cut_5falong_5flines_53',['cut_along_lines',['../namespacenavmap.html#ac06994227a910559539760a405120b2d',1,'navmap']]],
+  ['cutlines_54',['CutLines',['../structnavmap_1_1CutLines.html',1,'navmap']]]
 ];

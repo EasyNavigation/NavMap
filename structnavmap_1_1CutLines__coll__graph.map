@@ -1,0 +1,5 @@
+<map id="CutLines" name="CutLines">
+<area shape="rect" id="Node000001" title="Lines in the map frame: x = xs[i] and y = ys[j] (m)." alt="" coords="20,122,94,148"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,109,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="60,47,60,122,54,122,54,47"/>
+</map>

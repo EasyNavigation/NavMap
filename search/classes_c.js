@@ -4,6 +4,7 @@ var searchData=
   ['simplifyparams_1',['SimplifyParams',['../structnavmap_1_1SimplifyParams.html',1,'SimplifyParams'],['../structSimplifyParams.html',1,'SimplifyParams']]],
   ['simplifystats_2',['SimplifyStats',['../structnavmap_1_1SimplifyStats.html',1,'navmap']]],
   ['slamservernode_3',['SLAMServerNode',['../classSLAMServerNode.html',1,'']]],
-  ['surface_4',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]],
-  ['surfacelink_5',['SurfaceLink',['../structnavmap_1_1SurfaceLink.html',1,'navmap']]]
+  ['subdividestats_4',['SubdivideStats',['../structnavmap_1_1SubdivideStats.html',1,'navmap']]],
+  ['surface_5',['Surface',['../structnavmap_1_1Surface.html',1,'Surface'],['../structSurface.html',1,'Surface']]],
+  ['surfacelink_6',['SurfaceLink',['../structnavmap_1_1SurfaceLink.html',1,'navmap']]]
 ];
