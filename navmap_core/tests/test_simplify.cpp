@@ -477,3 +477,31 @@ TEST(Simplify, TheEdgeLengthCanChangeFromPlaceToPlace)
   EXPECT_GT(right, 1.0f);
   EXPECT_NEAR(area(nm), 18.0f, 1e-3f);
 }
+
+// keep_vertices: what the borders of maps simplified apart need to meet
+TEST(Simplify, KeptVerticesAreNeverRemoved)
+{
+  NavMap nm;
+  add_grid(nm, 20, 20, 0.1f, flat);
+  nm.rebuild_geometry_accels();
+  const std::vector<navmap::PointId> keep = {10, 21 * 10 + 10, 21 * 5 + 3};   // border, inside
+  std::vector<Eigen::Vector3f> where;
+  for (const auto v : keep) {
+    where.push_back(nm.positions.at(v));
+  }
+  NavMap free = nm;
+  SimplifyParams p;
+  p.max_error = 0.05f;
+  navmap::simplify(free, p);
+  p.keep_vertices = keep;
+  navmap::simplify(nm, p);
+  EXPECT_LT(nm.navcels.size(), 100u) << "the rest is simplified";
+  for (const auto & w : where) {
+    bool found = false;
+    for (std::size_t i = 0; i < nm.positions.size(); ++i) {
+      found |= (nm.positions.at(static_cast<navmap::PointId>(i)) - w).norm() < 1e-6f;
+    }
+    EXPECT_TRUE(found) << w.transpose();
+  }
+  EXPECT_GT(nm.positions.size(), free.positions.size());
+}

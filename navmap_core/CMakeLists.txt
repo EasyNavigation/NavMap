@@ -19,6 +19,7 @@ add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}/Descriptors.cpp
   src/${PROJECT_NAME}/Combine.cpp
   src/${PROJECT_NAME}/Simplify.cpp
+  src/${PROJECT_NAME}/Subdivide.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
