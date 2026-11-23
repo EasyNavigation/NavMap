@@ -25,6 +25,7 @@ import argparse
 from navmap_tools.cli import (
     _default_package_name,
     _parse_center,
+    _parse_keep,
     _texture_pixels_for,
     build_arg_parser,
 )
@@ -413,6 +414,62 @@ def test_dem_holes_mesh_makes_the_cells_under_a_building_holes(tmp_path, capsys)
     assert read_dem_file(out).cell_valid is None
 
 
+@pytest.mark.parametrize('value, expected', [
+    ('largest', 'largest'), ('1.5,-2', (1.5, -2.0)), (' 0 , 0 ', (0.0, 0.0))])
+def test_parse_keep(value, expected):
+    assert _parse_keep(value) == expected
+
+
+@pytest.mark.parametrize('value', ['', 'biggest', '1', '1,2,3', 'a,b', 'nan,0', '0,inf'])
+def test_parse_keep_rejects(value):
+    with pytest.raises(ValueError):
+        _parse_keep(value)
+
+
+def test_navmap_keep_leaves_out_the_roofs_of_a_mesh_with_buildings(tmp_path, capsys):
+    import struct
+
+    from navmap_tools.cli import run
+    from navmap_tools.resample import read_navmap
+
+    def write(path, quads):
+        tris = []
+        for x0, y0, x1, y1, z in quads:
+            tris += [(x0, y0, z, x1, y0, z, x1, y1, z), (x0, y0, z, x1, y1, z, x0, y1, z)]
+        with open(path, 'wb') as f:
+            f.write(b'\0' * 80 + struct.pack('<I', len(tris)))
+            for t in tris:
+                f.write(struct.pack('<12fH', 0, 0, 1, *t, 0))
+    world = tmp_path / 'world.stl'
+    # the ground and, over it, the flat roof of a 6 x 6 m building, 12 m high
+    write(world, [(-30, -30, 30, 30, 0.0), (5.0, -3.0, 11.0, 3.0, 12.0)])
+    out = tmp_path / 'place.navmap'
+    args = _BASE + ['--navmap-out', str(out), '--dem-source', 'mesh', '--mesh-file', str(world),
+                    '--resolution', '1', '--max-slope-deg', '25', '--cache-dir',
+                    str(tmp_path / 'c')]
+    assert run(args) == 0
+    every = read_navmap(str(out))
+    assert max(every.positions_z) == pytest.approx(12.0, abs=1e-3)   # the roof is in the map
+    assert run(args + ['--navmap-keep', '0,0']) == 0
+    kept = read_navmap(str(out))
+    assert max(kept.positions_z) == pytest.approx(0.0, abs=1e-3)     # only the ground
+    assert len(kept.navcels_v0) < len(every.navcels_v0)
+    assert 'left out, not connected' in capsys.readouterr().out
+    assert run(args + ['--navmap-keep', 'largest']) == 0
+    assert len(read_navmap(str(out)).navcels_v0) == len(kept.navcels_v0)
+
+
+def test_navmap_keep_needs_navmap_out_and_a_valid_value(tmp_path):
+    from navmap_tools.cli import run
+
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--dem-out', str(tmp_path / 'd.bin'), '--dem-source', 'synthetic',
+                     '--navmap-keep', 'largest'])
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--navmap-out', str(tmp_path / 'm.navmap'), '--dem-source', 'synthetic',
+                     '--navmap-keep', 'here'])
+
+
 def _run_synthetic(tmp_path, *extra):
     from navmap_tools.cli import run
 
@@ -608,3 +665,34 @@ def test_the_mesh_is_parsed_once_for_the_dem_and_the_world(tmp_path, monkeypatch
     cli_mod._load_dem(args, None, None)     # the world's
     cli_mod._dem_geometry(args)             # the DEM's
     assert len(calls) == 1
+
+
+def test_navmap_out_with_buildings_leaves_their_cells_out(tmp_path, monkeypatch):
+    import numpy as np
+
+    from navmap_tools import cli as cli_mod
+    from navmap_tools.cli import run
+    from navmap_tools.resample import read_navmap
+
+    def fake_buildings(source, lat, lon, radius, cache):
+        assert source == 'osm'
+        # edges inside cells (x, y in [-4.25, 4.25]): cells -5 .. 4 on each axis
+        square = np.array([[-4.25, -4.25], [4.25, -4.25], [4.25, 4.25], [-4.25, 4.25]])
+        return [(square, [])], 'OpenStreetMap'
+    monkeypatch.setattr(cli_mod, 'fetch_buildings', fake_buildings)
+    out = tmp_path / 'map.navmap'
+    args = _BASE + ['--dem-source', 'synthetic', '--resolution', '1', '--max-slope-deg', '89',
+                    '--cache-dir', str(tmp_path / 'c'), '--navmap-out', str(out)]
+    assert run(args) == 0
+    full = len(read_navmap(str(out)).navcels_v0)
+    assert full == 2 * 40 * 40
+    assert run(args + ['--buildings', 'osm']) == 0
+    # the building blocks every cell any part of it is in: 10 x 10
+    assert len(read_navmap(str(out)).navcels_v0) == full - 2 * 10 * 10
+
+
+def test_buildings_need_a_grid_output():
+    from navmap_tools.cli import run
+
+    with pytest.raises(SystemExit):
+        run(_BASE + ['--gazebo', '--buildings', 'osm'])
