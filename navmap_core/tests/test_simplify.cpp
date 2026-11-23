@@ -412,3 +412,68 @@ TEST(Simplify, DegenerateInputsAreSafe)
     }
   }
 }
+
+// max_error_at: exact where it says 0 (near a robot), simplified where it allows more
+TEST(Simplify, TheErrorCanChangeFromPlaceToPlace)
+{
+  const Height bumps = [](float x, float y) {return 0.3f * std::sin(x) * std::cos(0.7f * y);};
+  NavMap orig;
+  add_grid(orig, 60, 30, 0.1f, bumps);   // x in [0, 6]
+  orig.rebuild_geometry_accels();
+  NavMap nm = orig;
+  SimplifyParams p;
+  p.max_error = 0.05f;
+  p.max_error_at = [](const Eigen::Vector3f & q) {return q.x() < 3.0f ? 0.0f : 0.05f;};
+  navmap::simplify(nm, p);
+  std::size_t left = 0, right = 0, left0 = 0;
+  for (std::size_t i = 0; i < nm.positions.size(); ++i) {
+    (nm.positions.x[i] < 2.9f ? left : right) += 1;
+  }
+  for (std::size_t i = 0; i < orig.positions.size(); ++i) {
+    left0 += orig.positions.x[i] < 2.9f;
+  }
+  EXPECT_EQ(left, left0) << "where the error is 0 no vertex moves";
+  EXPECT_LT(right, orig.positions.size() - left0) << "where it is not, the terrain is simplified";
+  // what is given as not usable (NaN, negative) stands for max_error
+  NavMap nm2 = orig;
+  p.max_error_at = [](const Eigen::Vector3f &) {return -1.0f;};
+  navmap::simplify(nm2, p);
+  NavMap nm3 = orig;
+  p.max_error_at = nullptr;
+  navmap::simplify(nm3, p);
+  EXPECT_EQ(nm2.navcels.size(), nm3.navcels.size());
+}
+
+// max_edge_length_at: small NavCels in one place, large in another
+TEST(Simplify, TheEdgeLengthCanChangeFromPlaceToPlace)
+{
+  NavMap nm;
+  add_grid(nm, 60, 30, 0.1f, flat);   // x in [0, 6]
+  nm.rebuild_geometry_accels();
+  SimplifyParams p;
+  p.max_edge_length_at = [](const Eigen::Vector3f & q) {
+      return q.x() < 3.0f ? 0.3f : std::numeric_limits<float>::infinity();
+    };
+  navmap::simplify(nm, p);
+  float left = 0.0f, right = 0.0f;
+  for (const auto & c : nm.navcels) {
+    float lo = 1e9f, longest = 0.0f;
+    for (int k = 0; k < 3; ++k) {
+      const auto a = nm.positions.at(c.v[k]), b = nm.positions.at(c.v[(k + 1) % 3]);
+      lo = std::min(lo, a.x());
+      longest = std::max(longest, (a - b).norm());
+    }
+    if (lo < 2.5f) {
+      float hi = 0.0f;
+      for (int k = 0; k < 3; ++k) {
+        hi = std::max(hi, nm.positions.at(c.v[k]).x());
+      }
+      if (hi < 2.9f) {left = std::max(left, longest);}
+    } else if (lo > 3.1f) {
+      right = std::max(right, longest);
+    }
+  }
+  EXPECT_LE(left, 0.3f + 1e-4f);
+  EXPECT_GT(right, 1.0f);
+  EXPECT_NEAR(area(nm), 18.0f, 1e-3f);
+}
