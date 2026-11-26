@@ -9,7 +9,7 @@ var searchData=
   ['updates_6',['Layer updates',['../index.html#autotoc_md47',1,'']]],
   ['updates_20change_20tracking_20distancefield_20hpp_7',['7d. Incremental updates (change tracking, &lt;span class=&quot;tt&quot;&gt;DistanceField.hpp&lt;/span&gt;)',['../index.html#autotoc_md31',1,'']]],
   ['usage_20c_20api_8',['🚀 Usage (C++ API)',['../index.html#autotoc_md11',1,'']]],
-  ['usage_20examples_20package_9',['📦 Usage (Examples package)',['../index.html#autotoc_md53',1,'']]],
+  ['usage_20examples_20package_9',['📦 Usage (Examples package)',['../index.html#autotoc_md54',1,'']]],
   ['use_5fdownward_5fray_10',['use_downward_ray',['../structnavmap_1_1NavMap_1_1LocateOpts.html#acd13c5bf87d53f9da6b235bcdadabeb5',1,'navmap::NavMap::LocateOpts::use_downward_ray'],['../structNavMap_1_1LocateOpts.html#acd13c5bf87d53f9da6b235bcdadabeb5',1,'NavMap::LocateOpts::use_downward_ray']]],
   ['use_5fradius_11',['use_radius',['../structnavmap__ros_1_1BuildParams.html#aced40c47c4fec9366b6ebb7f04b39f98',1,'navmap_ros::BuildParams']]]
 ];

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['testing_0',['🧪 Testing',['../index.html#autotoc_md58',1,'']]],
+  ['testing_0',['🧪 Testing',['../index.html#autotoc_md59',1,'']]],
   ['that_20keeps_20the_20layers_20simplify_20hpp_1',['7h. Simplification that keeps the layers (&lt;span class=&quot;tt&quot;&gt;Simplify.hpp&lt;/span&gt;)',['../index.html#autotoc_md39',1,'']]],
   ['the_20layers_20simplify_20hpp_2',['7h. Simplification that keeps the layers (&lt;span class=&quot;tt&quot;&gt;Simplify.hpp&lt;/span&gt;)',['../index.html#autotoc_md39',1,'']]],
   ['the_20navcel_20corresponding_20to_20a_203d_20position_3',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md19',1,'']]],

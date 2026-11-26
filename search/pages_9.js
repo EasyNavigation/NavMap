@@ -8,12 +8,12 @@ var searchData=
   ['a_20navmap_20of_20any_20place_20with_20its_20buildings_20navmap_5fgis_5ftool_5',['7h-bis. A NavMap of any place, with its buildings (&lt;span class=&quot;tt&quot;&gt;navmap_gis_tool&lt;/span&gt;)',['../index.html#autotoc_md41',1,'']]],
   ['a_20per_20navcel_20layer_20cost_20or_20occupancy_6',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['a_20world_20position_7',['5. Sample a layer at a world position',['../index.html#autotoc_md21',1,'']]],
-  ['acknowledgements_8',['🙏 Acknowledgements',['../index.html#autotoc_md64',1,'']]],
+  ['acknowledgements_8',['🙏 Acknowledgements',['../index.html#autotoc_md65',1,'']]],
   ['add_20a_20per_20navcel_20layer_20cost_20or_20occupancy_9',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
-  ['and_20load_20from_20disk_10',['9. Save and load from disk',['../index.html#autotoc_md49',1,'']]],
+  ['and_20load_20from_20disk_10',['9. Save and load from disk',['../index.html#autotoc_md50',1,'']]],
   ['and_20log_20odds_20occupancy_20occupancy_20hpp_11',['7c. Unknown values and log-odds occupancy (&lt;span class=&quot;tt&quot;&gt;Occupancy.hpp&lt;/span&gt;)',['../index.html#autotoc_md29',1,'']]],
   ['any_20place_20with_20its_20buildings_20navmap_5fgis_5ftool_12',['7h-bis. A NavMap of any place, with its buildings (&lt;span class=&quot;tt&quot;&gt;navmap_gis_tool&lt;/span&gt;)',['../index.html#autotoc_md41',1,'']]],
-  ['api_13',['API',['../index.html#autotoc_md11',1,'🚀 Usage (C++ API)'],['../index.html#autotoc_md51',1,'10. Classic low-level API']]],
+  ['api_13',['API',['../index.html#autotoc_md11',1,'🚀 Usage (C++ API)'],['../index.html#autotoc_md52',1,'10. Classic low-level API']]],
   ['areas_20set_5farea_14',['7. Marking areas (&lt;span class=&quot;tt&quot;&gt;set_area&lt;/span&gt;)',['../index.html#autotoc_md25',1,'']]],
   ['at_20a_20world_20position_15',['5. Sample a layer at a world position',['../index.html#autotoc_md21',1,'']]]
 ];

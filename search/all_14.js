@@ -1,7 +1,7 @@
 var searchData=
 [
   ['main_0',['main',['../navmap__bench_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'main(int argc, char **argv):&#160;navmap_bench.cpp'],['../slam__server__app_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97',1,'main(int argc, char *argv[]):&#160;slam_server_app.cpp']]],
-  ['mapping_1',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md65',1,'']]],
+  ['mapping_1',['Occupancy mapping',['../conversions_8hpp.html#autotoc_md66',1,'']]],
   ['mark_2',['mark',['../classnavmap_1_1TraversalScratch.html#a915c252f0f4ffa6d6504e5cd53e61f5c',1,'navmap::TraversalScratch::mark()'],['../classTraversalScratch.html#a915c252f0f4ffa6d6504e5cd53e61f5c',1,'TraversalScratch::mark()']]],
   ['mark_5fall_5fchanged_3',['mark_all_changed',['../structnavmap_1_1LayerViewBase.html#a0e70664484443cd8b52589d6d9a92b8a',1,'navmap::LayerViewBase']]],
   ['mark_5fchanged_4',['mark_changed',['../structnavmap_1_1LayerViewBase.html#ad2592fe8d3a8028e68b2b4a1e4062c74',1,'navmap::LayerViewBase']]],

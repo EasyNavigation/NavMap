@@ -232,6 +232,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a1a19ac67ff1cef1298b7f824d26ef786"><td class="mdescLeft">&#160;</td><td class="mdescRight">Batched raycast.  <br /></td></tr>
 <tr class="memitem:aeb8444f2290bd34e7904f036ebf17ab1" id="r_aeb8444f2290bd34e7904f036ebf17ab1"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1">rebuild_geometry_accels</a> ()</td></tr>
 <tr class="memdesc:aeb8444f2290bd34e7904f036ebf17ab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recompute derived geometry and acceleration structures.  <br /></td></tr>
+<tr class="memitem:a91381b15e14ddeda426db9744d884598" id="r_a91381b15e14ddeda426db9744d884598"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a91381b15e14ddeda426db9744d884598">rebuild_geometry_accels</a> (bool rebuild_adjacency, bool rebuild_bvh, bool recompute_normals=true)</td></tr>
+<tr class="memdesc:a91381b15e14ddeda426db9744d884598"><td class="mdescLeft">&#160;</td><td class="mdescRight">As <a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1" title="Recompute derived geometry and acceleration structures.">rebuild_geometry_accels()</a>, keeping what the caller already filled.  <br /></td></tr>
 <tr class="memitem:aef659b724ffd6b12378f75cdb85214d4" id="r_aef659b724ffd6b12378f75cdb85214d4"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aef659b724ffd6b12378f75cdb85214d4">remove_link</a> (std::size_t index)</td></tr>
 <tr class="memdesc:aef659b724ffd6b12378f75cdb85214d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove link <code class="param">index</code> (the last link takes its index). False if out of range.  <br /></td></tr>
 <tr class="memitem:a3a1a2ff16f86a0b41965cbe850af34ef" id="r_a3a1a2ff16f86a0b41965cbe850af34ef"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a3a1a2ff16f86a0b41965cbe850af34ef">remove_surface</a> (std::size_t surface_index)</td></tr>
@@ -1543,7 +1545,7 @@ template&lt;typename T&gt; </div>
 </div>
 </div>
 <a id="aeb8444f2290bd34e7904f036ebf17ab1" name="aeb8444f2290bd34e7904f036ebf17ab1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeb8444f2290bd34e7904f036ebf17ab1">&#9670;&#160;</a></span>rebuild_geometry_accels()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb8444f2290bd34e7904f036ebf17ab1">&#9670;&#160;</a></span>rebuild_geometry_accels() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1559,6 +1561,42 @@ template&lt;typename T&gt; </div>
 
 <p>Recompute derived geometry and acceleration structures. </p>
 <p>Computes triangle normals and areas, builds adjacency between neighbors, and builds per-surface BVHs. Layer sizes are not changed automatically; call <a class="el" href="classnavmap_1_1LayerRegistry.html#a039a25cf408f86a30b5932ef29ac6234" title="resize_all()">resize_all()</a> if you modified <a class="el" href="#a335aa8bcae202f21e43194758a024a9c" title="navcels">navcels</a>. </p>
+
+</div>
+</div>
+<a id="a91381b15e14ddeda426db9744d884598" name="a91381b15e14ddeda426db9744d884598"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91381b15e14ddeda426db9744d884598">&#9670;&#160;</a></span>rebuild_geometry_accels() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rebuild_geometry_accels </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>rebuild_adjacency</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>rebuild_bvh</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>recompute_normals</em></span><span class="paramdefsep"> = </span><span class="paramdefval">true</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>As <a class="el" href="#aeb8444f2290bd34e7904f036ebf17ab1" title="Recompute derived geometry and acceleration structures.">rebuild_geometry_accels()</a>, keeping what the caller already filled. </p>
+<p>A builder that knows the topology or a hierarchy of its NavCels (a mesh made from a tree, say) can fill <a class="el" href="structnavmap_1_1NavCel.html#a4631b9564878d7e5efeefa94ee034fb9" title="Neighbor cids across edges 0,1,2.">NavCel::neighbor</a> and each <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">Surface</a>'s aabb / bvh / prim_indices itself, in linear time, and skip the sorts of the generic builders. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rebuild_adjacency</td><td>false: <a class="el" href="structnavmap_1_1NavCel.html#a4631b9564878d7e5efeefa94ee034fb9" title="Neighbor cids across edges 0,1,2.">NavCel::neighbor</a> is kept as given. </td></tr>
+    <tr><td class="paramname">rebuild_bvh</td><td>false: every <a class="el" href="structnavmap_1_1Surface.html" title="A connected set of NavCels in a common reference frame.">Surface</a>'s aabb, bvh (root at index 0) and prim_indices are kept as given. </td></tr>
+    <tr><td class="paramname">recompute_normals</td><td>false: <a class="el" href="structnavmap_1_1NavCel.html#a2dc7f6395235de36ab3a66d476e3444f" title="Unit normal of the triangle.">NavCel::normal</a> and <a class="el" href="structnavmap_1_1NavCel.html#a97ab43f6fd28920a42d987c8fec4afec" title="Triangle area (m²).">NavCel::area</a> are kept as given (a builder that edits a few NavCels of a big map sets theirs). </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

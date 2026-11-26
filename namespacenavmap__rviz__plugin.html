@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">navmap_rviz_plugin Namespace Reference</div></div>
 </div><!--header-->
@@ -107,11 +108,55 @@ Classes</h2></td></tr>
 <tr class="memitem:NavMapGoalTool" id="r_NavMapGoalTool"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap__rviz__plugin_1_1NavMapGoalTool.html">NavMapGoalTool</a></td></tr>
 <tr class="memitem:NavMapPoseTool" id="r_NavMapPoseTool"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classnavmap__rviz__plugin_1_1NavMapPoseTool.html">NavMapPoseTool</a></td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a6ab462fc8eeae23c8d4f917e0b841a50" id="r_a6ab462fc8eeae23c8d4f917e0b841a50"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a6ab462fc8eeae23c8d4f917e0b841a50">current_received_navmap</a> ()</td></tr>
+<tr class="memdesc:a6ab462fc8eeae23c8d4f917e0b841a50"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="classNavMap.html">NavMap</a> last shown (for the tools: raycast on click), built from it when first needed: a map or patch that arrives costs nothing here.  <br /></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:ac1d536e72ca811afe7d436c515ef9815" id="r_ac1d536e72ca811afe7d436c515ef9815"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMap::SharedPtr&#160;</td><td class="memItemRight"><a class="el" href="#ac1d536e72ca811afe7d436c515ef9815">received_msg</a></td></tr>
+<tr class="memdesc:ac1d536e72ca811afe7d436c515ef9815"><td class="mdescLeft">&#160;</td><td class="mdescRight">The last map a <a class="el" href="classnavmap__rviz__plugin_1_1NavMapDisplay.html">NavMapDisplay</a> showed, and whether received_navmap is older than it.  <br /></td></tr>
 <tr class="memitem:ab9c1bfeaaaa389cc5346a5a8615814bb" id="r_ab9c1bfeaaaa389cc5346a5a8615814bb"><td class="memItemLeft"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a>&#160;</td><td class="memItemRight"><a class="el" href="#ab9c1bfeaaaa389cc5346a5a8615814bb">received_navmap</a></td></tr>
+<tr class="memitem:a71cd92c7592f153d685ba77a5f2376da" id="r_a71cd92c7592f153d685ba77a5f2376da"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a71cd92c7592f153d685ba77a5f2376da">received_stale</a> {false}</td></tr>
 </table>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="a6ab462fc8eeae23c8d4f917e0b841a50" name="a6ab462fc8eeae23c8d4f917e0b841a50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ab462fc8eeae23c8d4f917e0b841a50">&#9670;&#160;</a></span>current_received_navmap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp; current_received_navmap </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The <a class="el" href="classNavMap.html">NavMap</a> last shown (for the tools: raycast on click), built from it when first needed: a map or patch that arrives costs nothing here. </p>
+
+</div>
+</div>
 <a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Variable Documentation</h2>
+<a id="ac1d536e72ca811afe7d436c515ef9815" name="ac1d536e72ca811afe7d436c515ef9815"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1d536e72ca811afe7d436c515ef9815">&#9670;&#160;</a></span>received_msg</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">navmap_ros_interfaces::msg::NavMap::SharedPtr received_msg</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The last map a <a class="el" href="classnavmap__rviz__plugin_1_1NavMapDisplay.html">NavMapDisplay</a> showed, and whether received_navmap is older than it. </p>
+
+</div>
+</div>
 <a id="ab9c1bfeaaaa389cc5346a5a8615814bb" name="ab9c1bfeaaaa389cc5346a5a8615814bb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab9c1bfeaaaa389cc5346a5a8615814bb">&#9670;&#160;</a></span>received_navmap</h2>
 
@@ -120,6 +165,20 @@ Variables</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> received_navmap</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a71cd92c7592f153d685ba77a5f2376da" name="a71cd92c7592f153d685ba77a5f2376da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71cd92c7592f153d685ba77a5f2376da">&#9670;&#160;</a></span>received_stale</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool received_stale {false}</td>
         </tr>
       </table>
 </div><div class="memdoc">

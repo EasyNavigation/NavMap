@@ -20,8 +20,9 @@ var searchData=
   ['test_5fnavmap_5fio_2ecpp_17',['test_navmap_io.cpp',['../test__navmap__io_8cpp.html',1,'']]],
   ['test_5fnavmap_5fproperties_2ecpp_18',['test_navmap_properties.cpp',['../test__navmap__properties_8cpp.html',1,'']]],
   ['test_5fnavmap_5funiform_5fand_5fclosest_2ecpp_19',['test_navmap_uniform_and_closest.cpp',['../test__navmap__uniform__and__closest_8cpp.html',1,'']]],
-  ['test_5fraycast_5fmany_2ecpp_20',['test_raycast_many.cpp',['../test__raycast__many_8cpp.html',1,'']]],
-  ['test_5fsimplify_2ecpp_21',['test_simplify.cpp',['../test__simplify_8cpp.html',1,'']]],
-  ['test_5fsubdivide_2ecpp_22',['test_subdivide.cpp',['../test__subdivide_8cpp.html',1,'']]],
-  ['test_5fsurface_5ftree_2ecpp_23',['test_surface_tree.cpp',['../test__surface__tree_8cpp.html',1,'']]]
+  ['test_5fpatch_2ecpp_20',['test_patch.cpp',['../test__patch_8cpp.html',1,'']]],
+  ['test_5fraycast_5fmany_2ecpp_21',['test_raycast_many.cpp',['../test__raycast__many_8cpp.html',1,'']]],
+  ['test_5fsimplify_2ecpp_22',['test_simplify.cpp',['../test__simplify_8cpp.html',1,'']]],
+  ['test_5fsubdivide_2ecpp_23',['test_subdivide.cpp',['../test__subdivide_8cpp.html',1,'']]],
+  ['test_5fsurface_5ftree_2ecpp_24',['test_surface_tree.cpp',['../test__surface__tree_8cpp.html',1,'']]]
 ];

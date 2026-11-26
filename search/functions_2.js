@@ -14,5 +14,6 @@ var searchData=
   ['content_5fhash_11',['content_hash',['../structnavmap_1_1LayerViewBase.html#a7013c93c5b8c980840c8fb0138b3bf51',1,'navmap::LayerViewBase::content_hash()'],['../structnavmap_1_1LayerView.html#a0004705aea04a4d5ae569f630378a999',1,'navmap::LayerView::content_hash()'],['../structLayerView.html#a0004705aea04a4d5ae569f630378a999',1,'LayerView::content_hash()']]],
   ['create_5fsurface_12',['create_surface',['../classnavmap_1_1NavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'navmap::NavMap::create_surface()'],['../classNavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'NavMap::create_surface()']]],
   ['create_5fsurface_5fobj_13',['create_surface_obj',['../classnavmap_1_1NavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'navmap::NavMap::create_surface_obj()'],['../classNavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'NavMap::create_surface_obj()']]],
-  ['cut_5falong_5flines_14',['cut_along_lines',['../namespacenavmap.html#ac06994227a910559539760a405120b2d',1,'navmap']]]
+  ['current_5freceived_5fnavmap_14',['current_received_navmap',['../namespacenavmap__rviz__plugin.html#a6ab462fc8eeae23c8d4f917e0b841a50',1,'navmap_rviz_plugin']]],
+  ['cut_5falong_5flines_15',['cut_along_lines',['../namespacenavmap.html#ac06994227a910559539760a405120b2d',1,'navmap']]]
 ];

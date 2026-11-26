@@ -4,5 +4,5 @@ var searchData=
   ['updates_1',['Layer updates',['../index.html#autotoc_md47',1,'']]],
   ['updates_20change_20tracking_20distancefield_20hpp_2',['7d. Incremental updates (change tracking, &lt;span class=&quot;tt&quot;&gt;DistanceField.hpp&lt;/span&gt;)',['../index.html#autotoc_md31',1,'']]],
   ['usage_20c_20api_3',['🚀 Usage (C++ API)',['../index.html#autotoc_md11',1,'']]],
-  ['usage_20examples_20package_4',['📦 Usage (Examples package)',['../index.html#autotoc_md53',1,'']]]
+  ['usage_20examples_20package_4',['📦 Usage (Examples package)',['../index.html#autotoc_md54',1,'']]]
 ];

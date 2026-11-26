@@ -14,7 +14,7 @@ var searchData=
   ['changed_5fbits_5f_11',['changed_bits_',['../structnavmap_1_1LayerViewBase.html#a83456df4236254ca540dc288735b692a',1,'navmap::LayerViewBase']]],
   ['cid_12',['cid',['../structnavmap_1_1TraversalScratch_1_1Front.html#ada2dcf793e3da75ed8e44ed1080468c1',1,'navmap::TraversalScratch::Front::cid'],['../structnavmap_1_1RayHit.html#ada2dcf793e3da75ed8e44ed1080468c1',1,'navmap::RayHit::cid'],['../structTraversalScratch_1_1Front.html#ada2dcf793e3da75ed8e44ed1080468c1',1,'TraversalScratch::Front::cid'],['../structRayHit.html#ada2dcf793e3da75ed8e44ed1080468c1',1,'RayHit::cid']]],
   ['circular_13',['CIRCULAR',['../namespacenavmap.html#a63cf6a237030c393768c302c76a2bed7a93c8d295bb538cdb3302604512828d68',1,'navmap']]],
-  ['classic_20low_20level_20api_14',['10. Classic low-level API',['../index.html#autotoc_md51',1,'']]],
+  ['classic_20low_20level_20api_14',['10. Classic low-level API',['../index.html#autotoc_md52',1,'']]],
   ['clear_5fchanges_15',['clear_changes',['../structnavmap_1_1LayerViewBase.html#a87aa8fdde218a8cd88ed9369b1cf6f52',1,'navmap::LayerViewBase']]],
   ['clear_5flinks_16',['clear_links',['../classnavmap_1_1NavMap.html#a58c3ed2f73ac236a3837bca32c3f6dbf',1,'navmap::NavMap::clear_links()'],['../classNavMap.html#a58c3ed2f73ac236a3837bca32c3f6dbf',1,'NavMap::clear_links()']]],
   ['clearance_17',['clearance',['../structnavmap_1_1DescriptorParams.html#a172321d7089127c9a9289721d5c0545a',1,'navmap::DescriptorParams::clearance'],['../structDescriptorParams.html#a172321d7089127c9a9289721d5c0545a',1,'DescriptorParams::clearance']]],
@@ -42,10 +42,10 @@ var searchData=
   ['contains_5fxy_39',['contains_xy',['../structnavmap_1_1AABB.html#a104e413ff13240e1418d5e545eabca42',1,'navmap::AABB::contains_xy()'],['../structAABB.html#a104e413ff13240e1418d5e545eabca42',1,'AABB::contains_xy()']]],
   ['contains_5fxy_5fonly_40',['contains_xy_only',['../structnavmap_1_1AABB.html#a8548f0f32e8f29e0bdd2c53a40a6a3bb',1,'navmap::AABB::contains_xy_only()'],['../structAABB.html#a8548f0f32e8f29e0bdd2c53a40a6a3bb',1,'AABB::contains_xy_only()']]],
   ['content_5fhash_41',['content_hash',['../structnavmap_1_1LayerViewBase.html#a7013c93c5b8c980840c8fb0138b3bf51',1,'navmap::LayerViewBase::content_hash()'],['../structnavmap_1_1LayerView.html#a0004705aea04a4d5ae569f630378a999',1,'navmap::LayerView::content_hash()'],['../structLayerView.html#a0004705aea04a4d5ae569f630378a999',1,'LayerView::content_hash()']]],
-  ['contributing_42',['🤝 Contributing',['../index.html#autotoc_md60',1,'']]],
+  ['contributing_42',['🤝 Contributing',['../index.html#autotoc_md61',1,'']]],
   ['conversions_2ecpp_43',['conversions.cpp',['../conversions_8cpp.html',1,'']]],
   ['conversions_2ehpp_44',['conversions.hpp',['../conversions_8hpp.html',1,'']]],
-  ['core_20examples_45',['Run core examples',['../index.html#autotoc_md55',1,'']]],
+  ['core_20examples_45',['Run core examples',['../index.html#autotoc_md56',1,'']]],
   ['corresponding_20to_20a_203d_20position_46',['4. Locate the NavCel corresponding to a 3D position',['../index.html#autotoc_md19',1,'']]],
   ['cost_20or_20occupancy_47',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
   ['costs_2ehpp_48',['Costs.hpp',['../Costs_8hpp.html',1,'']]],
@@ -53,6 +53,7 @@ var searchData=
   ['create_20a_20minimal_20navmap_20single_20square_20floor_20with_20two_20triangles_50',['1. Create a minimal NavMap (single square floor with two triangles)',['../index.html#autotoc_md13',1,'']]],
   ['create_5fsurface_51',['create_surface',['../classnavmap_1_1NavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'navmap::NavMap::create_surface()'],['../classNavMap.html#ac62eb8c6caa3e48dd52fc2c49c6ec5fd',1,'NavMap::create_surface()']]],
   ['create_5fsurface_5fobj_52',['create_surface_obj',['../classnavmap_1_1NavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'navmap::NavMap::create_surface_obj()'],['../classNavMap.html#a0415f1927fed922e8c2d5a6d4257cbbe',1,'NavMap::create_surface_obj()']]],
-  ['cut_5falong_5flines_53',['cut_along_lines',['../namespacenavmap.html#ac06994227a910559539760a405120b2d',1,'navmap']]],
-  ['cutlines_54',['CutLines',['../structnavmap_1_1CutLines.html',1,'navmap']]]
+  ['current_5freceived_5fnavmap_53',['current_received_navmap',['../namespacenavmap__rviz__plugin.html#a6ab462fc8eeae23c8d4f917e0b841a50',1,'navmap_rviz_plugin']]],
+  ['cut_5falong_5flines_54',['cut_along_lines',['../namespacenavmap.html#ac06994227a910559539760a405120b2d',1,'navmap']]],
+  ['cutlines_55',['CutLines',['../structnavmap_1_1CutLines.html',1,'navmap']]]
 ];

@@ -123,6 +123,9 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a8f905e5c49a5f86d60e61003fea93750" id="r_a8f905e5c49a5f86d60e61003fea93750"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a8f905e5c49a5f86d60e61003fea93750">apply_patch</a> (const navmap_ros_interfaces::msg::NavMapPatch &amp;p, <a class="el" href="classNavMap.html">NavMap</a> &amp;msg)</td></tr>
+<tr class="memitem:a4ac44d1055c240eb90538e9b744d0a13" id="r_a4ac44d1055c240eb90538e9b744d0a13"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a4ac44d1055c240eb90538e9b744d0a13">apply_patch</a> (const navmap_ros_interfaces::msg::NavMapPatch &amp;patch, navmap_ros_interfaces::msg::NavMap &amp;msg)</td></tr>
+<tr class="memdesc:a4ac44d1055c240eb90538e9b744d0a13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies <code class="param">patch</code> to the <a class="el" href="classNavMap.html">NavMap</a> message <code class="param">msg</code> (the map a receiver keeps).  <br /></td></tr>
 <tr class="memitem:a0a05354967c19acb4e9cb8675a0c251d" id="r_a0a05354967c19acb4e9cb8675a0c251d"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a0a05354967c19acb4e9cb8675a0c251d">build_navmap_from_mesh</a> (const pcl::PointCloud&lt; pcl::PointXYZ &gt; &amp;cloud, const std::vector&lt; Eigen::Vector3i &gt; &amp;triangles, const std::string &amp;frame_id, navmap_ros_interfaces::msg::NavMap &amp;out_msg, <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> *out_core_opt)</td></tr>
 <tr class="memitem:a52a5af01e3ba3d589471e71dfce5de65" id="r_a52a5af01e3ba3d589471e71dfce5de65"><td class="memItemLeft">pcl::PointCloud&lt; pcl::PointXYZ &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a52a5af01e3ba3d589471e71dfce5de65">filter_with_viewpoints</a> (const pcl::PointCloud&lt; pcl::PointWithViewpoint &gt; &amp;input_points, const <a class="el" href="structnavmap__ros_1_1BuildParams.html">BuildParams</a> &amp;params, <a class="el" href="structnavmap__ros_1_1ViewpointFilterStats.html">ViewpointFilterStats</a> *stats=nullptr)</td></tr>
 <tr class="memdesc:a52a5af01e3ba3d589471e71dfce5de65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean a cloud with the sensor position of each point (<span class="tt">vp_x</span>, <span class="tt">vp_y</span>, <span class="tt">vp_z</span>).  <br /></td></tr>
@@ -162,6 +165,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:a42165113e6236698fe947ca8ffa69bc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Backward-compatible overload.  <br /></td></tr>
 <tr class="memitem:a185f2164687718cb363751dce8cfe900" id="r_a185f2164687718cb363751dce8cfe900"><td class="memItemLeft">nav_msgs::msg::OccupancyGrid&#160;</td><td class="memItemRight"><a class="el" href="#a185f2164687718cb363751dce8cfe900">to_occupancy_grid</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, const std_msgs::msg::Header &amp;header)</td></tr>
 <tr class="memdesc:a185f2164687718cb363751dce8cfe900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a <span class="tt"><a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a></span> back to <span class="tt">nav_msgs::msg::OccupancyGrid</span>.  <br /></td></tr>
+<tr class="memitem:a2f87f8895fd74eed7b0b62c089f4804f" id="r_a2f87f8895fd74eed7b0b62c089f4804f"><td class="memItemLeft">navmap_ros_interfaces::msg::NavMapPatch&#160;</td><td class="memItemRight"><a class="el" href="#a2f87f8895fd74eed7b0b62c089f4804f">to_patch_msg</a> (const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;nm, std::uint64_t base_geometry_id, std::uint32_t first_vertex, const std::vector&lt; std::uint32_t &gt; &amp;navcels, const std::vector&lt; std::size_t &gt; &amp;surfaces, const std_msgs::msg::Header &amp;header=std_msgs::msg::Header())</td></tr>
+<tr class="memdesc:a2f87f8895fd74eed7b0b62c089f4804f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Patch with what changed in <code class="param">nm</code> since a map with geometry <code class="param">base_geometry_id</code> was sent.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -194,6 +199,51 @@ Variables</h2></td></tr>
 </div>
 </div>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="a8f905e5c49a5f86d60e61003fea93750" name="a8f905e5c49a5f86d60e61003fea93750"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f905e5c49a5f86d60e61003fea93750">&#9670;&#160;</a></span>apply_patch() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool apply_patch </td>
+          <td>(</td>
+          <td class="paramtype">const navmap_ros_interfaces::msg::NavMapPatch &amp;</td>          <td class="paramname"><span class="paramname"><em>p</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classNavMap.html">NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>msg</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4ac44d1055c240eb90538e9b744d0a13" name="a4ac44d1055c240eb90538e9b744d0a13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ac44d1055c240eb90538e9b744d0a13">&#9670;&#160;</a></span>apply_patch() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool apply_patch </td>
+          <td>(</td>
+          <td class="paramtype">const navmap_ros_interfaces::msg::NavMapPatch &amp;</td>          <td class="paramname"><span class="paramname"><em>patch</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">navmap_ros_interfaces::msg::NavMap &amp;</td>          <td class="paramname"><span class="paramname"><em>msg</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Applies <code class="param">patch</code> to the <a class="el" href="classNavMap.html">NavMap</a> message <code class="param">msg</code> (the map a receiver keeps). </p>
+<dl class="section return"><dt>Returns</dt><dd>false, leaving <code class="param">msg</code> untouched, if <code class="param">msg</code> is not the patch's base map (geometry_id != base_geometry_id) or the patch does not fit it (missing vertices, indices out of range, layers of another type): the receiver must wait for a full map. </dd></dl>
+
+</div>
+</div>
 <a id="a0a05354967c19acb4e9cb8675a0c251d" name="a0a05354967c19acb4e9cb8675a0c251d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0a05354967c19acb4e9cb8675a0c251d">&#9670;&#160;</a></span>build_navmap_from_mesh()</h2>
 
@@ -872,6 +922,50 @@ Variables</h2></td></tr>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>The fallback path assumes the presence of an <span class="tt">"occupancy"</span> layer. The precise sampling strategy (bounds, resolution, and handling of cells without a containing navcel) is implementation-defined.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>If the map does not carry grid metadata or the <span class="tt">"occupancy"</span> layer is missing, the result may be incomplete or implementation-defined. </dd></dl>
+
+</div>
+</div>
+<a id="a2f87f8895fd74eed7b0b62c089f4804f" name="a2f87f8895fd74eed7b0b62c089f4804f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f87f8895fd74eed7b0b62c089f4804f">&#9670;&#160;</a></span>to_patch_msg()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">navmap_ros_interfaces::msg::NavMapPatch to_patch_msg </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classnavmap_1_1NavMap.html">navmap::NavMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>nm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint64_t</td>          <td class="paramname"><span class="paramname"><em>base_geometry_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint32_t</td>          <td class="paramname"><span class="paramname"><em>first_vertex</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::uint32_t &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>navcels</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::size_t &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>surfaces</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std_msgs::msg::Header &amp;</td>          <td class="paramname"><span class="paramname"><em>header</em></span><span class="paramdefsep"> = </span><span class="paramdefval">std_msgs::msg::Header()</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Patch with what changed in <code class="param">nm</code> since a map with geometry <code class="param">base_geometry_id</code> was sent. </p>
+<p>The caller knows what changed: the vertices from <code class="param">first_vertex</code> on are new, the NavCels in <code class="param">navcels</code> were rewritten (they carry their vertices and the value of every layer) and the surfaces in <code class="param">surfaces</code> were replaced. Links are always sent whole. </p>
 
 </div>
 </div>

@@ -1,7 +1,7 @@
 var searchData=
 [
   ['sample_20a_20layer_20at_20a_20world_20position_0',['5. Sample a layer at a world position',['../index.html#autotoc_md21',1,'']]],
-  ['save_20and_20load_20from_20disk_1',['9. Save and load from disk',['../index.html#autotoc_md49',1,'']]],
+  ['save_20and_20load_20from_20disk_1',['9. Save and load from disk',['../index.html#autotoc_md50',1,'']]],
   ['sensor_20positions_20from_5fpoints_20with_20viewpoints_2',['7i. Clouds with sensor positions (&lt;span class=&quot;tt&quot;&gt;from_points&lt;/span&gt; with viewpoints)',['../index.html#autotoc_md43',1,'']]],
   ['serialize_20to_20from_20ros_20messages_3',['8. Serialize to / from ROS messages',['../index.html#autotoc_md45',1,'']]],
   ['set_5farea_4',['7. Marking areas (&lt;span class=&quot;tt&quot;&gt;set_area&lt;/span&gt;)',['../index.html#autotoc_md25',1,'']]],

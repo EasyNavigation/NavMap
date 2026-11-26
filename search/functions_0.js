@@ -10,5 +10,6 @@ var searchData=
   ['add_5fsurface_7',['add_surface',['../classnavmap_1_1NavMap.html#a707120e20ba59dd5903aa018cf6c1105',1,'navmap::NavMap::add_surface(const Surface &amp;s)'],['../classnavmap_1_1NavMap.html#a306b9c0e63d82da417a2c685188ce64a',1,'navmap::NavMap::add_surface(Surface &amp;&amp;s)'],['../classNavMap.html#a707120e20ba59dd5903aa018cf6c1105',1,'NavMap::add_surface(const Surface &amp;s)'],['../classNavMap.html#a306b9c0e63d82da417a2c685188ce64a',1,'NavMap::add_surface(Surface &amp;&amp;s)']]],
   ['add_5fvertex_8',['add_vertex',['../classnavmap_1_1NavMap.html#a8ca0caf7aeab120684eb998fe14dd067',1,'navmap::NavMap::add_vertex()'],['../classNavMap.html#a8ca0caf7aeab120684eb998fe14dd067',1,'NavMap::add_vertex()']]],
   ['all_5fchanged_9',['all_changed',['../structnavmap_1_1LayerViewBase.html#a1e95f975ae35f7739a55cbaf27e10492',1,'navmap::LayerViewBase']]],
-  ['at_10',['at',['../structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a',1,'navmap::Positions']]]
+  ['apply_5fpatch_10',['apply_patch',['../namespacenavmap__ros.html#a4ac44d1055c240eb90538e9b744d0a13',1,'navmap_ros::apply_patch(const navmap_ros_interfaces::msg::NavMapPatch &amp;patch, navmap_ros_interfaces::msg::NavMap &amp;msg)'],['../namespacenavmap__ros.html#a8f905e5c49a5f86d60e61003fea93750',1,'navmap_ros::apply_patch(const navmap_ros_interfaces::msg::NavMapPatch &amp;p, NavMap &amp;msg)']]],
+  ['at_11',['at',['../structnavmap_1_1Positions.html#a214dbfe7dd8c8f4ecffe7645b1b0b42a',1,'navmap::Positions']]]
 ];

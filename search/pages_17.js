@@ -1,8 +1,9 @@
 var searchData=
 [
-  ['package_0',['📦 Usage (Examples package)',['../index.html#autotoc_md53',1,'']]],
-  ['per_20navcel_20layer_20cost_20or_20occupancy_1',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
-  ['place_20with_20its_20buildings_20navmap_5fgis_5ftool_2',['7h-bis. A NavMap of any place, with its buildings (&lt;span class=&quot;tt&quot;&gt;navmap_gis_tool&lt;/span&gt;)',['../index.html#autotoc_md41',1,'']]],
-  ['position_3',['position',['../index.html#autotoc_md19',1,'4. Locate the NavCel corresponding to a 3D position'],['../index.html#autotoc_md21',1,'5. Sample a layer at a world position']]],
-  ['positions_20from_5fpoints_20with_20viewpoints_4',['7i. Clouds with sensor positions (&lt;span class=&quot;tt&quot;&gt;from_points&lt;/span&gt; with viewpoints)',['../index.html#autotoc_md43',1,'']]]
+  ['package_0',['📦 Usage (Examples package)',['../index.html#autotoc_md54',1,'']]],
+  ['patches_1',['Geometry patches',['../index.html#autotoc_md48',1,'']]],
+  ['per_20navcel_20layer_20cost_20or_20occupancy_2',['2. Add a per-NavCel layer (cost or occupancy)',['../index.html#autotoc_md15',1,'']]],
+  ['place_20with_20its_20buildings_20navmap_5fgis_5ftool_3',['7h-bis. A NavMap of any place, with its buildings (&lt;span class=&quot;tt&quot;&gt;navmap_gis_tool&lt;/span&gt;)',['../index.html#autotoc_md41',1,'']]],
+  ['position_4',['position',['../index.html#autotoc_md19',1,'4. Locate the NavCel corresponding to a 3D position'],['../index.html#autotoc_md21',1,'5. Sample a layer at a world position']]],
+  ['positions_20from_5fpoints_20with_20viewpoints_5',['7i. Clouds with sensor positions (&lt;span class=&quot;tt&quot;&gt;from_points&lt;/span&gt; with viewpoints)',['../index.html#autotoc_md43',1,'']]]
 ];
