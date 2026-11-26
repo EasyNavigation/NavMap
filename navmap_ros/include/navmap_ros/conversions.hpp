@@ -36,7 +36,9 @@
  * The reverse conversion reuses that layer when present.
  */
 
+#include <cstdint>
 #include <string>
+#include <vector>
 
 #include "Eigen/Core"
 #include "pcl/point_cloud.h"
@@ -45,6 +47,7 @@
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_patch.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "navmap_core/Costs.hpp"
 #include "navmap_core/NavMap.hpp"
@@ -151,6 +154,29 @@ navmap_ros_interfaces::msg::NavMapLayer to_layer_update_msg(
   const navmap::NavMap & nm, const std::string & layer,
   const std_msgs::msg::Header & header = std_msgs::msg::Header(),
   float max_sparse_fraction = 0.25f);
+
+/**
+ * @brief Patch with what changed in @p nm since a map with geometry @p base_geometry_id was sent.
+ *
+ * The caller knows what changed: the vertices from @p first_vertex on are new, the NavCels in
+ * @p navcels were rewritten (they carry their vertices and the value of every layer) and the
+ * surfaces in @p surfaces were replaced. Links are always sent whole.
+ */
+navmap_ros_interfaces::msg::NavMapPatch to_patch_msg(
+  const navmap::NavMap & nm, std::uint64_t base_geometry_id, std::uint32_t first_vertex,
+  const std::vector<std::uint32_t> & navcels, const std::vector<std::size_t> & surfaces,
+  const std_msgs::msg::Header & header = std_msgs::msg::Header());
+
+/**
+ * @brief Applies @p patch to the NavMap message @p msg (the map a receiver keeps).
+ *
+ * @return false, leaving @p msg untouched, if @p msg is not the patch's base map
+ *         (geometry_id != base_geometry_id) or the patch does not fit it (missing vertices,
+ *         indices out of range, layers of another type): the receiver must wait for a full map.
+ */
+bool apply_patch(
+  const navmap_ros_interfaces::msg::NavMapPatch & patch,
+  navmap_ros_interfaces::msg::NavMap & msg);
 
 /**
  * @brief Import a single NavMapLayer message into a NavMap.

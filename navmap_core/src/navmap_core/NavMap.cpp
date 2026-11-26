@@ -439,9 +439,16 @@ inline float box_sq_dist(const AABB & box, const Vec3 & p)
 
 void NavMap::rebuild_geometry_accels()
 {
+  rebuild_geometry_accels(true, true);
+}
+
+void NavMap::rebuild_geometry_accels(
+  bool rebuild_adjacency, bool rebuild_bvh, bool recompute_normals)
+{
   geometry_dirty_ = true;
   // Normals and areas.
   for (auto & c : navcels) {
+    if (!recompute_normals) {break;}
     Vec3 a = positions.at(c.v[0]);
     Vec3 b = positions.at(c.v[1]);
     Vec3 d = positions.at(c.v[2]);
@@ -450,11 +457,13 @@ void NavMap::rebuild_geometry_accels()
   }
 
   // Topological neighbors.
-  build_adjacency();
+  if (rebuild_adjacency) {build_adjacency();}
 
   // Per-surface BVH and seed grid.
-  for (auto & s : surfaces) {
-    build_surface_bvh(s);
+  if (rebuild_bvh) {
+    for (auto & s : surfaces) {
+      build_surface_bvh(s);
+    }
   }
   build_navcel_surface_index_();
   build_surface_tree_();

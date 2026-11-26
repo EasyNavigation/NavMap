@@ -100,7 +100,7 @@ rayHitOnNavMap(
   ::navmap::NavCelId cid = 0;
   float t = 0.0f;
   Eigen::Vector3f hit;
-  const bool ok = received_navmap.raycast(o, d, cid, t, hit);
+  const bool ok = current_received_navmap().raycast(o, d, cid, t, hit);
   if (!ok) {
     return {false, Ogre::Vector3::ZERO};
   }
@@ -112,7 +112,7 @@ int NavMapPoseTool::processMouseEvent(rviz_common::ViewportMouseEvent & event)
 {
   std::pair<bool, Ogre::Vector3> hit = {false, Ogre::Vector3::ZERO};
 
-  if (!received_navmap.surfaces.empty()) {
+  if (!current_received_navmap().surfaces.empty()) {
     hit = rayHitOnNavMap(event, context_);
   }
 

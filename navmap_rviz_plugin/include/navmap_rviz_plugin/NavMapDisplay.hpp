@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "QObject"
 #include "OgreHardwareVertexBuffer.h"
@@ -28,6 +29,7 @@
 #include "rclcpp/subscription.hpp"
 #include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/properties/bool_property.hpp"
+#include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/enum_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/qos_profile_property.hpp"
@@ -36,7 +38,9 @@
 #include "rviz_common/display_context.hpp"
 #include "navmap_ros_interfaces/msg/nav_map.hpp"
 #include "navmap_ros_interfaces/msg/nav_map_layer.hpp"
+#include "navmap_ros_interfaces/msg/nav_map_patch.hpp"
 #include "navmap_core/NavMap.hpp"
+#include "navmap_ros/conversions.hpp"
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef __GNUC__
@@ -73,6 +77,20 @@ namespace navmap_rviz_plugin
 {
 
 inline navmap::NavMap received_navmap;
+/// The last map a NavMapDisplay showed, and whether received_navmap is older than it.
+inline navmap_ros_interfaces::msg::NavMap::SharedPtr received_msg;
+inline bool received_stale{false};
+
+/// The NavMap last shown (for the tools: raycast on click), built from it when first needed: a
+/// map or patch that arrives costs nothing here.
+inline navmap::NavMap & current_received_navmap()
+{
+  if (received_stale && received_msg) {
+    received_navmap = navmap_ros::from_msg(*received_msg);
+    received_stale = false;
+  }
+  return received_navmap;
+}
 
 class NAVMAP_RVIZ_PLUGIN_PUBLIC NavMapDisplay
   : public rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>
@@ -82,6 +100,7 @@ class NAVMAP_RVIZ_PLUGIN_PUBLIC NavMapDisplay
   using MFDClass = rviz_common::MessageFilterDisplay<navmap_ros_interfaces::msg::NavMap>;
   using NavMapMsg = navmap_ros_interfaces::msg::NavMap;
   using NavMapLayerMsg = navmap_ros_interfaces::msg::NavMapLayer;
+  using NavMapPatchMsg = navmap_ros_interfaces::msg::NavMapPatch;
 
 public:
   NavMapDisplay();
@@ -97,8 +116,10 @@ protected:
 
 private Q_SLOTS:
   void updateLayerUpdateTopic();
+  void updatePatchTopic();
   void onLayerSelectionChanged();
   void onDrawNormalsChanged();
+  void onDrawEdgesChanged();
   void onDrawLinksChanged();
   void onAlphaChanged();
   void onNormalScaleChanged();
@@ -109,6 +130,9 @@ private:
   void subscribeToLayerTopic();
   void unsubscribeToLayerTopic();
   void incomingLayer(const NavMapLayerMsg::ConstSharedPtr & msg);
+  void subscribeToPatchTopic();
+  void unsubscribeToPatchTopic();
+  void incomingPatch(const NavMapPatchMsg::ConstSharedPtr & msg);
 
   // Data helpers
   void rebuildLayerIndex_();
@@ -119,13 +143,40 @@ private:
   // Rendering
   void updateGeometry_();            // Build geometry (first time) and update colors.
   void updateNormals_();             // Rebuild normals debug object.
+  void updateEdges_();               // Rebuild the edges of the NavCels (one line per edge).
   void updateLinks_();               // Rebuild the links between non-adjacent NavCels.
   void updateColorSchemeOptions_();  // Refresh color-scheme choices for current layer.
 
-  // Mesh/Entity path (Option B)
-  void ensureMeshBuilt_();           // Build static mesh once from last_msg_.
-  void destroyMesh_();               // Destroy entity/mesh and related buffers.
-  void updateColorsOnly_();          // Overwrite color buffer (fast path, no geometry rebuild).
+  // The mesh, in chunks of kChunkCels NavCels: a patch rebuilds only the chunks it touches.
+  // Each chunk: a static mesh, its entity, a dynamic colour buffer and its edges.
+  struct Chunk
+  {
+    Ogre::Entity * entity{nullptr};
+    Ogre::SharedPtr<Ogre::Mesh> mesh;
+    Ogre::HardwareVertexBufferSharedPtr colour;
+    Ogre::ManualObject * edges{nullptr};
+  };
+  static constexpr std::size_t kChunkCels = 65536;
+
+  // How the selected layer is coloured, computed once for all the chunks
+  struct ColourCtx
+  {
+    const NavMapLayerMsg * layer{nullptr};
+    bool vertex_colours{false};
+    bool is_u8{false};
+    bool logodds{false};
+    bool rainbow{false};
+    float min_val{0.0f}, max_val{0.0f}, alpha{1.0f};
+  };
+
+  void ensureMeshBuilt_();           // Builds the chunks missing from last_msg_.
+  void destroyMesh_();               // Destroys every chunk.
+  void buildChunk_(std::size_t k);   // (Re)builds the geometry of chunk k.
+  void destroyChunk_(Chunk & chunk);
+  ColourCtx colourContext_() const;
+  void colourChunk_(std::size_t k, const ColourCtx & ctx);
+  void edgesChunk_(std::size_t k);
+  void updateColorsOnly_();          // Recolours every chunk (no geometry rebuild).
 
 private:
   // ---- RViz properties ----
@@ -135,6 +186,8 @@ private:
   rviz_common::properties::EnumProperty * color_scheme_property_{nullptr};
   rviz_common::properties::BoolProperty * draw_normals_property_{nullptr};
   rviz_common::properties::BoolProperty * draw_links_property_{nullptr};
+  rviz_common::properties::BoolProperty * draw_edges_property_{nullptr};
+  rviz_common::properties::ColorProperty * edge_color_property_{nullptr};
   rviz_common::properties::FloatProperty * normal_scale_property_{nullptr};
   rviz_common::properties::FloatProperty * alpha_property_{nullptr};
   rviz_common::properties::StringProperty * info_property_{nullptr};
@@ -143,6 +196,9 @@ private:
   rclcpp::QoS layer_profile_{rclcpp::QoS(5)};
   rclcpp::Subscription<NavMapLayerMsg>::SharedPtr layer_subscription_;
   rclcpp::Time layer_subscription_start_time_;
+  rviz_common::properties::RosTopicProperty * patch_topic_property_{nullptr};
+  rclcpp::Subscription<NavMapPatchMsg>::SharedPtr patch_subscription_;
+  std::uint64_t patch_count_{0};
 
   // ---- Status counters ----
   std::uint64_t navmap_msg_count_{0};
@@ -159,12 +215,8 @@ private:
   Ogre::ManualObject * normals_obj_{nullptr};
   Ogre::ManualObject * links_obj_{nullptr};
 
-  // Option B: static mesh + entity + dynamic colour buffer
-  Ogre::Entity * entity_{nullptr};
-  Ogre::SharedPtr<Ogre::Mesh> mesh_;  // Ogre::MeshPtr
-  Ogre::HardwareVertexBufferSharedPtr colour_vbuf_;
-  uint16_t colour_vbuf_source_{0};   // which stream holds VES_DIFFUSE
-  bool mesh_built_{false};
+  std::vector<Chunk> chunks_;
+  std::string material_;   ///< vertex-colour material shared by the chunks
 };
 
 }  // namespace navmap_rviz_plugin

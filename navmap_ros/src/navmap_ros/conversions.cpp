@@ -253,6 +253,231 @@ NavMap to_msg(const navmap::NavMap & nm)
   return to_msg(nm, std_msgs::msg::Header());
 }
 
+navmap_ros_interfaces::msg::NavMapPatch to_patch_msg(
+  const navmap::NavMap & nm, std::uint64_t base_geometry_id, std::uint32_t first_vertex,
+  const std::vector<std::uint32_t> & navcels, const std::vector<std::size_t> & surfaces,
+  const std_msgs::msg::Header & header)
+{
+  navmap_ros_interfaces::msg::NavMapPatch p;
+  p.header = header;
+  p.base_geometry_id = base_geometry_id;
+  p.geometry_id = nm.geometry_id();
+
+  const std::size_t nv = nm.positions.x.size();
+  p.first_vertex = std::min<std::uint32_t>(first_vertex, static_cast<std::uint32_t>(nv));
+  p.positions_x.assign(nm.positions.x.begin() + p.first_vertex, nm.positions.x.end());
+  p.positions_y.assign(nm.positions.y.begin() + p.first_vertex, nm.positions.y.end());
+  p.positions_z.assign(nm.positions.z.begin() + p.first_vertex, nm.positions.z.end());
+  if (nm.colors.has_value()) {
+    p.colors_r.assign(nm.colors->r.begin() + p.first_vertex, nm.colors->r.end());
+    p.colors_g.assign(nm.colors->g.begin() + p.first_vertex, nm.colors->g.end());
+    p.colors_b.assign(nm.colors->b.begin() + p.first_vertex, nm.colors->b.end());
+    p.colors_a.assign(nm.colors->a.begin() + p.first_vertex, nm.colors->a.end());
+  }
+
+  p.navcels_size = static_cast<std::uint32_t>(nm.navcels.size());
+  p.navcel_indices.reserve(navcels.size());
+  p.navcels_v0.reserve(navcels.size());
+  p.navcels_v1.reserve(navcels.size());
+  p.navcels_v2.reserve(navcels.size());
+  for (const auto c : navcels) {
+    if (c >= nm.navcels.size()) {continue;}
+    p.navcel_indices.push_back(c);
+    p.navcels_v0.push_back(nm.navcels[c].v[0]);
+    p.navcels_v1.push_back(nm.navcels[c].v[1]);
+    p.navcels_v2.push_back(nm.navcels[c].v[2]);
+  }
+
+  for (const auto & name : nm.layers.list()) {
+    auto base = nm.layers.get(name);
+    if (!base) {continue;}
+    NavMapLayer l;
+    l.name = name;
+    l.type = static_cast<uint8_t>(base->type());
+    l.geometry_id = p.geometry_id;
+    if (const auto meta = nm.get_layer_meta(name)) {
+      l.description = meta->description;
+      l.unit = meta->unit;
+      l.has_unknown = meta->unknown.has_value();
+      l.unknown_value = meta->unknown.value_or(0.0);
+    }
+    l.indices = p.navcel_indices;
+    auto gather = [&](const auto & data, auto & out) {
+        out.reserve(p.navcel_indices.size());
+        for (const auto c : p.navcel_indices) {
+          using T = typename std::decay_t<decltype(out)>::value_type;
+          out.push_back(c < data.size() ? data[c] : T{});
+        }
+      };
+    switch (base->type()) {
+      case navmap::LayerType::U8:
+        gather(static_cast<const navmap::LayerView<uint8_t> &>(*base).data(), l.data_u8);
+        break;
+      case navmap::LayerType::F32:
+        gather(static_cast<const navmap::LayerView<float> &>(*base).data(), l.data_f32);
+        break;
+      case navmap::LayerType::F64:
+        gather(static_cast<const navmap::LayerView<double> &>(*base).data(), l.data_f64);
+        break;
+      case navmap::LayerType::I16:
+        gather(static_cast<const navmap::LayerView<int16_t> &>(*base).data(), l.data_i16);
+        break;
+    }
+    p.layers.push_back(std::move(l));
+  }
+
+  for (const auto i : surfaces) {
+    if (i >= nm.surfaces.size()) {continue;}
+    p.surface_indices.push_back(static_cast<std::uint32_t>(i));
+    NavMapSurface smsg;
+    smsg.frame_id = nm.surfaces[i].frame_id;
+    smsg.navcels.assign(nm.surfaces[i].navcels.begin(), nm.surfaces[i].navcels.end());
+    p.surfaces.push_back(std::move(smsg));
+  }
+
+  p.links.reserve(nm.links().size());
+  for (const auto & l : nm.links()) {
+    navmap_ros_interfaces::msg::NavMapLink lm;
+    lm.from_navcel = l.from;
+    lm.to_navcel = l.to;
+    lm.type = static_cast<uint8_t>(l.type);
+    lm.length = l.length;
+    lm.bidirectional = l.bidirectional;
+    p.links.push_back(lm);
+  }
+  return p;
+}
+
+bool apply_patch(const navmap_ros_interfaces::msg::NavMapPatch & p, NavMap & msg)
+{
+  // Checks first: msg is left untouched if the patch does not fit it
+  if (msg.geometry_id != p.base_geometry_id) {return false;}
+  if (p.first_vertex > msg.positions_x.size()) {return false;}
+  const std::size_t nv = p.first_vertex + p.positions_x.size();
+  if (p.positions_y.size() != p.positions_x.size() ||
+    p.positions_z.size() != p.positions_x.size())
+  {
+    return false;
+  }
+  const std::size_t k = p.navcel_indices.size();
+  if (p.navcels_v0.size() != k || p.navcels_v1.size() != k || p.navcels_v2.size() != k) {
+    return false;
+  }
+  for (std::size_t i = 0; i < k; ++i) {
+    if (p.navcel_indices[i] >= p.navcels_size || p.navcels_v0[i] >= nv ||
+      p.navcels_v1[i] >= nv || p.navcels_v2[i] >= nv)
+    {
+      return false;
+    }
+  }
+  for (const auto & l : p.layers) {
+    if (l.indices.size() != k) {return false;}
+    const std::size_t n = l.type == NavMapLayer::U8 ? l.data_u8.size() :
+      l.type == NavMapLayer::F32 ? l.data_f32.size() :
+      l.type == NavMapLayer::F64 ? l.data_f64.size() :
+      l.type == NavMapLayer::I16 ? l.data_i16.size() : k + 1;
+    if (n != k) {return false;}
+    for (const auto & ml : msg.layers) {
+      if (ml.name == l.name && ml.type != l.type) {return false;}
+    }
+  }
+  if (p.surfaces.size() != p.surface_indices.size()) {return false;}
+
+  // Vertices: those up to first_vertex are kept, the rest are the patch's
+  auto set_tail = [&](auto & dst, const auto & src) {
+      dst.resize(p.first_vertex);
+      dst.insert(dst.end(), src.begin(), src.end());
+    };
+  set_tail(msg.positions_x, p.positions_x);
+  set_tail(msg.positions_y, p.positions_y);
+  set_tail(msg.positions_z, p.positions_z);
+  if (msg.has_vertex_rgba) {
+    const bool colours = p.colors_r.size() == p.positions_x.size() &&
+      p.colors_g.size() == p.positions_x.size() && p.colors_b.size() == p.positions_x.size();
+    if (colours) {
+      set_tail(msg.colors_r, p.colors_r);
+      set_tail(msg.colors_g, p.colors_g);
+      set_tail(msg.colors_b, p.colors_b);
+      if (p.colors_a.size() == p.positions_x.size()) {
+        set_tail(msg.colors_a, p.colors_a);
+      } else {
+        msg.colors_a.resize(nv, 255);
+      }
+    } else {
+      msg.colors_r.resize(nv, 0);
+      msg.colors_g.resize(nv, 0);
+      msg.colors_b.resize(nv, 0);
+      msg.colors_a.resize(nv, 255);
+    }
+  }
+
+  // NavCels: the new size (new ones degenerate until written), then the rewritten ones
+  msg.navcels_v0.resize(p.navcels_size, 0);
+  msg.navcels_v1.resize(p.navcels_size, 0);
+  msg.navcels_v2.resize(p.navcels_size, 0);
+  for (std::size_t i = 0; i < k; ++i) {
+    const auto c = p.navcel_indices[i];
+    msg.navcels_v0[c] = p.navcels_v0[i];
+    msg.navcels_v1[c] = p.navcels_v1[i];
+    msg.navcels_v2[c] = p.navcels_v2[i];
+  }
+
+  // Layers: every one at the new size; the patch's values on its NavCels
+  auto resize_layer = [&](NavMapLayer & l) {
+      switch (l.type) {
+        case NavMapLayer::U8: l.data_u8.resize(p.navcels_size, 0); break;
+        case NavMapLayer::F32: l.data_f32.resize(p.navcels_size, 0.0f); break;
+        case NavMapLayer::F64: l.data_f64.resize(p.navcels_size, 0.0); break;
+        case NavMapLayer::I16: l.data_i16.resize(p.navcels_size, 0); break;
+        default: break;
+      }
+      l.geometry_id = p.geometry_id;
+    };
+  for (auto & l : msg.layers) {
+    resize_layer(l);
+  }
+  for (const auto & pl : p.layers) {
+    NavMapLayer * dst = nullptr;
+    for (auto & ml : msg.layers) {
+      if (ml.name == pl.name) {dst = &ml;}
+    }
+    if (!dst) {
+      NavMapLayer nl;
+      nl.name = pl.name;
+      nl.type = pl.type;
+      nl.description = pl.description;
+      nl.unit = pl.unit;
+      nl.has_unknown = pl.has_unknown;
+      nl.unknown_value = pl.unknown_value;
+      msg.layers.push_back(nl);
+      dst = &msg.layers.back();
+      resize_layer(*dst);
+    }
+    auto scatter = [&](auto & d, const auto & src) {
+        for (std::size_t i = 0; i < k; ++i) {
+          d[pl.indices[i]] = src[i];
+        }
+      };
+    switch (pl.type) {
+      case NavMapLayer::U8: scatter(dst->data_u8, pl.data_u8); break;
+      case NavMapLayer::F32: scatter(dst->data_f32, pl.data_f32); break;
+      case NavMapLayer::F64: scatter(dst->data_f64, pl.data_f64); break;
+      case NavMapLayer::I16: scatter(dst->data_i16, pl.data_i16); break;
+      default: break;
+    }
+  }
+
+  for (std::size_t i = 0; i < p.surface_indices.size(); ++i) {
+    const auto s = p.surface_indices[i];
+    if (s >= msg.surfaces.size()) {msg.surfaces.resize(s + 1);}
+    msg.surfaces[s] = p.surfaces[i];
+  }
+  msg.links = p.links;
+  msg.header = p.header;
+  msg.geometry_id = p.geometry_id;
+  return true;
+}
+
 navmap::NavMap from_msg(const NavMap & msg, std_msgs::msg::Header & header)
 {
   header = msg.header;
